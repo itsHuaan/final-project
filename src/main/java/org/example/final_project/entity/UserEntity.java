@@ -22,6 +22,7 @@ public class UserEntity {
     private String password;
     private String email;
     private Integer isActive;
+    private String profilePicture;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")

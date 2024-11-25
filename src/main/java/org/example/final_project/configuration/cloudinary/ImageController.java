@@ -17,9 +17,7 @@ public class ImageController {
     @PostMapping("/upload")
     public String uploadImage(@RequestParam("file") MultipartFile[] file) {
         try {
-            // Gọi dịch vụ upload ảnh
-            String imageUrl = imageService.uploadImage(file);
-            return imageUrl;  // Trả về URL ảnh đã upload
+            return imageService.uploadImage(file);
         } catch (IOException e) {
             e.printStackTrace();
             return "Error uploading image: " + e.getMessage();

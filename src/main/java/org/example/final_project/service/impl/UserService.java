@@ -97,4 +97,16 @@ public class UserService implements IUserService, UserDetailsService {
         }
         return 0;
     }
+
+    @Override
+    public int activateUserAccount(String email) {
+        Specification<UserEntity> isExistingAndDeactivated = Specification.where(hasEmail(email).and(isInactive()));
+        if (userRepository.findOne(isExistingAndDeactivated).isPresent()) {
+            UserEntity deactivatedAccount = userRepository.findOne(isExistingAndDeactivated).get();
+            deactivatedAccount.setIsActive(1);
+            userRepository.save(deactivatedAccount);
+            return 1;
+        }
+        return 0;
+    }
 }

@@ -24,10 +24,7 @@ repositories {
 }
 
 dependencies {
-<<<<<<< HEAD
-=======
-    implementation group: 'com.cloudinary', name: 'cloudinary-http44', version: '1.39.0'
->>>>>>> f91b263d144ab5357fec0db3fb18db90c3b9e8cd
+    implementation 'com.cloudinary:cloudinary-http44:1.39.0'
     implementation 'javax.xml.bind:jaxb-api:2.3.1'
     implementation 'io.jsonwebtoken:jjwt:0.9.1'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
