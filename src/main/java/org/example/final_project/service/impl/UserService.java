@@ -61,6 +61,11 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
+    public int update(Long aLong, UserModel userModel) {
+        return 0;
+    }
+
+    @Override
     public int delete(Long id) {
         return 0;
     }
