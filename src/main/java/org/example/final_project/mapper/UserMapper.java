@@ -31,6 +31,10 @@ public class UserMapper {
                 .password(userModel.getPassword())
                 .isActive(userModel.getIsActive())
                 .role(role)
+<<<<<<< HEAD
+=======
+                .createdAt(userModel.getCreatedAt())
+>>>>>>> f91b263d144ab5357fec0db3fb18db90c3b9e8cd
                 .build();
     }
 }
