@@ -2,8 +2,6 @@ package org.example.final_project.model;
 
 import lombok.*;
 
-import java.time.LocalDateTime;
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -18,5 +16,4 @@ public class UserModel {
     private String email;
     private Long roleId;
     private Integer isActive = 0;
-    private LocalDateTime createdAt = LocalDateTime.now();
 }
