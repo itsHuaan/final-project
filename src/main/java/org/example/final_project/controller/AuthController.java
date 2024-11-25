@@ -56,7 +56,12 @@ public class AuthController {
     @Operation(summary = "Sign Users Up")
     @PostMapping("/sign-up")
     public ResponseEntity<?> signUp(@RequestBody SignUpRequest credentials) {
-        UserModel userModel = new UserModel(null, credentials.getName(), credentials.getUsername(), credentials.getEmail(), credentials.getPassword(), credentials.getRoleId(), 0);
+        UserModel userModel = new UserModel();
+        userModel.setName(credentials.getName());
+        userModel.setEmail(credentials.getEmail());
+        userModel.setPassword(credentials.getPassword());
+        userModel.setUsername(credentials.getUsername());
+        userModel.setRoleId(credentials.getRoleId());
         int result = userService.save(userModel);
         String jwt = jwtProvider.generateTokenByUsername(credentials.getUsername());
         return result != 0
