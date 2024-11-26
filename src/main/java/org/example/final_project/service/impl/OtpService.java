@@ -45,7 +45,10 @@ public class OtpService implements IOtpService {
     public int save(OtpModel otpModel) {
         Specification<OtpEntity> specification = Specification.where(OtpSpecification.hasEmail(otpModel.getEmail()));
         if (otpRepository.findOne(specification).isPresent()) {
-            otpRepository.findOne(specification).get().setOtpCode(otpModel.getOtpCode());
+            OtpEntity otp = otpRepository.findOne(specification).get();
+            otp.setStatus(1);
+            otp.setOtpCode(otpModel.getOtpCode());
+            otp.setCreatedAt(LocalDateTime.now());
         } else {
             otpRepository.save(otpMapper.toEntity(otpModel));
         }
@@ -72,7 +75,16 @@ public class OtpService implements IOtpService {
     public boolean isValid(String email, String otp, LocalDateTime currentTime) {
         return otpRepository.findOne(Specification.where(hasEmail(email)
                 .and(isOtp(otp))
-                .and(isBetween(currentTime))
+                .and(createdWithinLastMinutes(3))
                 .and(isActive()))).isPresent();
+    }
+
+    @Override
+    public void setInvalid(String otp, String email) {
+        OtpEntity otpEntity = otpRepository.findOne(Specification.where(isOtp(otp).and(hasEmail(email)))).orElse(null);
+        if (otpEntity != null) {
+            otpEntity.setStatus(0);
+            otpRepository.save(otpEntity);
+        }
     }
 }
