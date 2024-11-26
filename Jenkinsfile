@@ -9,8 +9,8 @@ pipeline {
         stage('Build'){
             when { tag "dev_*" }
             steps {
-                sh 'cd /var/lib/jenkins/workspace/CY_MS-Comm-BE_${TAG_NAME}/'
-                sh 'cp /var/lib/jenkins/workspace/scripts/intern/api01.sh deploy.sh'
+                sh 'cd /var/lib/jenkins/workspace/asdad_${TAG_NAME}/'
+                sh 'cp /var/lib/jenkins/workspace/scripts/intern/api03.sh deploy.sh'
                 sh "chmod +x deploy.sh"
                 sh './deploy.sh ${TAG_NAME}'
             }
