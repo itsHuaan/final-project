@@ -53,6 +53,11 @@ public class OtpService implements IOtpService {
     }
 
     @Override
+    public int update(Long aLong, OtpModel otpModel) {
+        return 0;
+    }
+
+    @Override
     public int delete(Long id) {
         return 0;
     }
