@@ -1,7 +1,7 @@
 package org.example.final_project.service.impl;
 
 import org.example.final_project.dto.ImageProductDto;
-import org.example.final_project.entity.ImageProduct;
+import org.example.final_project.entity.ImageProductEntity;
 import org.example.final_project.mapper.ImageProductMapper;
 import org.example.final_project.model.ImageProductModel;
 import org.example.final_project.repository.IImageProductRepository;
@@ -47,8 +47,8 @@ public class ImageProductService implements IImageProductService {
     public int update(Long aLong, ImageProductModel model) {
         try{
             if(imageRepository.findById(aLong).get()!=null){
-                ImageProduct imageProduct=imageMapper.convertToEntity(model);
-                imageProduct.setId(aLong);
+                ImageProductEntity imageProductEntity =imageMapper.convertToEntity(model);
+                imageProductEntity.setId(aLong);
 
             }
             return 1;

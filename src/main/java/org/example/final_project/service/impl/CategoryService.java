@@ -1,7 +1,7 @@
 package org.example.final_project.service.impl;
 
 import org.example.final_project.dto.CategoryDto;
-import org.example.final_project.entity.Category;
+import org.example.final_project.entity.CategoryEntity;
 import org.example.final_project.mapper.CategoryMapper;
 import org.example.final_project.model.CategoryModel;
 import org.example.final_project.repository.ICategoryRepository;
@@ -25,7 +25,7 @@ public class CategoryService implements ICategoryService {
 
     @Override
     public List<CategoryDto> getAll() {
-        return iCategoryRepository.findAll().stream().filter(x -> x.getDeletedAt() == null && x.isActive()).map(x -> categoryMapper.convertToDto(x)).collect(Collectors.toList());
+        return iCategoryRepository.findAll().stream().filter(x -> x.getDeletedAt() == null && x.getIsActive()==1).map(x -> categoryMapper.convertToDto(x)).collect(Collectors.toList());
     }
 
     @Override
@@ -52,9 +52,9 @@ public class CategoryService implements ICategoryService {
     public int update(Long aLong, CategoryModel model) {
         try {
             if (iCategoryRepository.findById(aLong).get() != null) {
-                Category category = categoryMapper.convertToEntity(model);
-                category.setId(aLong);
-                iCategoryRepository.save(category);
+                CategoryEntity categoryEntity = categoryMapper.convertToEntity(model);
+                categoryEntity.setId(aLong);
+                iCategoryRepository.save(categoryEntity);
             }
             return 1;
         } catch (Exception e) {
@@ -66,10 +66,10 @@ public class CategoryService implements ICategoryService {
     @Override
     public int delete(Long id) {
         try {
-            Category category = iCategoryRepository.findById(id).get();
-            if (category != null) {
-                category.setDeletedAt(LocalDateTime.now());
-                iCategoryRepository.save(category);
+            CategoryEntity categoryEntity = iCategoryRepository.findById(id).get();
+            if (categoryEntity != null) {
+                categoryEntity.setDeletedAt(LocalDateTime.now());
+                iCategoryRepository.save(categoryEntity);
             }
             return 1;
         } catch (Exception e) {
@@ -82,10 +82,10 @@ public class CategoryService implements ICategoryService {
     @Override
     public int inActivateCategory(long id) {
         try {
-            Category category = iCategoryRepository.findById(id).get();
-            if (category != null) {
-                category.setActive(false);
-                iCategoryRepository.save(category);
+            CategoryEntity categoryEntity = iCategoryRepository.findById(id).get();
+            if (categoryEntity != null) {
+                categoryEntity.setIsActive(0);
+                iCategoryRepository.save(categoryEntity);
             }
             return 1;
         }catch (Exception e){
@@ -96,6 +96,6 @@ public class CategoryService implements ICategoryService {
 
     @Override
     public Page<CategoryDto> findAllByPage(Pageable pageable) {
-        return new PageImpl<>(iCategoryRepository.findAll().stream().filter(x->x.isActive()).map(x->categoryMapper.convertToDto(x)).collect(Collectors.toList()),pageable,iCategoryRepository.findAll(pageable).getTotalElements());
+        return new PageImpl<>(iCategoryRepository.findAll().stream().filter(x->x.getIsActive()==1).map(x->categoryMapper.convertToDto(x)).collect(Collectors.toList()),pageable,iCategoryRepository.findAll(pageable).getTotalElements());
     }
 }

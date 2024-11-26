@@ -1,10 +1,6 @@
 package org.example.final_project.dto;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.*;
-import org.example.final_project.entity.Category;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,7 +20,7 @@ public class ProductDto {
     private long parent_id;
     private long quantity;
     private double price;
-    private boolean isActive;
+    private int isActive;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;

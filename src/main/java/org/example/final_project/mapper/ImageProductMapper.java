@@ -3,7 +3,7 @@ package org.example.final_project.mapper;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import org.example.final_project.dto.ImageProductDto;
-import org.example.final_project.entity.ImageProduct;
+import org.example.final_project.entity.ImageProductEntity;
 import org.example.final_project.model.ImageProductModel;
 import org.example.final_project.repository.IProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,15 +19,15 @@ public class ImageProductMapper {
     IProductRepository iProductRepository;
     @Autowired
     Cloudinary cloudinary;
-    public ImageProductDto convertToDto(ImageProduct image){
+    public ImageProductDto convertToDto(ImageProductEntity image){
         return ImageProductDto.builder()
                 .id(image.getId())
                 .imageLink(image.getImageLink())
-                .productDto(productMapper.convertToDto(image.getProduct()))
+                .productDto(productMapper.convertToDto(image.getProductEntity()))
                 .build();
     }
-    public ImageProduct convertToEntity(ImageProductModel model) throws IOException {
-        return ImageProduct.builder()
+    public ImageProductEntity convertToEntity(ImageProductModel model) throws IOException {
+        return ImageProductEntity.builder()
                 .imageLink(cloudinary.uploader().upload(model.getMultipartFile(), ObjectUtils.emptyMap()).get("url").toString())
                 .build();
     }

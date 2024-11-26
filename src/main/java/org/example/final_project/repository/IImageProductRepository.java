@@ -1,9 +1,9 @@
 package org.example.final_project.repository;
 
-import org.example.final_project.entity.ImageProduct;
+import org.example.final_project.entity.ImageProductEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface IImageProductRepository extends JpaRepository<ImageProduct,Long> {
+public interface IImageProductRepository extends JpaRepository<ImageProductEntity,Long> {
 }

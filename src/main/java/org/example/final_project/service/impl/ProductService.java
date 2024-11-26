@@ -1,12 +1,10 @@
 package org.example.final_project.service.impl;
 
 import org.example.final_project.dto.ProductDto;
-import org.example.final_project.entity.ImageProduct;
-import org.example.final_project.entity.Product;
+import org.example.final_project.entity.ProductEntity;
 import org.example.final_project.mapper.ProductMapper;
 import org.example.final_project.model.ImageProductModel;
 import org.example.final_project.model.ProductModel;
-import org.example.final_project.repository.IImageProductRepository;
 import org.example.final_project.repository.IProductRepository;
 import org.example.final_project.service.IImageProductService;
 import org.example.final_project.service.IProductService;
@@ -32,7 +30,7 @@ public class ProductService implements IProductService {
 
     @Override
     public List<ProductDto> getAll() {
-        return iProductRepository.findAll().stream().filter(x->x.isActive() && x.getDeletedAt()==null).map(x -> productMapper.convertToDto(x)).collect(Collectors.toList());
+        return iProductRepository.findAll().stream().filter(x->x.getIsActive()==1&& x.getDeletedAt()==null).map(x -> productMapper.convertToDto(x)).collect(Collectors.toList());
     }
 
     @Override
@@ -47,9 +45,9 @@ public class ProductService implements IProductService {
     @Override
     public int save(ProductModel productModel) {
         try {
-            Product product=iProductRepository.save(productMapper.convertToEntity(productModel));
+            ProductEntity productEntity =iProductRepository.save(productMapper.convertToEntity(productModel));
             for (MultipartFile file:productModel.getFiles()){
-                imageService.save(new ImageProductModel(file,product.getId()));
+                imageService.save(new ImageProductModel(file, productEntity.getId()));
             }
             return 1;
         } catch (Exception e) {
@@ -61,10 +59,10 @@ public class ProductService implements IProductService {
     @Override
     public int update(Long aLong, ProductModel productModel) {
         try {
-            Product product = productMapper.convertToEntity(productModel);
+            ProductEntity productEntity = productMapper.convertToEntity(productModel);
             if (iProductRepository.findById(aLong).get() != null) {
-                product.setId(aLong);
-                iProductRepository.save(product);
+                productEntity.setId(aLong);
+                iProductRepository.save(productEntity);
             }
             return 1;
         } catch (Exception e) {
@@ -76,10 +74,10 @@ public class ProductService implements IProductService {
     @Override
     public int delete(Long id) {
         try{
-            Product product=iProductRepository.findById(id).get();
-            if (product!=null){
-                product.setDeletedAt(LocalDateTime.now());
-                iProductRepository.save(product);
+            ProductEntity productEntity =iProductRepository.findById(id).get();
+            if (productEntity !=null){
+                productEntity.setDeletedAt(LocalDateTime.now());
+                iProductRepository.save(productEntity);
             }
             return 1;
         }catch (Exception e){
@@ -91,10 +89,10 @@ public class ProductService implements IProductService {
     @Override
     public int inActivateProduct(long id) {
         try{
-            Product product=iProductRepository.findById(id).get();
-            if (product!=null){
-                product.setActive(false);
-                iProductRepository.save(product);
+            ProductEntity productEntity =iProductRepository.findById(id).get();
+            if (productEntity !=null){
+                productEntity.setIsActive(0);
+                iProductRepository.save(productEntity);
             }
             return 1;
         }catch (Exception e){
@@ -105,6 +103,6 @@ public class ProductService implements IProductService {
 
     @Override
     public Page<ProductDto> findAllByPage(Pageable pageable) {
-        return new PageImpl<>(iProductRepository.findAll().stream().filter(x->x.isActive()).map(x->productMapper.convertToDto(x)).collect(Collectors.toList()),pageable,iProductRepository.findAll(pageable).getTotalElements());
+        return new PageImpl<>(iProductRepository.findAll().stream().filter(x->x.getIsActive()==1).map(x->productMapper.convertToDto(x)).collect(Collectors.toList()),pageable,iProductRepository.findAll(pageable).getTotalElements());
     }
 }

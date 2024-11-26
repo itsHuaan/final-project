@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 public class CategoryModel {
     private String name;
     private long parent_id;
-    private boolean isActive;
+    private int isActive;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;

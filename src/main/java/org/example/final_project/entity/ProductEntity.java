@@ -2,7 +2,6 @@ package org.example.final_project.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.example.final_project.service.impl.CategoryService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Product {
+public class ProductEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -28,14 +27,14 @@ public class Product {
     private long parent_id;
     private long quantity;
     private double price;
-    private boolean isActive;
+    private int isActive;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
     @ManyToOne
     @JoinColumn(name = "category_id")
-    private Category category;
-    @OneToMany(mappedBy = "product")
-    private List<ImageProduct> images;
+    private CategoryEntity categoryEntity;
+    @OneToMany(mappedBy = "productEntity")
+    private List<ImageProductEntity> images;
 
 }

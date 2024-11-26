@@ -1,10 +1,9 @@
 package org.example.final_project.mapper;
 
 import org.example.final_project.dto.ProductDto;
-import org.example.final_project.entity.Product;
+import org.example.final_project.entity.ProductEntity;
 import org.example.final_project.model.ProductModel;
 import org.example.final_project.repository.ICategoryRepository;
-import org.example.final_project.service.impl.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,26 +15,26 @@ public class ProductMapper {
     CategoryMapper categoryMapper;
     @Autowired
     ICategoryRepository iCategoryRepository;
-    public ProductDto convertToDto(Product product){
+    public ProductDto convertToDto(ProductEntity productEntity){
         return ProductDto.builder()
-                .id(product.getId())
-                .name(product.getName())
-                .numberOfLike(product.getNumberOfLike())
-                .numberOfFeedBack(product.getNumberOfFeedBack())
-                .rating(product.getRating())
-                .description(product.getDescription())
-                .parent_id(product.getParent_id())
-                .quantity(product.getQuantity())
-                .price(product.getPrice())
-                .createdAt(product.getCreatedAt())
-                .modifiedAt(product.getModifiedAt())
-                .deletedAt(product.getDeletedAt())
-                .isActive(product.isActive())
-                .categoryDto(categoryMapper.convertToDto(product.getCategory()))
+                .id(productEntity.getId())
+                .name(productEntity.getName())
+                .numberOfLike(productEntity.getNumberOfLike())
+                .numberOfFeedBack(productEntity.getNumberOfFeedBack())
+                .rating(productEntity.getRating())
+                .description(productEntity.getDescription())
+                .parent_id(productEntity.getParent_id())
+                .quantity(productEntity.getQuantity())
+                .price(productEntity.getPrice())
+                .createdAt(productEntity.getCreatedAt())
+                .modifiedAt(productEntity.getModifiedAt())
+                .deletedAt(productEntity.getDeletedAt())
+                .isActive(productEntity.getIsActive())
+                .categoryDto(categoryMapper.convertToDto(productEntity.getCategoryEntity()))
                 .build();
     }
-    public Product convertToEntity(ProductModel model){
-        return Product.builder()
+    public ProductEntity convertToEntity(ProductModel model){
+        return ProductEntity.builder()
                 .name(model.getName())
                 .numberOfLike(model.getNumberOfLike())
                 .numberOfFeedBack(model.getNumberOfFeedBack())
@@ -46,8 +45,7 @@ public class ProductMapper {
                 .price(model.getPrice())
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
-                .isActive(model.isActive())
-                .category(iCategoryRepository.findById(model.getCategoryId()).get())
+                .categoryEntity(iCategoryRepository.findById(model.getCategoryId()).get())
                 .build();
     }
 }

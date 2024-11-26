@@ -1,5 +1,8 @@
 package org.example.final_project.service.impl;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.example.final_project.configuration.UserDetailsImpl;
 import org.example.final_project.dto.UserDto;
 import org.example.final_project.entity.RoleEntity;
@@ -23,19 +26,14 @@ import java.util.Objects;
 import static org.example.final_project.util.specification.UserSpecification.*;
 
 @Service
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserService implements IUserService, UserDetailsService {
-    private final IRoleRepository roleRepository;
-    private final IUserRepository userRepository;
-    private final UserMapper userMapper;
-    private final PasswordEncoder passwordEncoder;
+     IRoleRepository roleRepository;
+     IUserRepository userRepository;
+     UserMapper userMapper;
+     PasswordEncoder passwordEncoder;
 
-    @Autowired
-    public UserService(IRoleRepository roleRepository, IUserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder) {
-        this.roleRepository = roleRepository;
-        this.userRepository = userRepository;
-        this.userMapper = userMapper;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     @Override
     public List<UserDto> getAll() {

@@ -10,12 +10,12 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
-public class ImageProduct {
+public class ImageProductEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private String imageLink;
     @ManyToOne
     @JoinColumn(name="product_id")
-    private Product product;
+    private ProductEntity productEntity;
 }
