@@ -1,10 +1,5 @@
 pipeline {
     agent any
-
-    environment {
-
-    }
-
     stages {
         stage('Build'){
             when { tag "dev_*" }
