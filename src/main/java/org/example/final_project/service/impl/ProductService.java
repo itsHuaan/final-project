@@ -1,16 +1,21 @@
 package org.example.final_project.service.impl;
 
 import org.example.final_project.dto.ProductDto;
+import org.example.final_project.entity.ImageProduct;
 import org.example.final_project.entity.Product;
 import org.example.final_project.mapper.ProductMapper;
+import org.example.final_project.model.ImageProductModel;
 import org.example.final_project.model.ProductModel;
+import org.example.final_project.repository.IImageProductRepository;
 import org.example.final_project.repository.IProductRepository;
+import org.example.final_project.service.IImageProductService;
 import org.example.final_project.service.IProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,6 +27,8 @@ public class ProductService implements IProductService {
     IProductRepository iProductRepository;
     @Autowired
     ProductMapper productMapper;
+    @Autowired
+    IImageProductService imageService;
 
     @Override
     public List<ProductDto> getAll() {
@@ -40,7 +47,10 @@ public class ProductService implements IProductService {
     @Override
     public int save(ProductModel productModel) {
         try {
-            iProductRepository.save(productMapper.convertToEntity(productModel));
+            Product product=iProductRepository.save(productMapper.convertToEntity(productModel));
+            for (MultipartFile file:productModel.getFiles()){
+                imageService.save(new ImageProductModel(file,product.getId()));
+            }
             return 1;
         } catch (Exception e) {
             System.out.println(e);

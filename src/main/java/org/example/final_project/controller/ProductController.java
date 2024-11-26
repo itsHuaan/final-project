@@ -1,6 +1,6 @@
 package org.example.final_project.controller;
 
-import org.example.final_project.model.CategoryModel;
+
 import org.example.final_project.model.ProductModel;
 import org.example.final_project.service.impl.ProductService;
 import org.example.final_project.util.Const;
@@ -8,10 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-@Controller
+@RestController
 @RequestMapping(Const.API_PREFIX+"/product")
 public class ProductController {
     @Autowired
@@ -26,7 +26,8 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).body(productService.findAllByPage(PageRequest.of(pageIndex,pageSize)));
     }
     @PostMapping("/addNew")
-    ResponseEntity addNewProduct(@RequestBody ProductModel model){
+    ResponseEntity addNewProduct(@RequestBody ProductModel model,
+                                 @RequestParam("files")MultipartFile[] files){
         if(productService.save(model)==1){
             return ResponseEntity.ok("Add Product Successfully");
         }else{
