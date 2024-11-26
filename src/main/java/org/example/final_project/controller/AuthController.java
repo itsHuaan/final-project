@@ -3,6 +3,9 @@ package org.example.final_project.controller;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.example.final_project.configuration.UserDetailsImpl;
 import org.example.final_project.configuration.jwt.JwtProvider;
 import org.example.final_project.model.*;
@@ -25,22 +28,16 @@ import java.time.LocalDateTime;
 
 @Tag(name = "Authentication")
 @RestController
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequestMapping(value = Const.API_PREFIX + "/authentication")
 public class AuthController {
-    private final AuthenticationManager authenticationManager;
-    private final JwtProvider jwtProvider;
-    private final IUserService userService;
-    private final IEmailService emailService;
-    private final IOtpService otpService;
+    AuthenticationManager authenticationManager;
+    JwtProvider jwtProvider;
+    IUserService userService;
+    IEmailService emailService;
+    IOtpService otpService;
 
-    @Autowired
-    public AuthController(AuthenticationManager authenticationManager, JwtProvider jwtProvider, IUserService userService, IEmailService emailService, IOtpService otpService) {
-        this.authenticationManager = authenticationManager;
-        this.jwtProvider = jwtProvider;
-        this.userService = userService;
-        this.emailService = emailService;
-        this.otpService = otpService;
-    }
 
    /*
     @Operation(summary = "Verify User With Token")

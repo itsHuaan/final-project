@@ -3,6 +3,9 @@ package org.example.final_project.configuration.jwt;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.UserDto;
 import org.example.final_project.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +15,7 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 
 @Component
+@RequiredArgsConstructor
 public class JwtProvider {
     @Value("${jwt.secret-key}")
     private String JWT_SECRET;
@@ -19,11 +23,6 @@ public class JwtProvider {
     private int JWT_EXPIRATION;
 
     private final IUserService userService;
-
-    @Autowired
-    public JwtProvider(IUserService userService) {
-        this.userService = userService;
-    }
 
     public String generateTokenByUsername(String username) {
         Date now = new Date();
