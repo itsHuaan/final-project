@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.example.final_project.dto.ProductDto;
 import org.springframework.web.multipart.MultipartFile;
 
 @AllArgsConstructor

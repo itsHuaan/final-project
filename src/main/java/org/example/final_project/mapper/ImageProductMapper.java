@@ -13,22 +13,18 @@ import java.io.IOException;
 
 @Component
 public class ImageProductMapper {
-    @Autowired
-    ProductMapper productMapper;
-    @Autowired
-    IProductRepository iProductRepository;
+
     @Autowired
     Cloudinary cloudinary;
     public ImageProductDto convertToDto(ImageProductEntity image){
         return ImageProductDto.builder()
                 .id(image.getId())
                 .imageLink(image.getImageLink())
-                .productDto(productMapper.convertToDto(image.getProductEntity()))
                 .build();
     }
     public ImageProductEntity convertToEntity(ImageProductModel model) throws IOException {
         return ImageProductEntity.builder()
-                .imageLink(cloudinary.uploader().upload(model.getMultipartFile(), ObjectUtils.emptyMap()).get("url").toString())
+                .imageLink(cloudinary.uploader().upload(model.getMultipartFile().getBytes(), ObjectUtils.emptyMap()).get("url").toString())
                 .build();
     }
 }

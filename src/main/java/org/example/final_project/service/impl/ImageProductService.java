@@ -5,6 +5,7 @@ import org.example.final_project.entity.ImageProductEntity;
 import org.example.final_project.mapper.ImageProductMapper;
 import org.example.final_project.model.ImageProductModel;
 import org.example.final_project.repository.IImageProductRepository;
+import org.example.final_project.repository.IProductRepository;
 import org.example.final_project.service.IImageProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,8 @@ public class ImageProductService implements IImageProductService {
     ImageProductMapper imageMapper;
     @Autowired
     IImageProductRepository imageRepository;
+    @Autowired
+    IProductRepository iProductRepository;
     @Override
     public List<ImageProductDto> getAll() {
         return imageRepository.findAll().stream().map(x->imageMapper.convertToDto(x)).collect(Collectors.toList());
@@ -35,7 +38,9 @@ public class ImageProductService implements IImageProductService {
     @Override
     public int save(ImageProductModel model) {
         try{
-            imageRepository.save(imageMapper.convertToEntity(model));
+            ImageProductEntity imageProduct=imageMapper.convertToEntity(model);
+            imageProduct.setProductEntity(iProductRepository.findById(model.getProductId()).get());
+            imageRepository.save(imageProduct);
             return 1;
         }catch (Exception e){
             System.out.println(e);

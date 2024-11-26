@@ -45,9 +45,10 @@ public class ProductService implements IProductService {
     @Override
     public int save(ProductModel productModel) {
         try {
-            ProductEntity productEntity =iProductRepository.save(productMapper.convertToEntity(productModel));
+            ProductEntity productEntity =productMapper.convertToEntity(productModel);
+            ProductEntity savedProduct=iProductRepository.save(productEntity);
             for (MultipartFile file:productModel.getFiles()){
-                imageService.save(new ImageProductModel(file, productEntity.getId()));
+                imageService.save(new ImageProductModel(file, savedProduct.getId()));
             }
             return 1;
         } catch (Exception e) {

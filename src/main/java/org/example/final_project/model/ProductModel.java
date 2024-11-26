@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class ProductModel {
+    private MultipartFile[] files;
     private String name;
     private long numberOfFeedBack;
     private long numberOfLike;
@@ -22,10 +23,10 @@ public class ProductModel {
     private long parent_id;
     private long quantity;
     private double price;
-    private boolean isActive;
+    private int isActive;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
     private long categoryId;
-    private MultipartFile[] files;
+
 }
