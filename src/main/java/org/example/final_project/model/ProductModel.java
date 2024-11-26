@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.final_project.dto.CategoryDto;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 
@@ -26,4 +27,5 @@ public class ProductModel {
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
     private long categoryId;
+    private MultipartFile[] files;
 }

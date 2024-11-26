@@ -7,6 +7,7 @@ import lombok.*;
 import org.example.final_project.entity.Category;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -28,4 +29,5 @@ public class ProductDto {
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
     private CategoryDto categoryDto;
+    private List<ImageProductDto> images;
 }

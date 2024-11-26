@@ -5,6 +5,7 @@ import lombok.*;
 import org.example.final_project.service.impl.CategoryService;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name="tbl_product")
@@ -34,5 +35,7 @@ public class Product {
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
+    @OneToMany(mappedBy = "product")
+    private List<ImageProduct> images;
 
 }
