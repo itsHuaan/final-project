@@ -8,4 +8,5 @@ public interface IUserService extends IBaseService<UserDto, UserModel, Long> {
     boolean isExistingByUsernameOrEmail(String username, String email);
     boolean isActivated(String username);
     int activateUserAccount(String username, String email);
+    int activateUserAccount(String email);
 }
