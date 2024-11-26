@@ -29,10 +29,11 @@ import static org.example.final_project.util.specification.UserSpecification.*;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserService implements IUserService, UserDetailsService {
-     IRoleRepository roleRepository;
-     IUserRepository userRepository;
-     UserMapper userMapper;
-     PasswordEncoder passwordEncoder;
+
+    IRoleRepository roleRepository;
+    IUserRepository userRepository;
+    UserMapper userMapper;
+    PasswordEncoder passwordEncoder;
 
 
     @Override
