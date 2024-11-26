@@ -20,10 +20,12 @@ public class OtpSpecification {
                 criteriaBuilder.equal(root.get("status"), 1);
     }
 
-    public static Specification<OtpEntity> isBetween(LocalDateTime currentTime) {
-        LocalDateTime targetTime = currentTime.plusMinutes(3);
-        return (Root<OtpEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
-                criteriaBuilder.between(root.get("createdAt"), currentTime, targetTime);
+    public static Specification<OtpEntity> createdWithinLastMinutes(int minutes) {
+        return (Root<OtpEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) -> {
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime threshold = now.minusMinutes(minutes);
+            return criteriaBuilder.greaterThanOrEqualTo(root.get("createdAt"), threshold);
+        };
     }
 
     public static Specification<OtpEntity> hasEmail(String email) {

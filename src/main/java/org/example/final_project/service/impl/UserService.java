@@ -83,7 +83,8 @@ public class UserService implements IUserService, UserDetailsService {
 
     @Override
     public boolean isExistingByUsernameOrEmail(String username, String email) {
-        return userRepository.findOne(Specification.where(hasUsername(username).or(hasEmail(email)))).isPresent();
+        return userRepository.findOne(Specification.where(hasUsername(username)
+                .or(hasEmail(email))).and(isActive())).isPresent();
     }
 
     @Override

@@ -90,9 +90,11 @@ public class AuthController {
     public ResponseEntity<?> verifyUserUsingOtp(@RequestParam String otp, @RequestParam String email) {
         boolean isOtpValid = otpService.isValid(email, otp, LocalDateTime.now());
         if (isOtpValid) {
-            return userService.activateUserAccount(email) != 0
-                    ? ResponseEntity.ok("Account activated successfully!")
-                    : ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to activate account.");
+            if (userService.activateUserAccount(email) != 0) {
+                otpService.setInvalid(otp, email);
+                return ResponseEntity.ok("Account activated successfully!");
+            }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to activate account.");
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid OTP.");
         }
@@ -117,7 +119,10 @@ public class AuthController {
         EmailModel emailModel = new EmailModel(credentials.getEmail(), "OTP", otpModel.getOtpCode());
         boolean result = emailService.sendEmail(emailModel);
 
-        userService.save(userModel);
+        int saveResult = userService.save(userModel);
+        if (saveResult == 0) {
+            return new ResponseEntity<>("Username or Email has been taken by another user", HttpStatus.BAD_REQUEST);
+        }
         return result
                 ? new ResponseEntity<>("OTP has sent to email " + credentials.getEmail(), HttpStatus.CREATED)
                 : ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

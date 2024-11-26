@@ -15,16 +15,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = Const.API_PREFIX + "/test")
 public class TestController {
     @Operation(summary = "Admin")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_SELLER')")
     @PostMapping("/admin-test")
     public ResponseEntity<?> adminTest() {
-        return new ResponseEntity<>("You're an admin", HttpStatus.OK);
+        return new ResponseEntity<>("You're an seller", HttpStatus.OK);
     }
 
     @Operation(summary = "User")
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_BUYER')")
     @PostMapping("/user-test")
     public ResponseEntity<?> userTest() {
-        return new ResponseEntity<>("You're an user", HttpStatus.OK);
+        return new ResponseEntity<>("You're an buyer", HttpStatus.OK);
     }
 }
