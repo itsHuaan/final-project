@@ -9,6 +9,6 @@ import lombok.*;
 @ToString
 @Builder
 public class SignInRequest {
-    private String username;
+    private String email;
     private String password;
 }

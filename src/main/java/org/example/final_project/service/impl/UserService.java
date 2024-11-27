@@ -14,6 +14,7 @@ import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -70,8 +71,8 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return new UserDetailsImpl(userRepository.findOne(Specification.where(hasUsername(username)))
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        return new UserDetailsImpl(userRepository.findOne(Specification.where(hasEmail(email)))
                 .orElseThrow(() -> new UsernameNotFoundException("User not found")));
     }
 
@@ -81,14 +82,19 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
+    public UserDto findByEmail(String email) {
+        return userMapper.toDto(Objects.requireNonNull(userRepository.findOne(Specification.where(hasEmail(email))).orElse(null)));
+    }
+
+    @Override
     public boolean isExistingByUsernameOrEmail(String username, String email) {
         return userRepository.findOne(Specification.where(hasUsername(username)
                 .or(hasEmail(email))).and(isActive())).isPresent();
     }
 
     @Override
-    public boolean isActivated(String username) {
-        return userRepository.findOne(Specification.where(hasUsername(username)).and(isActive())).isPresent();
+    public boolean isActivated(String email) {
+        return userRepository.findOne(Specification.where(hasEmail(email)).and(isActive())).isPresent();
     }
 
     @Override
@@ -113,5 +119,22 @@ public class UserService implements IUserService, UserDetailsService {
             return 1;
         }
         return 0;
+    }
+
+    @Override
+    public int changePassword(String email, String newPassword) {
+        Specification<UserEntity> isExistingAndActivated = Specification.where(hasEmail(email).and(isActive()));
+        if (userRepository.findOne(isExistingAndActivated).isPresent()) {
+            UserEntity currentAccount = userRepository.findOne(isExistingAndActivated).get();
+            currentAccount.setPassword(passwordEncoder.encode(newPassword));
+            userRepository.save(currentAccount);
+            return 1;
+        }
+        return 0;
+    }
+
+    @Override
+    public ResponseEntity<?> signIn(String email, String password) {
+        return null;
     }
 }
