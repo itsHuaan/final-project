@@ -8,15 +8,20 @@ import org.example.final_project.model.ProductModel;
 import org.example.final_project.repository.IProductRepository;
 import org.example.final_project.service.IImageProductService;
 import org.example.final_project.service.IProductService;
+import org.example.final_project.util.specification.ProductSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.example.final_project.util.specification.ProductSpecification.*;
 
 @Service
 public class ProductService implements IProductService {
@@ -108,5 +113,10 @@ public class ProductService implements IProductService {
         } else {
             return iProductRepository.findAll(PageRequest.of(0, iProductRepository.findAll().size())).stream().filter(x -> x.getIsActive() == 1 && x.getDeletedAt() == null).map(x->productMapper.convertToDto(x)).collect(Collectors.toList());
         }
+    }
+
+    @Override
+    public Page<ProductDto> findAllByPages(Pageable pageable) {
+        return iProductRepository.findAll(Specification.where(isActive()), pageable).map(productMapper::convertToDto);
     }
 }
