@@ -20,4 +20,8 @@ public class ProductSpecification {
         return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.like(root.get("name"), name);
     }
+    public static Specification<ProductEntity> hasParentId(long parentId) {
+        return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("parent_id"), parentId);
+    }
 }

@@ -15,4 +15,8 @@ public class CategorySpecification {
         return (Root<CategoryEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.isNull(root.get("deletedAt"));
     }
+    public static Specification<CategoryEntity> hasParentId(long parentId) {
+        return (Root<CategoryEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("parent_id"),parentId);
+    }
 }

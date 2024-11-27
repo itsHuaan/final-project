@@ -21,7 +21,7 @@ public class CategoryController {
 
     @GetMapping("/getAll")
     ResponseEntity<ApiResponse<?>> getAllCategory(@RequestParam(required = false) Integer pageSize,
-                                  @RequestParam(required = false) Integer pageIndex) {
+                                                  @RequestParam(required = false) Integer pageIndex) {
         if (pageSize != null && pageIndex != null) {
             if (pageSize > 0 && pageIndex >= 0) {
                 return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
@@ -68,7 +68,7 @@ public class CategoryController {
 
     @PostMapping("/update/{id}")
     ResponseEntity<ApiResponse<?>> updateCategory(@PathVariable("id") long id,
-                                  @RequestBody CategoryModel model) {
+                                                  @RequestBody CategoryModel model) {
         if (categoryService.update(id, model) == 1) {
             return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
                     201,
@@ -94,7 +94,7 @@ public class CategoryController {
                     "Delete Category Successfully",
                     null,
                     LocalDateTime.now()
-                    ));
+            ));
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
                     400,
@@ -108,7 +108,7 @@ public class CategoryController {
     @PostMapping("/activate/{id}")
     ResponseEntity<ApiResponse<?>> inactivateCategory(@PathVariable("id") long id,
                                                       @RequestParam int type) {
-        if (categoryService.activateCategory(id,type) == 1) {
+        if (categoryService.activateCategory(id, type) == 1) {
             return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
                     204,
                     "Inactivate Category Successfully",
@@ -124,4 +124,35 @@ public class CategoryController {
             ));
         }
     }
+
+    @GetMapping("/findByParentId/{id}")
+    ResponseEntity<ApiResponse<?>> findCategoryByParentId(@PathVariable("id") long parentId,
+                                                          @RequestParam(required = false) Integer pageSize,
+                                                          @RequestParam(required = false) Integer pageIndex) {
+        if (pageSize != null && pageIndex != null) {
+            if (pageSize > 0 && pageIndex >= 0) {
+                return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
+                        200,
+                        "Successfully",
+                        categoryService.getAllByParentId(parentId, PageRequest.of(pageIndex, pageSize)),
+                        LocalDateTime.now()
+                ));
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
+                        400,
+                        "Bad Request",
+                        null,
+                        LocalDateTime.now()
+                ));
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
+                    200,
+                    "Successfully",
+                    categoryService.getAllByParentId(parentId, Pageable.unpaged()),
+                    LocalDateTime.now()
+            ));
+        }
+    }
+
 }
