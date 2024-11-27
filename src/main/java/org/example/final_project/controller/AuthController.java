@@ -156,21 +156,31 @@ public class AuthController {
 
     @Operation(summary = "Sign Users In")
     @PostMapping("/sign-in")
-    public ResponseEntity<?> signIn(@RequestBody SignInRequest credentials) {
+    public ResponseEntity<ApiResponse<?>> signIn(@RequestBody SignInRequest credentials) {
         if (!userService.isActivated(credentials.getEmail())) {
-            return new ResponseEntity<>("This account is not activated", HttpStatus.UNAUTHORIZED);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse<>(
+                    401,
+                    "This account is not activated",
+                    null,
+                    LocalDateTime.now()
+            ));
         }
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(credentials.getEmail(), credentials.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         String jwt = jwtProvider.generateTokenByEmail(userDetails.getUser().getEmail());
-        return new ResponseEntity<>(new SignInResponse(
-                userDetails.getUserEntity().getUserId(),
-                "Bearer",
-                jwt,
-                userDetails.getUsername(),
-                userDetails.getUser().getEmail(),
-                userDetails.getRoleName()), HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse<>(
+                401,
+                "This account is not activated",
+                new SignInResponse(
+                        userDetails.getUserEntity().getUserId(),
+                        "Bearer",
+                        jwt,
+                        userDetails.getUsername(),
+                        userDetails.getUser().getEmail(),
+                        userDetails.getRoleName()),
+                LocalDateTime.now()
+        ));
     }
 }
