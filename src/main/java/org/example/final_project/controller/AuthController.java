@@ -170,9 +170,9 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         String jwt = jwtProvider.generateTokenByEmail(userDetails.getUser().getEmail());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse<>(
-                401,
-                "This account is not activated",
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>(
+                HttpStatus.OK.value(),
+                "Logged In",
                 new SignInResponse(
                         userDetails.getUserEntity().getUserId(),
                         "Bearer",
