@@ -13,6 +13,8 @@ import org.example.final_project.repository.IRoleRepository;
 import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -148,5 +150,11 @@ public class UserService implements IUserService, UserDetailsService {
             return oldPassword.equals(passwordEncoder.encode(newPassword));
         }
         return false;
+    }
+
+    @Override
+    public Page<UserDto> findAllUsers(Pageable pageable) {
+        Specification<UserEntity> specification = Specification.where(isActive().and(isNotSuperAdmin()));
+        return userRepository.findAll(specification, pageable).map(userMapper::toDto);
     }
 }
