@@ -39,12 +39,28 @@ public class JwtProvider {
                 .compact();
     }
 
-    public String generateForgetPasswordToken(String email, String username) {
+    public String generateTokenByEmail(String email) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + JWT_EXPIRATION);
+        UserDto userDto = userService.findByEmail(email);
         return Jwts.builder()
-                .setSubject(username)
-                .claim("email", email)
+                .setSubject(Long.toString(userDto.getUserId()))
+                .claim("username", userDto.getUsername())
+                .claim("email", userDto.getEmail())
+                .claim("role", userDto.getRoleId())
+                .setExpiration(expiryDate)
+                .setIssuedAt(new Date())
+                .signWith(SignatureAlgorithm.HS512, JWT_SECRET)
+                .compact();
+    }
+
+    public String generateForgetPasswordToken(String email) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + JWT_EXPIRATION);
+        UserDto userDto = userService.findByEmail(email);
+        return Jwts.builder()
+                .setSubject(email)
+                .claim("username", userDto.getUsername())
                 .setExpiration(expiryDate)
                 .setIssuedAt(new Date())
                 .signWith(SignatureAlgorithm.HS512, JWT_SECRET)
@@ -65,5 +81,12 @@ public class JwtProvider {
                 .parseClaimsJws(token)
                 .getBody();
         return claims.get(key, String.class);
+    }
+
+    public Claims parseJwt(String token) {
+        return Jwts.parser()
+                .setSigningKey(JWT_SECRET)
+                .parseClaimsJws(token)
+                .getBody();
     }
 }

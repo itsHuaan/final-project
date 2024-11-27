@@ -8,7 +8,6 @@ import lombok.*;
 @AllArgsConstructor
 @ToString
 @Builder
-public class SignInRequest {
+public class SendForgotPasswordEmailRequest {
     private String email;
-    private String password;
 }
