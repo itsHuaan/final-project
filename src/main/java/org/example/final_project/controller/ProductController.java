@@ -2,7 +2,7 @@ package org.example.final_project.controller;
 
 
 import jakarta.servlet.annotation.MultipartConfig;
-import org.example.final_project.model.ApiResponse;
+import org.example.final_project.dto.ApiResponse;
 import org.example.final_project.model.ProductModel;
 import org.example.final_project.service.impl.ProductService;
 import org.example.final_project.util.Const;

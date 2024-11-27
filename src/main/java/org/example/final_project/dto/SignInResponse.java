@@ -1,4 +1,4 @@
-package org.example.final_project.model;
+package org.example.final_project.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

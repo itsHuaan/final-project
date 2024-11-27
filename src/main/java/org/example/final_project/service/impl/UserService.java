@@ -122,7 +122,7 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
-    public int changePassword(String email, String newPassword) {
+    public int resetPassword(String email, String newPassword) {
         Specification<UserEntity> isExistingAndActivated = Specification.where(hasEmail(email).and(isActive()));
         if (userRepository.findOne(isExistingAndActivated).isPresent()) {
             UserEntity currentAccount = userRepository.findOne(isExistingAndActivated).get();
@@ -134,7 +134,19 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
-    public ResponseEntity<?> signIn(String email, String password) {
-        return null;
+    public int changePassword(String email, String oldPassword, String newPassword) {
+        return 0;
+    }
+
+    @Override
+    public boolean validatePassword(String email, String newPassword) {
+        UserEntity userEntity = userRepository.findOne(Specification.where(hasEmail(email)).and(isActive())).isPresent()
+                ? userRepository.findOne(Specification.where(hasEmail(email)).and(isActive())).get()
+                : null;
+        if (userEntity != null) {
+            String oldPassword = userEntity.getPassword();
+            return oldPassword.equals(passwordEncoder.encode(newPassword));
+        }
+        return false;
     }
 }
