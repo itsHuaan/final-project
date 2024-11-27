@@ -7,6 +7,7 @@ import org.example.final_project.model.ProductModel;
 import org.example.final_project.service.impl.ProductService;
 import org.example.final_project.util.Const;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -150,6 +151,36 @@ public class ProductController {
                     productService.findAllByNameAndPage(name, Pageable.unpaged()),
                     LocalDateTime.now())
             );
+        }
+    }
+
+    @GetMapping("/findByParentId/{id}")
+    ResponseEntity<ApiResponse<?>> findByParentId(@PathVariable("id") long parentId,
+                                                  @RequestParam(required = false) Integer pageSize,
+                                                  @RequestParam(required = false) Integer pageIndex) {
+        if (pageSize != null && pageIndex != null) {
+            if (pageSize > 0 && pageIndex >= 0) {
+                return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
+                        200,
+                        "Successfully",
+                        productService.getAllByParentId(parentId, PageRequest.of(pageIndex, pageSize)),
+                        LocalDateTime.now()
+                ));
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
+                        400,
+                        "Bad Request",
+                        null,
+                        LocalDateTime.now()
+                ));
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
+                    200,
+                    "Successfully",
+                    productService.getAllByParentId(parentId, Pageable.unpaged()),
+                    LocalDateTime.now()
+            ));
         }
     }
 }

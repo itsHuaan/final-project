@@ -126,4 +126,13 @@ public class ProductService implements IProductService {
             return iProductRepository.findAll(Specification.where(isActive().and(isNotDeleted()).and(hasName(name))), PageRequest.of(0, iProductRepository.findAll().size())).map(x -> productMapper.convertToDto(x));
         }
     }
+
+    @Override
+    public Page<ProductDto> getAllByParentId(long parentId, Pageable pageable) {
+        if(pageable!=null){
+            return iProductRepository.findAll(Specification.where(isActive().and(isNotDeleted()).and(hasParentId(parentId))),pageable).map(x->productMapper.convertToDto(x));
+        }else{
+            return iProductRepository.findAll(Specification.where(isActive()).and(isNotDeleted()).and(hasParentId(parentId)),PageRequest.of(0,iProductRepository.findAllByParent_id(parentId).size())).map(x->productMapper.convertToDto(x));
+        }
+    }
 }
