@@ -24,7 +24,7 @@ public class ProductController {
 
     @GetMapping("/getAll")
     ResponseEntity<ApiResponse<?>> getAllByPage(@RequestParam(required = false) Integer pageSize,
-                                @RequestParam(required = false) Integer pageIndex) {
+                                                @RequestParam(required = false) Integer pageIndex) {
         Pageable pageable = Pageable.unpaged();
         if (pageSize != null && pageIndex != null) {
             if (pageSize > 0 && pageIndex >= 0) {
@@ -67,7 +67,7 @@ public class ProductController {
 
     @PostMapping("/update/{id}")
     ResponseEntity<ApiResponse<?>> updateProduct(@PathVariable("id") long id,
-                                 @RequestBody ProductModel model) {
+                                                 @RequestBody ProductModel model) {
         if (productService.update(id, model) == 1) {
             return ResponseEntity.ok(new ApiResponse<>(204,
                     "Update Product Successfully",
@@ -92,26 +92,27 @@ public class ProductController {
                     "Delete Product Successfully",
                     null,
                     LocalDateTime.now()
-                    ));
+            ));
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
                     400,
                     "Occur Error When Deleting Product with Id= " + id,
                     null,
                     LocalDateTime.now()
-                    ));
+            ));
         }
     }
 
-    @PostMapping("/inactivate/{id}")
-    ResponseEntity<ApiResponse<?>> inactivateProduct(@PathVariable("id") long id) {
-        if (productService.inActivateProduct(id) == 1) {
+    @PostMapping("/activate/{id}")
+    ResponseEntity<ApiResponse<?>> inactivateProduct(@PathVariable("id") long id,
+                                                     @RequestParam int type) {
+        if (productService.inActivateProduct(id, type) == 1) {
             return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
-                    204,
+                    HttpStatus.NO_CONTENT.value(),
                     "Inactivate Product Successfully",
                     null,
                     LocalDateTime.now()
-                    ));
+            ));
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
                     400,
@@ -124,8 +125,8 @@ public class ProductController {
 
     @GetMapping("/findByName/{name}")
     ResponseEntity<ApiResponse<?>> findProductByName(@PathVariable("name") String name,
-                                     @RequestParam(required = false) Integer pageSize,
-                                     @RequestParam(required = false) Integer pageIndex) {
+                                                     @RequestParam(required = false) Integer pageSize,
+                                                     @RequestParam(required = false) Integer pageIndex) {
         if (pageSize != null && pageIndex != null) {
             if (pageSize > 0 && pageIndex >= 0) {
                 return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
@@ -140,7 +141,7 @@ public class ProductController {
                         "Pageable error",
                         null,
                         LocalDateTime.now()
-                        ));
+                ));
             }
         } else {
             return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
