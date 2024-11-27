@@ -1,4 +1,4 @@
-package org.example.final_project.controller.admin;
+package org.example.final_project.controller;
 
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -8,9 +8,7 @@ import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.ApiResponse;
 import org.example.final_project.dto.UserDto;
 import org.example.final_project.service.IUserService;
-import org.example.final_project.service.impl.UserService;
 import org.example.final_project.util.Const;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
