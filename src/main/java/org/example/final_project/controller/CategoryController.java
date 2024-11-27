@@ -48,7 +48,7 @@ public class CategoryController {
     }
 
     @PostMapping("/addNew")
-    ResponseEntity<ApiResponse<?>> addNewCategory(@RequestBody CategoryModel model) {
+    ResponseEntity<ApiResponse<?>> addNewCategory(@ModelAttribute CategoryModel model) {
         if (categoryService.save(model) == 1) {
             return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
                     201,
@@ -105,9 +105,10 @@ public class CategoryController {
         }
     }
 
-    @PostMapping("/inactivate/{id}")
-    ResponseEntity<ApiResponse<?>> inactivateCategory(@PathVariable("id") long id) {
-        if (categoryService.inActivateCategory(id) == 1) {
+    @PostMapping("/activate/{id}")
+    ResponseEntity<ApiResponse<?>> inactivateCategory(@PathVariable("id") long id,
+                                                      @RequestParam int type) {
+        if (categoryService.activateCategory(id,type) == 1) {
             return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
                     204,
                     "Inactivate Category Successfully",
