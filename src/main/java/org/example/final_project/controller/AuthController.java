@@ -108,4 +108,10 @@ public class AuthController {
     public ResponseEntity<?> signIn(@RequestBody SignInRequest credentials) {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.signIn(credentials));
     }
+
+    @Operation(summary = "Log Out")
+    @PostMapping("/logout")
+    public ResponseEntity<?> logOut(@RequestParam String token) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(authService.logOut(token));
+    }
 }
