@@ -36,4 +36,6 @@ public class ProductEntity {
     private CategoryEntity categoryEntity;
     @OneToMany(mappedBy = "productEntity")
     private List<ImageProductEntity> images;
+    @OneToMany(mappedBy = "product")
+    private List<FeedbackEntity> feedbacks;
 }
