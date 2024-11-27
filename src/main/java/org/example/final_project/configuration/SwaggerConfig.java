@@ -9,6 +9,7 @@ import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
@@ -18,9 +19,9 @@ public class SwaggerConfig {
 
     @Bean
     public OpenAPI OpenAPI() {
-        Server devServer = new Server();
-        devServer.setUrl("http://localhost:8080");
-        devServer.setDescription("Server URL in Local environment");
+        List<Server> server = new ArrayList<>();
+        server.add(new Server().url("http://localhost:8080").description("Server URL in Local environment"));
+        server.add(new Server().url("http://152.42.160.56:8080/").description("Server URL in Dev environment"));
 
 
         Server stagingServer = new Server();
@@ -32,7 +33,7 @@ public class SwaggerConfig {
                 .title("Project: Final Project")
                 .version("1.0")
                 .description("API");
-        OpenAPI openApi = new OpenAPI().info(info).servers(List.of(devServer, stagingServer));
+        OpenAPI openApi = new OpenAPI().info(info).servers(server);
         addSecurity(openApi);
         return openApi;
     }

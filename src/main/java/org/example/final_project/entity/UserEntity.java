@@ -33,7 +33,9 @@ public class UserEntity {
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
 
-
     @OneToMany(mappedBy = "user")
     private List<FeedbackEntity> feedbacks;
+
+    @OneToMany(mappedBy = "user")
+    private List<CategoryEntity> categories;
 }

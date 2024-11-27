@@ -23,7 +23,7 @@ public class ProductController {
     ProductService productService;
 
     @GetMapping("/getAll")
-    ResponseEntity getAllByPage(@RequestParam(required = false) Integer pageSize,
+    ResponseEntity<ApiResponse<?>> getAllByPage(@RequestParam(required = false) Integer pageSize,
                                 @RequestParam(required = false) Integer pageIndex) {
         Pageable pageable = Pageable.unpaged();
         if (pageSize != null && pageIndex != null) {
@@ -47,7 +47,7 @@ public class ProductController {
     }
 
     @PostMapping("/addNew")
-    ResponseEntity addNewProduct(@ModelAttribute ProductModel model) {
+    ResponseEntity<ApiResponse<?>> addNewProduct(@ModelAttribute ProductModel model) {
         if (productService.save(model) == 1) {
             return ResponseEntity.ok(new ApiResponse<>(
                     201,
@@ -66,7 +66,7 @@ public class ProductController {
     }
 
     @PostMapping("/update/{id}")
-    ResponseEntity updateProduct(@PathVariable("id") long id,
+    ResponseEntity<ApiResponse<?>> updateProduct(@PathVariable("id") long id,
                                  @RequestBody ProductModel model) {
         if (productService.update(id, model) == 1) {
             return ResponseEntity.ok(new ApiResponse<>(204,
@@ -85,7 +85,7 @@ public class ProductController {
     }
 
     @PostMapping("/delete/{id}")
-    ResponseEntity deleteProduct(@PathVariable("id") long id) {
+    ResponseEntity<ApiResponse<?>> deleteProduct(@PathVariable("id") long id) {
         if (productService.delete(id) == 1) {
             return ResponseEntity.ok(new ApiResponse<>(
                     204,
@@ -104,7 +104,7 @@ public class ProductController {
     }
 
     @PostMapping("/inactivate/{id}")
-    ResponseEntity inactivateProduct(@PathVariable("id") long id) {
+    ResponseEntity<ApiResponse<?>> inactivateProduct(@PathVariable("id") long id) {
         if (productService.inActivateProduct(id) == 1) {
             return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
                     204,
@@ -123,7 +123,7 @@ public class ProductController {
     }
 
     @GetMapping("/findByName/{name}")
-    ResponseEntity findProductByName(@PathVariable("name") String name,
+    ResponseEntity<ApiResponse<?>> findProductByName(@PathVariable("name") String name,
                                      @RequestParam(required = false) Integer pageSize,
                                      @RequestParam(required = false) Integer pageIndex) {
         if (pageSize != null && pageIndex != null) {

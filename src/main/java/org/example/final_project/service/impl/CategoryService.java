@@ -5,6 +5,7 @@ import org.example.final_project.entity.CategoryEntity;
 import org.example.final_project.mapper.CategoryMapper;
 import org.example.final_project.model.CategoryModel;
 import org.example.final_project.repository.ICategoryRepository;
+import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.ICategoryService;
 import org.example.final_project.util.specification.CategorySpecification;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,6 +30,8 @@ public class CategoryService implements ICategoryService {
     ICategoryRepository iCategoryRepository;
     @Autowired
     CategoryMapper categoryMapper;
+    @Autowired
+    IUserRepository iUserRepository;
 
     @Override
     public List<CategoryDto> getAll() {
@@ -46,7 +50,11 @@ public class CategoryService implements ICategoryService {
     @Override
     public int save(CategoryModel model) {
         try {
-            iCategoryRepository.save(categoryMapper.convertToEntity(model));
+            CategoryEntity category = categoryMapper.convertToEntity(model);
+            if (model.getUser_id() != 0L) {
+                category.setUser(iUserRepository.findById(model.getUser_id()).get());
+            }
+            iCategoryRepository.save(category);
             return 1;
         } catch (Exception e) {
             System.out.println(e);
@@ -106,7 +114,7 @@ public class CategoryService implements ICategoryService {
             Page<CategoryDto> page = iCategoryRepository.findAll(Specification.where(isActive().and(isNotDeleted())), pageable).map(x -> categoryMapper.convertToDto(x));
             return page;
         } else {
-            Page<CategoryDto> page = iCategoryRepository.findAll(Specification.where(isActive().and(isNotDeleted())),PageRequest.of(0, iCategoryRepository.findAll().size())).map(x -> categoryMapper.convertToDto(x));
+            Page<CategoryDto> page = iCategoryRepository.findAll(Specification.where(isActive().and(isNotDeleted())), PageRequest.of(0, iCategoryRepository.findAll().size())).map(x -> categoryMapper.convertToDto(x));
             return page;
         }
     }

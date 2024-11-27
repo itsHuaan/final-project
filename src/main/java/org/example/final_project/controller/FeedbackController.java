@@ -20,7 +20,7 @@ public class FeedbackController {
     @Autowired
     IFeedbackService feedbackService;
     @PostMapping("/addNew")
-    ResponseEntity addNewFeedback(@ModelAttribute FeedbackModel model){
+    ResponseEntity<ApiResponse<?>> addNewFeedback(@ModelAttribute FeedbackModel model){
         if(feedbackService.save(model)==1){
             return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
                     204,

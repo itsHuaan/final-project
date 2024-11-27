@@ -13,6 +13,6 @@ public class CategorySpecification {
     }
     public static Specification<CategoryEntity> isNotDeleted() {
         return (Root<CategoryEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
-                criteriaBuilder.equal(root.get("deletedAt"), null);
+                criteriaBuilder.isNull(root.get("deletedAt"));
     }
 }

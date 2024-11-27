@@ -20,7 +20,7 @@ public class CategoryController {
     CategoryService categoryService;
 
     @GetMapping("/getAll")
-    ResponseEntity getAllCategory(@RequestParam(required = false) Integer pageSize,
+    ResponseEntity<ApiResponse<?>> getAllCategory(@RequestParam(required = false) Integer pageSize,
                                   @RequestParam(required = false) Integer pageIndex) {
         if (pageSize != null && pageIndex != null) {
             if (pageSize > 0 && pageIndex >= 0) {
@@ -48,7 +48,7 @@ public class CategoryController {
     }
 
     @PostMapping("/addNew")
-    ResponseEntity addNewCategory(@RequestBody CategoryModel model) {
+    ResponseEntity<ApiResponse<?>> addNewCategory(@RequestBody CategoryModel model) {
         if (categoryService.save(model) == 1) {
             return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
                     201,
@@ -67,7 +67,7 @@ public class CategoryController {
     }
 
     @PostMapping("/update/{id}")
-    ResponseEntity updateCategory(@PathVariable("id") long id,
+    ResponseEntity<ApiResponse<?>> updateCategory(@PathVariable("id") long id,
                                   @RequestBody CategoryModel model) {
         if (categoryService.update(id, model) == 1) {
             return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
@@ -87,7 +87,7 @@ public class CategoryController {
     }
 
     @PostMapping("/delete/{id}")
-    ResponseEntity deleteCategory(@PathVariable("id") long id) {
+    ResponseEntity<ApiResponse<?>> deleteCategory(@PathVariable("id") long id) {
         if (categoryService.delete(id) == 1) {
             return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
                     204,
@@ -106,7 +106,7 @@ public class CategoryController {
     }
 
     @PostMapping("/inactivate/{id}")
-    ResponseEntity inactivateCategory(@PathVariable("id") long id) {
+    ResponseEntity<ApiResponse<?>> inactivateCategory(@PathVariable("id") long id) {
         if (categoryService.inActivateCategory(id) == 1) {
             return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
                     204,
