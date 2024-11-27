@@ -65,8 +65,9 @@ public class AuthService implements IAuthService {
     @Override
     public ApiResponse<?> logOut(String token) {
         try {
-            Claims claims = jwtProvider.parseJwt(token);
-            claims.setExpiration(new Date());
+            if(tokenBlacklistService.isTokenPresent(token)) {
+                tokenBlacklistService.saveToken(token);
+            }
             return createResponse(HttpStatus.OK, "Logged out successfully", null);
         } catch (Exception e) {
             return createResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred during logout", null);
