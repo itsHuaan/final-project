@@ -35,4 +35,7 @@ public class UserEntity {
 
     @OneToMany(mappedBy = "user")
     private List<FeedbackEntity> feedbacks;
+
+    @OneToMany(mappedBy = "user")
+    private List<CategoryEntity> categories;
 }

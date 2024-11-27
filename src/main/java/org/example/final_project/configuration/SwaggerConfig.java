@@ -16,14 +16,18 @@ import java.util.List;
 public class SwaggerConfig {
     private static final String SCHEME_NAME = "Token";
     private static final String SCHEME = "Bearer";
+
     @Bean
     public OpenAPI OpenAPI() {
-//        Server devServer = new Server();
-//        devServer.setUrl("http://localhost:8080");
-//        devServer.setDescription("Server URL in Local environment");
         List<Server> server = new ArrayList<>();
         server.add(new Server().url("http://localhost:8080").description("Server URL in Local environment"));
         server.add(new Server().url("http://152.42.160.56:8080/").description("Server URL in Dev environment"));
+
+
+        Server stagingServer = new Server();
+        stagingServer.setUrl("http://152.42.160.56:8080");
+        stagingServer.setDescription("Server URL in Remote environment");
+
 
         Info info = new Info()
                 .title("Project: Final Project")

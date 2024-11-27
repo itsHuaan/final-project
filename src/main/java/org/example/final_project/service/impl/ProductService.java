@@ -8,7 +8,6 @@ import org.example.final_project.model.ProductModel;
 import org.example.final_project.repository.IProductRepository;
 import org.example.final_project.service.IImageProductService;
 import org.example.final_project.service.IProductService;
-import org.example.final_project.util.specification.ProductSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -107,16 +106,20 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public List<ProductDto> findAllByPage(Pageable pageable) {
+    public Page<ProductDto> findAllByPage(Pageable pageable) {
         if (pageable != null) {
-            return iProductRepository.findAll(pageable).stream().filter(x -> x.getDeletedAt() == null && x.getIsActive() == 1).map(x -> productMapper.convertToDto(x)).collect(Collectors.toList());
+            return iProductRepository.findAll(Specification.where(isActive().and(isNotDeleted())),pageable).map(x -> productMapper.convertToDto(x));
         } else {
-            return iProductRepository.findAll(PageRequest.of(0, iProductRepository.findAll().size())).stream().filter(x -> x.getIsActive() == 1 && x.getDeletedAt() == null).map(x->productMapper.convertToDto(x)).collect(Collectors.toList());
+            return iProductRepository.findAll(Specification.where(isActive().and(isNotDeleted())),PageRequest.of(0, iProductRepository.findAll().size())).map(x->productMapper.convertToDto(x));
         }
     }
 
     @Override
-    public Page<ProductDto> findAllByPages(Pageable pageable) {
-        return iProductRepository.findAll(Specification.where(isActive()), pageable).map(productMapper::convertToDto);
+    public Page<ProductDto> findAllByNameAndPage(String name, Pageable pageable) {
+        if(pageable!=null){
+            return iProductRepository.findAll(Specification.where(isActive().and(isNotDeleted()).and(hasName(name))),pageable).map(x->productMapper.convertToDto(x));
+        }else{
+            return iProductRepository.findAll(Specification.where(isActive().and(isNotDeleted()).and(hasName(name))),PageRequest.of(0,iProductRepository.findAll().size())).map(x->productMapper.convertToDto(x));
+        }
     }
 }

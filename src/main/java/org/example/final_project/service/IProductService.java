@@ -9,6 +9,6 @@ import java.util.List;
 
 public interface IProductService extends IBaseService<ProductDto, ProductModel,Long> {
     int inActivateProduct(long id);
-    List<ProductDto> findAllByPage(Pageable pageable);
-    Page<ProductDto> findAllByPages(Pageable pageable);
+    Page<ProductDto> findAllByPage(Pageable pageable);
+    Page<ProductDto> findAllByNameAndPage(String name,Pageable pageable);
 }
