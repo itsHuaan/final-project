@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -31,4 +32,8 @@ public class UserEntity {
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
+
+
+    @OneToMany(mappedBy = "user")
+    private List<FeedbackEntity> feedbacks;
 }
