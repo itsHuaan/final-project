@@ -9,5 +9,5 @@ import java.util.List;
 
 public interface ICategoryService extends IBaseService<CategoryDto, CategoryModel,Long> {
     int inActivateCategory(long id);
-    Page<CategoryDto> findAllByPage(Pageable pageable);
+    List<CategoryDto> findAllByPage(Pageable pageable);
 }

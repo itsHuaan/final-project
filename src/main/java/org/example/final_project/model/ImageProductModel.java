@@ -13,4 +13,5 @@ import org.springframework.web.multipart.MultipartFile;
 public class ImageProductModel {
     private MultipartFile multipartFile;
     private long productId;
+    private int isActive;
 }

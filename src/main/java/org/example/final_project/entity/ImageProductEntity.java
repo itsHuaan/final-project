@@ -3,8 +3,10 @@ package org.example.final_project.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
-@Table(name="image_product")
+@Table(name="tbl_image_product")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -15,6 +17,8 @@ public class ImageProductEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private String imageLink;
+    private int isActive;
+    private LocalDateTime deletedAt;
     @ManyToOne
     @JoinColumn(name="product_id")
     private ProductEntity productEntity;

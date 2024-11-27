@@ -9,6 +9,7 @@ import org.example.final_project.service.ICategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +26,7 @@ public class CategoryService implements ICategoryService {
 
     @Override
     public List<CategoryDto> getAll() {
-        return iCategoryRepository.findAll().stream().filter(x -> x.getDeletedAt() == null && x.getIsActive()==1).map(x -> categoryMapper.convertToDto(x)).collect(Collectors.toList());
+        return iCategoryRepository.findAll().stream().filter(x -> x.getDeletedAt() == null && x.getIsActive() == 1).map(x -> categoryMapper.convertToDto(x)).collect(Collectors.toList());
     }
 
     @Override
@@ -88,14 +89,20 @@ public class CategoryService implements ICategoryService {
                 iCategoryRepository.save(categoryEntity);
             }
             return 1;
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e);
             return 0;
         }
     }
 
     @Override
-    public Page<CategoryDto> findAllByPage(Pageable pageable) {
-        return new PageImpl<>(iCategoryRepository.findAll().stream().filter(x->x.getIsActive()==1).map(x->categoryMapper.convertToDto(x)).collect(Collectors.toList()),pageable,iCategoryRepository.findAll(pageable).getTotalElements());
+    public List<CategoryDto> findAllByPage(Pageable pageable) {
+        if (pageable != null) {
+            List<CategoryDto> page = iCategoryRepository.findAll(pageable).stream().filter(x->x.getIsActive()==1&&x.getDeletedAt()==null).map(x->categoryMapper.convertToDto(x)).collect(Collectors.toList());
+            return page;
+        } else {
+            List<CategoryDto> page= iCategoryRepository.findAll(PageRequest.of(0,iCategoryRepository.findAll().size())).stream().filter(x->x.getIsActive()==1&&x.getDeletedAt()==null).map(x->categoryMapper.convertToDto(x)).collect(Collectors.toList());
+            return page;
+        }
     }
 }

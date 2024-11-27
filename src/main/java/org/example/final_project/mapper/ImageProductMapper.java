@@ -25,6 +25,7 @@ public class ImageProductMapper {
     public ImageProductEntity convertToEntity(ImageProductModel model) throws IOException {
         return ImageProductEntity.builder()
                 .imageLink(cloudinary.uploader().upload(model.getMultipartFile().getBytes(), ObjectUtils.emptyMap()).get("url").toString())
+                .isActive(model.getIsActive())
                 .build();
     }
 }
