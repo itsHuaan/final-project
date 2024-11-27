@@ -7,6 +7,7 @@ import org.example.final_project.service.impl.ProductService;
 import org.example.final_project.util.Const;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,19 +20,17 @@ public class ProductController {
     ProductService productService;
 
     @GetMapping("/getAll")
-    ResponseEntity getAllByPage(@RequestParam(value = "size", required = false) String size,
-                                @RequestParam(value = "page", required = false) String page) {
-        if (size != null && page != null) {
-            if (Integer.parseInt(size) > 0 && Integer.parseInt(page) >= 0) {
-                return ResponseEntity.status(HttpStatus.OK).body(productService.findAllByPage(PageRequest.of(Integer.parseInt(page), Integer.parseInt(size))));
-            } else if (Integer.parseInt(size) == 0 && Integer.parseInt(page) >= 0) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Occur Error");
+    ResponseEntity getAllByPage(@RequestParam(required = false) Integer pageSize,
+                                @RequestParam(required = false) Integer pageIndex) {
+        Pageable pageable = Pageable.unpaged();
+        if (pageSize != null && pageIndex != null) {
+            if (pageSize > 0 && pageIndex >= 0){
+                pageable = PageRequest.of(pageIndex, pageSize);
             } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Occur Error");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Pageable error");
             }
-        } else {
-            return ResponseEntity.status(HttpStatus.OK).body(productService.getAll());
         }
+        return ResponseEntity.status(HttpStatus.OK).body(productService.findAllByPages(pageable));
     }
 
     @PostMapping("/addNew")
