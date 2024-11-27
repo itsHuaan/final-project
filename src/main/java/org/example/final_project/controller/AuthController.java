@@ -1,5 +1,6 @@
 package org.example.final_project.controller;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,6 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Tag(name = "Authentication")
 @RestController
@@ -80,9 +82,10 @@ public class AuthController {
      */
     @Operation(summary = "Send forgot password email")
     @PostMapping("/forgot-password")
-    public ResponseEntity<?> forgotPassword(@RequestBody String email) {
+    public ResponseEntity<?> forgotPassword(@RequestBody SendForgotPasswordEmailRequest request) {
+        String email = request.getEmail();
         if (!userService.isActivated(email)) {
-            return new ResponseEntity<>("This account is not activated", HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>("This account is not available", HttpStatus.BAD_REQUEST);
         }
         String jwt = jwtProvider.generateForgetPasswordToken(email);
         EmailModel emailModel = new EmailModel(email, "OTP", jwt);
@@ -92,8 +95,19 @@ public class AuthController {
 
     @Operation(summary = "Send reset password request")
     @PostMapping("/reset-password")
-    public ResponseEntity<?> resetPassword(@RequestParam Jwts token) {
-        return null;
+    public ResponseEntity<?> resetPassword(@RequestParam String token, @RequestBody ResetPasswordRequest request) {
+        Claims claims = jwtProvider.parseJwt(token);
+        if (claims.getExpiration().before(new Date())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token has expired");
+        }
+        String email = claims.getSubject();
+        if (!userService.isActivated(email)) {
+            return new ResponseEntity<>("This account is not available", HttpStatus.BAD_REQUEST);
+        }
+        int changePassword = userService.changePassword(email, request.getNewPassword());
+        return changePassword != 0
+                ? new ResponseEntity<>("Password reset successfully", HttpStatus.OK)
+                : new ResponseEntity<>("Password reset failed", HttpStatus.BAD_REQUEST);
     }
 
     @Operation(summary = "Verify User")

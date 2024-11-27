@@ -82,4 +82,11 @@ public class JwtProvider {
                 .getBody();
         return claims.get(key, String.class);
     }
+
+    public Claims parseJwt(String token) {
+        return Jwts.parser()
+                .setSigningKey(JWT_SECRET)
+                .parseClaimsJws(token)
+                .getBody();
+    }
 }
