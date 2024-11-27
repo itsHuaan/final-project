@@ -117,7 +117,12 @@ public class AuthController {
         if (isOtpValid) {
             if (userService.activateUserAccount(email) != 0) {
                 otpService.setInvalid(otp, email);
-                return ResponseEntity.ok("Account activated successfully!");
+                return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
+                        HttpStatus.OK.value(),
+                        "Account activated successfully.",
+                        userService.findByEmail(email),
+                        LocalDateTime.now()
+                ));
             }
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to activate account.");
         } else {
@@ -128,7 +133,7 @@ public class AuthController {
 
     @Operation(summary = "Sign Users Up")
     @PostMapping("/sign-up")
-    public ResponseEntity<?> signUp(@RequestBody SignUpRequest credentials) {
+    public ResponseEntity<ApiResponse<?>> signUp(@RequestBody SignUpRequest credentials) {
         UserModel userModel = new UserModel();
         userModel.setName(credentials.getName() != null
                 ? credentials.getName() : credentials.getUsername());
@@ -147,10 +152,19 @@ public class AuthController {
 
         int saveResult = userService.save(userModel);
         if (saveResult == 0) {
-            return new ResponseEntity<>("Username or Email has been taken by another user", HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponse<>(
+                    HttpStatus.CONFLICT.value(),
+                    "This account is taken by another user.",
+                    null,
+                    LocalDateTime.now()
+            ));
         }
         return result
-                ? new ResponseEntity<>("OTP has sent to email " + credentials.getEmail(), HttpStatus.CREATED)
+                ? ResponseEntity.status(HttpStatus.NO_CONTENT).body(new ApiResponse<>(
+                HttpStatus.OK.value(),
+                "Signed Up.",
+                null,
+                LocalDateTime.now()))
                 : ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 
