@@ -6,16 +6,21 @@ import org.example.final_project.mapper.CategoryMapper;
 import org.example.final_project.model.CategoryModel;
 import org.example.final_project.repository.ICategoryRepository;
 import org.example.final_project.service.ICategoryService;
+import org.example.final_project.util.specification.CategorySpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.example.final_project.util.specification.CategorySpecification.isActive;
+import static org.example.final_project.util.specification.CategorySpecification.isNotDeleted;
 
 @Service
 public class CategoryService implements ICategoryService {
@@ -96,12 +101,12 @@ public class CategoryService implements ICategoryService {
     }
 
     @Override
-    public List<CategoryDto> findAllByPage(Pageable pageable) {
+    public Page<CategoryDto> findAllByPage(Pageable pageable) {
         if (pageable != null) {
-            List<CategoryDto> page = iCategoryRepository.findAll(pageable).stream().filter(x->x.getIsActive()==1&&x.getDeletedAt()==null).map(x->categoryMapper.convertToDto(x)).collect(Collectors.toList());
+            Page<CategoryDto> page = iCategoryRepository.findAll(Specification.where(isActive().and(isNotDeleted())), pageable).map(x -> categoryMapper.convertToDto(x));
             return page;
         } else {
-            List<CategoryDto> page= iCategoryRepository.findAll(PageRequest.of(0,iCategoryRepository.findAll().size())).stream().filter(x->x.getIsActive()==1&&x.getDeletedAt()==null).map(x->categoryMapper.convertToDto(x)).collect(Collectors.toList());
+            Page<CategoryDto> page = iCategoryRepository.findAll(Specification.where(isActive().and(isNotDeleted())),PageRequest.of(0, iCategoryRepository.findAll().size())).map(x -> categoryMapper.convertToDto(x));
             return page;
         }
     }

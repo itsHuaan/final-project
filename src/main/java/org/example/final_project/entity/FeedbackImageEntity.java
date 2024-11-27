@@ -6,7 +6,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name="feedback_image")
+@Table(name="tbl_feedback_image")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter

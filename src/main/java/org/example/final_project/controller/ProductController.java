@@ -24,13 +24,13 @@ public class ProductController {
                                 @RequestParam(required = false) Integer pageIndex) {
         Pageable pageable = Pageable.unpaged();
         if (pageSize != null && pageIndex != null) {
-            if (pageSize > 0 && pageIndex >= 0){
+            if (pageSize > 0 && pageIndex >= 0) {
                 pageable = PageRequest.of(pageIndex, pageSize);
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Pageable error");
             }
         }
-        return ResponseEntity.status(HttpStatus.OK).body(productService.findAllByPages(pageable));
+        return ResponseEntity.status(HttpStatus.OK).body(productService.findAllByPage(pageable));
     }
 
     @PostMapping("/addNew")
@@ -67,6 +67,21 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.OK).body("Inactivate Product Successfully");
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Occur Error When inactivating Product with Id= " + id);
+        }
+    }
+
+    @GetMapping("/findByName/{name}")
+    ResponseEntity findProductByName(@PathVariable("name") String name,
+                                     @RequestParam(required = false) Integer pageSize,
+                                     @RequestParam(required = false) Integer pageIndex) {
+        if (pageSize != null && pageIndex != null) {
+            if (pageSize > 0 && pageIndex > 0) {
+                return ResponseEntity.status(HttpStatus.OK).body(productService.findAllByNameAndPage(name, PageRequest.of(pageIndex, pageSize)));
+            }else{
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Pageable error");
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.OK).body(productService.findAllByNameAndPage(name,Pageable.unpaged()));
         }
     }
 }
