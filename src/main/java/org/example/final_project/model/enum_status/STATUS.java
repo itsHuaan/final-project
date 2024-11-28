@@ -1,4 +1,4 @@
-package org.example.final_project.util;
+package org.example.final_project.model.enum_status;
 
 public enum STATUS {
     ACTIVE(1),

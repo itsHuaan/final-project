@@ -1,5 +1,6 @@
 package org.example.final_project.service;
 
+import org.example.final_project.dto.ApiResponse;
 import org.example.final_project.dto.UserDto;
 import org.example.final_project.model.ShopRegisterRequest;
 import org.example.final_project.model.UserModel;
@@ -15,8 +16,9 @@ public interface IUserService extends IBaseService<UserDto, UserModel, Long> {
     int activateUserAccount(String username, String email);
     int activateUserAccount(String email);
     int resetPassword(String email, String newPassword);
-    int changePassword(String email, String oldPassword, String newPassword);
+    int changePassword(String username, String oldPassword, String newPassword);
     boolean validatePassword(String email, String newPassword);
     Page<UserDto> findAllUsers(Pageable pageable);
-    UserDto registerForBeingShop(ShopRegisterRequest request);
+    ResponseEntity<?> signIn(String email, String password);
+    ApiResponse<?> registerForBeingShop(ShopRegisterRequest request) throws Exception;
 }

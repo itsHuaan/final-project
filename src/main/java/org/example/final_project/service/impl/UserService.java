@@ -1,22 +1,29 @@
 package org.example.final_project.service.impl;
 
+import com.cloudinary.api.exceptions.NotFound;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.configuration.UserDetailsImpl;
+import org.example.final_project.configuration.cloudinary.ImageService;
+import org.example.final_project.dto.ApiResponse;
+
 import org.example.final_project.dto.UserDto;
+import org.example.final_project.entity.AddressEntity;
 import org.example.final_project.entity.RoleEntity;
 import org.example.final_project.entity.UserEntity;
 import org.example.final_project.mapper.UserMapper;
 import org.example.final_project.model.ShopRegisterRequest;
 import org.example.final_project.model.UserModel;
+import org.example.final_project.model.enum_status.STATUS;
 import org.example.final_project.repository.IRoleRepository;
 import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.IUserService;
-import org.example.final_project.util.STATUS;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -25,7 +32,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
+import static org.example.final_project.dto.ApiResponse.createResponse;
 import static org.example.final_project.util.specification.UserSpecification.*;
 
 @Service
@@ -37,6 +46,7 @@ public class UserService implements IUserService, UserDetailsService {
     IUserRepository userRepository;
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
+    ImageService imageService;
 
 
     @Override
@@ -137,7 +147,7 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
-    public int changePassword(String email, String oldPassword, String newPassword) {
+    public int changePassword(String username, String oldPassword, String newPassword) {
         return 0;
     }
 
@@ -159,19 +169,42 @@ public class UserService implements IUserService, UserDetailsService {
         return userRepository.findAll(specification, pageable).map(userMapper::toDto);
     }
 
-    @Override
-    public UserDto registerForBeingShop(ShopRegisterRequest request) {
-        if(request.getUserId().describeConstable().isPresent()){
-            UserEntity userEntity = userRepository.findById(request.getUserId()).get();
-            userEntity.setId_back(request.getId_back());
-            userEntity.setId_front(request.getId_front());
-            userEntity.setShop_name(request.getShop_name());
-            userEntity.setShop_status(STATUS.ACTIVE.getStatus());
-            userEntity.setTax_code(request.getTax_code());
-            return userMapper.toDto(userRepository.save(userEntity));
-        }
-        return null;
 
+    @Override
+    public ResponseEntity<?> signIn(String email, String password) {
+        return null;
+    }
+
+    @Override
+    public ApiResponse<?> registerForBeingShop(ShopRegisterRequest request) throws Exception {
+        if (request.getUserId().describeConstable().isPresent()) {
+            UserEntity userEntity = userRepository.findById(request.getUserId()).get();
+
+            if (userEntity.getShop_status() == 0) {
+                String id_back = imageService.uploadOneImage(request.getId_back());
+                userEntity.setId_back(id_back);
+                String id_front = imageService.uploadOneImage(request.getId_front());
+                userEntity.setId_front(id_front);
+                userEntity.setShop_name(request.getShop_name());
+                userEntity.setShop_status(STATUS.ACTIVE.getStatus());
+                userEntity.setTax_code(request.getTax_code());
+
+                RoleEntity roleEntity = new RoleEntity();
+                roleEntity.setRoleId(1L);
+                userEntity.setRole(roleEntity);
+
+                AddressEntity addressEntity = new AddressEntity();
+                addressEntity.setId(request.getShop_address());
+                userEntity.setAddress(addressEntity);
+
+                userEntity.setShop_address_detail(request.getShop_address_detail());
+                UserDto userDto = userMapper.toDto(userRepository.save(userEntity));
+                return createResponse(HttpStatus.OK, "Logged In",userDto);
+            } else if (userEntity.getShop_status() == 1) {
+                return createResponse(HttpStatus.CONFLICT, "User register Shop",null);
+            }
+        }
+        throw new NotFound("Not found Userr");
+    }
     };
 
-}
