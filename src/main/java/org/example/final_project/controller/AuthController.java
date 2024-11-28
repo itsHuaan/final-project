@@ -1,7 +1,6 @@
 package org.example.final_project.controller;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AccessLevel;
@@ -9,7 +8,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.configuration.UserDetailsImpl;
 import org.example.final_project.configuration.jwt.JwtProvider;
+import org.example.final_project.dto.ApiResponse;
+import org.example.final_project.dto.SignInResponse;
 import org.example.final_project.model.*;
+import org.example.final_project.service.IAuthService;
 import org.example.final_project.service.IEmailService;
 import org.example.final_project.service.IOtpService;
 import org.example.final_project.service.IUserService;
@@ -31,11 +33,7 @@ import java.util.Date;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequestMapping(value = Const.API_PREFIX + "/authentication")
 public class AuthController {
-    AuthenticationManager authenticationManager;
-    JwtProvider jwtProvider;
-    IUserService userService;
-    IEmailService emailService;
-    IOtpService otpService;
+    IAuthService authService;
 
 
     /*
@@ -83,104 +81,37 @@ public class AuthController {
     @Operation(summary = "Send forgot password email")
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestBody SendForgotPasswordEmailRequest request) {
-        String email = request.getEmail();
-        if (!userService.isActivated(email)) {
-            return new ResponseEntity<>("This account is not available", HttpStatus.BAD_REQUEST);
-        }
-        String jwt = jwtProvider.generateForgetPasswordToken(email);
-        EmailModel emailModel = new EmailModel(email, "OTP", jwt);
-        emailService.sendEmail(emailModel);
-        return new ResponseEntity<>("Reset password token sent to " + email, HttpStatus.OK);
+        return ResponseEntity.ok(authService.forgotPassword(request.getEmail()));
     }
 
-    @Operation(summary = "Send reset password request")
+    @Operation(summary = "Reset password")
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestParam String token, @RequestBody ResetPasswordRequest request) {
-        Claims claims = jwtProvider.parseJwt(token);
-        if (claims.getExpiration().before(new Date())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token has expired");
-        }
-        String email = claims.getSubject();
-        if (!userService.isActivated(email)) {
-            return new ResponseEntity<>("This account is not available", HttpStatus.BAD_REQUEST);
-        }
-        int changePassword = userService.changePassword(email, request.getNewPassword());
-        return changePassword != 0
-                ? new ResponseEntity<>("Password reset successfully", HttpStatus.OK)
-                : new ResponseEntity<>("Password reset failed", HttpStatus.BAD_REQUEST);
+        return ResponseEntity.ok(authService.resetPassword(token, request.getNewPassword()));
     }
 
     @Operation(summary = "Verify User")
     @GetMapping("/verify")
     public ResponseEntity<?> verifyUserUsingOtp(@RequestParam String otp, @RequestParam String email) {
-        boolean isOtpValid = otpService.isValid(email, otp, LocalDateTime.now());
-        if (isOtpValid) {
-            if (userService.activateUserAccount(email) != 0) {
-                otpService.setInvalid(otp, email);
-                return ResponseEntity.ok("Account activated successfully!");
-            }
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to activate account.");
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid OTP.");
-        }
+        return ResponseEntity.status(HttpStatus.OK).body(authService.verifyUser(otp, email));
     }
 
 
     @Operation(summary = "Sign Users Up")
     @PostMapping("/sign-up")
-    public ResponseEntity<?> signUp(@RequestBody SignUpRequest credentials) {
-        UserModel userModel = new UserModel();
-        userModel.setName(credentials.getName() != null
-                ? credentials.getName() : credentials.getUsername());
-        userModel.setEmail(credentials.getEmail());
-        userModel.setPassword(credentials.getPassword());
-        userModel.setUsername(credentials.getUsername());
-        userModel.setRoleId(credentials.getRoleId());
-
-        OtpModel otpModel = new OtpModel();
-        otpModel.setOtpCode(otpService.generateOtp());
-        otpModel.setEmail(credentials.getEmail());
-        otpService.save(otpModel);
-
-        EmailModel emailModel = new EmailModel(credentials.getEmail(), "OTP", otpModel.getOtpCode());
-        boolean result = emailService.sendEmail(emailModel);
-
-        int saveResult = userService.save(userModel);
-        if (saveResult == 0) {
-            return new ResponseEntity<>("Username or Email has been taken by another user", HttpStatus.BAD_REQUEST);
-        }
-        return result
-                ? new ResponseEntity<>("OTP has sent to email " + credentials.getEmail(), HttpStatus.CREATED)
-                : ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    public ResponseEntity<ApiResponse<?>> signUp(@RequestBody SignUpRequest credentials) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(authService.signUp(credentials));
     }
 
     @Operation(summary = "Sign Users In")
     @PostMapping("/sign-in")
-    public ResponseEntity<ApiResponse<?>> signIn(@RequestBody SignInRequest credentials) {
-        if (!userService.isActivated(credentials.getEmail())) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse<>(
-                    401,
-                    "This account is not activated",
-                    null,
-                    LocalDateTime.now()
-            ));
-        }
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(credentials.getEmail(), credentials.getPassword()));
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        String jwt = jwtProvider.generateTokenByEmail(userDetails.getUser().getEmail());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse<>(
-                401,
-                "This account is not activated",
-                new SignInResponse(
-                        userDetails.getUserEntity().getUserId(),
-                        "Bearer",
-                        jwt,
-                        userDetails.getUsername(),
-                        userDetails.getUser().getEmail(),
-                        userDetails.getRoleName()),
-                LocalDateTime.now()
-        ));
+    public ResponseEntity<?> signIn(@RequestBody SignInRequest credentials) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(authService.signIn(credentials));
+    }
+
+    @Operation(summary = "Log Out")
+    @PostMapping("/logout")
+    public ResponseEntity<?> logOut(@RequestParam String token) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(authService.logOut(token));
     }
 }

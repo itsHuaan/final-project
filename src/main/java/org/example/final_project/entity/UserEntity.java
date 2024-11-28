@@ -33,7 +33,6 @@ public class UserEntity {
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
 
-
     @OneToMany(mappedBy = "user")
     private List<FeedbackEntity> feedbacks;
     private String id_front;
@@ -45,4 +44,7 @@ public class UserEntity {
     @JoinColumn(name = "address_id")
     private AddressEntity address;
 
+
+    @OneToMany(mappedBy = "user")
+    private List<CategoryEntity> categories;
 }

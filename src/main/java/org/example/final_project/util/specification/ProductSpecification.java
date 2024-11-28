@@ -12,4 +12,16 @@ public class ProductSpecification {
         return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("isActive"), 1);
     }
+    public static Specification<ProductEntity> isNotDeleted() {
+        return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
+                criteriaBuilder.isNull(root.get("deletedAt"));
+    }
+    public static Specification<ProductEntity> hasName(String name) {
+        return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
+                criteriaBuilder.like(root.get("name"), name);
+    }
+    public static Specification<ProductEntity> hasParentId(long parentId) {
+        return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("parent_id"), parentId);
+    }
 }

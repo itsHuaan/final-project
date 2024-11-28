@@ -8,6 +8,8 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface ICategoryService extends IBaseService<CategoryDto, CategoryModel,Long> {
-    int inActivateCategory(long id);
-    List<CategoryDto> findAllByPage(Pageable pageable);
+    int activateCategory(long id,int type);
+    Page<CategoryDto> findAllByPage(Pageable pageable);
+    Page<CategoryDto> getAllByParentId(long parent_id,Pageable pageable);
+
 }

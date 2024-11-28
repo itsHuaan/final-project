@@ -23,6 +23,10 @@ public class CategoryEntity {
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
+    private String image;
+    @ManyToOne
+    @JoinColumn(name="user_id")
+    private UserEntity user;
     @OneToMany(mappedBy = "categoryEntity")
     private List<ProductEntity> productEntities;
 }

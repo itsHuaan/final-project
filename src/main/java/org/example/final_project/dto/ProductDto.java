@@ -21,6 +21,7 @@ public class ProductDto {
     private long quantity;
     private double price;
     private int isActive;
+    private String note;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;

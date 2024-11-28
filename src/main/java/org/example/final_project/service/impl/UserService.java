@@ -15,6 +15,8 @@ import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.IUserService;
 import org.example.final_project.util.STATUS;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -128,7 +130,7 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
-    public int changePassword(String email, String newPassword) {
+    public int resetPassword(String email, String newPassword) {
         Specification<UserEntity> isExistingAndActivated = Specification.where(hasEmail(email).and(isActive()));
         if (userRepository.findOne(isExistingAndActivated).isPresent()) {
             UserEntity currentAccount = userRepository.findOne(isExistingAndActivated).get();
@@ -140,8 +142,26 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
-    public ResponseEntity<?> signIn(String email, String password) {
-        return null;
+    public int changePassword(String email, String oldPassword, String newPassword) {
+        return 0;
+    }
+
+    @Override
+    public boolean validatePassword(String email, String newPassword) {
+        UserEntity userEntity = userRepository.findOne(Specification.where(hasEmail(email)).and(isActive())).isPresent()
+                ? userRepository.findOne(Specification.where(hasEmail(email)).and(isActive())).get()
+                : null;
+        if (userEntity != null) {
+            String oldPassword = userEntity.getPassword();
+            return oldPassword.equals(passwordEncoder.encode(newPassword));
+        }
+        return false;
+    }
+
+    @Override
+    public Page<UserDto> findAllUsers(Pageable pageable) {
+        Specification<UserEntity> specification = Specification.where(isActive().and(isNotSuperAdmin()));
+        return userRepository.findAll(specification, pageable).map(userMapper::toDto);
     }
 
     @Override

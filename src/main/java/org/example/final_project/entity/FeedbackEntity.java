@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name="feedback")
+@Table(name="tbl_feedback")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
