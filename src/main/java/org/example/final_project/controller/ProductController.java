@@ -110,22 +110,23 @@ public class ProductController {
     ResponseEntity<ApiResponse<?>> inactivateProduct(@PathVariable("id") long id,
                                                      @RequestParam int type,
                                                      @RequestParam String note) {
-        try{
-        if (productService.inActivateProduct(id, type, note) == 1) {
-            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
-                    HttpStatus.NO_CONTENT.value(),
-                    "Inactivate Product Successfully",
-                    null,
-                    LocalDateTime.now()
-            ));
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
-                    400,
-                    "Occur Error When inactivating Product with Id= " + id,
-                    null,
-                    LocalDateTime.now()
-            ));
-        }}catch(IllegalArgumentException e){
+        try {
+            if (productService.inActivateProduct(id, type, note) == 1) {
+                return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
+                        HttpStatus.NO_CONTENT.value(),
+                        "Inactivate Product Successfully",
+                        null,
+                        LocalDateTime.now()
+                ));
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
+                        400,
+                        "Occur Error When inactivating Product with Id= " + id,
+                        null,
+                        LocalDateTime.now()
+                ));
+            }
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
                     400,
                     e.getMessage(),
@@ -200,32 +201,23 @@ public class ProductController {
                                                          @RequestParam(required = false) Integer pageSize,
                                                          @RequestParam(required = false) Integer pageIndex) {
         try {
-            if (pageSize != null && pageIndex != null) {
-                if (pageSize > 0 && pageIndex >= 0) {
-                    return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
-                            200,
-                            "Successfully",
-                            productService.getAllProductByStatus(type, PageRequest.of(pageSize, pageIndex)),
-                            LocalDateTime.now()
-                    ));
-                } else {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
-                            400,
-                            "Bad Request",
-                            null,
-                            LocalDateTime.now()
-                    ));
-                }
-            } else {
+            if (PageableValidation.setDefault(pageSize, pageIndex) != null) {
                 return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
                         200,
                         "Successfully",
-                        productService.getAllProductByStatus(type, Pageable.unpaged()),
+                        productService.getAllProductByStatus(type, PageableValidation.setDefault(pageSize, pageIndex)),
+                        LocalDateTime.now()
+                ));
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
+                        400,
+                        "Check page size and page index",
+                        null,
                         LocalDateTime.now()
                 ));
             }
-        }catch(IllegalArgumentException e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(400,e.getMessage(),null,LocalDateTime.now()));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(400, e.getMessage(), null, LocalDateTime.now()));
         }
     }
 
@@ -233,17 +225,26 @@ public class ProductController {
     ResponseEntity<ApiResponse<?>> getAllProductRelative(@PathVariable("id") long id,
                                                          @RequestParam(required = false) Integer pageSize,
                                                          @RequestParam(required = false) Integer pageIndex) {
-        if (PageableValidation.setDefault(pageSize, pageIndex) != null) {
-            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
-                    200,
-                    "Successfully",
-                    productService.getAllProductRelative(id, PageableValidation.setDefault(pageSize, pageIndex)),
-                    LocalDateTime.now()
-            ));
-        } else {
+        try {
+            if (PageableValidation.setDefault(pageSize, pageIndex) != null) {
+                return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
+                        200,
+                        "Successfully",
+                        productService.getAllProductRelative(id, PageableValidation.setDefault(pageSize, pageIndex)),
+                        LocalDateTime.now()
+                ));
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
+                        400,
+                        "Bad Request",
+                        null,
+                        LocalDateTime.now()
+                ));
+            }
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
                     400,
-                    "Bad Request",
+                    "Value Not Found",
                     null,
                     LocalDateTime.now()
             ));
@@ -254,6 +255,7 @@ public class ProductController {
     ResponseEntity<ApiResponse<?>> getOtherProductOfShop(@PathVariable("id") long productId,
                                                          @RequestParam(required = false) Integer pageSize,
                                                          @RequestParam(required = false) Integer pageIndex) {
+        try{
         if (PageableValidation.setDefault(pageSize, pageIndex) != null) {
             return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
                     200,
@@ -265,6 +267,13 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
                     400,
                     "Bad Request",
+                    null,
+                    LocalDateTime.now()
+            ));
+        }}catch(IllegalArgumentException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
+                    400,
+                    "Value Not Found",
                     null,
                     LocalDateTime.now()
             ));
