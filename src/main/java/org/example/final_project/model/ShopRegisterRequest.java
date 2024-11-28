@@ -19,5 +19,6 @@ public class ShopRegisterRequest {
     private int shop_address;
     private String shop_address_detail;
     private Integer shop_status = STATUS.NOTACEPTED.getStatus();
+    private String phone;
 
 }

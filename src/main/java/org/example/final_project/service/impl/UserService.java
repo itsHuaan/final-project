@@ -191,6 +191,7 @@ public class UserService implements IUserService, UserDetailsService {
                 addressEntity.setId(request.getShop_address());
                 userEntity.setAddress(addressEntity);
                 userEntity.setShop_address_detail(request.getShop_address_detail());
+                userEntity.setPhone(request.getPhone());
                 userRepository.save(userEntity);
                 return createResponse(HttpStatus.OK, "Wait for confirm ",null);
             } else if (userEntity.getShop_status() == 1) {
@@ -209,13 +210,9 @@ public class UserService implements IUserService, UserDetailsService {
             role.setRoleId(1L);
             userEntity.setRole(role);
             userRepository.save(userEntity);
-            return createResponse(HttpStatus.OK, "Đã tạo shop ",null);
-
+            return createResponse(HttpStatus.OK, "Created Shop",null);
         }
         throw new NotFound("Not found Userr");
     }
-
-
-
-    };
+};
 

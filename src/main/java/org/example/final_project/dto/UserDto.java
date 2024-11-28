@@ -22,5 +22,7 @@ public class UserDto {
     private int shop_address;
     private Integer shop_status;
     private String shop_address_detail;
+    private String phone;
+
 
 }

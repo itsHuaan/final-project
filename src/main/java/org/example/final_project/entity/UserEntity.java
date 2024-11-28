@@ -41,6 +41,7 @@ public class UserEntity {
     private String shop_name;
     private Integer shop_status;
     private String shop_address_detail;
+    private String phone;
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "address_id")
     private AddressEntity address;
