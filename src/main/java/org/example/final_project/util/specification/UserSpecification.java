@@ -34,6 +34,6 @@ public class UserSpecification {
 
     public static Specification<UserEntity> isNotDeleted() {
         return (Root<UserEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
-                criteriaBuilder.equal(root.get("deletedAt"), null);
+                criteriaBuilder.isNull(root.get("deletedAt"));
     }
 }
