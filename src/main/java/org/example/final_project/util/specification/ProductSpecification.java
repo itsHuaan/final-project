@@ -8,17 +8,9 @@ import org.example.final_project.entity.ProductEntity;
 import org.springframework.data.jpa.domain.Specification;
 
 public class ProductSpecification {
-    public static Specification<ProductEntity> isActive() {
+    public static Specification<ProductEntity> isStatus(int status) {
         return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
-                criteriaBuilder.equal(root.get("isActive"), 1);
-    }
-    public static Specification<ProductEntity> isNotActive() {
-        return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
-                criteriaBuilder.equal(root.get("isActive"), 2);
-    }
-    public static Specification<ProductEntity> isNotConfirm() {
-        return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
-                criteriaBuilder.equal(root.get("isActive"), 0);
+                criteriaBuilder.equal(root.get("isActive"), status);
     }
     public static Specification<ProductEntity> isNotDeleted() {
         return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
@@ -31,5 +23,13 @@ public class ProductSpecification {
     public static Specification<ProductEntity> hasParentId(long parentId) {
         return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("parent_id"), parentId);
+    }
+    public static Specification<ProductEntity> notHaveId(long id) {
+        return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
+                criteriaBuilder.notEqual(root.get("id"), id);
+    }
+    public static Specification<ProductEntity> hasUserId(long userId) {
+        return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("user").get("id"), userId);
     }
 }

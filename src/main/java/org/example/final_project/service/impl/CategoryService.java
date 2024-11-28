@@ -1,5 +1,7 @@
 package org.example.final_project.service.impl;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import org.example.final_project.dto.CategoryDto;
 import org.example.final_project.entity.CategoryEntity;
 import org.example.final_project.mapper.CategoryMapper;
@@ -33,6 +35,8 @@ public class CategoryService implements ICategoryService {
     CategoryMapper categoryMapper;
     @Autowired
     IUserRepository iUserRepository;
+    @Autowired
+    Cloudinary cloudinary;
 
     @Override
     public List<CategoryDto> getAll() {
@@ -52,6 +56,9 @@ public class CategoryService implements ICategoryService {
     public int save(CategoryModel model) {
         try {
             CategoryEntity category = categoryMapper.convertToEntity(model);
+            if (model.getFile() != null) {
+                category.setImage(cloudinary.uploader().upload(model.getFile().getBytes(), ObjectUtils.emptyMap()).get("url").toString());
+            }
             if (model.getUser_id() != 0L) {
                 category.setUser(iUserRepository.findById(model.getUser_id()).get());
             }
@@ -126,9 +133,9 @@ public class CategoryService implements ICategoryService {
     @Override
     public Page<CategoryDto> getAllByParentId(long parent_id, Pageable pageable) {
         if (pageable != null) {
-            return iCategoryRepository.findAll(Specification.where(isNotDeleted()).and(hasParentId(parent_id)),pageable).map(x->categoryMapper.convertToDto(x));
-        }else{
-            return iCategoryRepository.findAll(Specification.where(isNotDeleted()).and(hasParentId(parent_id)),PageRequest.of(0,iCategoryRepository.findAll().size())).map(x->categoryMapper.convertToDto(x));
+            return iCategoryRepository.findAll(Specification.where(isNotDeleted()).and(hasParentId(parent_id)), pageable).map(x -> categoryMapper.convertToDto(x));
+        } else {
+            return iCategoryRepository.findAll(Specification.where(isNotDeleted()).and(hasParentId(parent_id)), PageRequest.of(0, iCategoryRepository.findAll().size())).map(x -> categoryMapper.convertToDto(x));
         }
     }
 }
