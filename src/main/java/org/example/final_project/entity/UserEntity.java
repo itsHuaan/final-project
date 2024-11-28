@@ -40,11 +40,10 @@ public class UserEntity {
     private String tax_code;
     private String shop_name;
     private Integer shop_status;
+    private String shop_address_detail;
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "address_id")
     private AddressEntity address;
-
-
     @OneToMany(mappedBy = "user")
     private List<CategoryEntity> categories;
 }

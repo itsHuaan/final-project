@@ -56,12 +56,16 @@ public class UserController {
                 result,
                 LocalDateTime.now()));
     }
-    @PostMapping("/")
-    @PreAuthorize("hasRole('ROLE_SELLER') or  hasRole('ROLE_BUYER')")
-    public ResponseEntity<?> becomeShop(ShopRegisterRequest shopRegisterRequest) {
-        UserDto userDto = userService.registerForBeingShop(shopRegisterRequest);
-        return ResponseEntity.ok(userDto);
+    @PostMapping("/register_shop")
+    @PreAuthorize("hasRole('ROLE_BUYER') or hasRole('ROLE_SELLER')")
+    public ResponseEntity<?> becomeShop(@RequestBody ShopRegisterRequest shopRegisterRequest) {
+        ApiResponse<?> response = userService.registerForBeingShop(shopRegisterRequest);
+        return ResponseEntity.ok(response);
     }
+
+
+
+
 
 
 }

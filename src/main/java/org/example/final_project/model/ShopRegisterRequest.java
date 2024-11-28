@@ -15,4 +15,6 @@ public class ShopRegisterRequest {
     private String tax_code;
     private String shop_name;
     private int shop_address;
+    private String shop_address_detail;
+
 }
