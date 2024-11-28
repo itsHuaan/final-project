@@ -18,9 +18,7 @@ public class ImageService {
 
     public String uploadImage(MultipartFile[] file) throws IOException {
         List<String> imagesUrl = new ArrayList<>();
-        for (MultipartFile img : file) {
-            // Upload từng ảnh lên Cloudinary
-            Map<String, Object> uploadResult = cloudinary.uploader().upload(img.getBytes(), ObjectUtils.emptyMap());
+        for (MultipartFile img : file) {Map<String, Object> uploadResult = cloudinary.uploader().upload(img.getBytes(), ObjectUtils.emptyMap());
 
             // Lấy URL của ảnh đã upload và thêm vào danh sách
             String imageUrl = (String) uploadResult.get("url");

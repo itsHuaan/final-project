@@ -1,6 +1,7 @@
 package org.example.final_project.model;
 
 import lombok.*;
+import org.example.final_project.model.enum_status.STATUS;
 import org.springframework.web.multipart.MultipartFile;
 
 @Getter
@@ -17,5 +18,6 @@ public class ShopRegisterRequest {
     private String shop_name;
     private int shop_address;
     private String shop_address_detail;
+    private Integer shop_status = STATUS.NOTACEPTED.getStatus();
 
 }

@@ -23,4 +23,5 @@ public interface IUserService extends IBaseService<UserDto, UserModel, Long> {
     ResponseEntity<?> signIn(String email, String password);
     ApiResponse<?> registerForBeingShop(ShopRegisterRequest request) throws Exception;
     int updateUserProfile(ProfileUpdateRequest request);
+    ApiResponse<?> acceptfromAdmin(int status , long userId) throws Exception;
 }

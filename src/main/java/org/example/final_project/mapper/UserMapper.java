@@ -36,6 +36,7 @@ public class UserMapper {
                 .isActive(userModel.getIsActive())
                 .role(role)
                 .createdAt(userModel.getCreatedAt())
+                .shop_status(userModel.getShop_status())
                 .build();
     }
 }
