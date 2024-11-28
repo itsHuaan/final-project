@@ -39,4 +39,7 @@ public class ProductEntity {
     private List<ImageProductEntity> images;
     @OneToMany(mappedBy = "product")
     private List<FeedbackEntity> feedbacks;
+    @ManyToOne
+    @JoinColumn(name="user_id")
+    private UserEntity user;
 }

@@ -38,4 +38,6 @@ public class UserEntity {
 
     @OneToMany(mappedBy = "user")
     private List<CategoryEntity> categories;
+    @OneToMany(mappedBy = "user")
+    private List<ProductEntity> products;
 }
