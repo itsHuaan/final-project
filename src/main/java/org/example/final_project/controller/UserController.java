@@ -61,7 +61,7 @@ public class UserController {
     }
 
 
-//    @PreAuthorize("hasRole('ROLE_BUYER') or hasRole('ROLE_SELLER')")
+    @PreAuthorize("hasRole('ROLE_BUYER') or hasRole('ROLE_SELLER')")
     @PostMapping("/registerShop")
     public ResponseEntity<ApiResponse<?>> registerForBeingShop(@ModelAttribute ShopRegisterRequest request) {
         try {
