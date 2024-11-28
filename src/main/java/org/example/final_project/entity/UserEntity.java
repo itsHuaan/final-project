@@ -46,4 +46,6 @@ public class UserEntity {
     private AddressEntity address;
     @OneToMany(mappedBy = "user")
     private List<CategoryEntity> categories;
+    @OneToMany(mappedBy = "user")
+    private List<ProductEntity> products;
 }

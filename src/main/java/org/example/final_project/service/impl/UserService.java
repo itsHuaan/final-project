@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static org.example.final_project.dto.ApiResponse.createResponse;
 import static org.example.final_project.util.specification.UserSpecification.*;
@@ -201,5 +202,6 @@ public class UserService implements IUserService, UserDetailsService {
          return createResponse(HttpStatus.OK, "not found user",null);
     }
 
+    };
 
 }

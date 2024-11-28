@@ -99,7 +99,7 @@ public class CategoryService implements ICategoryService {
         try {
             CategoryEntity categoryEntity = iCategoryRepository.findById(id).get();
             if (categoryEntity != null) {
-                if (EnumSet.of(ActivateStatus.Active, ActivateStatus.Inactive).contains(type)) {
+                if (ActivateStatus.Inactive.checkIfExist(type)) {
                     categoryEntity.setIsActive(type);
                     iCategoryRepository.save(categoryEntity);
                 }
@@ -115,10 +115,10 @@ public class CategoryService implements ICategoryService {
     @Override
     public Page<CategoryDto> findAllByPage(Pageable pageable) {
         if (pageable != null) {
-            Page<CategoryDto> page = iCategoryRepository.findAll(Specification.where(isActive().and(isNotDeleted())), pageable).map(x -> categoryMapper.convertToDto(x));
+            Page<CategoryDto> page = iCategoryRepository.findAll(Specification.where(isNotDeleted()), pageable).map(x -> categoryMapper.convertToDto(x));
             return page;
         } else {
-            Page<CategoryDto> page = iCategoryRepository.findAll(Specification.where(isActive().and(isNotDeleted())), PageRequest.of(0, iCategoryRepository.findAll().size())).map(x -> categoryMapper.convertToDto(x));
+            Page<CategoryDto> page = iCategoryRepository.findAll(Specification.where(isNotDeleted()), PageRequest.of(0, iCategoryRepository.findAll().size())).map(x -> categoryMapper.convertToDto(x));
             return page;
         }
     }
@@ -126,9 +126,9 @@ public class CategoryService implements ICategoryService {
     @Override
     public Page<CategoryDto> getAllByParentId(long parent_id, Pageable pageable) {
         if (pageable != null) {
-            return iCategoryRepository.findAll(Specification.where(isActive().and(isNotDeleted()).and(hasParentId(parent_id))),pageable).map(x->categoryMapper.convertToDto(x));
+            return iCategoryRepository.findAll(Specification.where(isNotDeleted()).and(hasParentId(parent_id)),pageable).map(x->categoryMapper.convertToDto(x));
         }else{
-            return iCategoryRepository.findAll(Specification.where(isActive().and(isNotDeleted()).and(hasParentId(parent_id))),PageRequest.of(0,iCategoryRepository.findAll().size())).map(x->categoryMapper.convertToDto(x));
+            return iCategoryRepository.findAll(Specification.where(isNotDeleted()).and(hasParentId(parent_id)),PageRequest.of(0,iCategoryRepository.findAll().size())).map(x->categoryMapper.convertToDto(x));
         }
     }
 }

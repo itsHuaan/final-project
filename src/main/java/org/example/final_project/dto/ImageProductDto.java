@@ -10,5 +10,4 @@ import lombok.*;
 public class ImageProductDto {
     private long id;
     private String imageLink;
-    private int isActive;
 }

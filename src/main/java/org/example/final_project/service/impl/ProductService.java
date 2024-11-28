@@ -7,8 +7,10 @@ import org.example.final_project.model.ImageProductModel;
 import org.example.final_project.model.ProductModel;
 import org.example.final_project.model.enum_status.ActivateStatus;
 import org.example.final_project.repository.IProductRepository;
+import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.IImageProductService;
 import org.example.final_project.service.IProductService;
+import org.example.final_project.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,6 +34,8 @@ public class ProductService implements IProductService {
     ProductMapper productMapper;
     @Autowired
     IImageProductService imageService;
+    @Autowired
+    IUserRepository iUserRepository;
 
     @Override
     public List<ProductDto> getAll() {
@@ -51,9 +55,11 @@ public class ProductService implements IProductService {
     public int save(ProductModel productModel) {
         try {
             ProductEntity productEntity = productMapper.convertToEntity(productModel);
+            productEntity.setIsActive(0);
+            productEntity.setUser(iUserRepository.findById(productModel.getUser_id()).get());
             ProductEntity savedProduct = iProductRepository.save(productEntity);
             for (MultipartFile file : productModel.getFiles()) {
-                imageService.save(new ImageProductModel(file, savedProduct.getId(), 1));
+                imageService.save(new ImageProductModel(file, savedProduct.getId()));
             }
             return 1;
         } catch (Exception e) {
@@ -97,8 +103,8 @@ public class ProductService implements IProductService {
         try {
             ProductEntity productEntity = iProductRepository.findById(id).get();
             if (productEntity != null) {
-                if (EnumSet.of(ActivateStatus.Active, ActivateStatus.Inactive).contains(type)) {
-                    productEntity.setIsActive(0);
+                if (ActivateStatus.Active.checkIfExist(type)) {
+                    productEntity.setIsActive(type);
                     iProductRepository.save(productEntity);
                 }
             }
@@ -112,27 +118,37 @@ public class ProductService implements IProductService {
     @Override
     public Page<ProductDto> findAllByPage(Pageable pageable) {
         if (pageable != null) {
-            return iProductRepository.findAll(Specification.where(isActive().and(isNotDeleted())), pageable).map(x -> productMapper.convertToDto(x));
+            return iProductRepository.findAll(Specification.where(isNotDeleted()), pageable).map(x -> productMapper.convertToDto(x));
         } else {
-            return iProductRepository.findAll(Specification.where(isActive().and(isNotDeleted())), PageRequest.of(0, iProductRepository.findAll().size())).map(x -> productMapper.convertToDto(x));
+            return iProductRepository.findAll(Specification.where(isNotDeleted()), PageRequest.of(0, iProductRepository.findAll().size())).map(x -> productMapper.convertToDto(x));
         }
     }
 
     @Override
     public Page<ProductDto> findAllByNameAndPage(String name, Pageable pageable) {
         if (pageable != null) {
-            return iProductRepository.findAll(Specification.where(isActive().and(isNotDeleted()).and(hasName(name))), pageable).map(x -> productMapper.convertToDto(x));
+            return iProductRepository.findAll(Specification.where(isNotDeleted().and(hasName(name))), pageable).map(x -> productMapper.convertToDto(x));
         } else {
-            return iProductRepository.findAll(Specification.where(isActive().and(isNotDeleted()).and(hasName(name))), PageRequest.of(0, iProductRepository.findAll().size())).map(x -> productMapper.convertToDto(x));
+            return iProductRepository.findAll(Specification.where(isNotDeleted().and(hasName(name))), PageRequest.of(0, iProductRepository.findAll().size())).map(x -> productMapper.convertToDto(x));
         }
     }
 
     @Override
     public Page<ProductDto> getAllByParentId(long parentId, Pageable pageable) {
         if(pageable!=null){
-            return iProductRepository.findAll(Specification.where(isActive().and(isNotDeleted()).and(hasParentId(parentId))),pageable).map(x->productMapper.convertToDto(x));
+            return iProductRepository.findAll(Specification.where(isNotDeleted().and(hasParentId(parentId))),pageable).map(x->productMapper.convertToDto(x));
         }else{
-            return iProductRepository.findAll(Specification.where(isActive()).and(isNotDeleted()).and(hasParentId(parentId)),PageRequest.of(0,iProductRepository.findAllByParent_id(parentId).size())).map(x->productMapper.convertToDto(x));
+            return iProductRepository.findAll(Specification.where(isNotDeleted().and(hasParentId(parentId))),PageRequest.of(0,iProductRepository.findAllByParent_id(parentId).size())).map(x->productMapper.convertToDto(x));
         }
     }
+
+    @Override
+    public Page<ProductDto> getAllProductNotConfirmed(Pageable pageable) {
+        if(pageable!=null){
+            return iProductRepository.findAll(Specification.where(isNotConfirm()).and(isNotDeleted()),pageable).map(x->productMapper.convertToDto(x));
+        }else{
+            return iProductRepository.findAll(Specification.where(isNotConfirm()).and(isNotDeleted()),PageRequest.of(0,iProductRepository.findAll().size())).map(x->productMapper.convertToDto(x));
+        }
+    }
+
 }
