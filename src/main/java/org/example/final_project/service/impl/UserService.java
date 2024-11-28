@@ -186,25 +186,36 @@ public class UserService implements IUserService, UserDetailsService {
                 String id_front = imageService.uploadOneImage(request.getId_front());
                 userEntity.setId_front(id_front);
                 userEntity.setShop_name(request.getShop_name());
-                userEntity.setShop_status(STATUS.ACTIVE.getStatus());
                 userEntity.setTax_code(request.getTax_code());
-
-                RoleEntity roleEntity = new RoleEntity();
-                roleEntity.setRoleId(1L);
-                userEntity.setRole(roleEntity);
-
                 AddressEntity addressEntity = new AddressEntity();
                 addressEntity.setId(request.getShop_address());
                 userEntity.setAddress(addressEntity);
-
                 userEntity.setShop_address_detail(request.getShop_address_detail());
-                UserDto userDto = userMapper.toDto(userRepository.save(userEntity));
-                return createResponse(HttpStatus.OK, "Logged In",userDto);
+                userRepository.save(userEntity);
+                return createResponse(HttpStatus.OK, "Wait for confirm ",null);
             } else if (userEntity.getShop_status() == 1) {
                 return createResponse(HttpStatus.CONFLICT, "User register Shop",null);
             }
         }
         throw new NotFound("Not found Userr");
     }
+    @Override
+    public ApiResponse<?> acceptfromAdmin(int status , long userId) throws Exception{
+        Optional<UserEntity> optionalUserEntity = userRepository.findById(userId);
+        if (optionalUserEntity.isPresent()) {
+            UserEntity userEntity =  userRepository.findById(userId).get();
+            userEntity.setShop_status(status);
+            RoleEntity role = new RoleEntity();
+            role.setRoleId(1L);
+            userEntity.setRole(role);
+            userRepository.save(userEntity);
+            return createResponse(HttpStatus.OK, "Đã tạo shop ",null);
+
+        }
+        throw new NotFound("Not found Userr");
+    }
+
+
+
     };
 
