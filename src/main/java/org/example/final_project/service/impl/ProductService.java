@@ -167,13 +167,14 @@ public class ProductService implements IProductService {
         if (pageable != null) {
             if (iProductRepository.findById(productId).isPresent()) {
                 ProductEntity productEntity = iProductRepository.findById(productId).get();
-                return iProductRepository.findAll(Specification.where(isNotDeleted()).and(hasParentId(productEntity.getCategoryEntity().getId())).and(notHaveId(productId)), pageable).map(x -> productMapper.convertToDto(x));
+                Page<ProductDto> page= iProductRepository.findAll(Specification.where(isNotDeleted()).and(hasCategoryId(productEntity.getCategoryEntity().getId())).and(notHaveId(productId)), pageable).map(x -> productMapper.convertToDto(x));
+                return page;
             } else {
-                return null;
+                throw new IllegalArgumentException("Value Not Found");
             }
         } else {
             ProductEntity productEntity = iProductRepository.findById(productId).get();
-            return iProductRepository.findAll(Specification.where(isNotDeleted()).and(hasParentId(productEntity.getCategoryEntity().getId())).and(notHaveId(productId)), Pageable.unpaged()).map(x -> productMapper.convertToDto(x));
+            return iProductRepository.findAll(Specification.where(isNotDeleted()).and(hasCategoryId(productEntity.getCategoryEntity().getId())).and(notHaveId(productId)), Pageable.unpaged()).map(x -> productMapper.convertToDto(x));
         }
     }
 
@@ -187,7 +188,7 @@ public class ProductService implements IProductService {
                 return iProductRepository.findAll(Specification.where(isNotDeleted()).and(notHaveId(productId)).and(hasUserId(productEntity.getUser().getUserId())), Pageable.unpaged()).map(x -> productMapper.convertToDto(x));
             }
         } else {
-            return null;
+            throw new IllegalArgumentException("Value Not Found");
         }
     }
 }

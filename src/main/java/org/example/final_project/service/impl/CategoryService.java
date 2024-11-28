@@ -48,7 +48,7 @@ public class CategoryService implements ICategoryService {
         if (iCategoryRepository.findById(id).get() != null) {
             return categoryMapper.convertToDto(iCategoryRepository.findById(id).get());
         } else {
-            return null;
+            throw new IllegalArgumentException("Value Not Found");
         }
     }
 
@@ -77,6 +77,8 @@ public class CategoryService implements ICategoryService {
                 CategoryEntity categoryEntity = categoryMapper.convertToEntity(model);
                 categoryEntity.setId(aLong);
                 iCategoryRepository.save(categoryEntity);
+            }else{
+                throw new IllegalArgumentException("Value Not Found");
             }
             return 1;
         } catch (Exception e) {
@@ -92,6 +94,8 @@ public class CategoryService implements ICategoryService {
             if (categoryEntity != null) {
                 categoryEntity.setDeletedAt(LocalDateTime.now());
                 iCategoryRepository.save(categoryEntity);
+            }else{
+                throw new IllegalArgumentException("Value Not Found");
             }
             return 1;
         } catch (Exception e) {
@@ -109,6 +113,8 @@ public class CategoryService implements ICategoryService {
                 if (ActivateStatus.Inactive.checkIfExist(type)) {
                     categoryEntity.setIsActive(type);
                     iCategoryRepository.save(categoryEntity);
+                }else{
+                    throw new IllegalArgumentException("Value Not Found");
                 }
             }
             return 1;

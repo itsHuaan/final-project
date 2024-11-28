@@ -69,9 +69,10 @@ public class CategoryController {
     @PutMapping("/update/{id}")
     ResponseEntity<ApiResponse<?>> updateCategory(@PathVariable("id") long id,
                                                   @RequestBody CategoryModel model) {
+        try{
         if (categoryService.update(id, model) == 1) {
             return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
-                    201,
+                    200,
                     "Update Category Successfully",
                     null,
                     LocalDateTime.now()
@@ -84,10 +85,19 @@ public class CategoryController {
                     LocalDateTime.now()
             ));
         }
+        }catch(IllegalAccessError e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
+                    400,
+                    e.getMessage(),
+                    null,
+                    LocalDateTime.now()
+            ));
+        }
     }
 
     @DeleteMapping("/delete/{id}")
     ResponseEntity<ApiResponse<?>> deleteCategory(@PathVariable("id") long id) {
+        try{
         if (categoryService.delete(id) == 1) {
             return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
                     204,
@@ -102,12 +112,20 @@ public class CategoryController {
                     null,
                     LocalDateTime.now()
             ));
+        }}catch(IllegalArgumentException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
+                    400,
+                    e.getMessage(),
+                    null,
+                    LocalDateTime.now()
+            ));
         }
     }
 
     @PutMapping("/activate/{id}")
     ResponseEntity<ApiResponse<?>> inactivateCategory(@PathVariable("id") long id,
                                                       @RequestParam int type) {
+        try{
         if (categoryService.activateCategory(id, type) == 1) {
             return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
                     204,
@@ -122,6 +140,13 @@ public class CategoryController {
                     null,
                     LocalDateTime.now()
             ));
+        }}catch(IllegalArgumentException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
+                    400,
+                    e.getMessage(),
+                    null,
+                    LocalDateTime.now()
+            ));
         }
     }
 
@@ -129,6 +154,7 @@ public class CategoryController {
     ResponseEntity<ApiResponse<?>> findCategoryByParentId(@PathVariable("id") long parentId,
                                                           @RequestParam(required = false) Integer pageSize,
                                                           @RequestParam(required = false) Integer pageIndex) {
+        try{
         if (pageSize != null && pageIndex != null) {
             if (pageSize > 0 && pageIndex >= 0) {
                 return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
@@ -150,6 +176,14 @@ public class CategoryController {
                     200,
                     "Successfully",
                     categoryService.getAllByParentId(parentId, Pageable.unpaged()),
+                    LocalDateTime.now()
+            ));
+        }}
+        catch(IllegalArgumentException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
+                    400,
+                    e.getMessage(),
+                    null,
                     LocalDateTime.now()
             ));
         }
