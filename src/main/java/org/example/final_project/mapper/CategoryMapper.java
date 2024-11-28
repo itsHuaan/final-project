@@ -13,8 +13,7 @@ import java.time.LocalDateTime;
 
 @Component
 public class CategoryMapper {
-    @Autowired
-    Cloudinary cloudinary;
+
     public CategoryDto convertToDto(CategoryEntity categoryEntity){
         return CategoryDto.builder()
                 .id(categoryEntity.getId())
@@ -30,7 +29,6 @@ public class CategoryMapper {
         return CategoryEntity.builder()
                 .name(model.getName())
                 .parent_id(model.getParent_id())
-                .image(cloudinary.uploader().upload(model.getFile().getBytes(), ObjectUtils.emptyMap()).get("url").toString())
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
                 .build();

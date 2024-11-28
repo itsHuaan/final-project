@@ -66,7 +66,7 @@ public class CategoryController {
         }
     }
 
-    @PostMapping("/update/{id}")
+    @PutMapping("/update/{id}")
     ResponseEntity<ApiResponse<?>> updateCategory(@PathVariable("id") long id,
                                                   @RequestBody CategoryModel model) {
         if (categoryService.update(id, model) == 1) {
@@ -86,7 +86,7 @@ public class CategoryController {
         }
     }
 
-    @PostMapping("/delete/{id}")
+    @DeleteMapping("/delete/{id}")
     ResponseEntity<ApiResponse<?>> deleteCategory(@PathVariable("id") long id) {
         if (categoryService.delete(id) == 1) {
             return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
@@ -105,7 +105,7 @@ public class CategoryController {
         }
     }
 
-    @PostMapping("/activate/{id}")
+    @PutMapping("/activate/{id}")
     ResponseEntity<ApiResponse<?>> inactivateCategory(@PathVariable("id") long id,
                                                       @RequestParam int type) {
         if (categoryService.activateCategory(id, type) == 1) {

@@ -5,6 +5,7 @@ import com.cloudinary.Api;
 import jakarta.servlet.annotation.MultipartConfig;
 import org.example.final_project.dto.ApiResponse;
 import org.example.final_project.model.ProductModel;
+import org.example.final_project.model.validation.PageableValidation;
 import org.example.final_project.service.impl.ProductService;
 import org.example.final_project.util.Const;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,7 +68,7 @@ public class ProductController {
         }
     }
 
-    @PostMapping("/update/{id}")
+    @PutMapping("/update/{id}")
     ResponseEntity<ApiResponse<?>> updateProduct(@PathVariable("id") long id,
                                                  @RequestBody ProductModel model) {
         if (productService.update(id, model) == 1) {
@@ -86,7 +87,7 @@ public class ProductController {
         }
     }
 
-    @PostMapping("/delete/{id}")
+    @DeleteMapping("/delete/{id}")
     ResponseEntity<ApiResponse<?>> deleteProduct(@PathVariable("id") long id) {
         if (productService.delete(id) == 1) {
             return ResponseEntity.ok(new ApiResponse<>(
@@ -105,10 +106,12 @@ public class ProductController {
         }
     }
 
-    @PostMapping("/activate/{id}")
+    @PutMapping("/activate/{id}")
     ResponseEntity<ApiResponse<?>> inactivateProduct(@PathVariable("id") long id,
-                                                     @RequestParam int type) {
-        if (productService.inActivateProduct(id, type) == 1) {
+                                                     @RequestParam int type,
+                                                     @RequestParam String note) {
+        try{
+        if (productService.inActivateProduct(id, type, note) == 1) {
             return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
                     HttpStatus.NO_CONTENT.value(),
                     "Inactivate Product Successfully",
@@ -119,6 +122,13 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
                     400,
                     "Occur Error When inactivating Product with Id= " + id,
+                    null,
+                    LocalDateTime.now()
+            ));
+        }}catch(IllegalArgumentException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
+                    400,
+                    e.getMessage(),
                     null,
                     LocalDateTime.now()
             ));
@@ -184,31 +194,79 @@ public class ProductController {
             ));
         }
     }
-    @GetMapping("/getAllProductNotConfirmed")
-    ResponseEntity<ApiResponse<?>> getAllProductUnApproved(@RequestParam(required = false)Integer pageSize,
-                                                           @RequestParam(required = false)Integer pageIndex){
-        if(pageSize!=null&&pageIndex!=null){
-            if(pageSize>0&&pageIndex>=0){
+
+    @GetMapping("/getAllProductByStatus/{type}")
+    ResponseEntity<ApiResponse<?>> getAllProductByStatus(@PathVariable("type") int type,
+                                                         @RequestParam(required = false) Integer pageSize,
+                                                         @RequestParam(required = false) Integer pageIndex) {
+        try {
+            if (pageSize != null && pageIndex != null) {
+                if (pageSize > 0 && pageIndex >= 0) {
+                    return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
+                            200,
+                            "Successfully",
+                            productService.getAllProductByStatus(type, PageRequest.of(pageSize, pageIndex)),
+                            LocalDateTime.now()
+                    ));
+                } else {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
+                            400,
+                            "Bad Request",
+                            null,
+                            LocalDateTime.now()
+                    ));
+                }
+            } else {
                 return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
-                   200,
-                   "Successfully",
-                   productService.getAllProductNotConfirmed(PageRequest.of(pageSize,pageIndex)),
-                   LocalDateTime.now()
-                ));
-            }else{
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
-                   400,
-                   "Bad Request",
-                   null,
-                   LocalDateTime.now()
+                        200,
+                        "Successfully",
+                        productService.getAllProductByStatus(type, Pageable.unpaged()),
+                        LocalDateTime.now()
                 ));
             }
-        }else{
+        }catch(IllegalArgumentException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(400,e.getMessage(),null,LocalDateTime.now()));
+        }
+    }
+
+    @GetMapping("/getAllProductRelative/{id}")
+    ResponseEntity<ApiResponse<?>> getAllProductRelative(@PathVariable("id") long id,
+                                                         @RequestParam(required = false) Integer pageSize,
+                                                         @RequestParam(required = false) Integer pageIndex) {
+        if (PageableValidation.setDefault(pageSize, pageIndex) != null) {
             return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
-               200,
-               "Successfully",
-               productService.getAllProductNotConfirmed(Pageable.unpaged()),
-               LocalDateTime.now()
+                    200,
+                    "Successfully",
+                    productService.getAllProductRelative(id, PageableValidation.setDefault(pageSize, pageIndex)),
+                    LocalDateTime.now()
+            ));
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
+                    400,
+                    "Bad Request",
+                    null,
+                    LocalDateTime.now()
+            ));
+        }
+    }
+
+    @GetMapping("/getOtherProductOfShop/{id}")
+    ResponseEntity<ApiResponse<?>> getOtherProductOfShop(@PathVariable("id") long productId,
+                                                         @RequestParam(required = false) Integer pageSize,
+                                                         @RequestParam(required = false) Integer pageIndex) {
+        if (PageableValidation.setDefault(pageSize, pageIndex) != null) {
+            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
+                    200,
+                    "Successfully",
+                    productService.getOtherProductOfShop(productId, PageableValidation.setDefault(pageSize, pageIndex)),
+                    LocalDateTime.now()
+            ));
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
+                    400,
+                    "Bad Request",
+                    null,
+                    LocalDateTime.now()
             ));
         }
     }
