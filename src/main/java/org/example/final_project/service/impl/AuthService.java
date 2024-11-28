@@ -139,6 +139,9 @@ public class AuthService implements IAuthService {
 
     @Override
     public ApiResponse<?> resetPassword(String token, String newPassword) {
+        if (AuthValidation.tokenValidator(token)) {
+            throw new SecurityException(AuthValidation.TOKEN_INVALID);
+        }
         if (tokenBlacklistService.isTokenPresent(token)) {
             throw new IllegalArgumentException(AuthValidation.TOKEN_INVALID);
         }
