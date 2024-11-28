@@ -228,6 +228,12 @@ public class UserService implements IUserService, UserDetailsService {
         }
         throw new NotFound("Not found Userr");
     }
+
+    @Override
+    public int updateUserProfile(ProfileUpdateRequest request) {
+        return 0;
+    }
+
     @Override
     public ApiResponse<?> acceptfromAdmin(int status , long userId) throws Exception{
         Optional<UserEntity> optionalUserEntity = userRepository.findById(userId);
@@ -244,13 +250,5 @@ public class UserService implements IUserService, UserDetailsService {
         throw new NotFound("Not found Userr");
     }
 
-
-
-    };
-
-    @Override
-    public int updateUserProfile(ProfileUpdateRequest request) {
-        return 0;
-    }
 };
 
