@@ -1,6 +1,8 @@
 package org.example.final_project.service.impl;
 
+import com.cloudinary.Cloudinary;
 import com.cloudinary.api.exceptions.NotFound;
+import com.cloudinary.utils.ObjectUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -31,6 +33,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -49,6 +52,7 @@ public class UserService implements IUserService, UserDetailsService {
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
     ImageService imageService;
+    Cloudinary cloudinary;
 
 
     @Override
@@ -77,6 +81,13 @@ public class UserService implements IUserService, UserDetailsService {
         userModel.setPassword(passwordEncoder.encode(userModel.getPassword()));
         UserEntity userEntity = userMapper.toEntity(userModel);
         userEntity.setRole(role);
+        try{
+            if(userModel.getProfilePicture()!=null){
+                userEntity.setProfilePicture(cloudinary.uploader().upload(userModel.getProfilePicture().getBytes(), ObjectUtils.emptyMap()).get("url").toString());
+            }
+        }catch(IOException e){
+            userEntity.setProfilePicture(null);
+        }
         userRepository.save(userEntity);
         return 1;
     }
