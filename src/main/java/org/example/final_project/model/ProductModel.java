@@ -28,5 +28,6 @@ public class ProductModel {
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
     private long categoryId;
+    private long user_id;
 
 }

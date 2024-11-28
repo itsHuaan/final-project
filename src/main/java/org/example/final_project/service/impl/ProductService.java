@@ -7,8 +7,10 @@ import org.example.final_project.model.ImageProductModel;
 import org.example.final_project.model.ProductModel;
 import org.example.final_project.model.enum_status.ActivateStatus;
 import org.example.final_project.repository.IProductRepository;
+import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.IImageProductService;
 import org.example.final_project.service.IProductService;
+import org.example.final_project.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,6 +34,8 @@ public class ProductService implements IProductService {
     ProductMapper productMapper;
     @Autowired
     IImageProductService imageService;
+    @Autowired
+    IUserRepository iUserRepository;
 
     @Override
     public List<ProductDto> getAll() {
@@ -52,6 +56,7 @@ public class ProductService implements IProductService {
         try {
             ProductEntity productEntity = productMapper.convertToEntity(productModel);
             productEntity.setIsActive(0);
+            productEntity.setUser(iUserRepository.findById(productModel.getUser_id()).get());
             ProductEntity savedProduct = iProductRepository.save(productEntity);
             for (MultipartFile file : productModel.getFiles()) {
                 imageService.save(new ImageProductModel(file, savedProduct.getId()));
