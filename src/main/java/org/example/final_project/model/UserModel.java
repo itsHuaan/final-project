@@ -1,6 +1,7 @@
 package org.example.final_project.model;
 
 import lombok.*;
+import org.example.final_project.util.STATUS;
 
 import java.time.LocalDateTime;
 
@@ -16,7 +17,9 @@ public class UserModel {
     private String username;
     private String password;
     private String email;
-    private Long roleId;
+    private Long roleId = 2L;
     private Integer isActive = 0;
     private LocalDateTime createdAt = LocalDateTime.now();
+    private Integer shop_status = STATUS.INACTIVE.getStatus();
+
 }

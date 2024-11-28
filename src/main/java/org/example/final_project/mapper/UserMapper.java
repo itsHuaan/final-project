@@ -16,13 +16,17 @@ public class UserMapper {
                 .email(userEntity.getEmail())
                 .password(userEntity.getPassword())
                 .roleId(userEntity.getRole() != null ? userEntity.getRole().getRoleId() : null)
+                .id_back(userEntity.getId_back())
+                .id_front(userEntity.getId_front())
+                .shop_name(userEntity.getShop_name())
+                .shop_status(userEntity.getShop_status())
+                .tax_code(userEntity.getTax_code())
                 .build();
     }
 
     public UserEntity toEntity(UserModel userModel) {
         RoleEntity role = new RoleEntity();
         role.setRoleId(userModel.getRoleId());
-
         return UserEntity.builder()
                 .userId(userModel.getUserId())
                 .name(userModel.getName())

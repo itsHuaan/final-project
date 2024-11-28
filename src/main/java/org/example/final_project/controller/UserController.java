@@ -2,6 +2,8 @@ package org.example.final_project.controller;
 
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.example.final_project.dto.UserDto;
+import org.example.final_project.model.ShopRegisterRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -13,6 +15,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -47,4 +54,13 @@ public class UserController {
                 result,
                 LocalDateTime.now()));
     }
+    @PostMapping("/")
+    @PreAuthorize("hasRole('ROLE_SELLER') or  hasRole('ROLE_BUYER')")
+    public ResponseEntity<?> becomeShop(ShopRegisterRequest shopRegisterRequest) {
+        UserDto userDto = userService.registerForBeingShop(shopRegisterRequest);
+        return ResponseEntity.ok(userDto);
+    }
+
+
 }
+

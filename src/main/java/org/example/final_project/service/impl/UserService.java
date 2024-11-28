@@ -8,15 +8,19 @@ import org.example.final_project.dto.UserDto;
 import org.example.final_project.entity.RoleEntity;
 import org.example.final_project.entity.UserEntity;
 import org.example.final_project.mapper.UserMapper;
+import org.example.final_project.model.ShopRegisterRequest;
 import org.example.final_project.model.UserModel;
 import org.example.final_project.repository.IRoleRepository;
 import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.IUserService;
+import org.example.final_project.util.STATUS;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -25,6 +29,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static org.example.final_project.util.specification.UserSpecification.*;
 
@@ -64,6 +69,7 @@ public class UserService implements IUserService, UserDetailsService {
 
     @Override
     public int update(Long aLong, UserModel userModel) {
+
         return 0;
     }
 
@@ -157,4 +163,20 @@ public class UserService implements IUserService, UserDetailsService {
         Specification<UserEntity> specification = Specification.where(isActive().and(isNotSuperAdmin()));
         return userRepository.findAll(specification, pageable).map(userMapper::toDto);
     }
+
+    @Override
+    public UserDto registerForBeingShop(ShopRegisterRequest request) {
+        if(request.getUserId().describeConstable().isPresent()){
+            UserEntity userEntity = userRepository.findById(request.getUserId()).get();
+            userEntity.setId_back(request.getId_back());
+            userEntity.setId_front(request.getId_front());
+            userEntity.setShop_name(request.getShop_name());
+            userEntity.setShop_status(STATUS.ACTIVE.getStatus());
+            userEntity.setTax_code(request.getTax_code());
+            return userMapper.toDto(userRepository.save(userEntity));
+        }
+        return null;
+
+    };
+
 }
