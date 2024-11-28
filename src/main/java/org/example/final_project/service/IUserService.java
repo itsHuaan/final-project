@@ -18,7 +18,5 @@ public interface IUserService extends IBaseService<UserDto, UserModel, Long> {
     int changePassword(String email, String oldPassword, String newPassword);
     boolean validatePassword(String email, String newPassword);
     Page<UserDto> findAllUsers(Pageable pageable);
-    int changePassword(String email, String newPassword);
-    ResponseEntity<?> signIn(String email, String password);
     UserDto registerForBeingShop(ShopRegisterRequest request);
 }
