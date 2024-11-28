@@ -16,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.example.final_project.model.validation.AuthValidation;
+
 import static org.example.final_project.dto.ApiResponse.*;
 
 import java.time.LocalDateTime;
@@ -35,7 +36,7 @@ public class AuthService implements IAuthService {
     @Override
     public ApiResponse<?> forgotPassword(String email) {
         if (!userService.isActivated(email)) {
-            return createResponse(HttpStatus.BAD_REQUEST, AuthValidation.ACCOUNT_INACTIVE, null);
+            throw new IllegalStateException(AuthValidation.ACCOUNT_INACTIVE);
         }
         try {
             String jwt = jwtProvider.generateForgetPasswordToken(email);
@@ -43,17 +44,17 @@ public class AuthService implements IAuthService {
             emailService.sendEmail(emailModel);
             return createResponse(HttpStatus.OK, "Email sent to " + email, null);
         } catch (Exception e) {
-            return createResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred", null);
+            throw new RuntimeException("An unexpected error occurred while sending the email");
         }
     }
 
     @Override
     public ApiResponse<?> verifyUser(String otp, String email) {
         if (!otpService.isValid(email, otp, LocalDateTime.now())) {
-            return createResponse(HttpStatus.BAD_REQUEST, "Invalid OTP.", null);
+            throw new IllegalArgumentException("Invalid OTP.");
         }
         if (userService.activateUserAccount(email) == 0) {
-            return createResponse(HttpStatus.BAD_REQUEST, "Failed to activate account.", null);
+            throw new IllegalStateException("Failed to activate account.");
         }
         otpService.setInvalid(otp, email);
         return createResponse(HttpStatus.OK, "Account activated successfully.", null);
@@ -62,19 +63,19 @@ public class AuthService implements IAuthService {
     @Override
     public ApiResponse<?> logOut(String token) {
         try {
-            if(tokenBlacklistService.isTokenPresent(token)) {
+            if (tokenBlacklistService.isTokenPresent(token)) {
                 tokenBlacklistService.saveToken(token);
             }
             return createResponse(HttpStatus.OK, "Logged out successfully", null);
         } catch (Exception e) {
-            return createResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred during logout", null);
+            throw new RuntimeException("An error occurred during logout");
         }
     }
 
     @Override
     public ApiResponse<?> signIn(SignInRequest credentials) {
         if (!userService.isActivated(credentials.getEmail())) {
-            return createResponse(HttpStatus.FORBIDDEN, AuthValidation.ACCOUNT_INACTIVE, null);
+            throw new IllegalStateException(AuthValidation.ACCOUNT_INACTIVE);
         }
         Authentication authentication;
         try {
@@ -82,13 +83,13 @@ public class AuthService implements IAuthService {
                     new UsernamePasswordAuthenticationToken(credentials.getEmail(), credentials.getPassword()));
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (BadCredentialsException e) {
-            return createResponse(HttpStatus.UNAUTHORIZED, AuthValidation.BAD_CREDENTIAL, null);
+            throw new SecurityException(AuthValidation.BAD_CREDENTIAL);
         } catch (LockedException e) {
-            return createResponse(HttpStatus.LOCKED, AuthValidation.ACCOUNT_LOCKED, null);
+            throw new IllegalStateException(AuthValidation.ACCOUNT_LOCKED);
         } catch (DisabledException e) {
-            return createResponse(HttpStatus.FORBIDDEN, AuthValidation.ACCOUNT_INACTIVE, null);
+            throw new IllegalStateException(AuthValidation.ACCOUNT_INACTIVE);
         } catch (Exception e) {
-            return createResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred", null);
+            throw new RuntimeException("An error occurred during authentication");
         }
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
@@ -107,7 +108,7 @@ public class AuthService implements IAuthService {
     @Override
     public ApiResponse<?> signUp(SignUpRequest credentials) {
         if (userService.isExistingByUsernameOrEmail(credentials.getUsername(), credentials.getEmail())) {
-            return createResponse(HttpStatus.BAD_REQUEST, "Username or email is already in use", null);
+            throw new IllegalArgumentException("Username or email is already in use");
         }
 
         UserModel userModel = new UserModel();
@@ -124,36 +125,35 @@ public class AuthService implements IAuthService {
         try {
             otpService.save(otpModel);
         } catch (Exception e) {
-            return createResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to save OTP", null);
+            throw new RuntimeException("Failed to save OTP");
         }
 
         EmailModel emailModel = new EmailModel(credentials.getEmail(), "OTP", EmailTemplate.otpEmailContent(otpModel.getOtpCode()));
         emailService.sendEmail(emailModel);
 
         if (userService.save(userModel) == 0) {
-            return createResponse(HttpStatus.BAD_REQUEST, AuthValidation.ACCOUNT_CONFLICT, null);
+            throw new IllegalStateException(AuthValidation.ACCOUNT_CONFLICT);
         }
 
         return createResponse(HttpStatus.OK, "An OTP was sent to email " + credentials.getEmail() + ".", null);
     }
 
-
     @Override
     public ApiResponse<?> resetPassword(String token, String newPassword) {
         if (tokenBlacklistService.isTokenPresent(token)) {
-            return createResponse(HttpStatus.BAD_REQUEST, AuthValidation.TOKEN_INVALID, null);
+            throw new IllegalArgumentException(AuthValidation.TOKEN_INVALID);
         }
         Claims claims = jwtProvider.parseJwt(token);
         if (claims.getExpiration().before(new Date())) {
-            return createResponse(HttpStatus.BAD_REQUEST, AuthValidation.TOKEN_EXPIRED, null);
+            throw new IllegalArgumentException(AuthValidation.TOKEN_EXPIRED);
         }
         String email = claims.getSubject();
         if (!userService.isActivated(email)) {
-            return createResponse(HttpStatus.BAD_REQUEST, AuthValidation.ACCOUNT_INACTIVE, null);
+            throw new IllegalStateException(AuthValidation.ACCOUNT_INACTIVE);
         }
         int changePassword = userService.resetPassword(email, newPassword);
         if (changePassword != 1) {
-            return createResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Password reset failed", null);
+            throw new RuntimeException("Password reset failed");
         }
         tokenBlacklistService.saveToken(token);
         return createResponse(HttpStatus.OK, "Password reset successfully", null);
