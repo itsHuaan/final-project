@@ -11,6 +11,8 @@ public final class AuthValidation {
         throw new UnsupportedOperationException("AuthValidation is a utility class and cannot be instantiated.");
     }
 
+
+    public static final String ACCOUNT_UNAVAILABLE = "Account unavailable.";
     public static final String BAD_CREDENTIAL = "Invalid username or password.";
     public static final String ACCOUNT_INACTIVE = "Account is inactive.";
     public static final String ACCOUNT_LOCKED = "The account is locked. Please contact support.";

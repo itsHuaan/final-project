@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.example.final_project.model.validation.AuthValidation;
 
 import static org.example.final_project.dto.ApiResponse.*;
+import static org.example.final_project.util.Const.EMAIL_PATTERN;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -73,6 +74,18 @@ public class AuthService implements IAuthService {
     }
 
     @Override
+    public ApiResponse<?> changePassword(String username, ChangePasswordRequest request) {
+        if (userService.changePassword(username, request.getOldPassword(), request.getNewPassword()) == 1){
+            return createResponse(HttpStatus.OK, "Password changed successfully.", null);
+        }
+        if (userService.changePassword(username, request.getOldPassword(), request.getNewPassword()) == -1){
+            throw new IllegalStateException(AuthValidation.ACCOUNT_UNAVAILABLE);
+        } else {
+            throw new IllegalArgumentException("Incorrect old password.");
+        }
+    }
+
+    @Override
     public ApiResponse<?> signIn(SignInRequest credentials) {
         if (!userService.isActivated(credentials.getEmail())) {
             throw new IllegalStateException(AuthValidation.ACCOUNT_INACTIVE);
@@ -107,6 +120,9 @@ public class AuthService implements IAuthService {
 
     @Override
     public ApiResponse<?> signUp(SignUpRequest credentials) {
+        if (!EMAIL_PATTERN.matcher(credentials.getEmail()).matches()) {
+            throw new IllegalArgumentException("Invalid email format.");
+        }
         if (userService.isExistingByUsernameOrEmail(credentials.getUsername(), credentials.getEmail())) {
             throw new IllegalArgumentException("Username or email is already in use");
         }

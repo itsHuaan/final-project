@@ -13,6 +13,7 @@ import org.example.final_project.entity.AddressEntity;
 import org.example.final_project.entity.RoleEntity;
 import org.example.final_project.entity.UserEntity;
 import org.example.final_project.mapper.UserMapper;
+import org.example.final_project.model.ProfileUpdateRequest;
 import org.example.final_project.model.ShopRegisterRequest;
 import org.example.final_project.model.UserModel;
 import org.example.final_project.model.enum_status.STATUS;
@@ -30,6 +31,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -62,7 +64,14 @@ public class UserService implements IUserService, UserDetailsService {
     @Override
     public int save(UserModel userModel) {
         if (isExistingByUsernameOrEmail(userModel.getUsername(), userModel.getEmail())) {
-            return 0;
+            if(userRepository.findOne(Specification.where(isActive())).isPresent()){
+                return 0;
+            } else {
+                UserEntity userEntity = userRepository.findOne(Specification.where(hasEmail(userModel.getEmail()).and(hasUsername(userModel.getUsername())))).get();
+                userEntity.setPassword(passwordEncoder.encode(userModel.getPassword()));
+                userRepository.save(userEntity);
+                return 1;
+            }
         }
         RoleEntity role = roleRepository.findById(userModel.getRoleId()).orElseThrow(() -> new IllegalArgumentException("Invalid role ID"));
         userModel.setPassword(passwordEncoder.encode(userModel.getPassword()));
@@ -80,6 +89,12 @@ public class UserService implements IUserService, UserDetailsService {
 
     @Override
     public int delete(Long id) {
+        boolean isPresent = userRepository.existsById(id);
+        if (isPresent) {
+            UserEntity user = userRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Invalid user ID"));
+            user.setDeletedAt(LocalDateTime.now());
+            return 1;
+        }
         return 0;
     }
 
@@ -102,7 +117,7 @@ public class UserService implements IUserService, UserDetailsService {
     @Override
     public boolean isExistingByUsernameOrEmail(String username, String email) {
         return userRepository.findOne(Specification.where(hasUsername(username)
-                .or(hasEmail(email))).and(isActive())).isPresent();
+                .or(hasEmail(email)))).isPresent();
     }
 
     @Override
@@ -148,7 +163,21 @@ public class UserService implements IUserService, UserDetailsService {
 
     @Override
     public int changePassword(String username, String oldPassword, String newPassword) {
-        return 0;
+        UserEntity userEntity = userRepository.findOne(Specification.where(hasUsername(username)).and(isActive())).isPresent()
+                ? userRepository.findOne(Specification.where(hasUsername(username)).and(isActive())).get()
+                : null;
+        if (userEntity != null) {
+            boolean isMatchWithOldPassword = passwordEncoder.matches(oldPassword, userEntity.getPassword());
+            if (isMatchWithOldPassword) {
+                userEntity.setPassword(passwordEncoder.encode(newPassword));
+                userRepository.save(userEntity);
+                return 1;
+            } else {
+                return 0;
+            }
+        } else {
+            return -1;
+        }
     }
 
     @Override
@@ -165,7 +194,7 @@ public class UserService implements IUserService, UserDetailsService {
 
     @Override
     public Page<UserDto> findAllUsers(Pageable pageable) {
-        Specification<UserEntity> specification = Specification.where(isActive().and(isNotSuperAdmin()));
+        Specification<UserEntity> specification = Specification.where(isNotDeleted().and(isNotSuperAdmin()));
         return userRepository.findAll(specification, pageable).map(userMapper::toDto);
     }
 
@@ -206,5 +235,10 @@ public class UserService implements IUserService, UserDetailsService {
         }
         throw new NotFound("Not found Userr");
     }
-    };
+
+    @Override
+    public int updateUserProfile(ProfileUpdateRequest request) {
+        return 0;
+    }
+};
 

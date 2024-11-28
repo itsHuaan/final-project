@@ -2,6 +2,7 @@ package org.example.final_project.service;
 
 import org.example.final_project.dto.ApiResponse;
 import org.example.final_project.dto.UserDto;
+import org.example.final_project.model.ProfileUpdateRequest;
 import org.example.final_project.model.ShopRegisterRequest;
 import org.example.final_project.model.UserModel;
 import org.springframework.data.domain.Page;
@@ -21,4 +22,5 @@ public interface IUserService extends IBaseService<UserDto, UserModel, Long> {
     Page<UserDto> findAllUsers(Pageable pageable);
     ResponseEntity<?> signIn(String email, String password);
     ApiResponse<?> registerForBeingShop(ShopRegisterRequest request) throws Exception;
+    int updateUserProfile(ProfileUpdateRequest request);
 }
