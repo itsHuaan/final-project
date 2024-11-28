@@ -97,8 +97,8 @@ public class ProductService implements IProductService {
         try {
             ProductEntity productEntity = iProductRepository.findById(id).get();
             if (productEntity != null) {
-                if (EnumSet.of(ActivateStatus.Active, ActivateStatus.Inactive).contains(type)) {
-                    productEntity.setIsActive(0);
+                if (ActivateStatus.Active.checkIfExist(type)) {
+                    productEntity.setIsActive(type);
                     iProductRepository.save(productEntity);
                 }
             }
@@ -112,18 +112,18 @@ public class ProductService implements IProductService {
     @Override
     public Page<ProductDto> findAllByPage(Pageable pageable) {
         if (pageable != null) {
-            return iProductRepository.findAll(Specification.where(isActive().and(isNotDeleted())), pageable).map(x -> productMapper.convertToDto(x));
+            return iProductRepository.findAll(Specification.where(isNotDeleted()), pageable).map(x -> productMapper.convertToDto(x));
         } else {
-            return iProductRepository.findAll(Specification.where(isActive().and(isNotDeleted())), PageRequest.of(0, iProductRepository.findAll().size())).map(x -> productMapper.convertToDto(x));
+            return iProductRepository.findAll(Specification.where(isNotDeleted()), PageRequest.of(0, iProductRepository.findAll().size())).map(x -> productMapper.convertToDto(x));
         }
     }
 
     @Override
     public Page<ProductDto> findAllByNameAndPage(String name, Pageable pageable) {
         if (pageable != null) {
-            return iProductRepository.findAll(Specification.where(isActive().and(isNotDeleted()).and(hasName(name))), pageable).map(x -> productMapper.convertToDto(x));
+            return iProductRepository.findAll(Specification.where(isNotDeleted().and(hasName(name))), pageable).map(x -> productMapper.convertToDto(x));
         } else {
-            return iProductRepository.findAll(Specification.where(isActive().and(isNotDeleted()).and(hasName(name))), PageRequest.of(0, iProductRepository.findAll().size())).map(x -> productMapper.convertToDto(x));
+            return iProductRepository.findAll(Specification.where(isNotDeleted().and(hasName(name))), PageRequest.of(0, iProductRepository.findAll().size())).map(x -> productMapper.convertToDto(x));
         }
     }
 
