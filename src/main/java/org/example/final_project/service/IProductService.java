@@ -13,4 +13,5 @@ public interface IProductService extends IBaseService<ProductDto, ProductModel,L
     Page<ProductDto> findAllByNameAndPage(String name,Pageable pageable);
     Page<ProductDto> getAllByParentId(long parentId,Pageable pageable);
     Page<ProductDto> getAllProductNotConfirmed(Pageable pageable);
+    Page<ProductDto>
 }
