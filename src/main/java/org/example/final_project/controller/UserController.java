@@ -1,8 +1,12 @@
 package org.example.final_project.controller;
 
 
+import com.cloudinary.Configuration;
+import com.cloudinary.api.exceptions.NotFound;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.example.final_project.dto.UserDto;
+import org.example.final_project.dto.ApiResponse;
+
 import org.example.final_project.model.ShopRegisterRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +25,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.time.LocalDateTime;
 
@@ -54,12 +59,23 @@ public class UserController {
                 result,
                 LocalDateTime.now()));
     }
-    @PostMapping("/register_shop")
+
+
     @PreAuthorize("hasRole('ROLE_BUYER') or hasRole('ROLE_SELLER')")
-    public ResponseEntity<?> becomeShop(@RequestBody ShopRegisterRequest shopRegisterRequest) {
-        ApiResponse<?> response = userService.registerForBeingShop(shopRegisterRequest);
-        return ResponseEntity.ok(response);
+    @PostMapping("/registerShop")
+    public ResponseEntity<ApiResponse<?>> registerForBeingShop(@ModelAttribute ShopRegisterRequest request) {
+        try {
+            ApiResponse<?> response = userService.registerForBeingShop(request);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (HttpClientErrorException.Conflict e) {
+            ApiResponse<?> errorResponse = new ApiResponse<>(HttpStatus.CONFLICT.value(), e.getMessage(), null, LocalDateTime.now());
+            return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+        } catch (Exception e) {
+            ApiResponse<?> errorResponse = new ApiResponse<>(HttpStatus.NOT_FOUND.value(), e.getMessage(), null,LocalDateTime.now());
+            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        }
     }
+
 
 
 

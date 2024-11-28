@@ -20,5 +20,5 @@ public interface IUserService extends IBaseService<UserDto, UserModel, Long> {
     boolean validatePassword(String email, String newPassword);
     Page<UserDto> findAllUsers(Pageable pageable);
     ResponseEntity<?> signIn(String email, String password);
-    ApiResponse<?> registerForBeingShop(ShopRegisterRequest request);
+    ApiResponse<?> registerForBeingShop(ShopRegisterRequest request) throws Exception;
 }

@@ -1,9 +1,11 @@
 package org.example.final_project.service.impl;
 
+import com.cloudinary.api.exceptions.NotFound;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.configuration.UserDetailsImpl;
+import org.example.final_project.configuration.cloudinary.ImageService;
 import org.example.final_project.dto.ApiResponse;
 
 import org.example.final_project.dto.UserDto;
@@ -44,6 +46,7 @@ public class UserService implements IUserService, UserDetailsService {
     IUserRepository userRepository;
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
+    ImageService imageService;
 
 
     @Override
@@ -173,13 +176,15 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
-    public ApiResponse<?> registerForBeingShop(ShopRegisterRequest request) {
+    public ApiResponse<?> registerForBeingShop(ShopRegisterRequest request) throws Exception {
         if (request.getUserId().describeConstable().isPresent()) {
             UserEntity userEntity = userRepository.findById(request.getUserId()).get();
 
             if (userEntity.getShop_status() == 0) {
-                userEntity.setId_back(request.getId_back());
-                userEntity.setId_front(request.getId_front());
+                String id_back = imageService.uploadOneImage(request.getId_back());
+                userEntity.setId_back(id_back);
+                String id_front = imageService.uploadOneImage(request.getId_front());
+                userEntity.setId_front(id_front);
                 userEntity.setShop_name(request.getShop_name());
                 userEntity.setShop_status(STATUS.ACTIVE.getStatus());
                 userEntity.setTax_code(request.getTax_code());
@@ -196,11 +201,10 @@ public class UserService implements IUserService, UserDetailsService {
                 UserDto userDto = userMapper.toDto(userRepository.save(userEntity));
                 return createResponse(HttpStatus.OK, "Logged In",userDto);
             } else if (userEntity.getShop_status() == 1) {
-                return createResponse(HttpStatus.OK, "User register Shop",null);
+                return createResponse(HttpStatus.CONFLICT, "User register Shop",null);
             }
         }
-         return createResponse(HttpStatus.OK, "not found user",null);
+        throw new NotFound("Not found Userr");
     }
-
     };
 
