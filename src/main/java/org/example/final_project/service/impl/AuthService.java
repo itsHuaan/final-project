@@ -16,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.example.final_project.model.validation.AuthValidation;
+import static org.example.final_project.dto.ApiResponse.*;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -30,10 +31,6 @@ public class AuthService implements IAuthService {
     IOtpService otpService;
     AuthenticationManager authenticationManager;
     ITokenBlacklistService tokenBlacklistService;
-
-    private ApiResponse<?> createResponse(HttpStatus status, String message, Object data) {
-        return new ApiResponse<>(status.value(), message, data, LocalDateTime.now());
-    }
 
     @Override
     public ApiResponse<?> forgotPassword(String email) {
