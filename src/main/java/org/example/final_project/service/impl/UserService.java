@@ -137,7 +137,7 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
-    public int changePassword(String email, String oldPassword, String newPassword) {
+    public int changePassword(String username, String oldPassword, String newPassword) {
         return 0;
     }
 

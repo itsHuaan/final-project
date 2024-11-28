@@ -153,11 +153,11 @@ public class AuthService implements IAuthService {
         if (!userService.isActivated(email)) {
             throw new IllegalStateException(AuthValidation.ACCOUNT_INACTIVE);
         }
-        int changePassword = userService.resetPassword(email, newPassword);
-        if (changePassword != 1) {
+        if (userService.resetPassword(email, newPassword) != 1) {
             throw new RuntimeException("Password reset failed");
+        } else {
+            tokenBlacklistService.saveToken(token);
+            return createResponse(HttpStatus.OK, "Password reset successfully", null);
         }
-        tokenBlacklistService.saveToken(token);
-        return createResponse(HttpStatus.OK, "Password reset successfully", null);
     }
 }

@@ -15,7 +15,7 @@ public interface IUserService extends IBaseService<UserDto, UserModel, Long> {
     int activateUserAccount(String username, String email);
     int activateUserAccount(String email);
     int resetPassword(String email, String newPassword);
-    int changePassword(String email, String oldPassword, String newPassword);
+    int changePassword(String username, String oldPassword, String newPassword);
     boolean validatePassword(String email, String newPassword);
     Page<UserDto> findAllUsers(Pageable pageable);
     UserDto registerForBeingShop(ShopRegisterRequest request);
