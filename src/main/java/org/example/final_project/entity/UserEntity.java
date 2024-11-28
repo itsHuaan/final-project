@@ -36,4 +36,13 @@ public class UserEntity {
 
     @OneToMany(mappedBy = "user")
     private List<FeedbackEntity> feedbacks;
+    private String id_front;
+    private String id_back;
+    private String tax_code;
+    private String shop_name;
+    private Integer shop_status;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "address_id")
+    private AddressEntity address;
+
 }
