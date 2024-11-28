@@ -1,7 +1,7 @@
 package org.example.final_project.model;
 
 import lombok.*;
-import org.example.final_project.util.STATUS;
+import org.example.final_project.model.enum_status.STATUS;
 
 import java.time.LocalDateTime;
 
@@ -21,5 +21,6 @@ public class UserModel {
     private Integer isActive = 0;
     private LocalDateTime createdAt = LocalDateTime.now();
     private Integer shop_status = STATUS.INACTIVE.getStatus();
+
 
 }
