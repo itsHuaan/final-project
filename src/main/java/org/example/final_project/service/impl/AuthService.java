@@ -42,7 +42,7 @@ public class AuthService implements IAuthService {
             String jwt = jwtProvider.generateForgetPasswordToken(email);
             EmailModel emailModel = new EmailModel(email, "It seems like somebody forgot their password...", EmailTemplate.forgotPasswordEmailContent(jwt));
             emailService.sendEmail(emailModel);
-            return createResponse(HttpStatus.OK, "Email sent to " + email, null);
+            return createResponse(HttpStatus.OK, "Email sent to " + email, jwt);
         } catch (Exception e) {
             throw new RuntimeException("An unexpected error occurred while sending the email");
         }
@@ -116,7 +116,6 @@ public class AuthService implements IAuthService {
         userModel.setEmail(credentials.getEmail());
         userModel.setPassword(credentials.getPassword());
         userModel.setUsername(credentials.getUsername());
-        userModel.setRoleId(credentials.getRoleId());
 
         OtpModel otpModel = new OtpModel();
         otpModel.setOtpCode(otpService.generateOtp());
