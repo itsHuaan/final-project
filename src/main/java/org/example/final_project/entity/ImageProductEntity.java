@@ -17,7 +17,6 @@ public class ImageProductEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private String imageLink;
-    private int isActive;
     private LocalDateTime deletedAt;
     @ManyToOne
     @JoinColumn(name="product_id")

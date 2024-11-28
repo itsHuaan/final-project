@@ -23,7 +23,6 @@ public class ProductModel {
     private long parent_id;
     private long quantity;
     private double price;
-    private int isActive;
     private String note;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;

@@ -1,6 +1,7 @@
 package org.example.final_project.controller;
 
 
+import com.cloudinary.Api;
 import jakarta.servlet.annotation.MultipartConfig;
 import org.example.final_project.model.ApiResponse;
 import org.example.final_project.model.ProductModel;
@@ -180,6 +181,34 @@ public class ProductController {
                     "Successfully",
                     productService.getAllByParentId(parentId, Pageable.unpaged()),
                     LocalDateTime.now()
+            ));
+        }
+    }
+    @GetMapping("/getAllProductNotConfirmed")
+    ResponseEntity<ApiResponse<?>> getAllProductUnApproved(@RequestParam(required = false)Integer pageSize,
+                                                           @RequestParam(required = false)Integer pageIndex){
+        if(pageSize!=null&&pageIndex!=null){
+            if(pageSize>0&&pageIndex>=0){
+                return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
+                   200,
+                   "Successfully",
+                   productService.getAllProductNotConfirmed(PageRequest.of(pageSize,pageIndex)),
+                   LocalDateTime.now()
+                ));
+            }else{
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
+                   400,
+                   "Bad Request",
+                   null,
+                   LocalDateTime.now()
+                ));
+            }
+        }else{
+            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
+               200,
+               "Successfully",
+               productService.getAllProductNotConfirmed(Pageable.unpaged()),
+               LocalDateTime.now()
             ));
         }
     }

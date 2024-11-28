@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
 public class CategoryModel {
     private String name;
     private long parent_id;
-    private int isActive;
     private long user_id;
     private MultipartFile file;
     private LocalDateTime createdAt;

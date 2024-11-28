@@ -51,9 +51,10 @@ public class ProductService implements IProductService {
     public int save(ProductModel productModel) {
         try {
             ProductEntity productEntity = productMapper.convertToEntity(productModel);
+            productEntity.setIsActive(0);
             ProductEntity savedProduct = iProductRepository.save(productEntity);
             for (MultipartFile file : productModel.getFiles()) {
-                imageService.save(new ImageProductModel(file, savedProduct.getId(), 1));
+                imageService.save(new ImageProductModel(file, savedProduct.getId()));
             }
             return 1;
         } catch (Exception e) {
@@ -130,9 +131,19 @@ public class ProductService implements IProductService {
     @Override
     public Page<ProductDto> getAllByParentId(long parentId, Pageable pageable) {
         if(pageable!=null){
-            return iProductRepository.findAll(Specification.where(isActive().and(isNotDeleted()).and(hasParentId(parentId))),pageable).map(x->productMapper.convertToDto(x));
+            return iProductRepository.findAll(Specification.where(isNotDeleted().and(hasParentId(parentId))),pageable).map(x->productMapper.convertToDto(x));
         }else{
-            return iProductRepository.findAll(Specification.where(isActive()).and(isNotDeleted()).and(hasParentId(parentId)),PageRequest.of(0,iProductRepository.findAllByParent_id(parentId).size())).map(x->productMapper.convertToDto(x));
+            return iProductRepository.findAll(Specification.where(isNotDeleted().and(hasParentId(parentId))),PageRequest.of(0,iProductRepository.findAllByParent_id(parentId).size())).map(x->productMapper.convertToDto(x));
         }
     }
+
+    @Override
+    public Page<ProductDto> getAllProductNotConfirmed(Pageable pageable) {
+        if(pageable!=null){
+            return iProductRepository.findAll(Specification.where(isNotConfirm()).and(isNotDeleted()),pageable).map(x->productMapper.convertToDto(x));
+        }else{
+            return iProductRepository.findAll(Specification.where(isNotConfirm()).and(isNotDeleted()),PageRequest.of(0,iProductRepository.findAll().size())).map(x->productMapper.convertToDto(x));
+        }
+    }
+
 }
