@@ -1,6 +1,6 @@
 package org.example.final_project.controller;
 
-import org.example.final_project.model.ApiResponse;
+import org.example.final_project.dto.ApiResponse;
 import org.example.final_project.model.FeedbackModel;
 import org.example.final_project.service.IFeedbackService;
 import org.example.final_project.util.Const;

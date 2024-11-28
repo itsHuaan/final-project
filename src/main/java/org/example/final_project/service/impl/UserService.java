@@ -8,13 +8,15 @@ import org.example.final_project.dto.UserDto;
 import org.example.final_project.entity.RoleEntity;
 import org.example.final_project.entity.UserEntity;
 import org.example.final_project.mapper.UserMapper;
+import org.example.final_project.model.ShopRegisterRequest;
 import org.example.final_project.model.UserModel;
 import org.example.final_project.repository.IRoleRepository;
 import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.IUserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.example.final_project.util.STATUS;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -62,6 +64,7 @@ public class UserService implements IUserService, UserDetailsService {
 
     @Override
     public int update(Long aLong, UserModel userModel) {
+
         return 0;
     }
 
@@ -122,7 +125,7 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
-    public int changePassword(String email, String newPassword) {
+    public int resetPassword(String email, String newPassword) {
         Specification<UserEntity> isExistingAndActivated = Specification.where(hasEmail(email).and(isActive()));
         if (userRepository.findOne(isExistingAndActivated).isPresent()) {
             UserEntity currentAccount = userRepository.findOne(isExistingAndActivated).get();
@@ -134,7 +137,41 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
-    public ResponseEntity<?> signIn(String email, String password) {
-        return null;
+    public int changePassword(String email, String oldPassword, String newPassword) {
+        return 0;
     }
+
+    @Override
+    public boolean validatePassword(String email, String newPassword) {
+        UserEntity userEntity = userRepository.findOne(Specification.where(hasEmail(email)).and(isActive())).isPresent()
+                ? userRepository.findOne(Specification.where(hasEmail(email)).and(isActive())).get()
+                : null;
+        if (userEntity != null) {
+            String oldPassword = userEntity.getPassword();
+            return oldPassword.equals(passwordEncoder.encode(newPassword));
+        }
+        return false;
+    }
+
+    @Override
+    public Page<UserDto> findAllUsers(Pageable pageable) {
+        Specification<UserEntity> specification = Specification.where(isActive().and(isNotSuperAdmin()));
+        return userRepository.findAll(specification, pageable).map(userMapper::toDto);
+    }
+
+    @Override
+    public UserDto registerForBeingShop(ShopRegisterRequest request) {
+        if(request.getUserId().describeConstable().isPresent()){
+            UserEntity userEntity = userRepository.findById(request.getUserId()).get();
+            userEntity.setId_back(request.getId_back());
+            userEntity.setId_front(request.getId_front());
+            userEntity.setShop_name(request.getShop_name());
+            userEntity.setShop_status(STATUS.ACTIVE.getStatus());
+            userEntity.setTax_code(request.getTax_code());
+            return userMapper.toDto(userRepository.save(userEntity));
+        }
+        return null;
+
+    };
+
 }
