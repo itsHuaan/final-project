@@ -24,6 +24,7 @@ public class UserMapper {
                 .profilePicture(userEntity.getProfilePicture())
                 .gender(userEntity.getGender())
                 .phone(userEntity.getPhone())
+                .isActive(userEntity.getIsActive())
                 .build();
     }
 

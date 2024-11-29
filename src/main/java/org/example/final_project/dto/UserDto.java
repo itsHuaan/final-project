@@ -21,6 +21,7 @@ public class UserDto {
     private String id_back;
     private String tax_code;
     private String shop_name;
+    private int isActive;
     private int shop_address;
     private Integer shop_status;
     private String shop_address_detail;
