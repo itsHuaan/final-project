@@ -52,6 +52,7 @@ public class OtpService implements IOtpService {
             otp.setStatus(1);
             otp.setOtpCode(otpModel.getOtpCode());
             otp.setCreatedAt(LocalDateTime.now());
+            otpRepository.save(otp);
         } else {
             otpRepository.save(otpMapper.toEntity(otpModel));
         }

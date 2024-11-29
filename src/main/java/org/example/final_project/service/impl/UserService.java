@@ -62,22 +62,34 @@ public class UserService implements IUserService, UserDetailsService {
 
     @Override
     public UserDto getById(Long id) {
-        return userMapper.toDto(userRepository.getReferenceById(id));
+        UserEntity user = userRepository.findById(id).orElse(null);
+        return user != null ? userMapper.toDto(user) : null;
     }
 
     @Override
     public int save(UserModel userModel) {
         if (isExistingByUsernameOrEmail(userModel.getUsername(), userModel.getEmail())) {
-            if (userRepository.findOne(Specification.where(isActive()).and(isNotDeleted())).isPresent()) {
-                return 0;
-            } else {
-                UserEntity userEntity = userRepository.findOne(Specification.where(hasEmail(userModel.getEmail()).and(hasUsername(userModel.getUsername())))).get();
-                userEntity.setPassword(passwordEncoder.encode(userModel.getPassword()));
-                userRepository.save(userEntity);
-                return 1;
-            }
+            return 0;
         }
-        RoleEntity role = roleRepository.findById(userModel.getRoleId()).orElseThrow(() -> new IllegalArgumentException("Invalid role ID"));
+
+        Optional<UserEntity> inactiveOrDeletedUser = userRepository.findOne(Specification.where(
+                hasUsername(userModel.getUsername())
+                        .or(hasEmail(userModel.getEmail()))
+        ));
+
+        if (inactiveOrDeletedUser.isPresent()) {
+            UserEntity userEntity = inactiveOrDeletedUser.get();
+            userEntity.setName(userModel.getName());
+            userEntity.setEmail(userModel.getEmail());
+            userEntity.setUsername(userModel.getUsername());
+            userEntity.setPassword(passwordEncoder.encode(userModel.getPassword()));
+            userRepository.save(userEntity);
+            return 1;
+        }
+
+        RoleEntity role = roleRepository.findById(userModel.getRoleId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid role ID"));
+
         userModel.setPassword(passwordEncoder.encode(userModel.getPassword()));
         UserEntity userEntity = userMapper.toEntity(userModel);
         userEntity.setRole(role);
@@ -121,8 +133,11 @@ public class UserService implements IUserService, UserDetailsService {
 
     @Override
     public boolean isExistingByUsernameOrEmail(String username, String email) {
-        return userRepository.findOne(Specification.where(hasUsername(username)
-                .or(hasEmail(email)))).isPresent();
+        return userRepository.findOne(Specification.where(
+                        hasUsername(username)
+                                .or(hasEmail(email))
+                ).and(isActive().and(isNotDeleted()))
+        ).isPresent();
     }
 
     @Override

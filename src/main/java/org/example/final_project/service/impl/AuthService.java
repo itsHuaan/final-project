@@ -153,25 +153,13 @@ public class AuthService implements IAuthService {
         userModel.setPassword(credentials.getPassword());
         userModel.setUsername(credentials.getUsername());
 
-        /*OtpModel otpModel = new OtpModel();
-        otpModel.setOtpCode(otpService.generateOtp());
-        otpModel.setEmail(credentials.getEmail());
-
-        try {
-            otpService.save(otpModel);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to save OTP");
+        if (userService.save(userModel) == 0) {
+            throw new IllegalStateException(AuthValidation.ACCOUNT_CONFLICT);
         }
 
-        EmailModel emailModel = new EmailModel(credentials.getEmail(), "OTP", EmailTemplate.otpEmailContent(otpModel.getOtpCode()));
-        emailService.sendEmail(emailModel);*/
         ApiResponse<?> response = sendOtp(credentials.getEmail());
         if (response.getStatus() != HttpStatus.OK.value()) {
             throw new IllegalStateException(response.getMessage());
-        }
-
-        if (userService.save(userModel) == 0) {
-            throw new IllegalStateException(AuthValidation.ACCOUNT_CONFLICT);
         }
 
         return createResponse(HttpStatus.OK, "An OTP was sent to email " + credentials.getEmail() + ".", null);

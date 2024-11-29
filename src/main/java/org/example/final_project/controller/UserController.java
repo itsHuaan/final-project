@@ -53,11 +53,14 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(@PathVariable Long id) {
         UserDto result = userService.getById(id);
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
-                HttpStatus.OK.value(),
+        return result != null ? ResponseEntity.status(HttpStatus.OK).body(createResponse(
+                HttpStatus.OK,
                 "Fetched",
-                result,
-                LocalDateTime.now()));
+                result))
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).body(createResponse(
+                HttpStatus.NOT_FOUND,
+                "User not found",
+                null));
     }
 
 
