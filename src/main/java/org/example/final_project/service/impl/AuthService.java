@@ -124,6 +124,24 @@ public class AuthService implements IAuthService {
     }
 
     @Override
+    public ApiResponse<?> sendOtp(String email) {
+        OtpModel otpModel = new OtpModel();
+        otpModel.setOtpCode(otpService.generateOtp());
+        otpModel.setEmail(email);
+
+        try {
+            otpService.save(otpModel);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to save OTP");
+        }
+
+        EmailModel emailModel = new EmailModel(email, "OTP", EmailTemplate.otpEmailContent(otpModel.getOtpCode()));
+        return emailService.sendEmail(emailModel)
+                ? createResponse(HttpStatus.OK, "OTP confirmation email sent to " + email, null)
+                : createResponse(HttpStatus.BAD_REQUEST, "Email not sent", null);
+    }
+
+    @Override
     public ApiResponse<?> signUp(SignUpRequest credentials) {
         if (!EMAIL_PATTERN.matcher(credentials.getEmail()).matches()) {
             throw new IllegalArgumentException("Invalid email format.");
@@ -135,7 +153,7 @@ public class AuthService implements IAuthService {
         userModel.setPassword(credentials.getPassword());
         userModel.setUsername(credentials.getUsername());
 
-        OtpModel otpModel = new OtpModel();
+        /*OtpModel otpModel = new OtpModel();
         otpModel.setOtpCode(otpService.generateOtp());
         otpModel.setEmail(credentials.getEmail());
 
@@ -146,7 +164,11 @@ public class AuthService implements IAuthService {
         }
 
         EmailModel emailModel = new EmailModel(credentials.getEmail(), "OTP", EmailTemplate.otpEmailContent(otpModel.getOtpCode()));
-        emailService.sendEmail(emailModel);
+        emailService.sendEmail(emailModel);*/
+        ApiResponse<?> response = sendOtp(credentials.getEmail());
+        if (response.getStatus() != HttpStatus.OK.value()) {
+            throw new IllegalStateException(response.getMessage());
+        }
 
         if (userService.save(userModel) == 0) {
             throw new IllegalStateException(AuthValidation.ACCOUNT_CONFLICT);

@@ -106,8 +106,8 @@ public class ProductController {
         }
     }
 
-    @PutMapping("/activate/{id}")
-    ResponseEntity<ApiResponse<?>> inactivateProduct(@PathVariable("id") long id,
+    @PutMapping("/activate/{product-id}")
+    ResponseEntity<ApiResponse<?>> inactivateProduct(@PathVariable("product-id") long id,
                                                      @RequestParam int type,
                                                      @RequestParam String note) {
         try {
@@ -166,8 +166,8 @@ public class ProductController {
         }
     }
 
-    @GetMapping("/variable/{id}")
-    ResponseEntity<ApiResponse<?>> findByParentId(@PathVariable("id") long parentId,
+    @GetMapping("/variable/{product-id}")
+    ResponseEntity<ApiResponse<?>> findByParentId(@PathVariable("product-id") long parentId,
                                                   @RequestParam(required = false) Integer pageSize,
                                                   @RequestParam(required = false) Integer pageIndex) {
         if (pageSize != null && pageIndex != null) {
@@ -221,8 +221,8 @@ public class ProductController {
         }
     }
 
-    @GetMapping("/relative/{id}")
-    ResponseEntity<ApiResponse<?>> getAllProductRelative(@PathVariable("id") long id,
+    @GetMapping("/relative/{product-id}")
+    ResponseEntity<ApiResponse<?>> getAllProductRelative(@PathVariable("product-id") long id,
                                                          @RequestParam(required = false) Integer pageSize,
                                                          @RequestParam(required = false) Integer pageIndex) {
         try {
@@ -251,8 +251,8 @@ public class ProductController {
         }
     }
 
-    @GetMapping("/other/{id}")
-    ResponseEntity<ApiResponse<?>> getOtherProductOfShop(@PathVariable("id") long productId,
+    @GetMapping("/other/{shop-id}")
+    ResponseEntity<ApiResponse<?>> getOtherProductOfShop(@PathVariable("shop-id") long productId,
                                                          @RequestParam(required = false) Integer pageSize,
                                                          @RequestParam(required = false) Integer pageIndex) {
         try{
@@ -279,8 +279,8 @@ public class ProductController {
             ));
         }
     }
-    @GetMapping("/shop/{id}")
-    ResponseEntity<ApiResponse<?>> getAllProductByShop(@PathVariable("id")long userId,
+    @GetMapping("/shop/{shop-id}")
+    ResponseEntity<ApiResponse<?>> getAllProductByShop(@PathVariable("shop-id")long userId,
                                                        @RequestParam(required = false)Integer pageSize,
                                                        @RequestParam(required = false)Integer pageIndex){
         try{

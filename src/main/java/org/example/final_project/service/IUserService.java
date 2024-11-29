@@ -20,7 +20,6 @@ public interface IUserService extends IBaseService<UserDto, UserModel, Long> {
     int changePassword(String username, String oldPassword, String newPassword);
     boolean validatePassword(String email, String password);
     Page<UserDto> findAllUsers(Pageable pageable);
-    ResponseEntity<?> signIn(String email, String password);
     ApiResponse<?> registerForBeingShop(ShopRegisterRequest request) throws Exception;
     ApiResponse<?> acceptfromAdmin(int status , long userId) throws Exception;
     ResponseEntity<?> updateProfile(String username, ProfileUpdateRequest request);

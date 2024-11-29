@@ -203,12 +203,6 @@ public class UserService implements IUserService, UserDetailsService {
         return userRepository.findAll(specification, pageable).map(userMapper::toDto);
     }
 
-
-    @Override
-    public ResponseEntity<?> signIn(String email, String password) {
-        return null;
-    }
-
     @Override
     public ApiResponse<?> registerForBeingShop(ShopRegisterRequest request) throws Exception {
         if (request.getUserId().describeConstable().isPresent()) {
