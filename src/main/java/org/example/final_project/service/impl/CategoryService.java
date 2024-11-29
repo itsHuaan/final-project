@@ -53,7 +53,7 @@ public class CategoryService implements ICategoryService {
     public int save(CategoryModel model) {
         try {
             CategoryEntity category = categoryMapper.convertToEntity(model);
-            if (model.getFile() != null) {
+            if (!model.getFile().isEmpty()) {
                 category.setImage(cloudinary.uploader().upload(model.getFile().getBytes(), ObjectUtils.emptyMap()).get("url").toString());
             }
             if (model.getUser_id() != 0L) {
