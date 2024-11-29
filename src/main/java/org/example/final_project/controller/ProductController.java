@@ -279,4 +279,32 @@ public class ProductController {
             ));
         }
     }
+    @GetMapping("/getAllProductByShop/{id}")
+    ResponseEntity<ApiResponse<?>> getAllProductByShop(@PathVariable("id")long userId,
+                                                       @RequestParam(required = false)Integer pageSize,
+                                                       @RequestParam(required = false)Integer pageIndex){
+        try{
+        if(PageableValidation.setDefault(pageSize,pageIndex)!=null){
+            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
+                    200,
+                    "Successfully",
+                    productService.getAllProductOfShop(userId, PageableValidation.setDefault(pageSize, pageIndex)),
+                    LocalDateTime.now()
+            ));
+        }else{
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
+                    400,
+                    "Invalid page size or page index",
+                    null,
+                    LocalDateTime.now()
+            ));
+        }}catch(IllegalArgumentException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
+                    400,
+                    e.getMessage(),
+                    null,
+                    LocalDateTime.now()
+            ));
+        }
+    }
 }
