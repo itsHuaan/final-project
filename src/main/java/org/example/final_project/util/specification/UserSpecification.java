@@ -36,4 +36,9 @@ public class UserSpecification {
         return (Root<UserEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.isNull(root.get("deletedAt"));
     }
+
+    public static Specification<UserEntity> hasId(Long id) {
+        return (Root<UserEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("userId"), id);
+    }
 }

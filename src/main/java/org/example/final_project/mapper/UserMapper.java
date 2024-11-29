@@ -22,6 +22,8 @@ public class UserMapper {
                 .shop_status(userEntity.getShop_status())
                 .tax_code(userEntity.getTax_code())
                 .profilePicture(userEntity.getProfilePicture())
+                .gender(userEntity.getGender())
+                .phone(userEntity.getPhone())
                 .build();
     }
 
@@ -38,6 +40,8 @@ public class UserMapper {
                 .role(role)
                 .createdAt(userModel.getCreatedAt())
                 .shop_status(userModel.getShop_status())
+                .phone(userModel.getPhone())
+                .gender(userModel.getGender())
                 .build();
     }
 }

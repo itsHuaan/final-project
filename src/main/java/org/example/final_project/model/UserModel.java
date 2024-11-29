@@ -18,9 +18,11 @@ public class UserModel {
     private String username;
     private String password;
     private String email;
+    private String phone;
+    private int gender = -1;
     private MultipartFile profilePicture;
     private Long roleId = 2L;
-    private Integer isActive = 0;
+    private int isActive = 0;
     private LocalDateTime createdAt = LocalDateTime.now();
     private Integer shop_status = STATUS.INACTIVE.getStatus();
 }

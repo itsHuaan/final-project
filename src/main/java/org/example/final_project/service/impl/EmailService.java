@@ -2,6 +2,9 @@ package org.example.final_project.service.impl;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.example.final_project.model.EmailModel;
 import org.example.final_project.service.IEmailService;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -9,12 +12,10 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class EmailService implements IEmailService {
-    private final JavaMailSender emailSender;
-
-    public EmailService(JavaMailSender emailSender) {
-        this.emailSender = emailSender;
-    }
+    JavaMailSender emailSender;
 
     @Override
     public boolean sendEmail(EmailModel email) {
