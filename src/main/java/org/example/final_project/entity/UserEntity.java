@@ -42,6 +42,7 @@ public class UserEntity {
     private Integer shop_status;
     private String shop_address_detail;
     private String phone;
+    private LocalDateTime time_created_shop;
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "address_id")
     private AddressEntity address;

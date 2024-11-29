@@ -21,6 +21,7 @@ public class UserMapper {
                 .shop_name(userEntity.getShop_name())
                 .shop_status(userEntity.getShop_status())
                 .tax_code(userEntity.getTax_code())
+                .time_created_shop(userEntity.getTime_created_shop())
                 .build();
     }
 

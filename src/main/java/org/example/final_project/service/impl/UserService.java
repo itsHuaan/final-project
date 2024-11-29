@@ -16,6 +16,7 @@ import org.example.final_project.mapper.UserMapper;
 import org.example.final_project.model.ShopRegisterRequest;
 import org.example.final_project.model.UserModel;
 import org.example.final_project.model.enum_status.STATUS;
+import org.example.final_project.repository.IAddressRepository;
 import org.example.final_project.repository.IRoleRepository;
 import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.IUserService;
@@ -30,6 +31,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -47,6 +50,8 @@ public class UserService implements IUserService, UserDetailsService {
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
     ImageService imageService;
+    IAddressRepository addressRepository;
+
 
 
     @Override
@@ -177,9 +182,11 @@ public class UserService implements IUserService, UserDetailsService {
 
     @Override
     public ApiResponse<?> registerForBeingShop(ShopRegisterRequest request) throws Exception {
-        if (request.getUserId().describeConstable().isPresent()) {
-            UserEntity userEntity = userRepository.findById(request.getUserId()).get();
+        Optional<UserEntity> optionalUserEntity = userRepository.findById(request.getUserId());
+        long shopAddressId = (int) request.getShop_address();
 
+        if (optionalUserEntity.isPresent() || !addressRepository.existsById(shopAddressId) ) {
+            UserEntity userEntity = userRepository.findById(request.getUserId()).get();
             if (userEntity.getShop_status() == 0) {
                 String id_back = imageService.uploadOneImage(request.getId_back());
                 userEntity.setId_back(id_back);
@@ -192,13 +199,14 @@ public class UserService implements IUserService, UserDetailsService {
                 userEntity.setAddress(addressEntity);
                 userEntity.setShop_address_detail(request.getShop_address_detail());
                 userEntity.setPhone(request.getPhone());
+                userEntity.setTime_created_shop(LocalDateTime.now());
                 userRepository.save(userEntity);
                 return createResponse(HttpStatus.OK, "Wait for confirm ",null);
             } else if (userEntity.getShop_status() == 1) {
                 return createResponse(HttpStatus.CONFLICT, "User register Shop",null);
             }
         }
-        throw new NotFound("Not found Userr");
+        throw new NotFound("Not found Userr or Address");
     }
     @Override
     public ApiResponse<?> acceptfromAdmin(int status , long userId) throws Exception{
@@ -214,5 +222,12 @@ public class UserService implements IUserService, UserDetailsService {
         }
         throw new NotFound("Not found Userr");
     }
+    @Override
+    public List<UserDto> findAllStatusUserBeingShop(){
+        List<UserEntity> userEntityList = userRepository.findAllStatusUserBeingShop();
+        List<UserDto> userDtoList = userEntityList.stream().map(e->userMapper.toDto(e)).toList();
+        return userDtoList;
+    }
+
 };
 

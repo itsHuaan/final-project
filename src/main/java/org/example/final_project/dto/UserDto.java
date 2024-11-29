@@ -2,6 +2,8 @@ package org.example.final_project.dto;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -23,6 +25,8 @@ public class UserDto {
     private Integer shop_status;
     private String shop_address_detail;
     private String phone;
+    private LocalDateTime time_created_shop;
+
 
 
 }

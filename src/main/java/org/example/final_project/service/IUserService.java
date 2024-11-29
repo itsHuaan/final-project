@@ -8,6 +8,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 
+import java.util.List;
+
 public interface IUserService extends IBaseService<UserDto, UserModel, Long> {
     UserDto findByUsername(String username);
     UserDto findByEmail(String email);
@@ -22,4 +24,5 @@ public interface IUserService extends IBaseService<UserDto, UserModel, Long> {
     ResponseEntity<?> signIn(String email, String password);
     ApiResponse<?> registerForBeingShop(ShopRegisterRequest request) throws Exception;
     ApiResponse<?> acceptfromAdmin(int status , long userId) throws Exception;
+    List<UserDto> findAllStatusUserBeingShop();
 }

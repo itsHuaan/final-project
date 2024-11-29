@@ -3,6 +3,7 @@ package org.example.final_project.controller;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.example.final_project.dto.ApiResponse;
+import org.example.final_project.dto.UserDto;
 import org.example.final_project.model.ShopRegisterRequest;
 import org.example.final_project.service.impl.UserService;
 import org.example.final_project.util.Const;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Tag(name = "ADMIN")
 @RestController
@@ -30,5 +32,11 @@ public class AdminController {
             ApiResponse<?> errorResponse = new ApiResponse<>(HttpStatus.NOT_FOUND.value(), e.getMessage(), null,LocalDateTime.now());
             return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
         }
+    }
+    @GetMapping("/get-status-shop")
+    public ResponseEntity<List<UserDto>> getStatusShop() {
+        List<UserDto> userDtoList = userService.findAllStatusUserBeingShop();
+        return new ResponseEntity<>(userDtoList, HttpStatus.OK);
+
     }
 }
