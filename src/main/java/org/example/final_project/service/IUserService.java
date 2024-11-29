@@ -18,10 +18,10 @@ public interface IUserService extends IBaseService<UserDto, UserModel, Long> {
     int activateUserAccount(String email);
     int resetPassword(String email, String newPassword);
     int changePassword(String username, String oldPassword, String newPassword);
-    boolean validatePassword(String email, String newPassword);
+    boolean validatePassword(String email, String password);
     Page<UserDto> findAllUsers(Pageable pageable);
     ResponseEntity<?> signIn(String email, String password);
     ApiResponse<?> registerForBeingShop(ShopRegisterRequest request) throws Exception;
-    int updateUserProfile(ProfileUpdateRequest request);
     ApiResponse<?> acceptfromAdmin(int status , long userId) throws Exception;
+    ResponseEntity<?> updateProfile(String username, ProfileUpdateRequest request);
 }

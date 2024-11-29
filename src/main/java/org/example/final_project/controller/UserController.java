@@ -1,11 +1,13 @@
 package org.example.final_project.controller;
 
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.example.final_project.dto.UserDto;
 import org.example.final_project.dto.ApiResponse;
 
 import org.example.final_project.model.ChangePasswordRequest;
+import org.example.final_project.model.ProfileUpdateRequest;
 import org.example.final_project.model.ShopRegisterRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -79,12 +81,13 @@ public class UserController {
         int deleteResult = userService.delete(id);
 
         return deleteResult == 1
-                ? ResponseEntity.status(HttpStatus.NO_CONTENT).body(
-                createResponse(HttpStatus.NO_CONTENT, "Deleted user has id " + id, null))
-                : ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                createResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Deletion failed", null));
+                ? ResponseEntity.status(HttpStatus.OK).body(
+                createResponse(HttpStatus.OK, "Deleted user has id " + id, null))
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                createResponse(HttpStatus.NOT_FOUND, "User not found", null));
     }
 
+    @Operation(summary = "Update password")
     @PutMapping("change-password/{username}")
     public ResponseEntity<?> changePassword(@PathVariable String username, ChangePasswordRequest request) {
         try {
@@ -97,5 +100,10 @@ public class UserController {
         }
     }
 
+    @Operation(summary = "Update profile")
+    @PutMapping("update-profile/{username}")
+    public ResponseEntity<?> updateProfile(@PathVariable String username, ProfileUpdateRequest request) {
+        return userService.updateProfile(username, request);
+    }
 }
 

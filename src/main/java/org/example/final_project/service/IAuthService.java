@@ -14,4 +14,5 @@ public interface IAuthService {
     ApiResponse<?> verifyUser(String otp, String email);
     ApiResponse<?> logOut(String token);
     ApiResponse<?> changePassword(String username, ChangePasswordRequest request);
+    ApiResponse<?> validatePassword(String username, String password);
 }

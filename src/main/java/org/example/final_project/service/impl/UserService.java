@@ -68,7 +68,7 @@ public class UserService implements IUserService, UserDetailsService {
     @Override
     public int save(UserModel userModel) {
         if (isExistingByUsernameOrEmail(userModel.getUsername(), userModel.getEmail())) {
-            if(userRepository.findOne(Specification.where(isActive())).isPresent()){
+            if (userRepository.findOne(Specification.where(isActive())).isPresent()) {
                 return 0;
             } else {
                 UserEntity userEntity = userRepository.findOne(Specification.where(hasEmail(userModel.getEmail()).and(hasUsername(userModel.getUsername())))).get();
@@ -81,13 +81,6 @@ public class UserService implements IUserService, UserDetailsService {
         userModel.setPassword(passwordEncoder.encode(userModel.getPassword()));
         UserEntity userEntity = userMapper.toEntity(userModel);
         userEntity.setRole(role);
-        /*try{
-            if(userModel.getProfilePicture()!=null){
-                userEntity.setProfilePicture(cloudinary.uploader().upload(userModel.getProfilePicture().getBytes(), ObjectUtils.emptyMap()).get("url").toString());
-            }
-        }catch(IOException e){
-            userEntity.setProfilePicture(null);
-        }*/
         userRepository.save(userEntity);
         return 1;
     }
@@ -100,10 +93,11 @@ public class UserService implements IUserService, UserDetailsService {
 
     @Override
     public int delete(Long id) {
-        boolean isPresent = userRepository.existsById(id);
+        boolean isPresent = userRepository.findOne(hasId(id).and(isNotDeleted())).isPresent();
         if (isPresent) {
             UserEntity user = userRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Invalid user ID"));
             user.setDeletedAt(LocalDateTime.now());
+            userRepository.save(user);
             return 1;
         }
         return 0;
@@ -192,13 +186,13 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
-    public boolean validatePassword(String email, String newPassword) {
+    public boolean validatePassword(String email, String password) {
         UserEntity userEntity = userRepository.findOne(Specification.where(hasEmail(email)).and(isActive())).isPresent()
                 ? userRepository.findOne(Specification.where(hasEmail(email)).and(isActive())).get()
                 : null;
         if (userEntity != null) {
             String oldPassword = userEntity.getPassword();
-            return oldPassword.equals(passwordEncoder.encode(newPassword));
+            return oldPassword.equals(passwordEncoder.encode(password));
         }
         return false;
     }
@@ -232,34 +226,60 @@ public class UserService implements IUserService, UserDetailsService {
                 userEntity.setAddress(addressEntity);
                 userEntity.setShop_address_detail(request.getShop_address_detail());
                 userRepository.save(userEntity);
-                return createResponse(HttpStatus.OK, "Wait for confirm ",null);
+                return createResponse(HttpStatus.OK, "Wait for confirm ", null);
             } else if (userEntity.getShop_status() == 1) {
-                return createResponse(HttpStatus.CONFLICT, "User register Shop",null);
+                return createResponse(HttpStatus.CONFLICT, "User register Shop", null);
             }
         }
         throw new NotFound("Not found Userr");
     }
 
     @Override
-    public int updateUserProfile(ProfileUpdateRequest request) {
-        return 0;
-    }
-
-    @Override
-    public ApiResponse<?> acceptfromAdmin(int status , long userId) throws Exception{
+    public ApiResponse<?> acceptfromAdmin(int status, long userId) throws Exception {
         Optional<UserEntity> optionalUserEntity = userRepository.findById(userId);
         if (optionalUserEntity.isPresent()) {
-            UserEntity userEntity =  userRepository.findById(userId).get();
+            UserEntity userEntity = userRepository.findById(userId).get();
             userEntity.setShop_status(status);
             RoleEntity role = new RoleEntity();
             role.setRoleId(1L);
             userEntity.setRole(role);
             userRepository.save(userEntity);
-            return createResponse(HttpStatus.OK, "Đã tạo shop ",null);
+            return createResponse(HttpStatus.OK, "Đã tạo shop ", null);
 
         }
         throw new NotFound("Not found Userr");
     }
 
+    @Override
+    public ResponseEntity<?> updateProfile(String username, ProfileUpdateRequest request) {
+        UserEntity userEntity = userRepository.findOne(Specification.where(hasUsername(username)).and(isActive())).isPresent()
+                ? userRepository.findOne(Specification.where(hasUsername(username)).and(isActive())).get()
+                : null;
+
+        if (userEntity != null) {
+            userEntity.setName(request.getName());
+            userEntity.setPhone(request.getPhone());
+            userEntity.setGender(request.getGender());
+            try {
+                if (userEntity.getProfilePicture() != null) {
+                    userEntity.setProfilePicture(cloudinary.uploader().upload(request.getProfilePicture().getBytes(), ObjectUtils.emptyMap()).get("url").toString());
+                }
+            } catch (IOException e) {
+                userEntity.setProfilePicture(null);
+            }
+            userRepository.save(userEntity);
+            return ResponseEntity.status(HttpStatus.OK).body(createResponse(
+                    HttpStatus.OK,
+                    "User updated",
+                    null
+            ));
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createResponse(
+                    HttpStatus.NOT_FOUND,
+                    "User not found",
+                    null
+            ));
+        }
+    }
 };
 

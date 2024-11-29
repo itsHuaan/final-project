@@ -86,6 +86,11 @@ public class AuthService implements IAuthService {
     }
 
     @Override
+    public ApiResponse<?> validatePassword(String username, String password) {
+        return null;
+    }
+
+    @Override
     public ApiResponse<?> signIn(SignInRequest credentials) {
         if (!userService.isActivated(credentials.getEmail())) {
             throw new IllegalStateException(AuthValidation.ACCOUNT_INACTIVE);
