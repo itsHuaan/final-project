@@ -167,14 +167,14 @@ public class ProductService implements IProductService {
         if (pageable != null) {
             if (iProductRepository.findById(productId).isPresent()) {
                 ProductEntity productEntity = iProductRepository.findById(productId).get();
-                Page<ProductDto> page= iProductRepository.findAll(Specification.where(isNotDeleted()).and(hasCategoryId(productEntity.getCategoryEntity().getId())).and(notHaveId(productId)), pageable).map(x -> productMapper.convertToDto(x));
+                Page<ProductDto> page= iProductRepository.findAll(Specification.where(isNotDeleted()).and(hasCategoryId(productEntity.getCategoryEntity().getId()).and(hasUserNotDeleted(productEntity.getUser().getUserId()))).and(notHaveId(productId)), pageable).map(x -> productMapper.convertToDto(x));
                 return page;
             } else {
                 throw new IllegalArgumentException("Value Not Found");
             }
         } else {
             ProductEntity productEntity = iProductRepository.findById(productId).get();
-            return iProductRepository.findAll(Specification.where(isNotDeleted()).and(hasCategoryId(productEntity.getCategoryEntity().getId())).and(notHaveId(productId)), Pageable.unpaged()).map(x -> productMapper.convertToDto(x));
+            return iProductRepository.findAll(Specification.where(isNotDeleted()).and(hasCategoryId(productEntity.getCategoryEntity().getId())).and(notHaveId(productId).and(hasUserNotDeleted(productEntity.getUser().getUserId()))), Pageable.unpaged()).map(x -> productMapper.convertToDto(x));
         }
     }
 
@@ -183,9 +183,9 @@ public class ProductService implements IProductService {
         if (iProductRepository.findById(productId).isPresent()) {
             ProductEntity productEntity = iProductRepository.findById(productId).get();
             if (pageable != null) {
-                return iProductRepository.findAll(Specification.where(isNotDeleted()).and(notHaveId(productId)).and(hasUserId(productEntity.getUser().getUserId())), pageable).map(x -> productMapper.convertToDto(x));
+                return iProductRepository.findAll(Specification.where(isNotDeleted()).and(notHaveId(productId)).and(hasUserId(productEntity.getUser().getUserId())).and(hasUserNotDeleted(productEntity.getUser().getUserId())), pageable).map(x -> productMapper.convertToDto(x));
             } else {
-                return iProductRepository.findAll(Specification.where(isNotDeleted()).and(notHaveId(productId)).and(hasUserId(productEntity.getUser().getUserId())), Pageable.unpaged()).map(x -> productMapper.convertToDto(x));
+                return iProductRepository.findAll(Specification.where(isNotDeleted()).and(notHaveId(productId)).and(hasUserId(productEntity.getUser().getUserId())).and(hasUserNotDeleted(productEntity.getUser().getUserId())), Pageable.unpaged()).map(x -> productMapper.convertToDto(x));
             }
         } else {
             throw new IllegalArgumentException("Value Not Found");
@@ -196,9 +196,9 @@ public class ProductService implements IProductService {
     public Page<ProductDto> getAllProductOfShop(long userId, Pageable pageable) {
         if(iUserRepository.findById(userId).isPresent()){
             if(pageable!=null){
-                return iProductRepository.findAll(Specification.where(isNotDeleted()).and(hasUserId(userId)),pageable).map(x->productMapper.convertToDto(x));
+                return iProductRepository.findAll(Specification.where(isNotDeleted()).and(hasUserId(userId).and(hasUserNotDeleted(userId))),pageable).map(x->productMapper.convertToDto(x));
             }else{
-                return iProductRepository.findAll(Specification.where(isNotDeleted().and(hasUserId(userId))),PageRequest.of(0,iProductRepository.findAll().size())).map(x->productMapper.convertToDto(x));
+                return iProductRepository.findAll(Specification.where(isNotDeleted()).and(hasUserId(userId).and(hasUserNotDeleted(userId))),PageRequest.of(0,iProductRepository.findAll().size())).map(x->productMapper.convertToDto(x));
             }
         }else{
             throw new IllegalArgumentException("Value not found");
