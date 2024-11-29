@@ -102,7 +102,7 @@ public class UserController {
 
     @Operation(summary = "Update profile")
     @PutMapping("update-profile/{username}")
-    public ResponseEntity<?> updateProfile(@PathVariable String username, ProfileUpdateRequest request) {
+    public ResponseEntity<?> updateProfile(@PathVariable String username,@ModelAttribute ProfileUpdateRequest request) {
         return userService.updateProfile(username, request);
     }
 }

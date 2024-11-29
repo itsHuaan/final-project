@@ -255,9 +255,7 @@ public class UserService implements IUserService, UserDetailsService {
             userEntity.setPhone(request.getPhone());
             userEntity.setGender(request.getGender());
             try {
-                if (userEntity.getProfilePicture() != null) {
-                    userEntity.setProfilePicture(cloudinary.uploader().upload(request.getProfilePicture().getBytes(), ObjectUtils.emptyMap()).get("url").toString());
-                }
+                userEntity.setProfilePicture(cloudinary.uploader().upload(request.getProfilePicture().getBytes(), ObjectUtils.emptyMap()).get("url").toString());
             } catch (IOException e) {
                 userEntity.setProfilePicture(null);
             }

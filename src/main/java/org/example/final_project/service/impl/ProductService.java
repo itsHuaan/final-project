@@ -196,9 +196,9 @@ public class ProductService implements IProductService {
     public Page<ProductDto> getAllProductOfShop(long userId, Pageable pageable) {
         if(iUserRepository.findById(userId).isPresent()){
             if(pageable!=null){
-                return iProductRepository.findAll(Specification.where(isNotDeleted()).and(hasUserId(userId).and(hasUserNotDeleted(userId),pageable).map(x->productMapper.convertToDto(x));
+                return iProductRepository.findAll(Specification.where(isNotDeleted()).and(hasUserId(userId).and(hasUserNotDeleted(userId))),pageable).map(x->productMapper.convertToDto(x));
             }else{
-                return iProductRepository.findAll(Specification.where(isNotDeleted()).and(hasUserId(userId).and(hasUserNotDeleted(userId),PageRequest.of(0,iProductRepository.findAll().size())).map(x->productMapper.convertToDto(x));
+                return iProductRepository.findAll(Specification.where(isNotDeleted()).and(hasUserId(userId).and(hasUserNotDeleted(userId))),PageRequest.of(0,iProductRepository.findAll().size())).map(x->productMapper.convertToDto(x));
             }
         }else{
             throw new IllegalArgumentException("Value not found");
