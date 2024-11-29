@@ -81,13 +81,13 @@ public class UserService implements IUserService, UserDetailsService {
         userModel.setPassword(passwordEncoder.encode(userModel.getPassword()));
         UserEntity userEntity = userMapper.toEntity(userModel);
         userEntity.setRole(role);
-        try{
+        /*try{
             if(userModel.getProfilePicture()!=null){
                 userEntity.setProfilePicture(cloudinary.uploader().upload(userModel.getProfilePicture().getBytes(), ObjectUtils.emptyMap()).get("url").toString());
             }
         }catch(IOException e){
             userEntity.setProfilePicture(null);
-        }
+        }*/
         userRepository.save(userEntity);
         return 1;
     }
