@@ -62,19 +62,19 @@ public class UserService implements IUserService, UserDetailsService {
 
     @Override
     public UserDto getById(Long id) {
-        UserEntity user = userRepository.findById(id).orElse(null);
+        UserEntity user = userRepository.findOne(hasId(id).and(isNotDeleted()).and(isNotSuperAdmin())).orElse(null);
         return user != null ? userMapper.toDto(user) : null;
     }
 
     @Override
     public int save(UserModel userModel) {
-        if (isExistingByUsernameOrEmail(userModel.getUsername(), userModel.getEmail())) {
+        if ((userRepository.findOne(Specification.where(hasUsername(userModel.getUsername())).and(isActive().and(isNotDeleted()))).isPresent()) || (userRepository.findOne(Specification.where(hasEmail(userModel.getEmail())).and(isActive().and(isNotDeleted()))).isPresent())) {
             return 0;
         }
-
         Optional<UserEntity> inactiveOrDeletedUser = userRepository.findOne(Specification.where(
                 hasUsername(userModel.getUsername())
                         .or(hasEmail(userModel.getEmail()))
+                        .and(isInactive().or(isDeleted()))
         ));
 
         if (inactiveOrDeletedUser.isPresent()) {
