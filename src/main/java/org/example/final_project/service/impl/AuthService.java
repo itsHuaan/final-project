@@ -128,9 +128,6 @@ public class AuthService implements IAuthService {
         if (!EMAIL_PATTERN.matcher(credentials.getEmail()).matches()) {
             throw new IllegalArgumentException("Invalid email format.");
         }
-        if (userService.isExistingByUsernameOrEmail(credentials.getUsername(), credentials.getEmail())) {
-            throw new IllegalArgumentException("Username or email is already in use");
-        }
 
         UserModel userModel = new UserModel();
         userModel.setName(credentials.getName() != null ? credentials.getName() : credentials.getUsername());

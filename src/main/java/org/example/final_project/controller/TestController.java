@@ -6,6 +6,9 @@ import org.example.final_project.util.Const;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,15 +19,24 @@ import org.springframework.web.bind.annotation.RestController;
 public class TestController {
     @Operation(summary = "Admin")
     @PreAuthorize("hasRole('ROLE_SELLER')")
-    @PostMapping("/admin-test")
+    @GetMapping("/admin-test")
     public ResponseEntity<?> adminTest() {
         return new ResponseEntity<>("You're an seller", HttpStatus.OK);
     }
 
     @Operation(summary = "User")
     @PreAuthorize("hasRole('ROLE_BUYER')")
-    @PostMapping("/user-test")
+    @GetMapping("/user-test")
     public ResponseEntity<?> userTest() {
         return new ResponseEntity<>("You're an buyer", HttpStatus.OK);
     }
+
+
+    /*@Operation(summary = "Test")
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/login-test")
+    public ResponseEntity<?> loginTest() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return new ResponseEntity<>("You're logged in as " + auth.getCredentials().toString(), HttpStatus.OK);
+    }*/
 }

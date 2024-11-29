@@ -68,7 +68,7 @@ public class UserService implements IUserService, UserDetailsService {
     @Override
     public int save(UserModel userModel) {
         if (isExistingByUsernameOrEmail(userModel.getUsername(), userModel.getEmail())) {
-            if (userRepository.findOne(Specification.where(isActive())).isPresent()) {
+            if (userRepository.findOne(Specification.where(isActive()).and(isNotDeleted())).isPresent()) {
                 return 0;
             } else {
                 UserEntity userEntity = userRepository.findOne(Specification.where(hasEmail(userModel.getEmail()).and(hasUsername(userModel.getUsername())))).get();
