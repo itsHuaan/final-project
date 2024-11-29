@@ -20,7 +20,7 @@ public enum ActivateStatus {
 
     public boolean checkIfExist(int value) {
         boolean check = false;
-        for (ActivateStatus e_value : List.of(ActivateStatus.Active, ActivateStatus.Inactive)) {
+        for (ActivateStatus e_value : ActivateStatus.values()) {
             if (value == e_value.getValue()) {
                 check = true;
                 break;

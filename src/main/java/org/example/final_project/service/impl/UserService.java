@@ -1,6 +1,8 @@
 package org.example.final_project.service.impl;
 
+import com.cloudinary.Cloudinary;
 import com.cloudinary.api.exceptions.NotFound;
+import com.cloudinary.utils.ObjectUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -13,6 +15,7 @@ import org.example.final_project.entity.AddressEntity;
 import org.example.final_project.entity.RoleEntity;
 import org.example.final_project.entity.UserEntity;
 import org.example.final_project.mapper.UserMapper;
+import org.example.final_project.model.ProfileUpdateRequest;
 import org.example.final_project.model.ShopRegisterRequest;
 import org.example.final_project.model.UserModel;
 import org.example.final_project.model.enum_status.STATUS;
@@ -31,6 +34,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +56,7 @@ public class UserService implements IUserService, UserDetailsService {
     ImageService imageService;
     IAddressRepository addressRepository;
 
+    Cloudinary cloudinary;
 
 
     @Override
@@ -61,15 +66,34 @@ public class UserService implements IUserService, UserDetailsService {
 
     @Override
     public UserDto getById(Long id) {
-        return userMapper.toDto(userRepository.getReferenceById(id));
+        UserEntity user = userRepository.findOne(hasId(id).and(isNotDeleted()).and(isNotSuperAdmin())).orElse(null);
+        return user != null ? userMapper.toDto(user) : null;
     }
 
     @Override
     public int save(UserModel userModel) {
-        if (isExistingByUsernameOrEmail(userModel.getUsername(), userModel.getEmail())) {
+        if ((userRepository.findOne(Specification.where(hasUsername(userModel.getUsername())).and(isActive().and(isNotDeleted()))).isPresent()) || (userRepository.findOne(Specification.where(hasEmail(userModel.getEmail())).and(isActive().and(isNotDeleted()))).isPresent())) {
             return 0;
         }
-        RoleEntity role = roleRepository.findById(userModel.getRoleId()).orElseThrow(() -> new IllegalArgumentException("Invalid role ID"));
+        Optional<UserEntity> inactiveOrDeletedUser = userRepository.findOne(Specification.where(
+                hasUsername(userModel.getUsername())
+                        .or(hasEmail(userModel.getEmail()))
+                        .and(isInactive().or(isDeleted()))
+        ));
+
+        if (inactiveOrDeletedUser.isPresent()) {
+            UserEntity userEntity = inactiveOrDeletedUser.get();
+            userEntity.setName(userModel.getName());
+            userEntity.setEmail(userModel.getEmail());
+            userEntity.setUsername(userModel.getUsername());
+            userEntity.setPassword(passwordEncoder.encode(userModel.getPassword()));
+            userRepository.save(userEntity);
+            return 1;
+        }
+
+        RoleEntity role = roleRepository.findById(userModel.getRoleId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid role ID"));
+
         userModel.setPassword(passwordEncoder.encode(userModel.getPassword()));
         UserEntity userEntity = userMapper.toEntity(userModel);
         userEntity.setRole(role);
@@ -85,6 +109,13 @@ public class UserService implements IUserService, UserDetailsService {
 
     @Override
     public int delete(Long id) {
+        boolean isPresent = userRepository.findOne(hasId(id).and(isNotDeleted())).isPresent();
+        if (isPresent) {
+            UserEntity user = userRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Invalid user ID"));
+            user.setDeletedAt(LocalDateTime.now());
+            userRepository.save(user);
+            return 1;
+        }
         return 0;
     }
 
@@ -106,8 +137,11 @@ public class UserService implements IUserService, UserDetailsService {
 
     @Override
     public boolean isExistingByUsernameOrEmail(String username, String email) {
-        return userRepository.findOne(Specification.where(hasUsername(username)
-                .or(hasEmail(email))).and(isActive())).isPresent();
+        return userRepository.findOne(Specification.where(
+                        hasUsername(username)
+                                .or(hasEmail(email))
+                ).and(isActive().and(isNotDeleted()))
+        ).isPresent();
     }
 
     @Override
@@ -153,31 +187,39 @@ public class UserService implements IUserService, UserDetailsService {
 
     @Override
     public int changePassword(String username, String oldPassword, String newPassword) {
-        return 0;
+        UserEntity userEntity = userRepository.findOne(Specification.where(hasUsername(username)).and(isActive())).isPresent()
+                ? userRepository.findOne(Specification.where(hasUsername(username)).and(isActive())).get()
+                : null;
+        if (userEntity != null) {
+            boolean isMatchWithOldPassword = passwordEncoder.matches(oldPassword, userEntity.getPassword());
+            if (isMatchWithOldPassword) {
+                userEntity.setPassword(passwordEncoder.encode(newPassword));
+                userRepository.save(userEntity);
+                return 1;
+            } else {
+                return 0;
+            }
+        } else {
+            return -1;
+        }
     }
 
     @Override
-    public boolean validatePassword(String email, String newPassword) {
+    public boolean validatePassword(String email, String password) {
         UserEntity userEntity = userRepository.findOne(Specification.where(hasEmail(email)).and(isActive())).isPresent()
                 ? userRepository.findOne(Specification.where(hasEmail(email)).and(isActive())).get()
                 : null;
         if (userEntity != null) {
             String oldPassword = userEntity.getPassword();
-            return oldPassword.equals(passwordEncoder.encode(newPassword));
+            return oldPassword.equals(passwordEncoder.encode(password));
         }
         return false;
     }
 
     @Override
     public Page<UserDto> findAllUsers(Pageable pageable) {
-        Specification<UserEntity> specification = Specification.where(isActive().and(isNotSuperAdmin()));
+        Specification<UserEntity> specification = Specification.where(isNotDeleted().and(isNotSuperAdmin()));
         return userRepository.findAll(specification, pageable).map(userMapper::toDto);
-    }
-
-
-    @Override
-    public ResponseEntity<?> signIn(String email, String password) {
-        return null;
     }
 
     @Override
@@ -187,6 +229,7 @@ public class UserService implements IUserService, UserDetailsService {
 
         if (optionalUserEntity.isPresent() || !addressRepository.existsById(shopAddressId) ) {
             UserEntity userEntity = userRepository.findById(request.getUserId()).get();
+
             if (userEntity.getShop_status() == 0) {
                 String id_back = imageService.uploadOneImage(request.getId_back());
                 userEntity.setId_back(id_back);
@@ -201,26 +244,58 @@ public class UserService implements IUserService, UserDetailsService {
                 userEntity.setPhone(request.getPhone());
                 userEntity.setTime_created_shop(LocalDateTime.now());
                 userRepository.save(userEntity);
-                return createResponse(HttpStatus.OK, "Wait for confirm ",null);
+                return createResponse(HttpStatus.OK, "Wait for confirm ", null);
             } else if (userEntity.getShop_status() == 1) {
-                return createResponse(HttpStatus.CONFLICT, "User register Shop",null);
+                return createResponse(HttpStatus.CONFLICT, "User register Shop", null);
             }
         }
         throw new NotFound("Not found Userr or Address");
     }
+
     @Override
-    public ApiResponse<?> acceptfromAdmin(int status , long userId) throws Exception{
+    public ApiResponse<?> acceptfromAdmin(int status, long userId) throws Exception {
         Optional<UserEntity> optionalUserEntity = userRepository.findById(userId);
         if (optionalUserEntity.isPresent()) {
-            UserEntity userEntity =  userRepository.findById(userId).get();
+            UserEntity userEntity = userRepository.findById(userId).get();
             userEntity.setShop_status(status);
             RoleEntity role = new RoleEntity();
             role.setRoleId(1L);
             userEntity.setRole(role);
             userRepository.save(userEntity);
             return createResponse(HttpStatus.OK, "Created Shop",null);
+
         }
         throw new NotFound("Not found Userr");
+    }
+
+    @Override
+    public ResponseEntity<?> updateProfile(String username, ProfileUpdateRequest request) {
+        UserEntity userEntity = userRepository.findOne(Specification.where(hasUsername(username)).and(isActive())).isPresent()
+                ? userRepository.findOne(Specification.where(hasUsername(username)).and(isActive())).get()
+                : null;
+
+        if (userEntity != null) {
+            userEntity.setName(request.getName());
+            userEntity.setPhone(request.getPhone());
+            userEntity.setGender(request.getGender());
+            try {
+                userEntity.setProfilePicture(cloudinary.uploader().upload(request.getProfilePicture().getBytes(), ObjectUtils.emptyMap()).get("url").toString());
+            } catch (IOException e) {
+                userEntity.setProfilePicture(null);
+            }
+            userRepository.save(userEntity);
+            return ResponseEntity.status(HttpStatus.OK).body(createResponse(
+                    HttpStatus.OK,
+                    "User updated",
+                    null
+            ));
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createResponse(
+                    HttpStatus.NOT_FOUND,
+                    "User not found",
+                    null
+            ));
+        }
     }
     @Override
     public List<UserDto> findAllStatusUserBeingShop(){
@@ -228,6 +303,5 @@ public class UserService implements IUserService, UserDetailsService {
         List<UserDto> userDtoList = userEntityList.stream().map(e->userMapper.toDto(e)).toList();
         return userDtoList;
     }
-
 };
 

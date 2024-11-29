@@ -7,6 +7,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ResetPasswordRequest {
-    private String newPassword;
+public class ValidatePasswordRequest {
+    private String password;
 }

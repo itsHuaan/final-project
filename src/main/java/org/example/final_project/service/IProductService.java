@@ -15,4 +15,6 @@ public interface IProductService extends IBaseService<ProductDto, ProductModel,L
     Page<ProductDto> getAllProductByStatus(int status,Pageable pageable);
     Page<ProductDto> getAllProductRelative(long productId,Pageable pageable);
     Page<ProductDto> getOtherProductOfShop(long productId,Pageable pageable);
+
+    Page<ProductDto> getAllProductOfShop(long userId, Pageable pageable);
 }

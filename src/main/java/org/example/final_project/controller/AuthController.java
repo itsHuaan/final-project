@@ -70,10 +70,8 @@ public class AuthController {
     public ResponseEntity<ApiResponse<?>> signUp(@RequestBody SignUpRequest credentials) {
         try {
             return ResponseEntity.ok(authService.signUp(credentials));
-        } catch (IllegalArgumentException ex) {
+        } catch (IllegalArgumentException | IllegalStateException ex) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), null));
-        } catch (IllegalStateException ex) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(createResponse(HttpStatus.CONFLICT, ex.getMessage(), null));
         } catch (RuntimeException ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(createResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), null));
         }
@@ -104,6 +102,16 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), null));
         } catch (RuntimeException ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(createResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), null));
+        }
+    }
+
+    @Operation(summary = "Resend OTP")
+    @PostMapping("/resend-otp")
+    public ResponseEntity<?> resendOtp(@RequestBody SendForgotPasswordEmailRequest request) {
+        try{
+            return ResponseEntity.ok(authService.sendOtp(request.getEmail()));
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), null));
         }
     }
 

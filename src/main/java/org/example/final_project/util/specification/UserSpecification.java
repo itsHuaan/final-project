@@ -31,4 +31,21 @@ public class UserSpecification {
         return (Root<UserEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.notEqual(root.get("role").get("roleName"), "ROLE_ADMIN");
     }
+
+    public static Specification<UserEntity> isNotDeleted() {
+        return (Root<UserEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
+                criteriaBuilder.isNull(root.get("deletedAt"));
+    }
+
+
+
+    public static Specification<UserEntity> isDeleted() {
+        return (Root<UserEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
+                criteriaBuilder.isNotNull(root.get("deletedAt"));
+    }
+
+    public static Specification<UserEntity> hasId(Long id) {
+        return (Root<UserEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("userId"), id);
+    }
 }

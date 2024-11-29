@@ -12,10 +12,7 @@ import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.ICategoryService;
 import org.example.final_project.util.specification.CategorySpecification;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -48,7 +45,7 @@ public class CategoryService implements ICategoryService {
         if (iCategoryRepository.findById(id).get() != null) {
             return categoryMapper.convertToDto(iCategoryRepository.findById(id).get());
         } else {
-            return null;
+            throw new IllegalArgumentException("Value Not Found");
         }
     }
 
@@ -56,7 +53,7 @@ public class CategoryService implements ICategoryService {
     public int save(CategoryModel model) {
         try {
             CategoryEntity category = categoryMapper.convertToEntity(model);
-            if (model.getFile() != null) {
+            if (!model.getFile().isEmpty()) {
                 category.setImage(cloudinary.uploader().upload(model.getFile().getBytes(), ObjectUtils.emptyMap()).get("url").toString());
             }
             if (model.getUser_id() != 0L) {
@@ -77,6 +74,8 @@ public class CategoryService implements ICategoryService {
                 CategoryEntity categoryEntity = categoryMapper.convertToEntity(model);
                 categoryEntity.setId(aLong);
                 iCategoryRepository.save(categoryEntity);
+            }else{
+                throw new IllegalArgumentException("Value Not Found");
             }
             return 1;
         } catch (Exception e) {
@@ -92,6 +91,8 @@ public class CategoryService implements ICategoryService {
             if (categoryEntity != null) {
                 categoryEntity.setDeletedAt(LocalDateTime.now());
                 iCategoryRepository.save(categoryEntity);
+            }else{
+                throw new IllegalArgumentException("Value Not Found");
             }
             return 1;
         } catch (Exception e) {
@@ -109,6 +110,8 @@ public class CategoryService implements ICategoryService {
                 if (ActivateStatus.Inactive.checkIfExist(type)) {
                     categoryEntity.setIsActive(type);
                     iCategoryRepository.save(categoryEntity);
+                }else{
+                    throw new IllegalArgumentException("Value Not Found");
                 }
             }
             return 1;

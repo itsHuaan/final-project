@@ -2,6 +2,7 @@ package org.example.final_project.service;
 
 import org.example.final_project.dto.ApiResponse;
 import org.example.final_project.dto.UserDto;
+import org.example.final_project.model.ProfileUpdateRequest;
 import org.example.final_project.model.ShopRegisterRequest;
 import org.example.final_project.model.UserModel;
 import org.springframework.data.domain.Page;
@@ -19,10 +20,10 @@ public interface IUserService extends IBaseService<UserDto, UserModel, Long> {
     int activateUserAccount(String email);
     int resetPassword(String email, String newPassword);
     int changePassword(String username, String oldPassword, String newPassword);
-    boolean validatePassword(String email, String newPassword);
+    boolean validatePassword(String email, String password);
     Page<UserDto> findAllUsers(Pageable pageable);
-    ResponseEntity<?> signIn(String email, String password);
     ApiResponse<?> registerForBeingShop(ShopRegisterRequest request) throws Exception;
     ApiResponse<?> acceptfromAdmin(int status , long userId) throws Exception;
     List<UserDto> findAllStatusUserBeingShop();
+    ResponseEntity<?> updateProfile(String username, ProfileUpdateRequest request);
 }

@@ -1,11 +1,17 @@
 package org.example.final_project.service.impl;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.OtpDto;
 import org.example.final_project.entity.OtpEntity;
 import org.example.final_project.mapper.OtpMapper;
+import org.example.final_project.model.EmailModel;
 import org.example.final_project.model.OtpModel;
 import org.example.final_project.repository.IOtpRepository;
+import org.example.final_project.service.IEmailService;
 import org.example.final_project.service.IOtpService;
+import org.example.final_project.util.EmailTemplate;
 import org.example.final_project.util.specification.OtpSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -20,16 +26,13 @@ import static org.example.final_project.util.Const.SALTCHARS;
 import static org.example.final_project.util.specification.OtpSpecification.*;
 
 @Service
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class OtpService implements IOtpService {
 
-    private final IOtpRepository otpRepository;
-    private final OtpMapper otpMapper;
-
-    @Autowired
-    public OtpService(IOtpRepository otpRepository, OtpMapper otpMapper) {
-        this.otpRepository = otpRepository;
-        this.otpMapper = otpMapper;
-    }
+    IOtpRepository otpRepository;
+    OtpMapper otpMapper;
+    IEmailService emailService;
 
     @Override
     public List<OtpDto> getAll() {
@@ -49,6 +52,7 @@ public class OtpService implements IOtpService {
             otp.setStatus(1);
             otp.setOtpCode(otpModel.getOtpCode());
             otp.setCreatedAt(LocalDateTime.now());
+            otpRepository.save(otp);
         } else {
             otpRepository.save(otpMapper.toEntity(otpModel));
         }
@@ -91,5 +95,10 @@ public class OtpService implements IOtpService {
             otpEntity.setStatus(0);
             otpRepository.save(otpEntity);
         }
+    }
+
+    @Override
+    public int sendOtp(String email) {
+        return 0;
     }
 }

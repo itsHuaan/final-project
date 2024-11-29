@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.example.final_project.model.validation.AuthValidation;
 
 import static org.example.final_project.dto.ApiResponse.*;
+import static org.example.final_project.util.Const.EMAIL_PATTERN;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -73,6 +74,23 @@ public class AuthService implements IAuthService {
     }
 
     @Override
+    public ApiResponse<?> changePassword(String username, ChangePasswordRequest request) {
+        if (userService.changePassword(username, request.getOldPassword(), request.getNewPassword()) == 1){
+            return createResponse(HttpStatus.OK, "Password changed successfully.", null);
+        }
+        if (userService.changePassword(username, request.getOldPassword(), request.getNewPassword()) == -1){
+            throw new IllegalStateException(AuthValidation.ACCOUNT_UNAVAILABLE);
+        } else {
+            throw new IllegalArgumentException("Incorrect old password.");
+        }
+    }
+
+    @Override
+    public ApiResponse<?> validatePassword(String username, String password) {
+        return null;
+    }
+
+    @Override
     public ApiResponse<?> signIn(SignInRequest credentials) {
         if (!userService.isActivated(credentials.getEmail())) {
             throw new IllegalStateException(AuthValidation.ACCOUNT_INACTIVE);
@@ -106,9 +124,27 @@ public class AuthService implements IAuthService {
     }
 
     @Override
+    public ApiResponse<?> sendOtp(String email) {
+        OtpModel otpModel = new OtpModel();
+        otpModel.setOtpCode(otpService.generateOtp());
+        otpModel.setEmail(email);
+
+        try {
+            otpService.save(otpModel);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to save OTP");
+        }
+
+        EmailModel emailModel = new EmailModel(email, "OTP", EmailTemplate.otpEmailContent(otpModel.getOtpCode()));
+        return emailService.sendEmail(emailModel)
+                ? createResponse(HttpStatus.OK, "OTP confirmation email sent to " + email, null)
+                : createResponse(HttpStatus.BAD_REQUEST, "Email not sent", null);
+    }
+
+    @Override
     public ApiResponse<?> signUp(SignUpRequest credentials) {
-        if (userService.isExistingByUsernameOrEmail(credentials.getUsername(), credentials.getEmail())) {
-            throw new IllegalArgumentException("Username or email is already in use");
+        if (!EMAIL_PATTERN.matcher(credentials.getEmail()).matches()) {
+            throw new IllegalArgumentException("Invalid email format.");
         }
 
         UserModel userModel = new UserModel();
@@ -117,21 +153,13 @@ public class AuthService implements IAuthService {
         userModel.setPassword(credentials.getPassword());
         userModel.setUsername(credentials.getUsername());
 
-        OtpModel otpModel = new OtpModel();
-        otpModel.setOtpCode(otpService.generateOtp());
-        otpModel.setEmail(credentials.getEmail());
-
-        try {
-            otpService.save(otpModel);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to save OTP");
-        }
-
-        EmailModel emailModel = new EmailModel(credentials.getEmail(), "OTP", EmailTemplate.otpEmailContent(otpModel.getOtpCode()));
-        emailService.sendEmail(emailModel);
-
         if (userService.save(userModel) == 0) {
             throw new IllegalStateException(AuthValidation.ACCOUNT_CONFLICT);
+        }
+
+        ApiResponse<?> response = sendOtp(credentials.getEmail());
+        if (response.getStatus() != HttpStatus.OK.value()) {
+            throw new IllegalStateException(response.getMessage());
         }
 
         return createResponse(HttpStatus.OK, "An OTP was sent to email " + credentials.getEmail() + ".", null);
