@@ -36,4 +36,9 @@ public class ProductSpecification {
         return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("user").get("id"), userId);
     }
+    public static Specification<ProductEntity> hasUserNotDeleted(long userId) {
+        return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
+                criteriaBuilder.isNull(root.get("user").get("deletedAt"));
+    }
+
 }
