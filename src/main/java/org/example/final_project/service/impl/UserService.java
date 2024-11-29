@@ -22,8 +22,10 @@ import org.example.final_project.model.enum_status.STATUS;
 import org.example.final_project.repository.IAddressRepository;
 import org.example.final_project.repository.IRoleRepository;
 import org.example.final_project.repository.IUserRepository;
+import org.example.final_project.service.IAddressService;
 import org.example.final_project.service.IUserService;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -57,6 +59,7 @@ public class UserService implements IUserService, UserDetailsService {
     IAddressRepository addressRepository;
 
     Cloudinary cloudinary;
+    IAddressService addressService;
 
 
     @Override
@@ -301,7 +304,30 @@ public class UserService implements IUserService, UserDetailsService {
     public List<UserDto> findAllStatusUserBeingShop(){
         List<UserEntity> userEntityList = userRepository.findAllStatusUserBeingShop();
         List<UserDto> userDtoList = userEntityList.stream().map(e->userMapper.toDto(e)).toList();
+
+        for (UserDto userDto : userDtoList) {
+            long parentId = userDto.getShop_address();
+            List<String> address = addressService.findAddressNamesFromParentId(parentId);
+            userDto.setAllAdresses(address);
+        }
         return userDtoList;
     }
+    @Override
+    public Page<UserDto> findAllStatusUserBeingShop(int page, int size) throws Exception {
+        if(page >= 0 && size > 0){
+            Pageable pageable = PageRequest.of(page, size);
+            Page<UserEntity> userEntityPage = userRepository.findAllStatusUserBeingShopPage(pageable);
+            Page<UserDto> userDtoPage = userEntityPage.map(userEntity -> {
+                UserDto userDto = userMapper.toDto(userEntity);
+                long parentId = userDto.getShop_address();
+                List<String> address = addressService.findAddressNamesFromParentId(parentId);
+                userDto.setAllAdresses(address);
+                return userDto;
+            });
+            return userDtoPage;
+        }
+        throw new NotFound("Invalid page or size parameters. Page must be >= 0 and size must be > 0.");
+    }
+
 };
 

@@ -25,6 +25,10 @@ public class UserMapper {
                 .profilePicture(userEntity.getProfilePicture())
                 .gender(userEntity.getGender())
                 .phone(userEntity.getPhone())
+                .shop_address(userEntity.getAddress().getId())
+                .shop_address_detail(userEntity.getShop_address_detail())
+                .time_created_shop(userEntity.getTime_created_shop())
+                .profilePicture(userEntity.getProfilePicture())
                 .build();
     }
 

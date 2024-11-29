@@ -3,6 +3,7 @@ package org.example.final_project.dto;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -23,12 +24,11 @@ public class UserDto {
     private String id_back;
     private String tax_code;
     private String shop_name;
-    private int shop_address;
+    private long shop_address;
     private Integer shop_status;
     private String shop_address_detail;
     private LocalDateTime time_created_shop;
-
-
+    private List<String> allAdresses;
 
     private String profilePicture;
 }

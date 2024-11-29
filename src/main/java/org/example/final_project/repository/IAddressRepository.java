@@ -14,5 +14,8 @@ public interface IAddressRepository extends JpaRepository<AddressEntity, Long> {
   @Query("select  p from AddressEntity p where p.parent_id = :parent_id")
   List<AddressEntity> findByParent_id(Long parent_id);
   boolean existsById(Long id);
+  @Query("select  p from AddressEntity p where p.parent_id = :parent_id")
+  Optional<AddressEntity> findAddressEntitiesByParentId(Long parent_id);
+
 
 }
