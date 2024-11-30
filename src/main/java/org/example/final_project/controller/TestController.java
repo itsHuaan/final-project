@@ -2,6 +2,7 @@ package org.example.final_project.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.example.final_project.configuration.UserDetailsImpl;
 import org.example.final_project.util.Const;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,7 +42,7 @@ public class TestController {
     @GetMapping("/login-test")
     public ResponseEntity<?> loginTest() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth.getPrincipal() instanceof UserDetails userDetails) {
+        if (auth.getPrincipal() instanceof UserDetailsImpl userDetails) {
             String username = userDetails.getUsername();
             Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
             return new ResponseEntity<>("You're logged in as: " + username + " with roles: " + authorities, HttpStatus.OK);

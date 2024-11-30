@@ -15,10 +15,10 @@ import org.example.final_project.entity.AddressEntity;
 import org.example.final_project.entity.RoleEntity;
 import org.example.final_project.entity.UserEntity;
 import org.example.final_project.mapper.UserMapper;
+import org.example.final_project.model.ChangeAccountStatusRequest;
 import org.example.final_project.model.ProfileUpdateRequest;
 import org.example.final_project.model.ShopRegisterRequest;
 import org.example.final_project.model.UserModel;
-import org.example.final_project.model.enum_status.STATUS;
 import org.example.final_project.repository.IAddressRepository;
 import org.example.final_project.repository.IRoleRepository;
 import org.example.final_project.repository.IUserRepository;
@@ -38,7 +38,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -228,9 +227,9 @@ public class UserService implements IUserService, UserDetailsService {
     @Override
     public ApiResponse<?> registerForBeingShop(ShopRegisterRequest request) throws Exception {
         Optional<UserEntity> optionalUserEntity = userRepository.findById(request.getUserId());
-        long shopAddressId = (int) request.getShop_address();
+        long shopAddressId = request.getShop_address();
 
-        if (optionalUserEntity.isPresent() || !addressRepository.existsById(shopAddressId) ) {
+        if (optionalUserEntity.isPresent() || !addressRepository.existsById(shopAddressId)) {
             UserEntity userEntity = userRepository.findById(request.getUserId()).get();
             if (userEntity.getShop_status() == 0) {
                 String id_back = imageService.uploadOneImage(request.getId_back());
@@ -255,7 +254,7 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
-    public ApiResponse<?> acceptfromAdmin(int status, long userId) throws Exception {
+    public ApiResponse<?> acceptFromAdmin(int status, long userId) throws Exception {
         Optional<UserEntity> optionalUserEntity = userRepository.findById(userId);
         if (optionalUserEntity.isPresent()) {
             UserEntity userEntity = userRepository.findById(userId).get();
@@ -264,7 +263,7 @@ public class UserService implements IUserService, UserDetailsService {
             role.setRoleId(1L);
             userEntity.setRole(role);
             userRepository.save(userEntity);
-            return createResponse(HttpStatus.OK, "Created Shop",null);
+            return createResponse(HttpStatus.OK, "Created Shop", null);
 
         }
         throw new NotFound("Not found Userr");
@@ -275,11 +274,20 @@ public class UserService implements IUserService, UserDetailsService {
         UserEntity userEntity = userRepository.findOne(Specification.where(hasUsername(username)).and(isActive())).isPresent()
                 ? userRepository.findOne(Specification.where(hasUsername(username)).and(isActive())).get()
                 : null;
+        if (userRepository.findOne(Specification.where(hasEmail(request.getEmail())).and(isActive())).isPresent()
+                && !userEntity.getEmail().equals(request.getEmail())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(createResponse(
+                    HttpStatus.CONFLICT,
+                    "Email " + request.getEmail() + " is already in use",
+                    null
+            ));
+        }
 
         if (userEntity != null) {
-            userEntity.setName(request.getName());
-            userEntity.setPhone(request.getPhone());
-            userEntity.setGender(request.getGender());
+            userEntity.setName(request.getName() != null ? request.getName() : userEntity.getName());
+            userEntity.setPhone(request.getPhone() != null ? request.getPhone() : userEntity.getPhone());
+            userEntity.setEmail(request.getEmail() != null ? request.getEmail() : userEntity.getEmail());
+            userEntity.setGender(request.getGender() != -1 ? request.getGender() : userEntity.getGender());
             try {
                 userEntity.setProfilePicture(cloudinary.uploader().upload(request.getProfilePicture().getBytes(), ObjectUtils.emptyMap()).get("url").toString());
             } catch (IOException e) {
@@ -299,26 +307,55 @@ public class UserService implements IUserService, UserDetailsService {
             ));
         }
     }
+
     @Override
-    public List<UserDto> findAllStatusUserBeingShop(){
+    public ResponseEntity<?> changeAccountStatus(long userId, ChangeAccountStatusRequest request) {
+        boolean isActivate = request.getStatus() == 1;
+        Specification<UserEntity> specification = Specification.where(
+                hasId(userId).and(isNotDeleted())
+        );
+        UserEntity userEntity = userRepository.findOne(specification).isPresent()
+                ? userRepository.findOne(specification).get()
+                : null;
+        if (userEntity != null) {
+            userEntity.setIsActive(request.getStatus());
+            userEntity.setActivationNote(isActivate ? null : request.getNote());
+            userRepository.save(userEntity);
+            return ResponseEntity.status(HttpStatus.OK).body(createResponse(
+                    HttpStatus.OK,
+                    isActivate ? "User activated" : "User deactivated",
+                    null
+            ));
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createResponse(
+                    HttpStatus.NOT_FOUND,
+                    "User not found",
+                    null
+            ));
+        }
+    }
+
+    @Override
+    public List<UserDto> findAllStatusUserBeingShop() {
         List<UserEntity> userEntityList = userRepository.findAllStatusUserBeingShop();
-        List<UserDto> userDtoList = userEntityList.stream().map(e->userMapper.toDto(e)).toList();
+        List<UserDto> userDtoList = userEntityList.stream().map(e -> userMapper.toDto(e)).toList();
 
         for (UserDto userDto : userDtoList) {
-            long parentId = userDto.getShop_address();
+            long parentId = userDto.getShop_address().getParentId();
             List<String> address = addressService.findAddressNamesFromParentId(parentId);
             userDto.setAllAddresses(address);
         }
         return userDtoList;
     }
+
     @Override
     public Page<UserDto> findAllStatusUserBeingShop(int page, int size) throws Exception {
-        if(page >= 0 && size > 0){
+        if (page >= 0 && size > 0) {
             Pageable pageable = PageRequest.of(page, size);
             Page<UserEntity> userEntityPage = userRepository.findAllStatusUserBeingShopPage(pageable);
             Page<UserDto> userDtoPage = userEntityPage.map(userEntity -> {
                 UserDto userDto = userMapper.toDto(userEntity);
-                long parentId = userDto.getShop_address();
+                long parentId = userDto.getShop_address().getParentId();
                 List<String> address = addressService.findAddressNamesFromParentId(parentId);
                 userDto.setAllAddresses(address);
                 return userDto;

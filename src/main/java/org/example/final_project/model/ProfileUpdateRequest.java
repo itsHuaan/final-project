@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class ProfileUpdateRequest {
     private String name;
     private String phone;
+    private String email;
     private int gender;
     private MultipartFile profilePicture;
 }

@@ -19,10 +19,11 @@ import java.util.*;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AddressService implements IAddressService {
      IAddressRepository addressRepository;
+     AddressMapper addressMapper;
     @Override
     public List<AddressDto> getAddressByParentId(long parentId) {
         List<AddressEntity> list =  addressRepository.findByParent_id(parentId);
-        List<AddressDto> addressDtoList = list.stream().map(AddressMapper::toAddressDto).toList();
+        List<AddressDto> addressDtoList = list.stream().map(addressMapper::toAddressDto).toList();
         return addressDtoList;
     }
 

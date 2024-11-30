@@ -25,7 +25,8 @@ public class UserDto {
     private String tax_code;
     private String shop_name;
     private int isActive;
-    private long shop_address;
+    private String activationNote;
+    private AddressDto shop_address;
     private Integer shop_status;
     private String shop_address_detail;
     private LocalDateTime time_created_shop;
