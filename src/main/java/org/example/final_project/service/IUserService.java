@@ -14,19 +14,32 @@ import java.util.List;
 
 public interface IUserService extends IBaseService<UserDto, UserModel, Long> {
     UserDto findByUsername(String username);
+
     UserDto findByEmail(String email);
+
     boolean isExistingByUsernameOrEmail(String username, String email);
+
     boolean isActivated(String email);
-    int activateUserAccount(String username, String email);
+
     int activateUserAccount(String email);
+
     int resetPassword(String email, String newPassword);
+
     int changePassword(String username, String oldPassword, String newPassword);
+
     boolean validatePassword(String email, String password);
+
     Page<UserDto> findAllUsers(Pageable pageable);
+
     ApiResponse<?> registerForBeingShop(ShopRegisterRequest request) throws Exception;
+
     ApiResponse<?> acceptFromAdmin(int status , long userId) throws Exception;
+
     List<UserDto> findAllStatusUserBeingShop();
+
     ResponseEntity<?> updateProfile(String username, ProfileUpdateRequest request);
+
     ResponseEntity<?> changeAccountStatus(long userId, ChangeAccountStatusRequest request);
+
     Page<UserDto> findAllStatusUserBeingShop(int page, int size) throws Exception;
 }
