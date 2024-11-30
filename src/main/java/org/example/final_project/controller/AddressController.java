@@ -22,14 +22,12 @@ import java.util.Map;
 public class AddressController {
     private final AddressService addressService;
     @Operation(summary = "Get All Address From ParentId ")
-    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{parentId}/children")
     public ResponseEntity<List<AddressDto>> getAddress(@PathVariable Long parentId) {
         List<AddressDto> list = addressService.getAddressByParentId(parentId);
         return ResponseEntity.ok(list);
     }
     @Operation(summary = "Find Address From ParentId")
-    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{parentId}")
     public ResponseEntity<?> findAddressFromParentId(@PathVariable Long parentId) {
         List<String>  map = addressService.findAddressNamesFromParentId(parentId);
