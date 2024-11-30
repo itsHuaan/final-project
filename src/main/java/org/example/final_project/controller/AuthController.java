@@ -114,47 +114,4 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), null));
         }
     }
-
-/*
- @Operation(summary = "Verify User With Token")
- @GetMapping("/verify/{token}")
- public ResponseEntity<?> verifyUserWithToken(@PathVariable String token) {
-     try {
-         String username = jwtProvider.getKeyByValueFromJWT("username", token);
-         String email = jwtProvider.getKeyByValueFromJWT("email", token);
-         if (userService.activateUserAccount(username, email) != 0) {
-             return ResponseEntity.ok("Account activated successfully!");
-         } else {
-             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to activate account.");
-         }
-     } catch (ExpiredJwtException e) {
-         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Token has expired.");
-     } catch (Exception e) {
-         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid token.");
-     }
- }
-
-
- @Operation(summary = "Send OTP To User")
- @GetMapping("/send-otp")
- public ResponseEntity<?> sendOtp(@RequestParam String recipient) {
-
- }
-
- @Operation(summary = "Sign Users Up")
- @PostMapping("/sign-up")
- public ResponseEntity<?> signUp(@RequestBody SignUpRequest credentials) {
-     UserModel userModel = new UserModel();
-     userModel.setName(credentials.getName());
-     userModel.setEmail(credentials.getEmail());
-     userModel.setPassword(credentials.getPassword());
-     userModel.setUsername(credentials.getUsername());
-     userModel.setRoleId(credentials.getRoleId());
-     int result = userService.save(userModel);
-     String jwt = jwtProvider.generateTokenByUsername(credentials.getUsername());
-     return result != 0
-             ? new ResponseEntity<>(jwt, HttpStatus.CREATED)
-             : ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
- }
- */
 }

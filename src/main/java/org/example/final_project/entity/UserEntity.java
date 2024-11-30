@@ -30,6 +30,7 @@ public class UserEntity {
     private String profilePicture;
     private String phone;
     private int gender;
+    private String activationNote;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")

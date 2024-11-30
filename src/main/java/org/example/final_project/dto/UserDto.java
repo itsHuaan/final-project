@@ -24,11 +24,12 @@ public class UserDto {
     private String id_back;
     private String tax_code;
     private String shop_name;
-    private long shop_address;
+    private int isActive;
+    private String activationNote;
+    private AddressDto shop_address;
     private Integer shop_status;
     private String shop_address_detail;
     private LocalDateTime time_created_shop;
-    private List<String> allAdresses;
-
+    private List<String> allAddresses;
     private String profilePicture;
 }

@@ -16,7 +16,7 @@ public class ShopRegisterRequest {
     private MultipartFile id_back;
     private String tax_code;
     private String shop_name;
-    private int shop_address;
+    private Long shop_address;
     private String shop_address_detail;
     private Integer shop_status = STATUS.NOTACEPTED.getStatus();
     private String phone;

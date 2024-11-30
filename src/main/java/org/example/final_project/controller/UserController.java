@@ -3,9 +3,11 @@ package org.example.final_project.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.example.final_project.configuration.UserDetailsImpl;
 import org.example.final_project.dto.UserDto;
 import org.example.final_project.dto.ApiResponse;
 
+import org.example.final_project.model.ChangeAccountStatusRequest;
 import org.example.final_project.model.ChangePasswordRequest;
 import org.example.final_project.model.ProfileUpdateRequest;
 import org.example.final_project.model.ShopRegisterRequest;
@@ -20,6 +22,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 
@@ -91,22 +95,47 @@ public class UserController {
     }
 
     @Operation(summary = "Update password")
-    @PutMapping("change-password/{username}")
-    public ResponseEntity<?> changePassword(@PathVariable String username, ChangePasswordRequest request) {
-        try {
-            ApiResponse<?> response = authService.changePassword(username, request);
-            return ResponseEntity.status(HttpStatus.OK).body(response);
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(createResponse(HttpStatus.UNAUTHORIZED, null, e.getMessage()));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(HttpStatus.BAD_REQUEST, null, e.getMessage()));
+    @PreAuthorize("isAuthenticated()")
+    @PutMapping("/change-password")
+    public ResponseEntity<?> changePassword(ChangePasswordRequest request) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth.getPrincipal() instanceof UserDetailsImpl userDetails) {
+            String username = userDetails.getUsername();
+            try {
+                ApiResponse<?> response = authService.changePassword(username, request);
+                return ResponseEntity.status(HttpStatus.OK).body(response);
+            } catch (IllegalStateException e) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(createResponse(HttpStatus.UNAUTHORIZED, null, e.getMessage()));
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(HttpStatus.BAD_REQUEST, null, e.getMessage()));
+            }
+        } else {
+            return new ResponseEntity<>("Unable to retrieve user information.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @Operation(summary = "Update profile")
-    @PutMapping("update-profile/{username}")
-    public ResponseEntity<?> updateProfile(@PathVariable String username,@ModelAttribute ProfileUpdateRequest request) {
-        return userService.updateProfile(username, request);
+    @PreAuthorize("isAuthenticated()")
+    @PutMapping("/update-profile")
+    public ResponseEntity<?> updateProfile(@ModelAttribute ProfileUpdateRequest request) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth.getPrincipal() instanceof UserDetailsImpl userDetails) {
+            String username = userDetails.getUsername();
+            try {
+                return userService.updateProfile(username, request);
+            } catch (IllegalStateException e) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(createResponse(HttpStatus.UNAUTHORIZED, null, e.getMessage()));
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(HttpStatus.BAD_REQUEST, null, e.getMessage()));
+            }
+        } else {
+            return new ResponseEntity<>("Unable to retrieve user information.", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @Operation(summary = "Activate/Deactivate user account")
+    @PutMapping("/change-status/{id}")
+    public ResponseEntity<?> changeUserStatus(@RequestBody ChangeAccountStatusRequest request, @PathVariable Long id) {
+        return userService.changeAccountStatus(id, request);
     }
 }
 
