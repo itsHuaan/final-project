@@ -19,8 +19,12 @@ public class UserEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
     private String name;
+
+    @Column(unique=true)
     private String username;
     private String password;
+
+    @Column(unique=true)
     private String email;
     private int isActive;
     private String profilePicture;
@@ -43,6 +47,7 @@ public class UserEntity {
     private String shop_name;
     private Integer shop_status;
     private String shop_address_detail;
+    private LocalDateTime time_created_shop;
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "address_id")
     private AddressEntity address;

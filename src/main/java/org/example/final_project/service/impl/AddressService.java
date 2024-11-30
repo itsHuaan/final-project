@@ -12,7 +12,8 @@ import org.example.final_project.service.IAddressService;
 
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.*;
+
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -49,4 +50,26 @@ public class AddressService implements IAddressService {
     public int delete(Long id) {
         return 0;
     }
+    @Override
+    public List<String> findAddressNamesFromParentId(Long parentId) {
+        List<String> addressNames = new ArrayList<>();
+        AddressEntity addressEntity = addressRepository.findAddressEntitiesByParentId(parentId).get();
+        addressNames.add(addressEntity.getName());
+        findParentIdAddressNames(parentId, addressNames);
+        return addressNames;
+    }
+
+    private void findParentIdAddressNames(Long idAddress, List<String> addressNames) {
+        Optional<AddressEntity> addressEntity = addressRepository.findById(idAddress);
+
+        if (addressEntity.isPresent()) {
+            AddressEntity address = addressEntity.get();
+            addressNames.add(address.getName());
+            if ( address.getParent_id() != 0) {
+                findParentIdAddressNames(address.getParent_id(), addressNames);
+            }
+        }
+    }
+
+
 }

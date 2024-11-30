@@ -19,10 +19,13 @@ import org.example.final_project.model.ProfileUpdateRequest;
 import org.example.final_project.model.ShopRegisterRequest;
 import org.example.final_project.model.UserModel;
 import org.example.final_project.model.enum_status.STATUS;
+import org.example.final_project.repository.IAddressRepository;
 import org.example.final_project.repository.IRoleRepository;
 import org.example.final_project.repository.IUserRepository;
+import org.example.final_project.service.IAddressService;
 import org.example.final_project.service.IUserService;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -35,6 +38,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -52,7 +56,10 @@ public class UserService implements IUserService, UserDetailsService {
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
     ImageService imageService;
+    IAddressRepository addressRepository;
+
     Cloudinary cloudinary;
+    IAddressService addressService;
 
 
     @Override
@@ -62,19 +69,19 @@ public class UserService implements IUserService, UserDetailsService {
 
     @Override
     public UserDto getById(Long id) {
-        UserEntity user = userRepository.findById(id).orElse(null);
+        UserEntity user = userRepository.findOne(hasId(id).and(isNotDeleted()).and(isNotSuperAdmin())).orElse(null);
         return user != null ? userMapper.toDto(user) : null;
     }
 
     @Override
     public int save(UserModel userModel) {
-        if (isExistingByUsernameOrEmail(userModel.getUsername(), userModel.getEmail())) {
+        if ((userRepository.findOne(Specification.where(hasUsername(userModel.getUsername())).and(isActive().and(isNotDeleted()))).isPresent()) || (userRepository.findOne(Specification.where(hasEmail(userModel.getEmail())).and(isActive().and(isNotDeleted()))).isPresent())) {
             return 0;
         }
-
         Optional<UserEntity> inactiveOrDeletedUser = userRepository.findOne(Specification.where(
                 hasUsername(userModel.getUsername())
                         .or(hasEmail(userModel.getEmail()))
+                        .and(isInactive().or(isDeleted()))
         ));
 
         if (inactiveOrDeletedUser.isPresent()) {
@@ -220,7 +227,10 @@ public class UserService implements IUserService, UserDetailsService {
 
     @Override
     public ApiResponse<?> registerForBeingShop(ShopRegisterRequest request) throws Exception {
-        if (request.getUserId().describeConstable().isPresent()) {
+        Optional<UserEntity> optionalUserEntity = userRepository.findById(request.getUserId());
+        long shopAddressId = (int) request.getShop_address();
+
+        if (optionalUserEntity.isPresent() || !addressRepository.existsById(shopAddressId) ) {
             UserEntity userEntity = userRepository.findById(request.getUserId()).get();
 
             if (userEntity.getShop_status() == 0) {
@@ -234,13 +244,15 @@ public class UserService implements IUserService, UserDetailsService {
                 addressEntity.setId(request.getShop_address());
                 userEntity.setAddress(addressEntity);
                 userEntity.setShop_address_detail(request.getShop_address_detail());
+                userEntity.setPhone(request.getPhone());
+                userEntity.setTime_created_shop(LocalDateTime.now());
                 userRepository.save(userEntity);
                 return createResponse(HttpStatus.OK, "Wait for confirm ", null);
             } else if (userEntity.getShop_status() == 1) {
                 return createResponse(HttpStatus.CONFLICT, "User register Shop", null);
             }
         }
-        throw new NotFound("Not found Userr");
+        throw new NotFound("Not found Userr or Address");
     }
 
     @Override
@@ -253,7 +265,7 @@ public class UserService implements IUserService, UserDetailsService {
             role.setRoleId(1L);
             userEntity.setRole(role);
             userRepository.save(userEntity);
-            return createResponse(HttpStatus.OK, "Đã tạo shop ", null);
+            return createResponse(HttpStatus.OK, "Created Shop",null);
 
         }
         throw new NotFound("Not found Userr");
@@ -288,5 +300,34 @@ public class UserService implements IUserService, UserDetailsService {
             ));
         }
     }
+    @Override
+    public List<UserDto> findAllStatusUserBeingShop(){
+        List<UserEntity> userEntityList = userRepository.findAllStatusUserBeingShop();
+        List<UserDto> userDtoList = userEntityList.stream().map(e->userMapper.toDto(e)).toList();
+
+        for (UserDto userDto : userDtoList) {
+            long parentId = userDto.getShop_address();
+            List<String> address = addressService.findAddressNamesFromParentId(parentId);
+            userDto.setAllAdresses(address);
+        }
+        return userDtoList;
+    }
+    @Override
+    public Page<UserDto> findAllStatusUserBeingShop(int page, int size) throws Exception {
+        if(page >= 0 && size > 0){
+            Pageable pageable = PageRequest.of(page, size);
+            Page<UserEntity> userEntityPage = userRepository.findAllStatusUserBeingShopPage(pageable);
+            Page<UserDto> userDtoPage = userEntityPage.map(userEntity -> {
+                UserDto userDto = userMapper.toDto(userEntity);
+                long parentId = userDto.getShop_address();
+                List<String> address = addressService.findAddressNamesFromParentId(parentId);
+                userDto.setAllAdresses(address);
+                return userDto;
+            });
+            return userDtoPage;
+        }
+        throw new NotFound("Invalid page or size parameters. Page must be >= 0 and size must be > 0.");
+    }
+
 };
 

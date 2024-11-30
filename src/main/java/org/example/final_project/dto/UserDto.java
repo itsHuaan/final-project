@@ -2,6 +2,8 @@ package org.example.final_project.dto;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -22,8 +24,11 @@ public class UserDto {
     private String tax_code;
     private String shop_name;
     private int isActive;
-    private int shop_address;
+    private long shop_address;
     private Integer shop_status;
     private String shop_address_detail;
+    private LocalDateTime time_created_shop;
+    private List<String> allAddresses;
+
     private String profilePicture;
 }
