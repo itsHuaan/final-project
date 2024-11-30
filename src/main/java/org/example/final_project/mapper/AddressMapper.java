@@ -1,6 +1,5 @@
 package org.example.final_project.mapper;
 
-import jakarta.mail.Address;
 import org.example.final_project.dto.AddressDto;
 import org.example.final_project.entity.AddressEntity;
 import org.example.final_project.model.AddressModel;
