@@ -240,9 +240,7 @@ public class UserService implements IUserService, UserDetailsService {
                 userEntity.setId_front(id_front);
                 userEntity.setShop_name(request.getShop_name());
                 userEntity.setTax_code(request.getTax_code());
-                AddressEntity addressEntity = new AddressEntity();
-                addressEntity.setId(request.getShop_address());
-                userEntity.setAddress(addressEntity);
+                userEntity.setAddress_id(request.getShop_address());
                 userEntity.setShop_address_detail(request.getShop_address_detail());
                 userEntity.setPhone(request.getPhone());
                 userEntity.setTime_created_shop(LocalDateTime.now());

@@ -48,9 +48,7 @@ public class UserEntity {
     private Integer shop_status;
     private String shop_address_detail;
     private LocalDateTime time_created_shop;
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "address_id")
-    private AddressEntity address;
+    private int address_id;
     @OneToMany(mappedBy = "user")
     private List<CategoryEntity> categories;
     @OneToMany(mappedBy = "user")

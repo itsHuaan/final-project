@@ -51,12 +51,16 @@ public class AddressService implements IAddressService {
         return 0;
     }
     @Override
-    public List<String> findAddressNamesFromParentId(Long parentId) {
+        public List<String> findAddressNamesFromParentId(Long parentId) {
         List<String> addressNames = new ArrayList<>();
-        AddressEntity addressEntity = addressRepository.findAddressEntitiesByParentId(parentId).get();
-        addressNames.add(addressEntity.getName());
-        findParentIdAddressNames(parentId, addressNames);
-        return addressNames;
+        if(parentId != null) {
+            AddressEntity addressEntity = addressRepository.findAddressEntitiesByParentId(parentId).get();
+            addressNames.add(addressEntity.getName());
+            findParentIdAddressNames(parentId, addressNames);
+            return addressNames;
+        }else {
+            return null;
+        }
     }
 
     private void findParentIdAddressNames(Long idAddress, List<String> addressNames) {
