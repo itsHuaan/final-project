@@ -232,7 +232,6 @@ public class UserService implements IUserService, UserDetailsService {
 
         if (optionalUserEntity.isPresent() || !addressRepository.existsById(shopAddressId) ) {
             UserEntity userEntity = userRepository.findById(request.getUserId()).get();
-
             if (userEntity.getShop_status() == 0) {
                 String id_back = imageService.uploadOneImage(request.getId_back());
                 userEntity.setId_back(id_back);
@@ -308,7 +307,7 @@ public class UserService implements IUserService, UserDetailsService {
         for (UserDto userDto : userDtoList) {
             long parentId = userDto.getShop_address();
             List<String> address = addressService.findAddressNamesFromParentId(parentId);
-            userDto.setAllAdresses(address);
+            userDto.setAllAddresses(address);
         }
         return userDtoList;
     }
@@ -321,7 +320,7 @@ public class UserService implements IUserService, UserDetailsService {
                 UserDto userDto = userMapper.toDto(userEntity);
                 long parentId = userDto.getShop_address();
                 List<String> address = addressService.findAddressNamesFromParentId(parentId);
-                userDto.setAllAdresses(address);
+                userDto.setAllAddresses(address);
                 return userDto;
             });
             return userDtoPage;

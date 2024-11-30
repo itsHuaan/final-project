@@ -22,7 +22,7 @@ public class AddressService implements IAddressService {
     @Override
     public List<AddressDto> getAddressByParentId(long parentId) {
         List<AddressEntity> list =  addressRepository.findByParent_id(parentId);
-        List<AddressDto> addressDtoList = list.stream().map(e-> AddressMapper.toAddressDto(e)).toList();
+        List<AddressDto> addressDtoList = list.stream().map(AddressMapper::toAddressDto).toList();
         return addressDtoList;
     }
 
@@ -70,6 +70,4 @@ public class AddressService implements IAddressService {
             }
         }
     }
-
-
 }
