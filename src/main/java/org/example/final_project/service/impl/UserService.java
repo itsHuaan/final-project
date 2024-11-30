@@ -238,7 +238,7 @@ public class UserService implements IUserService, UserDetailsService {
                 userEntity.setId_front(id_front);
                 userEntity.setShop_name(request.getShop_name());
                 userEntity.setTax_code(request.getTax_code());
-                userEntity.setAddress_id(request.getShop_address());
+                userEntity.setAddress_id_shop(request.getShop_address());
                 userEntity.setShop_address_detail(request.getShop_address_detail());
                 userEntity.setPhone(request.getPhone());
                 userEntity.setTime_created_shop(LocalDateTime.now());
@@ -339,7 +339,7 @@ public class UserService implements IUserService, UserDetailsService {
         List<UserDto> userDtoList = userEntityList.stream().map(e -> userMapper.toDto(e)).toList();
 
         for (UserDto userDto : userDtoList) {
-            long parentId = userDto.getShop_address().getParentId();
+            long parentId = userDto.getAddress_id_shop();
             List<String> address = addressService.findAddressNamesFromParentId(parentId);
             userDto.setAllAddresses(address);
         }
@@ -353,7 +353,7 @@ public class UserService implements IUserService, UserDetailsService {
             Page<UserEntity> userEntityPage = userRepository.findAllStatusUserBeingShopPage(pageable);
             Page<UserDto> userDtoPage = userEntityPage.map(userEntity -> {
                 UserDto userDto = userMapper.toDto(userEntity);
-                long parentId = userDto.getShop_address().getParentId();
+                long parentId = userDto.getAddress_id_shop();
                 List<String> address = addressService.findAddressNamesFromParentId(parentId);
                 userDto.setAllAddresses(address);
                 return userDto;

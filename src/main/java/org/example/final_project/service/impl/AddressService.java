@@ -52,12 +52,10 @@ public class AddressService implements IAddressService {
         return 0;
     }
     @Override
-        public List<String> findAddressNamesFromParentId(Long parentId) {
+        public List<String> findAddressNamesFromParentId(Long address_id) {
         List<String> addressNames = new ArrayList<>();
-        if(parentId != null) {
-            AddressEntity addressEntity = addressRepository.findAddressEntitiesByParentId(parentId).get();
-            addressNames.add(addressEntity.getName());
-            findParentIdAddressNames(parentId, addressNames);
+        if(address_id != null) {
+            findParentIdAddressNames(address_id, addressNames);
             return addressNames;
         }else {
             return null;

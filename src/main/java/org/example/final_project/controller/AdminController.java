@@ -35,6 +35,7 @@ public class AdminController {
         }
     }
     @Operation(summary = "Get All SHop Flow STATUS 1 2 3")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/get-status-shop")
     public ResponseEntity<List<UserDto>> getStatusShop() {
         List<UserDto> userDtoList = userService.findAllStatusUserBeingShop();
@@ -42,6 +43,7 @@ public class AdminController {
 
     }
     @Operation(summary = "Get All SHop Flow STATUS 1 2 3 AND PAGEABLE")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/get-status-shop/page")
     public ResponseEntity<?> getStatusShop(@RequestParam int page,
                                                        @RequestParam int size) {

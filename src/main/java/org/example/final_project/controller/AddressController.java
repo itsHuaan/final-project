@@ -7,6 +7,7 @@ import org.example.final_project.dto.AddressDto;
 import org.example.final_project.service.impl.AddressService;
 import org.example.final_project.util.Const;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,12 +22,14 @@ import java.util.Map;
 public class AddressController {
     private final AddressService addressService;
     @Operation(summary = "Get All Address From ParentId ")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{parentId}/children")
     public ResponseEntity<List<AddressDto>> getAddress(@PathVariable Long parentId) {
         List<AddressDto> list = addressService.getAddressByParentId(parentId);
         return ResponseEntity.ok(list);
     }
     @Operation(summary = "Find Address From ParentId")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{parentId}")
     public ResponseEntity<?> findAddressFromParentId(@PathVariable Long parentId) {
         List<String>  map = addressService.findAddressNamesFromParentId(parentId);

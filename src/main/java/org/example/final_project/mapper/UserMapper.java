@@ -31,7 +31,7 @@ public class UserMapper {
                 .phone(userEntity.getPhone())
                 .isActive(userEntity.getIsActive())
                 .activationNote(userEntity.getActivationNote())
-//                .shop_address(addressMapper.toAddressDto(userEntity.getAddress()))
+                .address_id_shop(userEntity.getAddress_id_shop())
                 .shop_address_detail(userEntity.getShop_address_detail())
                 .time_created_shop(userEntity.getTime_created_shop())
                 .profilePicture(userEntity.getProfilePicture())
