@@ -243,14 +243,36 @@ public class UserService implements IUserService, UserDetailsService {
     public ApiResponse<?> acceptFromAdmin(int status, long userId) throws Exception {
         Optional<UserEntity> optionalUserEntity = userRepository.findById(userId);
         if (optionalUserEntity.isPresent()) {
-            UserEntity userEntity = userRepository.findById(userId).get();
-            userEntity.setShop_status(status);
-            RoleEntity role = new RoleEntity();
-            role.setRoleId(1L);
-            userEntity.setRole(role);
-            userRepository.save(userEntity);
-            return createResponse(HttpStatus.OK, "Created Shop", null);
+            // status = 1 cho phép shop hoạt động
+            if(status == 1) {
+                UserEntity userEntity = userRepository.findById(userId).get();
+                userEntity.setShop_status(status);
+                RoleEntity role = new RoleEntity();
+                role.setRoleId(1L);
+                userEntity.setRole(role);
+                userRepository.save(userEntity);
+                return createResponse(HttpStatus.OK, "Created Shop", null);
+                // status = 3 không cho phép hoạt động
+            }else if (status == 3) {
+                UserEntity userEntity = userRepository.findById(userId).get();
+                userEntity.setShop_status(status);
+                RoleEntity role = new RoleEntity();
+                role.setRoleId(2L);
+                userEntity.setRole(role);
+                userRepository.save(userEntity);
+                return createResponse(HttpStatus.OK, "Refuse  Shop", null);
 
+            }
+            // status = 4 Shop bị khóa
+            else if (status == 4) {
+                UserEntity userEntity = userRepository.findById(userId).get();
+                userEntity.setShop_status(status);
+                RoleEntity role = new RoleEntity();
+                role.setRoleId(2L);
+                userEntity.setRole(role);
+                userRepository.save(userEntity);
+                return createResponse(HttpStatus.OK, "Lock Shop", null);
+            }
         }
         throw new NotFound("Not found Userr");
     }

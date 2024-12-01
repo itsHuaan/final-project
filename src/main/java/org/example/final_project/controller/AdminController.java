@@ -24,8 +24,8 @@ public class AdminController {
     private final UserService userService;
     @Operation(summary = "Admin approves store status ")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PostMapping("/{userid}/createShop")
-    public ResponseEntity<ApiResponse<?>> createShop(@PathVariable long userid, @RequestParam("status") int status ) {
+    @PostMapping("/{userid}/status-shop")
+    public ResponseEntity<ApiResponse<?>> statusOfShop(@PathVariable long userid, @RequestParam("status") int status ) {
         try {
             ApiResponse<?> response = userService.acceptFromAdmin(status,userid);
             return new ResponseEntity<>(response, HttpStatus.OK);
@@ -34,7 +34,7 @@ public class AdminController {
             return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
         }
     }
-    @Operation(summary = "Get All SHop Flow STATUS 1 2 3")
+    @Operation(summary = "Get All SHop Flow STATUS 1 2 3 4")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/get-status-shop")
     public ResponseEntity<List<UserDto>> getStatusShop() {
