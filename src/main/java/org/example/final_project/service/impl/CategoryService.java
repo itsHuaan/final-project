@@ -53,7 +53,7 @@ public class CategoryService implements ICategoryService {
     public int save(CategoryModel model) {
         try {
             CategoryEntity category = categoryMapper.convertToEntity(model);
-            if (!model.getFile().isEmpty()) {
+            if (model.getFile()!=null && !model.getFile().isEmpty()) {
                 category.setImage(cloudinary.uploader().upload(model.getFile().getBytes(), ObjectUtils.emptyMap()).get("url").toString());
             }
             if (model.getUser_id() != 0L) {
@@ -71,8 +71,16 @@ public class CategoryService implements ICategoryService {
     public int update(Long aLong, CategoryModel model) {
         try {
             if (iCategoryRepository.findById(aLong).get() != null) {
-                CategoryEntity categoryEntity = categoryMapper.convertToEntity(model);
-                categoryEntity.setId(aLong);
+                CategoryEntity categoryEntity = iCategoryRepository.findById(aLong).get();
+                if (model.getFile()!=null && !model.getFile().isEmpty()) {
+                    categoryEntity.setImage(cloudinary.uploader().upload(model.getFile().getBytes(), ObjectUtils.emptyMap()).get("url").toString());
+                }
+                categoryEntity.setCreatedAt(model.getCreatedAt());
+                categoryEntity.setDeletedAt(model.getDeletedAt());
+                categoryEntity.setModifiedAt(model.getModifiedAt());
+                categoryEntity.setName(model.getName());
+                categoryEntity.setParent_id(model.getParent_id());
+                categoryEntity.setUser(iUserRepository.findById(model.getUser_id()).get());
                 iCategoryRepository.save(categoryEntity);
             }else{
                 throw new IllegalArgumentException("Value Not Found");
