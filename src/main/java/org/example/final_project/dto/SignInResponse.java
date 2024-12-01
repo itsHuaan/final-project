@@ -14,6 +14,7 @@ public class SignInResponse {
     private String type;
     private String token;
     private String username;
+    private String name;
     private String email;
     private String roleName;
 }

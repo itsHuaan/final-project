@@ -112,13 +112,16 @@ public class AuthService implements IAuthService {
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         String jwt = jwtProvider.generateTokenByEmail(userDetails.getUser().getEmail());
+
         SignInResponse response = new SignInResponse(
                 userDetails.getUserEntity().getUserId(),
                 "Bearer",
                 jwt,
                 userDetails.getUsername(),
+                userDetails.getUserEntity().getName(),
                 userDetails.getUser().getEmail(),
-                userDetails.getRoleName());
+                userDetails.getRoleName()
+        );
 
         return createResponse(HttpStatus.OK, "Logged In", response);
     }

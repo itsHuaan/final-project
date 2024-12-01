@@ -17,5 +17,4 @@ public class AddressEntity {
     private String name;
     private long parent_id;
 
-
 }
