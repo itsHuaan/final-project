@@ -24,7 +24,7 @@ public class AdminController {
     private final UserService userService;
     @Operation(summary = "Admin approves store status ")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PostMapping("/{userid}/status-shop")
+    @PostMapping("/{userid}/switching-status-for-shop")
     public ResponseEntity<ApiResponse<?>> statusOfShop(@PathVariable long userid, @RequestParam("status") int status ) {
         try {
             ApiResponse<?> response = userService.acceptFromAdmin(status,userid);
