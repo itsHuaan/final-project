@@ -78,8 +78,7 @@ public class UserService implements IUserService, UserDetailsService {
             return 0;
         }
         Optional<UserEntity> inactiveOrDeletedUser = userRepository.findOne(Specification.where(
-                hasUsername(userModel.getUsername())
-                        .or(hasEmail(userModel.getEmail()))
+                hasEmail(userModel.getEmail())
                         .and(isInactive().or(isDeleted()))
         ));
 
@@ -89,6 +88,8 @@ public class UserService implements IUserService, UserDetailsService {
             userEntity.setEmail(userModel.getEmail());
             userEntity.setUsername(userModel.getUsername());
             userEntity.setPassword(passwordEncoder.encode(userModel.getPassword()));
+            userEntity.setDeletedAt(null);
+            userEntity.setIsActive(0);
             userRepository.save(userEntity);
             return 1;
         }
@@ -153,7 +154,7 @@ public class UserService implements IUserService, UserDetailsService {
 
     @Override
     public int activateUserAccount(String email) {
-        Specification<UserEntity> isExistingAndDeactivated = Specification.where(hasEmail(email).and(isInactive()));
+        Specification<UserEntity> isExistingAndDeactivated = Specification.where(hasEmail(email).and(isInactive().or(isDeleted())));
         if (userRepository.findOne(isExistingAndDeactivated).isPresent()) {
             UserEntity deactivatedAccount = userRepository.findOne(isExistingAndDeactivated).get();
             deactivatedAccount.setIsActive(1);
@@ -244,7 +245,7 @@ public class UserService implements IUserService, UserDetailsService {
         Optional<UserEntity> optionalUserEntity = userRepository.findById(userId);
         if (optionalUserEntity.isPresent()) {
             // status = 1 cho phép shop hoạt động
-            if(status == 1) {
+            if (status == 1) {
                 UserEntity userEntity = userRepository.findById(userId).get();
                 userEntity.setShop_status(status);
                 RoleEntity role = new RoleEntity();
@@ -253,7 +254,7 @@ public class UserService implements IUserService, UserDetailsService {
                 userRepository.save(userEntity);
                 return createResponse(HttpStatus.OK, "Created Shop", null);
                 // status = 3 không cho phép hoạt động
-            }else if (status == 3) {
+            } else if (status == 3) {
                 UserEntity userEntity = userRepository.findById(userId).get();
                 userEntity.setShop_status(status);
                 RoleEntity role = new RoleEntity();
