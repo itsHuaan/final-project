@@ -283,6 +283,7 @@ public class UserService implements IUserService, UserDetailsService {
         UserEntity userEntity = userRepository.findOne(Specification.where(hasUsername(username)).and(isActive())).isPresent()
                 ? userRepository.findOne(Specification.where(hasUsername(username)).and(isActive())).get()
                 : null;
+
         if (userRepository.findOne(Specification.where(hasEmail(request.getEmail())).and(isActive())).isPresent()
                 && !userEntity.getEmail().equals(request.getEmail())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(createResponse(
@@ -297,11 +298,19 @@ public class UserService implements IUserService, UserDetailsService {
             userEntity.setPhone(request.getPhone() != null ? request.getPhone() : userEntity.getPhone());
             userEntity.setEmail(request.getEmail() != null ? request.getEmail() : userEntity.getEmail());
             userEntity.setGender(request.getGender() != -1 ? request.getGender() : userEntity.getGender());
-            try {
-                userEntity.setProfilePicture(cloudinary.uploader().upload(request.getProfilePicture().getBytes(), ObjectUtils.emptyMap()).get("url").toString());
-            } catch (IOException e) {
-                userEntity.setProfilePicture(null);
+
+            if (request.getProfilePicture() != null) {
+                try {
+                    String uploadedUrl = cloudinary.uploader().upload(
+                            request.getProfilePicture().getBytes(),
+                            ObjectUtils.emptyMap()
+                    ).get("url").toString();
+                    userEntity.setProfilePicture(uploadedUrl);
+                } catch (IOException e) {
+                    userEntity.setProfilePicture(null);
+                }
             }
+
             userRepository.save(userEntity);
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.OK,
