@@ -2,6 +2,9 @@ package org.example.final_project.service.impl;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.CategoryDto;
 import org.example.final_project.entity.CategoryEntity;
 import org.example.final_project.mapper.CategoryMapper;
@@ -25,28 +28,24 @@ import java.util.stream.Collectors;
 import static org.example.final_project.util.specification.CategorySpecification.*;
 
 @Service
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CategoryService implements ICategoryService {
-    @Autowired
     ICategoryRepository iCategoryRepository;
-    @Autowired
     CategoryMapper categoryMapper;
-    @Autowired
     IUserRepository iUserRepository;
-    @Autowired
     Cloudinary cloudinary;
 
     @Override
     public List<CategoryDto> getAll() {
-        return iCategoryRepository.findAll().stream().filter(x -> x.getDeletedAt() == null && x.getIsActive() == 1).map(x -> categoryMapper.convertToDto(x)).collect(Collectors.toList());
+        return iCategoryRepository.findAll().stream().filter(x -> x.getDeletedAt() == null && x.getIsActive() == 1).map(categoryMapper::convertToDto).collect(Collectors.toList());
     }
 
     @Override
     public CategoryDto getById(Long id) {
-        if (iCategoryRepository.findById(id).get() != null) {
-            return categoryMapper.convertToDto(iCategoryRepository.findById(id).get());
-        } else {
-            throw new IllegalArgumentException("Value Not Found");
-        }
+        return iCategoryRepository.findById(id).isPresent()
+                ? categoryMapper.convertToDto(iCategoryRepository.findById(id).get())
+                : null;
     }
 
     @Override

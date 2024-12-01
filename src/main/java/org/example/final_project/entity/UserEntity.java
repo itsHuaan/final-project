@@ -19,13 +19,18 @@ public class UserEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
     private String name;
+
+    @Column(unique=true)
     private String username;
     private String password;
+
+    @Column(unique=true)
     private String email;
     private int isActive;
     private String profilePicture;
     private String phone;
     private int gender;
+    private String activationNote;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")
@@ -43,9 +48,8 @@ public class UserEntity {
     private String shop_name;
     private Integer shop_status;
     private String shop_address_detail;
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "address_id")
-    private AddressEntity address;
+    private LocalDateTime time_created_shop;
+    private int address_id_shop;
     @OneToMany(mappedBy = "user")
     private List<CategoryEntity> categories;
     @OneToMany(mappedBy = "user")

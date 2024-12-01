@@ -12,16 +12,18 @@ import org.example.final_project.service.IAddressService;
 
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.*;
+
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AddressService implements IAddressService {
      IAddressRepository addressRepository;
+     AddressMapper addressMapper;
     @Override
     public List<AddressDto> getAddressByParentId(long parentId) {
         List<AddressEntity> list =  addressRepository.findByParent_id(parentId);
-        List<AddressDto> addressDtoList = list.stream().map(e-> AddressMapper.toAddressDto(e)).toList();
+        List<AddressDto> addressDtoList = list.stream().map(addressMapper::toAddressDto).toList();
         return addressDtoList;
     }
 
@@ -48,5 +50,27 @@ public class AddressService implements IAddressService {
     @Override
     public int delete(Long id) {
         return 0;
+    }
+    @Override
+        public List<String> findAddressNamesFromParentId(Long address_id) {
+        List<String> addressNames = new ArrayList<>();
+        if(address_id != null) {
+            findParentIdAddressNames(address_id, addressNames);
+            return addressNames;
+        }else {
+            return null;
+        }
+    }
+
+    private void findParentIdAddressNames(Long idAddress, List<String> addressNames) {
+        Optional<AddressEntity> addressEntity = addressRepository.findById(idAddress);
+
+        if (addressEntity.isPresent()) {
+            AddressEntity address = addressEntity.get();
+            addressNames.add(address.getName());
+            if ( address.getParent_id() != 0) {
+                findParentIdAddressNames(address.getParent_id(), addressNames);
+            }
+        }
     }
 }

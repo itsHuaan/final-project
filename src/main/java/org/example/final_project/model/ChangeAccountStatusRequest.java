@@ -5,12 +5,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
-public class AddressModel {
-    private Long id;
-    private String name;
-    private long parentId;
+@NoArgsConstructor
+@AllArgsConstructor
+public class ChangeAccountStatusRequest {
+    private int status;
+    private String note;
 }
