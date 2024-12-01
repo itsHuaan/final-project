@@ -105,9 +105,15 @@ public class UserController {
                 ApiResponse<?> response = authService.changePassword(username, request);
                 return ResponseEntity.status(HttpStatus.OK).body(response);
             } catch (IllegalStateException e) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(createResponse(HttpStatus.UNAUTHORIZED, null, e.getMessage()));
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(createResponse(HttpStatus.UNAUTHORIZED,
+                                e.getMessage(),
+                                null));
             } catch (IllegalArgumentException e) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(HttpStatus.BAD_REQUEST, null, e.getMessage()));
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(createResponse(HttpStatus.BAD_REQUEST,
+                                e.getMessage(),
+                                null));
             }
         } else {
             return new ResponseEntity<>("Unable to retrieve user information.", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -124,14 +130,15 @@ public class UserController {
             try {
                 return userService.updateProfile(username, request);
             } catch (IllegalStateException e) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(createResponse(HttpStatus.UNAUTHORIZED, null, e.getMessage()));
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(createResponse(HttpStatus.UNAUTHORIZED, e.getMessage(), null));
             } catch (IllegalArgumentException e) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(HttpStatus.BAD_REQUEST, null, e.getMessage()));
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(HttpStatus.BAD_REQUEST, e.getMessage(), null));
             }
         } else {
             return new ResponseEntity<>("Unable to retrieve user information.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
     @Operation(summary = "Activate/Deactivate user account")
     @PutMapping("/change-status/{id}")
     public ResponseEntity<?> changeUserStatus(@RequestBody ChangeAccountStatusRequest request, @PathVariable Long id) {
