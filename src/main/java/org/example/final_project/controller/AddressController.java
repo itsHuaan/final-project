@@ -21,14 +21,14 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AddressController {
     private final AddressService addressService;
-    @Operation(summary = "Get All Address From ParentId ")
+    @Operation(summary = "Get All Address From ParentId")
     @GetMapping("/{parentId}/children")
     public ResponseEntity<List<AddressDto>> getAddress(@PathVariable Long parentId) {
         List<AddressDto> list = addressService.getAddressByParentId(parentId);
         return ResponseEntity.ok(list);
     }
-    @Operation(summary = "Find Address From ParentId")
-    @GetMapping("/{parentId}")
+    @Operation(summary = "Find address by id")
+    @GetMapping("/{id}")
     public ResponseEntity<?> findAddressFromParentId(@PathVariable Long parentId) {
         List<String>  map = addressService.findAddressNamesFromParentId(parentId);
         return ResponseEntity.ok(map);
