@@ -64,7 +64,7 @@ public class AuthService implements IAuthService {
     @Override
     public ApiResponse<?> logOut(String token) {
         try {
-            if (tokenBlacklistService.isTokenPresent(token)) {
+            if (!tokenBlacklistService.isTokenPresent(token)) {
                 tokenBlacklistService.saveToken(token);
             }
             return createResponse(HttpStatus.OK, "Logged out successfully", null);

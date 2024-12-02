@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.example.final_project.configuration.UserDetailsImpl;
 import org.example.final_project.service.ITokenBlacklistService;
 import org.example.final_project.service.impl.UserService;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -35,18 +36,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain) throws ServletException, IOException {
         try{
             String jwtToken = getJwtFromRequest(request);
-            if(jwtToken != null && this.validateToken(jwtToken)){
+            if(jwtToken != null && this.validateToken(jwtToken) && !tokenBlacklistService.isTokenPresent(jwtToken)){
                 String email = jwtProvider.getKeyByValueFromJWT("email", jwtToken);
                 UserDetailsImpl userDetails = (UserDetailsImpl) userService.loadUserByUsername(email);
                 if(userDetails != null) {
                     UsernamePasswordAuthenticationToken
                             authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
                     SecurityContextHolder.getContext().setAuthentication(authentication);
 
                 }
