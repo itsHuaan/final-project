@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -55,12 +56,8 @@ public class    UserEntity {
     @OneToMany(mappedBy = "user")
     private List<ProductEntity> products;
 
-    @ManyToMany
-    @JoinTable(
-            name = "tbl_user_address",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "address_id")
-    )
-    private List<AddressEntity> addresses;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserShippingAddressEntity> shippingAddresses = new ArrayList<>();
+
 }
 

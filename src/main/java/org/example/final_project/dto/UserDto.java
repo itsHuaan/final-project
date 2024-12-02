@@ -15,10 +15,9 @@ public class UserDto {
     private Long userId;
     private String name;
     private String username;
-    private String password;
     private String email;
     private String phone;
-    private List<AddressDto> addresses;
+    private List<ShippingAddressDto> addresses;
     private int gender;
     private Long roleId;
     private String id_front;

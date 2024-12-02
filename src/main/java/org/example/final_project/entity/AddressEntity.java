@@ -18,8 +18,5 @@ public class AddressEntity {
     private Long id;
     private String name;
     private long parent_id;
-
-    @ManyToMany(mappedBy = "addresses")
-    private List<UserEntity> users;
 }
 

@@ -4,6 +4,7 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.api.exceptions.BadRequest;
 import com.cloudinary.api.exceptions.NotFound;
 import com.cloudinary.utils.ObjectUtils;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -15,16 +16,16 @@ import org.example.final_project.dto.UserDto;
 import org.example.final_project.entity.AddressEntity;
 import org.example.final_project.entity.RoleEntity;
 import org.example.final_project.entity.UserEntity;
+import org.example.final_project.entity.UserShippingAddressEntity;
 import org.example.final_project.mapper.UserMapper;
-import org.example.final_project.model.ChangeAccountStatusRequest;
-import org.example.final_project.model.ProfileUpdateRequest;
-import org.example.final_project.model.ShopRegisterRequest;
-import org.example.final_project.model.UserModel;
+import org.example.final_project.model.*;
 import org.example.final_project.model.enum_status.STATUS;
 import org.example.final_project.repository.IAddressRepository;
 import org.example.final_project.repository.IRoleRepository;
+import org.example.final_project.repository.IShippingAddressRepository;
 import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.IAddressService;
+import org.example.final_project.service.IShippingAddressService;
 import org.example.final_project.service.IUserService;
 import org.example.final_project.util.specification.UserSpecification;
 import org.springframework.data.domain.Page;
@@ -60,6 +61,7 @@ public class UserService implements IUserService, UserDetailsService {
     PasswordEncoder passwordEncoder;
     ImageService imageService;
     IAddressRepository addressRepository;
+    IShippingAddressRepository shippingAddressRepository;
 
     Cloudinary cloudinary;
     IAddressService addressService;
@@ -384,21 +386,23 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
-    public int addAddress(long userId, long addressId) {
+    public int addAddress(long userId, AddShippingAddressRequest request) {
         UserEntity user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        AddressEntity address = addressRepository.findById(request.getAddressId())
+                .orElseThrow(() -> new EntityNotFoundException("Address not found"));
 
-        AddressEntity address = addressRepository.findById(addressId)
-                .orElseThrow(() -> new RuntimeException("Address not found"));
-
-        if (user.getAddresses() == null) {
-            user.setAddresses(new ArrayList<>());
+        if (user.getShippingAddresses().size() >= 20) {
+            throw new IllegalArgumentException("Cannot add more than 20 shipping addresses");
         }
 
-        if (!user.getAddresses().contains(address)) {
-            user.getAddresses().add(address);
-            userRepository.save(user);
-        }
+        UserShippingAddressEntity newShippingAddress = UserShippingAddressEntity.builder()
+                .user(user)
+                .address(address)
+                .addressLine2(request.getAddressDetail())
+                .build();
+
+        shippingAddressRepository.save(newShippingAddress);
         return 1;
     }
 }
