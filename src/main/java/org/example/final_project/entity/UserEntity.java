@@ -14,17 +14,17 @@ import java.util.List;
 @Builder
 @Entity
 @Table(name = "tbl_user")
-public class UserEntity {
+public class    UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
     private String name;
 
-    @Column(unique=true)
+    @Column(unique = true)
     private String username;
     private String password;
 
-    @Column(unique=true)
+    @Column(unique = true)
     private String email;
     private int isActive;
     private String profilePicture;
@@ -54,4 +54,13 @@ public class UserEntity {
     private List<CategoryEntity> categories;
     @OneToMany(mappedBy = "user")
     private List<ProductEntity> products;
+
+    @ManyToMany
+    @JoinTable(
+            name = "tbl_user_address",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "address_id")
+    )
+    private List<AddressEntity> addresses;
 }
+

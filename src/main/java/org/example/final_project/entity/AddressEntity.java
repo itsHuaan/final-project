@@ -3,8 +3,10 @@ package org.example.final_project.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
-@Table(name="tbl_address")
+@Table(name = "tbl_address")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -17,4 +19,7 @@ public class AddressEntity {
     private String name;
     private long parent_id;
 
+    @ManyToMany(mappedBy = "addresses")
+    private List<UserEntity> users;
 }
+

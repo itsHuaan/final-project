@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @FieldDefaults(makeFinal = true)
 public class UserMapper {
+    AddressMapper addressMapper;
     public UserDto toDto(UserEntity userEntity) {
         return UserDto.builder()
                 .userId(userEntity.getUserId())
@@ -35,6 +36,7 @@ public class UserMapper {
                 .shop_address_detail(userEntity.getShop_address_detail())
                 .time_created_shop(userEntity.getTime_created_shop())
                 .profilePicture(userEntity.getProfilePicture())
+                .addresses(userEntity.getAddresses().stream().map(addressMapper::toAddressDto).toList())
                 .build();
     }
 

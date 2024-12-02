@@ -20,6 +20,7 @@ import org.example.final_project.model.ChangeAccountStatusRequest;
 import org.example.final_project.model.ProfileUpdateRequest;
 import org.example.final_project.model.ShopRegisterRequest;
 import org.example.final_project.model.UserModel;
+import org.example.final_project.model.enum_status.STATUS;
 import org.example.final_project.repository.IAddressRepository;
 import org.example.final_project.repository.IRoleRepository;
 import org.example.final_project.repository.IUserRepository;
@@ -40,6 +41,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -233,6 +235,7 @@ public class UserService implements IUserService, UserDetailsService {
                 userEntity.setShop_address_detail(request.getShop_address_detail());
                 userEntity.setPhone(request.getPhone());
                 userEntity.setTime_created_shop(LocalDateTime.now());
+                userEntity.setShop_status(STATUS.INACTIVE.getStatus());
                 userRepository.save(userEntity);
                 return createResponse(HttpStatus.OK, "Wait for confirm ", null);
             } else if (userEntity.getShop_status() == 1) {
@@ -380,5 +383,23 @@ public class UserService implements IUserService, UserDetailsService {
         });
     }
 
-};
+    @Override
+    public int addAddress(long userId, long addressId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        AddressEntity address = addressRepository.findById(addressId)
+                .orElseThrow(() -> new RuntimeException("Address not found"));
+
+        if (user.getAddresses() == null) {
+            user.setAddresses(new ArrayList<>());
+        }
+
+        if (!user.getAddresses().contains(address)) {
+            user.getAddresses().add(address);
+            userRepository.save(user);
+        }
+        return 1;
+    }
+}
 

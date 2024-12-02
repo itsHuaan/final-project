@@ -7,8 +7,7 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
-public class AddressDto {
-    private long id;
-    private String name;
-    private long parentId;
+public class ShippingAddressDto {
+    String addressLine1;
+    String addressLine2;
 }

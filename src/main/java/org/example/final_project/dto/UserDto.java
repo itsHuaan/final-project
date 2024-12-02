@@ -18,6 +18,7 @@ public class UserDto {
     private String password;
     private String email;
     private String phone;
+    private List<AddressDto> addresses;
     private int gender;
     private Long roleId;
     private String id_front;

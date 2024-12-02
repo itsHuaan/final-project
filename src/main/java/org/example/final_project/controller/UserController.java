@@ -14,6 +14,7 @@ import org.example.final_project.model.ShopRegisterRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.example.final_project.service.IAddressService;
 import org.example.final_project.service.IAuthService;
 import org.example.final_project.service.IUserService;
 import org.example.final_project.util.Const;
@@ -40,6 +41,7 @@ import java.time.LocalDateTime;
 public class UserController {
     IUserService userService;
     IAuthService authService;
+    IAddressService addressService;
 
     @GetMapping
     public ResponseEntity<?> getAllUser(@RequestParam(defaultValue = "0") Integer pageIndex,
@@ -143,6 +145,17 @@ public class UserController {
     @PutMapping("/change-status/{id}")
     public ResponseEntity<?> changeUserStatus(@RequestBody ChangeAccountStatusRequest request, @PathVariable Long id) {
         return userService.changeAccountStatus(id, request);
+    }
+
+    @PostMapping("/{id}/add-address")
+    public ResponseEntity<?> selectAddress(
+            @PathVariable Long id,
+            @RequestParam Long addressId) {
+        userService.addAddress(id, addressId);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(createResponse(HttpStatus.OK,
+                        "Added " + String.join("/", addressService.findAddressNamesFromParentId(addressId)),
+                        null));
     }
 }
 
