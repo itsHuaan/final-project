@@ -384,6 +384,34 @@ public class UserService implements IUserService, UserDetailsService {
         }
         throw new NotFound("Invalid page or size parameters. Page must be >= 0 and size must be > 0.");
     }
+    @Override
+    public List<UserDto> findAllShopActive() {
+        List<UserEntity> userEntityList = userRepository.findAllShopActive();
+        List<UserDto> userDtoList = userEntityList.stream().map(e -> userMapper.toDto(e)).toList();
+
+        for (UserDto userDto : userDtoList) {
+            long parentId = userDto.getAddress_id_shop();
+            List<String> address = addressService.findAddressNamesFromParentId(parentId);
+            userDto.setAllAddresses(address);
+        }
+        return userDtoList;
+    }
+    @Override
+    public Page<UserDto> findAllShopActivePage(int page, int size) throws Exception {
+        if (page >= 0 && size > 0) {
+            Pageable pageable = PageRequest.of(page, size);
+            Page<UserEntity> userEntityPage = userRepository.findAllShopActivePage(pageable);
+            Page<UserDto> userDtoPage = userEntityPage.map(userEntity -> {
+                UserDto userDto = userMapper.toDto(userEntity);
+                long parentId = userDto.getAddress_id_shop();
+                List<String> address = addressService.findAddressNamesFromParentId(parentId);
+                userDto.setAllAddresses(address);
+                return userDto;
+            });
+            return userDtoPage;
+        }
+        throw new NotFound("Invalid page or size parameters. Page must be >= 0 and size must be > 0.");
+    }
 
 };
 

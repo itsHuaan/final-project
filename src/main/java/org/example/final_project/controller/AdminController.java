@@ -34,7 +34,7 @@ public class AdminController {
             return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
         }
     }
-    @Operation(summary = "Get All SHop Flow STATUS 1 2 3 4")
+    @Operation(summary = "Get All SHop Flow STATUS 1 2 3 ")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/get-status-shop")
     public ResponseEntity<List<UserDto>> getStatusShop() {

@@ -29,4 +29,6 @@ public interface IUserService extends IBaseService<UserDto, UserModel, Long> {
     ResponseEntity<?> updateProfile(String username, ProfileUpdateRequest request);
     ResponseEntity<?> changeAccountStatus(long userId, ChangeAccountStatusRequest request);
     Page<UserDto> findAllStatusUserBeingShop(int page, int size) throws Exception;
+    List<UserDto> findAllShopActive();
+    Page<UserDto> findAllShopActivePage(int page, int size) throws Exception;
 }
