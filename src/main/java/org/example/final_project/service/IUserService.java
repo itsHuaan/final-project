@@ -40,4 +40,6 @@ public interface IUserService extends IBaseService<UserDto, UserModel, Long> {
     ResponseEntity<?> changeAccountStatus(long userId, ChangeAccountStatusRequest request);
 
     Page<UserDto> getAllShop(Integer status, Integer pageIndex, Integer pageSize);
+
+    int addAddress(long userId, long addressId);
 }

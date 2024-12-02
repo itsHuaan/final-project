@@ -40,6 +40,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -360,11 +361,11 @@ public class UserService implements IUserService, UserDetailsService {
     public Page<UserDto> getAllShop(Integer status, Integer pageIndex, Integer pageSize) {
         Specification<UserEntity> specification = UserSpecification.isShop();
         Pageable pageable = Pageable.unpaged();
-        if (status != 0){
+        if (status != 0) {
             specification = specification.and(hasShopStatus(status));
         }
-        if (pageIndex != null && pageSize != null){
-            if(pageIndex >= 0 && pageSize > 0){
+        if (pageIndex != null && pageSize != null) {
+            if (pageIndex >= 0 && pageSize > 0) {
                 pageable = PageRequest.of(pageIndex, pageSize);
             } else {
                 throw new IllegalArgumentException("Invalid page index or page size parameters.");
@@ -379,5 +380,23 @@ public class UserService implements IUserService, UserDetailsService {
         });
     }
 
-};
+    @Override
+    public int addAddress(long userId, long addressId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        AddressEntity address = addressRepository.findById(addressId)
+                .orElseThrow(() -> new RuntimeException("Address not found"));
+
+        if (user.getAddresses() == null) {
+            user.setAddresses(new ArrayList<>());
+        }
+
+        if (!user.getAddresses().contains(address)) {
+            user.getAddresses().add(address);
+            userRepository.save(user);
+        }
+        return 1;
+    }
+}
 
