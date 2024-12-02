@@ -1,6 +1,7 @@
 package org.example.final_project.service.impl;
 
 import com.cloudinary.Cloudinary;
+import com.cloudinary.api.exceptions.BadRequest;
 import com.cloudinary.api.exceptions.NotFound;
 import com.cloudinary.utils.ObjectUtils;
 import lombok.AccessLevel;
@@ -355,18 +356,20 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
-    public Page<UserDto> getAllShop(Integer status, Integer pageIndex, Integer pageSize) {
+    public Page<UserDto> getAllShop(Integer status, Integer pageIndex, Integer pageSize) throws Exception {
         Specification<UserEntity> specification = UserSpecification.isShop();
         Pageable pageable = Pageable.unpaged();
         if (status != 0){
             specification = specification.and(hasShopStatus(status));
         }
         if (pageIndex != null && pageSize != null){
-            if(pageIndex >= 0 && pageSize > 0){
-                pageable = PageRequest.of(pageIndex, pageSize);
-            } else {
-                throw new IllegalArgumentException("Invalid page index or page size parameters.");
+            if(pageIndex < 0){
+                throw new BadRequest("Page index can not be less than 0");
             }
+            if (pageSize <= 0) {
+                throw new BadRequest("Page size can not be less than 0.");
+            }
+            pageable  = PageRequest.of(pageIndex, pageSize);
         }
         return userRepository.findAll(specification, pageable).map(userEntity -> {
             UserDto userDto = userMapper.toDto(userEntity);

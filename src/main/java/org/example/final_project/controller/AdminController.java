@@ -1,5 +1,6 @@
 package org.example.final_project.controller;
 
+import com.cloudinary.api.exceptions.BadRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -36,75 +37,27 @@ public class AdminController {
             return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
         }
     }
-    /*
-    @Operation(summary = "Get All Shop Refuse Wait ")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/get-shop-waited")
-    public ResponseEntity<List<UserDto>> getStatusShopWaited() {
-        List<UserDto> userDtoList = userService.findAllStatusWaited();
-        return new ResponseEntity<>(userDtoList, HttpStatus.OK);
 
-    }
-    @Operation(summary = "Get All SHop Flow STATUS Wait AND PAGEABLE")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/get-shop-waited/page")
-    public ResponseEntity<?> getStatusShopWaited(@RequestParam int page,
-                                                       @RequestParam int size) {
-        try {
-            Page<UserDto> userDtoList = userService.findAllStatusWaitedPage(page,size);
-            return new ResponseEntity<>(userDtoList, HttpStatus.OK);
-        }catch (Exception e) {
-            return new ResponseEntity<>( e.getMessage(),HttpStatus.NOT_FOUND);
-        }
-
-    }
-    @Operation(summary = "Find All SHop By Status Page  ")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/find-shop-status/page")
-    public ResponseEntity<?> findAllStatusPageShop(@RequestParam("status") int status  ,
-            @RequestParam int page,
-                                           @RequestParam int size) {
-        try {
-            Page<UserDto> userDtoList = userService.findAllShopByPageStatus(status, page,size);
-            return new ResponseEntity<>(userDtoList, HttpStatus.OK);
-        }catch (Exception e) {
-            return new ResponseEntity<>( e.getMessage(),HttpStatus.NOT_FOUND);
-        }
-    }
-
-    @Operation(summary = "Find All SHop By Status  ")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/find-shop-status")
-    public ResponseEntity<?> findAllStatusShop(@RequestParam("status") int status){
-
-            List<UserDto> userDtoList = userService.findAllShopByStatus(status);
-            return new ResponseEntity<>(userDtoList, HttpStatus.OK);
-
-    }
-
-    @Operation(summary = "Get All SHop By Status  ")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/get-shop-status")
-    public ResponseEntity<?> getAllStatusShop() {
-            List<UserDto> userDtoList = userService.getAllShopStatus();
-            return new ResponseEntity<>(userDtoList, HttpStatus.OK);
-    }
-*/
 
     @Operation(summary = "Get all shop")
-//    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/shop")
     public ResponseEntity<?> getAllShop(@RequestParam(defaultValue = "0") Integer status,
                                         @RequestParam(required = false) Integer pageIndex,
                                         @RequestParam(required = false) Integer pageSize) {
-
-        Page<UserDto> userDtoList = userService.getAllShop(status, pageIndex, pageSize);
         try {
-            return userDtoList != null && !userDtoList.isEmpty()
-                    ? ResponseEntity.status(HttpStatus.OK).body(createResponse(HttpStatus.OK, "Shop fetched", userDtoList))
-                    : ResponseEntity.status(HttpStatus.OK).body(createResponse(HttpStatus.OK, "No shop fetched", null));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(HttpStatus.BAD_REQUEST, e.getMessage(), null));
+            Page<UserDto> userDtoList = userService.getAllShop(status, pageIndex, pageSize);
+            return !userDtoList.isEmpty()
+                    ? ResponseEntity.ok(createResponse(HttpStatus.OK, "Shops fetched successfully", userDtoList))
+                    : ResponseEntity.ok(createResponse(HttpStatus.OK, "No shops found", null));
+        } catch (BadRequest e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(createResponse(HttpStatus.BAD_REQUEST, e.getMessage(), null));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(createResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error occurred", null));
         }
     }
+
 }
