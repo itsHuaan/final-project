@@ -354,8 +354,8 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
-    public List<UserDto> findAllStatusUserBeingShop() {
-        List<UserEntity> userEntityList = userRepository.findAllStatusUserBeingShop();
+    public List<UserDto> findAllStatusWaited() {
+        List<UserEntity> userEntityList = userRepository.findAllStatusWaited();
         List<UserDto> userDtoList = userEntityList.stream().map(e -> userMapper.toDto(e)).toList();
 
         for (UserDto userDto : userDtoList) {
@@ -367,10 +367,10 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
-    public Page<UserDto> findAllStatusUserBeingShop(int page, int size) throws Exception {
+    public Page<UserDto> findAllStatusWaitedPage(int page, int size) throws Exception {
         if (page >= 0 && size > 0) {
             Pageable pageable = PageRequest.of(page, size);
-            Page<UserEntity> userEntityPage = userRepository.findAllStatusUserBeingShopPage(pageable);
+            Page<UserEntity> userEntityPage = userRepository.findAllStatusWaitedPage(pageable);
             Page<UserDto> userDtoPage = userEntityPage.map(userEntity -> {
                 UserDto userDto = userMapper.toDto(userEntity);
                 long parentId = userDto.getAddress_id_shop();
@@ -383,8 +383,8 @@ public class UserService implements IUserService, UserDetailsService {
         throw new NotFound("Invalid page or size parameters. Page must be >= 0 and size must be > 0.");
     }
     @Override
-    public List<UserDto> findAllShopActive() {
-        List<UserEntity> userEntityList = userRepository.findAllShopActive();
+    public List<UserDto> findAllShopByStatus(int status) {
+        List<UserEntity> userEntityList = userRepository.findAllShopByStatus(status);
         List<UserDto> userDtoList = userEntityList.stream().map(e -> userMapper.toDto(e)).toList();
 
         for (UserDto userDto : userDtoList) {
@@ -395,10 +395,38 @@ public class UserService implements IUserService, UserDetailsService {
         return userDtoList;
     }
     @Override
-    public Page<UserDto> findAllShopActivePage(int page, int size) throws Exception {
+    public Page<UserDto> findAllShopByPageStatus( int status, int page, int size) throws Exception {
         if (page >= 0 && size > 0) {
             Pageable pageable = PageRequest.of(page, size);
-            Page<UserEntity> userEntityPage = userRepository.findAllShopActivePage(pageable);
+            Page<UserEntity> userEntityPage = userRepository.findAllShopPageByStatus( status,pageable);
+            Page<UserDto> userDtoPage = userEntityPage.map(userEntity -> {
+                UserDto userDto = userMapper.toDto(userEntity);
+                long parentId = userDto.getAddress_id_shop();
+                List<String> address = addressService.findAddressNamesFromParentId(parentId);
+                userDto.setAllAddresses(address);
+                return userDto;
+            });
+            return userDtoPage;
+        }
+        throw new NotFound("Invalid page or size parameters. Page must be >= 0 and size must be > 0.");
+    }
+    @Override
+    public List<UserDto> getAllShopStatus() {
+        List<UserEntity> userEntityList = userRepository.getAllShopStatus();
+        List<UserDto> userDtoList = userEntityList.stream().map(e -> userMapper.toDto(e)).toList();
+
+        for (UserDto userDto : userDtoList) {
+            long parentId = userDto.getAddress_id_shop();
+            List<String> address = addressService.findAddressNamesFromParentId(parentId);
+            userDto.setAllAddresses(address);
+        }
+        return userDtoList;
+    }
+    @Override
+    public Page<UserDto> getAllShopStatusPage( int page, int size) throws Exception {
+        if (page >= 0 && size > 0) {
+            Pageable pageable = PageRequest.of(page, size);
+            Page<UserEntity> userEntityPage = userRepository.getAllShopStatusPage(pageable);
             Page<UserDto> userDtoPage = userEntityPage.map(userEntity -> {
                 UserDto userDto = userMapper.toDto(userEntity);
                 long parentId = userDto.getAddress_id_shop();

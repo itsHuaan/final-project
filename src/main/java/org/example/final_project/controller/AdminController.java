@@ -34,25 +34,68 @@ public class AdminController {
             return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
         }
     }
-    @Operation(summary = "Get All SHop Flow STATUS 1 2 3 ")
+    @Operation(summary = "Get All Shop Refuse Wait ")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/get-status-shop")
-    public ResponseEntity<List<UserDto>> getStatusShop() {
-        List<UserDto> userDtoList = userService.findAllStatusUserBeingShop();
+    @GetMapping("/get-shop-waited")
+    public ResponseEntity<List<UserDto>> getStatusShopWaited() {
+        List<UserDto> userDtoList = userService.findAllStatusWaited();
         return new ResponseEntity<>(userDtoList, HttpStatus.OK);
 
     }
-    @Operation(summary = "Get All SHop Flow STATUS 1 2 3 AND PAGEABLE")
+    @Operation(summary = "Get All SHop Flow STATUS Wait AND PAGEABLE")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/get-status-shop/page")
-    public ResponseEntity<?> getStatusShop(@RequestParam int page,
+    @GetMapping("/get-shop-waited/page")
+    public ResponseEntity<?> getStatusShopWaited(@RequestParam int page,
                                                        @RequestParam int size) {
         try {
-            Page<UserDto> userDtoList = userService.findAllStatusUserBeingShop(page,size);
+            Page<UserDto> userDtoList = userService.findAllStatusWaitedPage(page,size);
             return new ResponseEntity<>(userDtoList, HttpStatus.OK);
         }catch (Exception e) {
             return new ResponseEntity<>( e.getMessage(),HttpStatus.NOT_FOUND);
         }
 
     }
+    @Operation(summary = "Find All SHop By Status Page  ")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/find-shop-status/page")
+    public ResponseEntity<?> findAllStatusPageShop(@RequestParam("status") int status  ,
+            @RequestParam int page,
+                                           @RequestParam int size) {
+        try {
+            Page<UserDto> userDtoList = userService.findAllShopByPageStatus(status, page,size);
+            return new ResponseEntity<>(userDtoList, HttpStatus.OK);
+        }catch (Exception e) {
+            return new ResponseEntity<>( e.getMessage(),HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @Operation(summary = "Find All SHop By Status  ")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/find-shop-status")
+    public ResponseEntity<?> findAllStatusShop(@RequestParam("status") int status){
+
+            List<UserDto> userDtoList = userService.findAllShopByStatus(status);
+            return new ResponseEntity<>(userDtoList, HttpStatus.OK);
+
+    }
+    @Operation(summary = "Get All SHop By Status  ")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/get-shop-status")
+    public ResponseEntity<?> getAllStatusShop() {
+            List<UserDto> userDtoList = userService.getAllShopStatus();
+            return new ResponseEntity<>(userDtoList, HttpStatus.OK);
+    }
+    @Operation(summary = "Get All SHop By Status Page  ")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/get-shop-status/page")
+    public ResponseEntity<?> getAllStatusPageShop(@RequestParam int page,
+                                                  @RequestParam int size)  {
+        try {
+            Page<UserDto> userDtoList = userService.getAllShopStatusPage( page,size);
+            return new ResponseEntity<>(userDtoList, HttpStatus.OK);
+        }catch (Exception e) {
+            return new ResponseEntity<>( e.getMessage(),HttpStatus.NOT_FOUND);
+        }
+    }
+
 }

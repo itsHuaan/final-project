@@ -10,14 +10,19 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface IUserRepository extends JpaRepository<UserEntity, Long>, JpaSpecificationExecutor<UserEntity> {
-    @Query("select p from UserEntity p where p.shop_status IN (1, 2, 3) order by p.time_created_shop ASC ")
-    List<UserEntity> findAllStatusUserBeingShop();
-    @Query("SELECT p FROM UserEntity p WHERE p.shop_status IN (1, 2, 3) ORDER BY p.time_created_shop ASC")
-    Page<UserEntity> findAllStatusUserBeingShopPage(Pageable pageable);
-    @Query("SELECT p FROM UserEntity p WHERE p.shop_status IN (1, 4) ORDER BY p.time_created_shop ASC")
-    Page<UserEntity> findAllShopActivePage(Pageable pageable);
-    @Query("select p from UserEntity p where p.shop_status IN (1, 4) order by p.time_created_shop ASC ")
-    List<UserEntity> findAllShopActive();
+    @Query("select p from UserEntity p where p.shop_status IN (2) order by p.time_created_shop ASC ")
+    List<UserEntity> findAllStatusWaited();
+    @Query("SELECT p FROM UserEntity p WHERE p.shop_status IN (2) ORDER BY p.time_created_shop ASC")
+    Page<UserEntity> findAllStatusWaitedPage(Pageable pageable);
+    @Query("SELECT p FROM UserEntity p WHERE p.shop_status = :status ORDER BY p.time_created_shop ASC")
+    Page<UserEntity> findAllShopPageByStatus( int status , Pageable pageable);
+    @Query("select p from UserEntity p where p.shop_status = :status order by p.time_created_shop ASC ")
+    List<UserEntity> findAllShopByStatus(int status);
+    @Query("SELECT p FROM UserEntity p ORDER BY p.time_created_shop ASC")
+    Page<UserEntity> getAllShopStatusPage( Pageable pageable);
+    @Query("SELECT p FROM UserEntity p ORDER BY p.time_created_shop ASC")
+    List<UserEntity> getAllShopStatus();
+
 
 
 }
