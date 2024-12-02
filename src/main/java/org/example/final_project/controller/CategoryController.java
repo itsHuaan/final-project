@@ -68,7 +68,7 @@ public class CategoryController {
 
     @PutMapping("/update/{id}")
     ResponseEntity<ApiResponse<?>> updateCategory(@PathVariable("id") long id,
-                                                  @RequestBody CategoryModel model) {
+                                                  @ModelAttribute CategoryModel model) {
         try{
         if (categoryService.update(id, model) == 1) {
             return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(

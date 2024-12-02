@@ -78,8 +78,7 @@ public class UserService implements IUserService, UserDetailsService {
             return 0;
         }
         Optional<UserEntity> inactiveOrDeletedUser = userRepository.findOne(Specification.where(
-                hasUsername(userModel.getUsername())
-                        .or(hasEmail(userModel.getEmail()))
+                hasEmail(userModel.getEmail())
                         .and(isInactive().or(isDeleted()))
         ));
 
@@ -89,6 +88,8 @@ public class UserService implements IUserService, UserDetailsService {
             userEntity.setEmail(userModel.getEmail());
             userEntity.setUsername(userModel.getUsername());
             userEntity.setPassword(passwordEncoder.encode(userModel.getPassword()));
+            userEntity.setDeletedAt(null);
+            userEntity.setIsActive(0);
             userRepository.save(userEntity);
             return 1;
         }
@@ -152,20 +153,8 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
-    public int activateUserAccount(String username, String email) {
-        Specification<UserEntity> isExistingAndDeactivated = Specification.where(hasUsername(username).and(hasEmail(email)).and(isInactive()));
-        if (userRepository.findOne(isExistingAndDeactivated).isPresent()) {
-            UserEntity deactivatedAccount = userRepository.findOne(isExistingAndDeactivated).get();
-            deactivatedAccount.setIsActive(1);
-            userRepository.save(deactivatedAccount);
-            return 1;
-        }
-        return 0;
-    }
-
-    @Override
     public int activateUserAccount(String email) {
-        Specification<UserEntity> isExistingAndDeactivated = Specification.where(hasEmail(email).and(isInactive()));
+        Specification<UserEntity> isExistingAndDeactivated = Specification.where(hasEmail(email).and(isInactive().or(isDeleted())));
         if (userRepository.findOne(isExistingAndDeactivated).isPresent()) {
             UserEntity deactivatedAccount = userRepository.findOne(isExistingAndDeactivated).get();
             deactivatedAccount.setIsActive(1);
@@ -256,7 +245,7 @@ public class UserService implements IUserService, UserDetailsService {
         Optional<UserEntity> optionalUserEntity = userRepository.findById(userId);
         if (optionalUserEntity.isPresent()) {
             // status = 1 cho phép shop hoạt động
-            if(status == 1) {
+            if (status == 1) {
                 UserEntity userEntity = userRepository.findById(userId).get();
                 userEntity.setShop_status(status);
                 RoleEntity role = new RoleEntity();
@@ -265,7 +254,7 @@ public class UserService implements IUserService, UserDetailsService {
                 userRepository.save(userEntity);
                 return createResponse(HttpStatus.OK, "Created Shop", null);
                 // status = 3 không cho phép hoạt động
-            }else if (status == 3) {
+            } else if (status == 3) {
                 UserEntity userEntity = userRepository.findById(userId).get();
                 userEntity.setShop_status(status);
                 RoleEntity role = new RoleEntity();
@@ -294,6 +283,7 @@ public class UserService implements IUserService, UserDetailsService {
         UserEntity userEntity = userRepository.findOne(Specification.where(hasUsername(username)).and(isActive())).isPresent()
                 ? userRepository.findOne(Specification.where(hasUsername(username)).and(isActive())).get()
                 : null;
+
         if (userRepository.findOne(Specification.where(hasEmail(request.getEmail())).and(isActive())).isPresent()
                 && !userEntity.getEmail().equals(request.getEmail())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(createResponse(
@@ -308,11 +298,19 @@ public class UserService implements IUserService, UserDetailsService {
             userEntity.setPhone(request.getPhone() != null ? request.getPhone() : userEntity.getPhone());
             userEntity.setEmail(request.getEmail() != null ? request.getEmail() : userEntity.getEmail());
             userEntity.setGender(request.getGender() != -1 ? request.getGender() : userEntity.getGender());
-            try {
-                userEntity.setProfilePicture(cloudinary.uploader().upload(request.getProfilePicture().getBytes(), ObjectUtils.emptyMap()).get("url").toString());
-            } catch (IOException e) {
-                userEntity.setProfilePicture(null);
+
+            if (request.getProfilePicture() != null) {
+                try {
+                    String uploadedUrl = cloudinary.uploader().upload(
+                            request.getProfilePicture().getBytes(),
+                            ObjectUtils.emptyMap()
+                    ).get("url").toString();
+                    userEntity.setProfilePicture(uploadedUrl);
+                } catch (IOException e) {
+                    userEntity.setProfilePicture(null);
+                }
             }
+
             userRepository.save(userEntity);
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.OK,
