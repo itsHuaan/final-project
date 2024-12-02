@@ -6,6 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.example.final_project.configuration.UserDetailsImpl;
+import org.example.final_project.service.ITokenBlacklistService;
 import org.example.final_project.service.impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,13 +23,15 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtProvider jwtProvider;
     private final UserService userService;
+    private final ITokenBlacklistService tokenBlacklistService;
     @Value("${jwt.secret-key}")
     private String JWT_SECRET;
 
     @Autowired
-    public JwtAuthenticationFilter(JwtProvider jwtProvider, UserService userService) {
+    public JwtAuthenticationFilter(JwtProvider jwtProvider, UserService userService, ITokenBlacklistService tokenBlacklistService) {
         this.jwtProvider = jwtProvider;
         this.userService = userService;
+        this.tokenBlacklistService = tokenBlacklistService;
     }
 
     @Override
