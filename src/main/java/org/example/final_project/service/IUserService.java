@@ -35,15 +35,9 @@ public interface IUserService extends IBaseService<UserDto, UserModel, Long> {
 
     ApiResponse<?> acceptFromAdmin(int status , long userId) throws Exception;
 
-    List<UserDto> findAllStatusWaited();
-
     ResponseEntity<?> updateProfile(String username, ProfileUpdateRequest request);
 
     ResponseEntity<?> changeAccountStatus(long userId, ChangeAccountStatusRequest request);
-    Page<UserDto> findAllStatusWaitedPage(int page, int size) throws Exception;
 
-    Page<UserDto> findAllShopByPageStatus( int status, int page, int size) throws Exception;
-    List<UserDto> findAllShopByStatus(int status);
-    List<UserDto> getAllShopStatus();
-    Page<UserDto> getAllShopStatusPage( int page, int size) throws Exception;
+    Page<UserDto> getAllShop(Integer status, Integer pageIndex, Integer pageSize);
 }

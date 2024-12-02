@@ -48,4 +48,14 @@ public class UserSpecification {
         return (Root<UserEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("userId"), id);
     }
+
+    public static Specification<UserEntity> hasShopStatus(int status) {
+        return (Root<UserEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("shop_status"), status);
+    }
+
+    public static Specification<UserEntity> isShop() {
+        return (Root<UserEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
+                criteriaBuilder.notEqual(root.get("shop_status"), 0);
+    }
 }

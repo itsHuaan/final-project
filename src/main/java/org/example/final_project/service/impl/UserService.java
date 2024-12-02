@@ -24,6 +24,7 @@ import org.example.final_project.repository.IRoleRepository;
 import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.IAddressService;
 import org.example.final_project.service.IUserService;
+import org.example.final_project.util.specification.UserSpecification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -354,89 +355,26 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
-    public List<UserDto> findAllStatusWaited() {
-        List<UserEntity> userEntityList = userRepository.findAllStatusWaited();
-        List<UserDto> userDtoList = userEntityList.stream().map(e -> userMapper.toDto(e)).toList();
-
-        for (UserDto userDto : userDtoList) {
+    public Page<UserDto> getAllShop(Integer status, Integer pageIndex, Integer pageSize) {
+        Specification<UserEntity> specification = UserSpecification.isShop();
+        Pageable pageable = Pageable.unpaged();
+        if (status != 0){
+            specification = specification.and(hasShopStatus(status));
+        }
+        if (pageIndex != null && pageSize != null){
+            if(pageIndex >= 0 && pageSize > 0){
+                pageable = PageRequest.of(pageIndex, pageSize);
+            } else {
+                throw new IllegalArgumentException("Invalid page index or page size parameters.");
+            }
+        }
+        return userRepository.findAll(specification, pageable).map(userEntity -> {
+            UserDto userDto = userMapper.toDto(userEntity);
             long parentId = userDto.getAddress_id_shop();
             List<String> address = addressService.findAddressNamesFromParentId(parentId);
             userDto.setAllAddresses(address);
-        }
-        return userDtoList;
-    }
-
-    @Override
-    public Page<UserDto> findAllStatusWaitedPage(int page, int size) throws Exception {
-        if (page >= 0 && size > 0) {
-            Pageable pageable = PageRequest.of(page, size);
-            Page<UserEntity> userEntityPage = userRepository.findAllStatusWaitedPage(pageable);
-            Page<UserDto> userDtoPage = userEntityPage.map(userEntity -> {
-                UserDto userDto = userMapper.toDto(userEntity);
-                long parentId = userDto.getAddress_id_shop();
-                List<String> address = addressService.findAddressNamesFromParentId(parentId);
-                userDto.setAllAddresses(address);
-                return userDto;
-            });
-            return userDtoPage;
-        }
-        throw new NotFound("Invalid page or size parameters. Page must be >= 0 and size must be > 0.");
-    }
-    @Override
-    public List<UserDto> findAllShopByStatus(int status) {
-        List<UserEntity> userEntityList = userRepository.findAllShopByStatus(status);
-        List<UserDto> userDtoList = userEntityList.stream().map(e -> userMapper.toDto(e)).toList();
-
-        for (UserDto userDto : userDtoList) {
-            long parentId = userDto.getAddress_id_shop();
-            List<String> address = addressService.findAddressNamesFromParentId(parentId);
-            userDto.setAllAddresses(address);
-        }
-        return userDtoList;
-    }
-    @Override
-    public Page<UserDto> findAllShopByPageStatus( int status, int page, int size) throws Exception {
-        if (page >= 0 && size > 0) {
-            Pageable pageable = PageRequest.of(page, size);
-            Page<UserEntity> userEntityPage = userRepository.findAllShopPageByStatus( status,pageable);
-            Page<UserDto> userDtoPage = userEntityPage.map(userEntity -> {
-                UserDto userDto = userMapper.toDto(userEntity);
-                long parentId = userDto.getAddress_id_shop();
-                List<String> address = addressService.findAddressNamesFromParentId(parentId);
-                userDto.setAllAddresses(address);
-                return userDto;
-            });
-            return userDtoPage;
-        }
-        throw new NotFound("Invalid page or size parameters. Page must be >= 0 and size must be > 0.");
-    }
-    @Override
-    public List<UserDto> getAllShopStatus() {
-        List<UserEntity> userEntityList = userRepository.getAllShopStatus();
-        List<UserDto> userDtoList = userEntityList.stream().map(e -> userMapper.toDto(e)).toList();
-
-        for (UserDto userDto : userDtoList) {
-            long parentId = userDto.getAddress_id_shop();
-            List<String> address = addressService.findAddressNamesFromParentId(parentId);
-            userDto.setAllAddresses(address);
-        }
-        return userDtoList;
-    }
-    @Override
-    public Page<UserDto> getAllShopStatusPage( int page, int size) throws Exception {
-        if (page >= 0 && size > 0) {
-            Pageable pageable = PageRequest.of(page, size);
-            Page<UserEntity> userEntityPage = userRepository.getAllShopStatusPage(pageable);
-            Page<UserDto> userDtoPage = userEntityPage.map(userEntity -> {
-                UserDto userDto = userMapper.toDto(userEntity);
-                long parentId = userDto.getAddress_id_shop();
-                List<String> address = addressService.findAddressNamesFromParentId(parentId);
-                userDto.setAllAddresses(address);
-                return userDto;
-            });
-            return userDtoPage;
-        }
-        throw new NotFound("Invalid page or size parameters. Page must be >= 0 and size must be > 0.");
+            return userDto;
+        });
     }
 
 };
