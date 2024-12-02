@@ -19,6 +19,7 @@ import org.example.final_project.model.ChangeAccountStatusRequest;
 import org.example.final_project.model.ProfileUpdateRequest;
 import org.example.final_project.model.ShopRegisterRequest;
 import org.example.final_project.model.UserModel;
+import org.example.final_project.model.enum_status.STATUS;
 import org.example.final_project.repository.IAddressRepository;
 import org.example.final_project.repository.IRoleRepository;
 import org.example.final_project.repository.IUserRepository;
@@ -232,6 +233,7 @@ public class UserService implements IUserService, UserDetailsService {
                 userEntity.setShop_address_detail(request.getShop_address_detail());
                 userEntity.setPhone(request.getPhone());
                 userEntity.setTime_created_shop(LocalDateTime.now());
+                userEntity.setShop_status(STATUS.INACTIVE.getStatus());
                 userRepository.save(userEntity);
                 return createResponse(HttpStatus.OK, "Wait for confirm ", null);
             } else if (userEntity.getShop_status() == 1) {
