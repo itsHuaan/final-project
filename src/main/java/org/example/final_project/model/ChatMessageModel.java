@@ -10,11 +10,10 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 public class ChatMessageModel {
     private Long id;
-
     private String chatId;
-
     private Long senderId;
     private Long recipientId;
     private String message;

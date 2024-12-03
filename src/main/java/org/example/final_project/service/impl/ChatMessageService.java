@@ -12,6 +12,7 @@ import org.example.final_project.service.IChatService;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -42,6 +43,8 @@ public class ChatMessageService implements IChatService {
                 chatMessageModel.getRecipientId(),
                 true).orElseThrow(() -> new IllegalArgumentException("Can't find chat room"));
         chatMessageModel.setChatId(chatRoomId);
+        chatMessageModel.setSentAt(LocalDateTime.now());
+        chatRepository.save(chatMessageMapper.toEntity(chatMessageModel));
         return 1;
     }
 
