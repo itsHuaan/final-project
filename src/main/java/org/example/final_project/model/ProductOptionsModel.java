@@ -6,12 +6,14 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.final_project.dto.ProductDto;
 
+import java.util.List;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 public class ProductOptionsModel {
     private String name;
-    private ProductOptionsModel optionsModel;
     private long productId;
+    private List<ProductOptionsValueModel> optionValues;
 }
