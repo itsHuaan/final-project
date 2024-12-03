@@ -68,9 +68,9 @@ public class ProductService implements IProductService {
             productEntity.setIsActive(0);
             productEntity.setUser(iUserRepository.findById(productModel.getUser_id()).get());
             ProductEntity savedProduct = iProductRepository.save(productEntity);
-            for (MultipartFile file : productModel.getFiles()) {
-                imageService.save(new ImageProductModel(file, savedProduct.getId()));
-            }
+//            for (MultipartFile file : productModel.getFiles()) {
+//                imageService.save(new ImageProductModel(file, savedProduct.getId()));
+//            }
             for(ProductOptionsModel model:productModel.getOptions()){
                 ProductOptionsEntity option=new ProductOptionsEntity();
                 option.setName(model.getName());

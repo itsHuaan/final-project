@@ -14,8 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 
@@ -59,11 +61,9 @@ public class ProductController {
         }
     }
 
-    @PostMapping("/create-new")
-    ResponseEntity<ApiResponse<?>> addNewProduct(@ModelAttribute ProductModel model,
-                                                 @RequestParam ProductOptionsModel[] options) {
+    @PostMapping(value="/create-new")
+    ResponseEntity<ApiResponse<?>> addNewProduct(@RequestBody ProductModel model) {
         try {
-            model.setOptions(options);
             productService.save(model);
             return ResponseEntity.ok(createResponse(
                     HttpStatus.CREATED,
