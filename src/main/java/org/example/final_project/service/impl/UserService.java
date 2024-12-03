@@ -405,5 +405,11 @@ public class UserService implements IUserService, UserDetailsService {
         shippingAddressRepository.save(newShippingAddress);
         return 1;
     }
+
+    @Override
+    public List<UserDto> findActiveUsers() {
+        return userRepository.findAll(Specification.where(isActive().and(isNotSuperAdmin()))).stream().map(userMapper::toDto).toList();
+    }
 }
+
 

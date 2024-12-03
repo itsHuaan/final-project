@@ -5,6 +5,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.log4j.Log4j2;
 import org.example.final_project.configuration.UserDetailsImpl;
 import org.example.final_project.service.ITokenBlacklistService;
 import org.example.final_project.service.impl.UserService;
@@ -20,6 +21,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+@Log4j2
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtProvider jwtProvider;
@@ -52,7 +54,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
         catch (Exception e){
-            System.out.println(e);
+            logger.error("e: ", e);
         }
         filterChain.doFilter(request, response);
     }

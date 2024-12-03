@@ -39,4 +39,6 @@ public interface IUserService extends IBaseService<UserDto, UserModel, Long> {
     Page<UserDto> getAllShop(Integer status, Integer pageIndex, Integer pageSize) throws Exception;
 
     int addAddress(long userId, AddShippingAddressRequest request);
+
+    List<UserDto> findActiveUsers();
 }

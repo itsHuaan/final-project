@@ -21,6 +21,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -176,6 +179,17 @@ public class UserController {
                     "No shipping addresses fetch",
                     null));
         }
+    }
+
+    @MessageMapping("/user.addUser")
+    @SendTo("/user/public")
+    public UserDto addUser(@Payload SignInRequest request) {
+        return userService.findByEmail(request.getEmail());
+    }
+
+    @GetMapping("/active-users")
+    public ResponseEntity<?> findConnectedUsers() {
+        return ResponseEntity.ok(userService.findActiveUsers());
     }
 }
 
