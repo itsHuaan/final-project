@@ -12,8 +12,7 @@ import java.util.List;
 
 @Repository
 public interface IProductRepository extends JpaRepository<ProductEntity, Long>, JpaSpecificationExecutor<ProductEntity> {
-    @Query("select p from ProductEntity p where p.parent_id=:parentId")
-    List<ProductEntity> findAllByParent_id(@Param("parentId") long parentId);
+
 
 
 }

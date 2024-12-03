@@ -1,7 +1,7 @@
 package org.example.final_project.controller;
 
 
-import com.cloudinary.Api;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.annotation.MultipartConfig;
 import org.example.final_project.dto.ApiResponse;
 import org.example.final_project.model.ProductModel;
@@ -9,7 +9,6 @@ import org.example.final_project.model.validation.PageableValidation;
 import org.example.final_project.service.impl.ProductService;
 import org.example.final_project.util.Const;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -18,9 +17,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 
+import static org.example.final_project.dto.ApiResponse.createResponse;
+
 @RestController
 @MultipartConfig
 @RequestMapping(Const.API_PREFIX + "/product")
+@Tag(name = "Product")
 public class ProductController {
     @Autowired
     ProductService productService;
@@ -28,42 +30,47 @@ public class ProductController {
     @GetMapping("/")
     ResponseEntity<ApiResponse<?>> getAllByPage(@RequestParam(required = false) Integer pageSize,
                                                 @RequestParam(required = false) Integer pageIndex) {
-        Pageable pageable = Pageable.unpaged();
-        if (pageSize != null && pageIndex != null) {
-            if (pageSize > 0 && pageIndex >= 0) {
-                pageable = PageRequest.of(pageIndex, pageSize);
-            } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
-                        400,
-                        "Bad Request",
-                        null,
-                        LocalDateTime.now()
-                ));
+        try {
+            Pageable pageable = Pageable.unpaged();
+            if (pageSize != null && pageIndex != null) {
+                if (pageSize > 0 && pageIndex >= 0) {
+                    pageable = PageRequest.of(pageIndex, pageSize);
+                } else {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+                            HttpStatus.BAD_REQUEST,
+                            "Size Or Index Illegal",
+                            null
+                    ));
+                }
             }
+            return ResponseEntity.status(HttpStatus.OK).body(createResponse(
+                    HttpStatus.OK,
+                    "Successfully",
+                    productService.findAllByPage(pageable)
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+                    HttpStatus.BAD_REQUEST,
+                    e.getMessage(),
+                    null
+            ));
         }
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
-                200,
-                "Successfully",
-                productService.findAllByPage(pageable),
-                LocalDateTime.now()
-        ));
     }
 
     @PostMapping("/create-new")
     ResponseEntity<ApiResponse<?>> addNewProduct(@ModelAttribute ProductModel model) {
-        if (productService.save(model) == 1) {
-            return ResponseEntity.ok(new ApiResponse<>(
-                    201,
+        try {
+            productService.save(model);
+            return ResponseEntity.ok(createResponse(
+                    HttpStatus.CREATED,
                     "Add Product Successfully",
-                    null,
-                    LocalDateTime.now()
+                    null
             ));
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
-                    400,
-                    "Occur Error When Adding New Product",
-                    null,
-                    LocalDateTime.now()
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+                    HttpStatus.BAD_REQUEST,
+                    e.getMessage(),
+                    null
             ));
         }
     }
@@ -71,37 +78,35 @@ public class ProductController {
     @PutMapping("/{id}")
     ResponseEntity<ApiResponse<?>> updateProduct(@PathVariable("id") long id,
                                                  @RequestBody ProductModel model) {
-        if (productService.update(id, model) == 1) {
-            return ResponseEntity.ok(new ApiResponse<>(204,
+        try {
+            productService.update(id, model);
+            return ResponseEntity.ok(createResponse(HttpStatus.OK,
                     "Update Product Successfully",
-                    null,
-                    LocalDateTime.now()
+                    null
             ));
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
-                    400,
-                    "Occur Error When Updating Product with Id= " + id,
-                    null,
-                    LocalDateTime.now()
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+                    HttpStatus.BAD_REQUEST,
+                    e.getMessage(),
+                    null
             ));
         }
     }
 
     @DeleteMapping("/{id}")
     ResponseEntity<ApiResponse<?>> deleteProduct(@PathVariable("id") long id) {
-        if (productService.delete(id) == 1) {
-            return ResponseEntity.ok(new ApiResponse<>(
-                    204,
+        try {
+            productService.delete(id);
+            return ResponseEntity.ok(createResponse(
+                    HttpStatus.NO_CONTENT,
                     "Delete Product Successfully",
-                    null,
-                    LocalDateTime.now()
+                    null
             ));
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
-                    400,
-                    "Occur Error When Deleting Product with Id= " + id,
-                    null,
-                    LocalDateTime.now()
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+                    HttpStatus.BAD_REQUEST,
+                    e.getMessage(),
+                    null
             ));
         }
     }
@@ -111,27 +116,17 @@ public class ProductController {
                                                      @RequestParam int type,
                                                      @RequestParam String note) {
         try {
-            if (productService.inActivateProduct(id, type, note) == 1) {
-                return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
-                        HttpStatus.NO_CONTENT.value(),
-                        "Inactivate Product Successfully",
-                        null,
-                        LocalDateTime.now()
-                ));
-            } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
-                        400,
-                        "Occur Error When inactivating Product with Id= " + id,
-                        null,
-                        LocalDateTime.now()
-                ));
-            }
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
-                    400,
+            productService.inActivateProduct(id, type, note);
+            return ResponseEntity.status(HttpStatus.OK).body(createResponse(
+                    HttpStatus.NO_CONTENT,
+                    "Inactivate Product Successfully",
+                    null
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+                    HttpStatus.BAD_REQUEST,
                     e.getMessage(),
-                    null,
-                    LocalDateTime.now()
+                    null
             ));
         }
     }
@@ -140,8 +135,8 @@ public class ProductController {
     ResponseEntity<ApiResponse<?>> findProductByName(@PathVariable("name") String name,
                                                      @RequestParam(required = false) Integer pageSize,
                                                      @RequestParam(required = false) Integer pageIndex) {
-        if (pageSize != null && pageIndex != null) {
-            if (pageSize > 0 && pageIndex >= 0) {
+        try {
+            if (PageableValidation.setDefault(pageSize, pageIndex) != null) {
                 return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
                         200,
                         "Successfully",
@@ -149,20 +144,18 @@ public class ProductController {
                         LocalDateTime.now()
                 ));
             } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
-                        400,
-                        "Pageable error",
-                        null,
-                        LocalDateTime.now()
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+                        HttpStatus.BAD_REQUEST,
+                        "Size Or Index Illegal",
+                        null
                 ));
             }
-        } else {
-            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
-                    200,
-                    "Successfully",
-                    productService.findAllByNameAndPage(name, Pageable.unpaged()),
-                    LocalDateTime.now())
-            );
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.OK).body(createResponse(
+                    HttpStatus.BAD_REQUEST,
+                    e.getMessage(),
+                    null
+            ));
         }
     }
 
@@ -170,28 +163,25 @@ public class ProductController {
     ResponseEntity<ApiResponse<?>> findByParentId(@PathVariable("product-id") long parentId,
                                                   @RequestParam(required = false) Integer pageSize,
                                                   @RequestParam(required = false) Integer pageIndex) {
-        if (pageSize != null && pageIndex != null) {
-            if (pageSize > 0 && pageIndex >= 0) {
-                return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
-                        200,
+        try {
+            if (PageableValidation.setDefault(pageSize, pageIndex) != null) {
+                return ResponseEntity.status(HttpStatus.OK).body(createResponse(
+                        HttpStatus.OK,
                         "Successfully",
-                        productService.getAllByParentId(parentId, PageRequest.of(pageIndex, pageSize)),
-                        LocalDateTime.now()
+                        productService.getAllByParentId(parentId, PageableValidation.setDefault(pageSize, pageIndex))
                 ));
             } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
-                        400,
-                        "Bad Request",
-                        null,
-                        LocalDateTime.now()
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+                        HttpStatus.BAD_REQUEST,
+                        "Size Or Index Illegal",
+                        null
                 ));
             }
-        } else {
-            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
-                    200,
-                    "Successfully",
-                    productService.getAllByParentId(parentId, Pageable.unpaged()),
-                    LocalDateTime.now()
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+                    HttpStatus.BAD_REQUEST,
+                    e.getMessage(),
+                    null
             ));
         }
     }
@@ -202,22 +192,24 @@ public class ProductController {
                                                          @RequestParam(required = false) Integer pageIndex) {
         try {
             if (PageableValidation.setDefault(pageSize, pageIndex) != null) {
-                return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
-                        200,
+                return ResponseEntity.status(HttpStatus.OK).body(createResponse(
+                        HttpStatus.OK,
                         "Successfully",
-                        productService.getAllProductByStatus(type, PageableValidation.setDefault(pageSize, pageIndex)),
-                        LocalDateTime.now()
+                        productService.getAllProductByStatus(type, PageableValidation.setDefault(pageSize, pageIndex))
                 ));
             } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
-                        400,
-                        "Check page size and page index",
-                        null,
-                        LocalDateTime.now()
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+                        HttpStatus.BAD_REQUEST,
+                        "Size Or Index Illegal",
+                        null
                 ));
             }
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(400, e.getMessage(), null, LocalDateTime.now()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+                    HttpStatus.BAD_REQUEST,
+                    e.getMessage(),
+                    null
+            ));
         }
     }
 
@@ -227,26 +219,23 @@ public class ProductController {
                                                          @RequestParam(required = false) Integer pageIndex) {
         try {
             if (PageableValidation.setDefault(pageSize, pageIndex) != null) {
-                return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
-                        200,
+                return ResponseEntity.status(HttpStatus.OK).body(createResponse(
+                        HttpStatus.OK,
                         "Successfully",
-                        productService.getAllProductRelative(id, PageableValidation.setDefault(pageSize, pageIndex)),
-                        LocalDateTime.now()
+                        productService.getAllProductRelative(id, PageableValidation.setDefault(pageSize, pageIndex))
                 ));
             } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
-                        400,
-                        "Bad Request",
-                        null,
-                        LocalDateTime.now()
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+                        HttpStatus.BAD_REQUEST,
+                        "Size Or Index Illegal",
+                        null
                 ));
             }
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
-                    400,
-                    "Value Not Found",
-                    null,
-                    LocalDateTime.now()
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+                    HttpStatus.BAD_REQUEST,
+                    e.getMessage(),
+                    null
             ));
         }
     }
@@ -255,55 +244,52 @@ public class ProductController {
     ResponseEntity<ApiResponse<?>> getOtherProductOfShop(@PathVariable("shop-id") long productId,
                                                          @RequestParam(required = false) Integer pageSize,
                                                          @RequestParam(required = false) Integer pageIndex) {
-        try{
-        if (PageableValidation.setDefault(pageSize, pageIndex) != null) {
-            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
-                    200,
-                    "Successfully",
-                    productService.getOtherProductOfShop(productId, PageableValidation.setDefault(pageSize, pageIndex)),
-                    LocalDateTime.now()
-            ));
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
-                    400,
-                    "Bad Request",
-                    null,
-                    LocalDateTime.now()
-            ));
-        }}catch(IllegalArgumentException e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
-                    400,
-                    "Value Not Found",
-                    null,
-                    LocalDateTime.now()
+        try {
+            if (PageableValidation.setDefault(pageSize, pageIndex) != null) {
+                return ResponseEntity.status(HttpStatus.OK).body(createResponse(
+                        HttpStatus.OK,
+                        "Successfully",
+                        productService.getOtherProductOfShop(productId, PageableValidation.setDefault(pageSize, pageIndex))
+                ));
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+                        HttpStatus.BAD_REQUEST,
+                        "Size Or Index Illegal",
+                        null
+                ));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+                    HttpStatus.BAD_REQUEST,
+                    e.getMessage(),
+                    null
             ));
         }
     }
+
     @GetMapping("/shop/{shop-id}")
-    ResponseEntity<ApiResponse<?>> getAllProductByShop(@PathVariable("shop-id")long userId,
-                                                       @RequestParam(required = false)Integer pageSize,
-                                                       @RequestParam(required = false)Integer pageIndex){
-        try{
-        if(PageableValidation.setDefault(pageSize,pageIndex)!=null){
-            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
-                    200,
-                    "Successfully",
-                    productService.getAllProductOfShop(userId, PageableValidation.setDefault(pageSize, pageIndex)),
-                    LocalDateTime.now()
-            ));
-        }else{
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
-                    400,
-                    "Invalid page size or page index",
-                    null,
-                    LocalDateTime.now()
-            ));
-        }}catch(IllegalArgumentException e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
-                    400,
+    ResponseEntity<ApiResponse<?>> getAllProductByShop(@PathVariable("shop-id") long userId,
+                                                       @RequestParam(required = false) Integer pageSize,
+                                                       @RequestParam(required = false) Integer pageIndex) {
+        try {
+            if (PageableValidation.setDefault(pageSize, pageIndex) != null) {
+                return ResponseEntity.status(HttpStatus.OK).body(createResponse(
+                        HttpStatus.OK,
+                        "Successfully",
+                        productService.getAllProductOfShop(userId, PageableValidation.setDefault(pageSize, pageIndex))
+                ));
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+                        HttpStatus.BAD_REQUEST,
+                        "Size Or Index Illegal",
+                        null
+                ));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+                    HttpStatus.BAD_REQUEST,
                     e.getMessage(),
-                    null,
-                    LocalDateTime.now()
+                    null
             ));
         }
     }

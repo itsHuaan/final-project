@@ -17,9 +17,7 @@ public class ProductDto {
     private long numberOfLike;
     private double rating;
     private String description;
-    private long parent_id;
-    private long quantity;
-    private double price;
+    private long sold;
     private int isActive;
     private String note;
     private LocalDateTime createdAt;
