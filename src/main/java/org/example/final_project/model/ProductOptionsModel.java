@@ -12,5 +12,6 @@ import org.example.final_project.dto.ProductDto;
 @Setter
 public class ProductOptionsModel {
     private String name;
+    private ProductOptionsModel optionsModel;
     private long productId;
 }

@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.annotation.MultipartConfig;
 import org.example.final_project.dto.ApiResponse;
 import org.example.final_project.model.ProductModel;
+import org.example.final_project.model.ProductOptionsModel;
+import org.example.final_project.model.ProductOptionsValueModel;
 import org.example.final_project.model.validation.PageableValidation;
 import org.example.final_project.service.impl.ProductService;
 import org.example.final_project.util.Const;
@@ -58,8 +60,10 @@ public class ProductController {
     }
 
     @PostMapping("/create-new")
-    ResponseEntity<ApiResponse<?>> addNewProduct(@ModelAttribute ProductModel model) {
+    ResponseEntity<ApiResponse<?>> addNewProduct(@ModelAttribute ProductModel model,
+                                                 @RequestParam ProductOptionsModel[] options) {
         try {
+            model.setOptions(options);
             productService.save(model);
             return ResponseEntity.ok(createResponse(
                     HttpStatus.CREATED,

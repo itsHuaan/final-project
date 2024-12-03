@@ -26,7 +26,6 @@ public class ProductModel {
     private long categoryId;
     private long user_id;
     private ProductOptionsModel[] options;
-    private ProductOptionsValueModel[] optionValues;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
