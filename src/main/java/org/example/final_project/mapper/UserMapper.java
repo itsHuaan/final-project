@@ -12,13 +12,14 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @FieldDefaults(makeFinal = true)
 public class UserMapper {
+    ShippingAddressMapper shippingAddressMapper;
+
     public UserDto toDto(UserEntity userEntity) {
         return UserDto.builder()
                 .userId(userEntity.getUserId())
                 .name(userEntity.getName())
                 .username(userEntity.getUsername())
                 .email(userEntity.getEmail())
-//                .password(userEntity.getPassword())
                 .roleId(userEntity.getRole() != null ? userEntity.getRole().getRoleId() : null)
                 .id_back(userEntity.getId_back())
                 .id_front(userEntity.getId_front())
@@ -35,6 +36,7 @@ public class UserMapper {
                 .shop_address_detail(userEntity.getShop_address_detail())
                 .time_created_shop(userEntity.getTime_created_shop())
                 .profilePicture(userEntity.getProfilePicture())
+                .addresses(userEntity.getShippingAddresses().stream().map(shippingAddressMapper::toDto).toList())
                 .build();
     }
 

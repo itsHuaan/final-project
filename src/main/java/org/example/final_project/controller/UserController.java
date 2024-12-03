@@ -4,17 +4,17 @@ package org.example.final_project.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.example.final_project.configuration.UserDetailsImpl;
+import org.example.final_project.dto.ShippingAddressDto;
 import org.example.final_project.dto.UserDto;
 import org.example.final_project.dto.ApiResponse;
 
-import org.example.final_project.model.ChangeAccountStatusRequest;
-import org.example.final_project.model.ChangePasswordRequest;
-import org.example.final_project.model.ProfileUpdateRequest;
-import org.example.final_project.model.ShopRegisterRequest;
+import org.example.final_project.model.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.example.final_project.service.IAddressService;
 import org.example.final_project.service.IAuthService;
+import org.example.final_project.service.IShippingAddressService;
 import org.example.final_project.service.IUserService;
 import org.example.final_project.util.Const;
 import org.springframework.data.domain.Page;
@@ -31,6 +31,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import static org.example.final_project.dto.ApiResponse.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Tag(name = "User")
 @RestController
@@ -40,7 +41,10 @@ import java.time.LocalDateTime;
 public class UserController {
     IUserService userService;
     IAuthService authService;
+    IAddressService addressService;
+    IShippingAddressService shippingAddressService;
 
+    @Operation(summary = "Get all user")
     @GetMapping
     public ResponseEntity<?> getAllUser(@RequestParam(defaultValue = "0") Integer pageIndex,
                                         @RequestParam(defaultValue = "10") Integer pageSize) {
@@ -54,6 +58,7 @@ public class UserController {
                 : ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Get user by id")
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(@PathVariable Long id) {
         UserDto result = userService.getById(id);
@@ -83,6 +88,7 @@ public class UserController {
         }
     }
 
+    @Operation(summary = "Delete an user")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         int deleteResult = userService.delete(id);
@@ -105,9 +111,15 @@ public class UserController {
                 ApiResponse<?> response = authService.changePassword(username, request);
                 return ResponseEntity.status(HttpStatus.OK).body(response);
             } catch (IllegalStateException e) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(createResponse(HttpStatus.UNAUTHORIZED, null, e.getMessage()));
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(createResponse(HttpStatus.UNAUTHORIZED,
+                                e.getMessage(),
+                                null));
             } catch (IllegalArgumentException e) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(HttpStatus.BAD_REQUEST, null, e.getMessage()));
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(createResponse(HttpStatus.BAD_REQUEST,
+                                e.getMessage(),
+                                null));
             }
         } else {
             return new ResponseEntity<>("Unable to retrieve user information.", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -124,18 +136,46 @@ public class UserController {
             try {
                 return userService.updateProfile(username, request);
             } catch (IllegalStateException e) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(createResponse(HttpStatus.UNAUTHORIZED, null, e.getMessage()));
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(createResponse(HttpStatus.UNAUTHORIZED, e.getMessage(), null));
             } catch (IllegalArgumentException e) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(HttpStatus.BAD_REQUEST, null, e.getMessage()));
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(HttpStatus.BAD_REQUEST, e.getMessage(), null));
             }
         } else {
             return new ResponseEntity<>("Unable to retrieve user information.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
     @Operation(summary = "Activate/Deactivate user account")
     @PutMapping("/change-status/{id}")
     public ResponseEntity<?> changeUserStatus(@RequestBody ChangeAccountStatusRequest request, @PathVariable Long id) {
         return userService.changeAccountStatus(id, request);
+    }
+
+    @Operation(summary = "Add shipping address for user, maximum = 20 addresses")
+    @PostMapping("/{id}/add-address")
+    public ResponseEntity<?> selectAddress(
+            @PathVariable Long id,
+            @RequestBody AddShippingAddressRequest request) {
+        userService.addAddress(id, request);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(createResponse(HttpStatus.OK,
+                        "Added " + String.join("/", addressService.findAddressNamesFromParentId(request.getAddressId())),
+                        null));
+    }
+
+    @Operation(summary = "Get all shipping addresses of an user")
+    @GetMapping("/{id}/shipping-address")
+    public ResponseEntity<?> getShippingAddress(@PathVariable Long id) {
+        try {
+            List<ShippingAddressDto> result = shippingAddressService.getShippingAddresses(id);
+            return ResponseEntity.status(HttpStatus.OK).body(createResponse(HttpStatus.OK,
+                    "All shipping addresses fetch",
+                    result));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(HttpStatus.BAD_REQUEST,
+                    "No shipping addresses fetch",
+                    null));
+        }
     }
 }
 

@@ -18,11 +18,12 @@ import java.util.*;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AddressService implements IAddressService {
-     IAddressRepository addressRepository;
-     AddressMapper addressMapper;
+    IAddressRepository addressRepository;
+    AddressMapper addressMapper;
+
     @Override
     public List<AddressDto> getAddressByParentId(long parentId) {
-        List<AddressEntity> list =  addressRepository.findByParent_id(parentId);
+        List<AddressEntity> list = addressRepository.findByParent_id(parentId);
         List<AddressDto> addressDtoList = list.stream().map(addressMapper::toAddressDto).toList();
         return addressDtoList;
     }
@@ -34,7 +35,11 @@ public class AddressService implements IAddressService {
 
     @Override
     public AddressDto getById(Long id) {
-        return null;
+        if (addressRepository.findById(id).isPresent()) {
+            return addressMapper.toAddressDto(addressRepository.findById(id).get());
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -51,13 +56,14 @@ public class AddressService implements IAddressService {
     public int delete(Long id) {
         return 0;
     }
+
     @Override
-        public List<String> findAddressNamesFromParentId(Long address_id) {
+    public List<String> findAddressNamesFromParentId(Long address_id) {
         List<String> addressNames = new ArrayList<>();
-        if(address_id != null) {
+        if (address_id != null) {
             findParentIdAddressNames(address_id, addressNames);
             return addressNames;
-        }else {
+        } else {
             return null;
         }
     }
@@ -68,7 +74,7 @@ public class AddressService implements IAddressService {
         if (addressEntity.isPresent()) {
             AddressEntity address = addressEntity.get();
             addressNames.add(address.getName());
-            if ( address.getParent_id() != 0) {
+            if (address.getParent_id() != 0) {
                 findParentIdAddressNames(address.getParent_id(), addressNames);
             }
         }

@@ -64,7 +64,7 @@ public class AuthService implements IAuthService {
     @Override
     public ApiResponse<?> logOut(String token) {
         try {
-            if (tokenBlacklistService.isTokenPresent(token)) {
+            if (!tokenBlacklistService.isTokenPresent(token)) {
                 tokenBlacklistService.saveToken(token);
             }
             return createResponse(HttpStatus.OK, "Logged out successfully", null);
@@ -112,13 +112,16 @@ public class AuthService implements IAuthService {
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         String jwt = jwtProvider.generateTokenByEmail(userDetails.getUser().getEmail());
+
         SignInResponse response = new SignInResponse(
                 userDetails.getUserEntity().getUserId(),
                 "Bearer",
                 jwt,
                 userDetails.getUsername(),
+                userDetails.getUser().getName(),
                 userDetails.getUser().getEmail(),
-                userDetails.getRoleName());
+                userDetails.getRoleName()
+        );
 
         return createResponse(HttpStatus.OK, "Logged In", response);
     }

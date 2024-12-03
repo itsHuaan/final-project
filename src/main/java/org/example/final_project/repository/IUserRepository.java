@@ -10,9 +10,8 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface IUserRepository extends JpaRepository<UserEntity, Long>, JpaSpecificationExecutor<UserEntity> {
-    @Query("select p from UserEntity p where p.shop_status IN (1, 2, 3,4) order by p.time_created_shop ASC ")
-    List<UserEntity> findAllStatusUserBeingShop();
-    @Query("SELECT p FROM UserEntity p WHERE p.shop_status IN (1, 2, 3,4) ORDER BY p.time_created_shop ASC")
-    Page<UserEntity> findAllStatusUserBeingShopPage(Pageable pageable);
+
+
+
 
 }

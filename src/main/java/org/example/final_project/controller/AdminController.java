@@ -1,5 +1,6 @@
 package org.example.final_project.controller;
 
+import com.cloudinary.api.exceptions.BadRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -14,45 +15,49 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
+
+import static org.example.final_project.dto.ApiResponse.createResponse;
 
 @Tag(name = "ADMIN")
 @RestController
-@RequestMapping(Const.API_PREFIX+"/admin")
+@RequestMapping(Const.API_PREFIX + "/admin")
 @RequiredArgsConstructor
 public class AdminController {
     private final UserService userService;
+
     @Operation(summary = "Admin approves store status ")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PostMapping("/{userid}/status-shop")
-    public ResponseEntity<ApiResponse<?>> statusOfShop(@PathVariable long userid, @RequestParam("status") int status ) {
+    @PostMapping("/{userid}/switching-status-for-shop")
+    public ResponseEntity<ApiResponse<?>> statusOfShop(@PathVariable long userid, @RequestParam("status") int status) {
         try {
-            ApiResponse<?> response = userService.acceptFromAdmin(status,userid);
+            ApiResponse<?> response = userService.acceptFromAdmin(status, userid);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
-            ApiResponse<?> errorResponse = new ApiResponse<>(HttpStatus.NOT_FOUND.value(), e.getMessage(), null,LocalDateTime.now());
+            ApiResponse<?> errorResponse = new ApiResponse<>(HttpStatus.NOT_FOUND.value(), e.getMessage(), null, LocalDateTime.now());
             return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
         }
     }
-    @Operation(summary = "Get All SHop Flow STATUS 1 2 3 4")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/get-status-shop")
-    public ResponseEntity<List<UserDto>> getStatusShop() {
-        List<UserDto> userDtoList = userService.findAllStatusUserBeingShop();
-        return new ResponseEntity<>(userDtoList, HttpStatus.OK);
 
-    }
-    @Operation(summary = "Get All SHop Flow STATUS 1 2 3 AND PAGEABLE")
+
+    @Operation(summary = "Get all shop")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/get-status-shop/page")
-    public ResponseEntity<?> getStatusShop(@RequestParam int page,
-                                                       @RequestParam int size) {
+    @GetMapping("/shop")
+    public ResponseEntity<?> getAllShop(@RequestParam(defaultValue = "0") Integer status,
+                                        @RequestParam(required = false) Integer pageIndex,
+                                        @RequestParam(required = false) Integer pageSize) {
         try {
-            Page<UserDto> userDtoList = userService.findAllStatusUserBeingShop(page,size);
-            return new ResponseEntity<>(userDtoList, HttpStatus.OK);
-        }catch (Exception e) {
-            return new ResponseEntity<>( e.getMessage(),HttpStatus.NOT_FOUND);
-        }
+            Page<UserDto> userDtoList = userService.getAllShop(status, pageIndex, pageSize);
+            return !userDtoList.isEmpty()
+                    ? ResponseEntity.ok(createResponse(HttpStatus.OK, "Shops fetched successfully", userDtoList))
+                    : ResponseEntity.ok(createResponse(HttpStatus.OK, "No shops found", null));
+        } catch (BadRequest e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(createResponse(HttpStatus.BAD_REQUEST, e.getMessage(), null));
 
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(createResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error occurred", null));
+        }
     }
+
 }

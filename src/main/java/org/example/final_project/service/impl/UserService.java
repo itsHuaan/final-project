@@ -1,8 +1,10 @@
 package org.example.final_project.service.impl;
 
 import com.cloudinary.Cloudinary;
+import com.cloudinary.api.exceptions.BadRequest;
 import com.cloudinary.api.exceptions.NotFound;
 import com.cloudinary.utils.ObjectUtils;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -14,16 +16,18 @@ import org.example.final_project.dto.UserDto;
 import org.example.final_project.entity.AddressEntity;
 import org.example.final_project.entity.RoleEntity;
 import org.example.final_project.entity.UserEntity;
+import org.example.final_project.entity.UserShippingAddressEntity;
 import org.example.final_project.mapper.UserMapper;
-import org.example.final_project.model.ChangeAccountStatusRequest;
-import org.example.final_project.model.ProfileUpdateRequest;
-import org.example.final_project.model.ShopRegisterRequest;
-import org.example.final_project.model.UserModel;
+import org.example.final_project.model.*;
+import org.example.final_project.model.enum_status.STATUS;
 import org.example.final_project.repository.IAddressRepository;
 import org.example.final_project.repository.IRoleRepository;
+import org.example.final_project.repository.IShippingAddressRepository;
 import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.IAddressService;
+import org.example.final_project.service.IShippingAddressService;
 import org.example.final_project.service.IUserService;
+import org.example.final_project.util.specification.UserSpecification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -38,6 +42,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -56,6 +61,7 @@ public class UserService implements IUserService, UserDetailsService {
     PasswordEncoder passwordEncoder;
     ImageService imageService;
     IAddressRepository addressRepository;
+    IShippingAddressRepository shippingAddressRepository;
 
     Cloudinary cloudinary;
     IAddressService addressService;
@@ -231,6 +237,7 @@ public class UserService implements IUserService, UserDetailsService {
                 userEntity.setShop_address_detail(request.getShop_address_detail());
                 userEntity.setPhone(request.getPhone());
                 userEntity.setTime_created_shop(LocalDateTime.now());
+                userEntity.setShop_status(STATUS.INACTIVE.getStatus());
                 userRepository.save(userEntity);
                 return createResponse(HttpStatus.OK, "Wait for confirm ", null);
             } else if (userEntity.getShop_status() == 1) {
@@ -283,6 +290,7 @@ public class UserService implements IUserService, UserDetailsService {
         UserEntity userEntity = userRepository.findOne(Specification.where(hasUsername(username)).and(isActive())).isPresent()
                 ? userRepository.findOne(Specification.where(hasUsername(username)).and(isActive())).get()
                 : null;
+
         if (userRepository.findOne(Specification.where(hasEmail(request.getEmail())).and(isActive())).isPresent()
                 && !userEntity.getEmail().equals(request.getEmail())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(createResponse(
@@ -297,11 +305,19 @@ public class UserService implements IUserService, UserDetailsService {
             userEntity.setPhone(request.getPhone() != null ? request.getPhone() : userEntity.getPhone());
             userEntity.setEmail(request.getEmail() != null ? request.getEmail() : userEntity.getEmail());
             userEntity.setGender(request.getGender() != -1 ? request.getGender() : userEntity.getGender());
-            try {
-                userEntity.setProfilePicture(cloudinary.uploader().upload(request.getProfilePicture().getBytes(), ObjectUtils.emptyMap()).get("url").toString());
-            } catch (IOException e) {
-                userEntity.setProfilePicture(null);
+
+            if (request.getProfilePicture() != null) {
+                try {
+                    String uploadedUrl = cloudinary.uploader().upload(
+                            request.getProfilePicture().getBytes(),
+                            ObjectUtils.emptyMap()
+                    ).get("url").toString();
+                    userEntity.setProfilePicture(uploadedUrl);
+                } catch (IOException e) {
+                    userEntity.setProfilePicture(null);
+                }
             }
+
             userRepository.save(userEntity);
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.OK,
@@ -345,34 +361,49 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
-    public List<UserDto> findAllStatusUserBeingShop() {
-        List<UserEntity> userEntityList = userRepository.findAllStatusUserBeingShop();
-        List<UserDto> userDtoList = userEntityList.stream().map(e -> userMapper.toDto(e)).toList();
-
-        for (UserDto userDto : userDtoList) {
+    public Page<UserDto> getAllShop(Integer status, Integer pageIndex, Integer pageSize) throws Exception {
+        Specification<UserEntity> specification = UserSpecification.isShop();
+        Pageable pageable = Pageable.unpaged();
+        if (status != 0){
+            specification = specification.and(hasShopStatus(status));
+        }
+        if (pageIndex != null && pageSize != null){
+            if(pageIndex < 0){
+                throw new BadRequest("Page index can not be less than 0");
+            }
+            if (pageSize <= 0) {
+                throw new BadRequest("Page size can not be less than 0.");
+            }
+            pageable  = PageRequest.of(pageIndex, pageSize);
+        }
+        return userRepository.findAll(specification, pageable).map(userEntity -> {
+            UserDto userDto = userMapper.toDto(userEntity);
             long parentId = userDto.getAddress_id_shop();
             List<String> address = addressService.findAddressNamesFromParentId(parentId);
             userDto.setAllAddresses(address);
-        }
-        return userDtoList;
+            return userDto;
+        });
     }
 
     @Override
-    public Page<UserDto> findAllStatusUserBeingShop(int page, int size) throws Exception {
-        if (page >= 0 && size > 0) {
-            Pageable pageable = PageRequest.of(page, size);
-            Page<UserEntity> userEntityPage = userRepository.findAllStatusUserBeingShopPage(pageable);
-            Page<UserDto> userDtoPage = userEntityPage.map(userEntity -> {
-                UserDto userDto = userMapper.toDto(userEntity);
-                long parentId = userDto.getAddress_id_shop();
-                List<String> address = addressService.findAddressNamesFromParentId(parentId);
-                userDto.setAllAddresses(address);
-                return userDto;
-            });
-            return userDtoPage;
-        }
-        throw new NotFound("Invalid page or size parameters. Page must be >= 0 and size must be > 0.");
-    }
+    public int addAddress(long userId, AddShippingAddressRequest request) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        AddressEntity address = addressRepository.findById(request.getAddressId())
+                .orElseThrow(() -> new EntityNotFoundException("Address not found"));
 
-};
+        if (user.getShippingAddresses().size() >= 20) {
+            throw new IllegalArgumentException("Cannot add more than 20 shipping addresses");
+        }
+
+        UserShippingAddressEntity newShippingAddress = UserShippingAddressEntity.builder()
+                .user(user)
+                .address(address)
+                .addressLine2(request.getAddressDetail())
+                .build();
+
+        shippingAddressRepository.save(newShippingAddress);
+        return 1;
+    }
+}
 

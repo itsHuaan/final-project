@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -14,17 +15,17 @@ import java.util.List;
 @Builder
 @Entity
 @Table(name = "tbl_user")
-public class UserEntity {
+public class    UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
     private String name;
 
-    @Column(unique=true)
+    @Column(unique = true)
     private String username;
     private String password;
 
-    @Column(unique=true)
+    @Column(unique = true)
     private String email;
     private int isActive;
     private String profilePicture;
@@ -54,4 +55,9 @@ public class UserEntity {
     private List<CategoryEntity> categories;
     @OneToMany(mappedBy = "user")
     private List<ProductEntity> products;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserShippingAddressEntity> shippingAddresses = new ArrayList<>();
+
 }
+
