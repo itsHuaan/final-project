@@ -7,7 +7,9 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
-public class ProductOptionValuesDto {
+public class SKUDto {
     private long id;
-    private String name;
+    private double price;
+    private long quantity;
+    private String image;
 }

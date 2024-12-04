@@ -6,28 +6,26 @@ import lombok.*;
 import java.util.List;
 
 @Entity
-@Table(name = "tbl_product_options")
+@Table(name="tbl_stock_keeping_unit")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @Builder
-public class ProductOptionsEntity {
+public class SKUEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private String name;
+    private double price;
+    private long quantity;
+    private String image;
 
-
-    @OneToMany(mappedBy = "optionsEntity")
-    private List<StockEntity> stockEntities;
-
-
-    @OneToMany(mappedBy = "option")
-    private List<ProductOptionValuesEntity> valuesEntities;
-
-
+    // một sản phẩm gồm nhiều sku
     @ManyToOne
     @JoinColumn(name="product_id")
     private ProductEntity product;
+
+
+    @OneToMany(mappedBy = "skuEntity")
+    private List<StockEntity> stockEntities;
 }

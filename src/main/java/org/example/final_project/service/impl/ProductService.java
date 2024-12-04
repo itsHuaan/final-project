@@ -2,14 +2,10 @@ package org.example.final_project.service.impl;
 
 import org.example.final_project.dto.ProductDto;
 import org.example.final_project.entity.ProductEntity;
-import org.example.final_project.entity.ProductOptionsEntity;
 import org.example.final_project.mapper.ProductMapper;
 import org.example.final_project.model.ImageProductModel;
 import org.example.final_project.model.ProductModel;
-import org.example.final_project.model.ProductOptionsModel;
-import org.example.final_project.model.ProductOptionsValueModel;
 import org.example.final_project.model.enum_status.ActivateStatus;
-import org.example.final_project.repository.IProductOptionsRepository;
 import org.example.final_project.repository.IProductRepository;
 import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.*;
@@ -22,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,10 +33,7 @@ public class ProductService implements IProductService {
     IImageProductService imageService;
     @Autowired
     IUserRepository iUserRepository;
-    @Autowired
-    IProductOptionsRepository optionsRepository;
-    @Autowired
-    IProductOptionValueService valueService;
+
 
     @Override
     public List<ProductDto> getAll() {
@@ -68,17 +60,8 @@ public class ProductService implements IProductService {
             productEntity.setIsActive(0);
             productEntity.setUser(iUserRepository.findById(productModel.getUser_id()).get());
             ProductEntity savedProduct = iProductRepository.save(productEntity);
-//            for (MultipartFile file : productModel.getFiles()) {
-//                imageService.save(new ImageProductModel(file, savedProduct.getId()));
-//            }
-            for(ProductOptionsModel model:productModel.getOptions()){
-                ProductOptionsEntity option=new ProductOptionsEntity();
-                option.setName(model.getName());
-                option.setProduct(savedProduct);
-                ProductOptionsEntity savedOption=optionsRepository.save(option);
-                for (ProductOptionsValueModel model1:model.getOptionValues()){
-                    valueService.save(new ProductOptionsValueModel(model1.getName(),savedOption.getId()));
-                }
+            for (MultipartFile file : productModel.getFiles()) {
+                imageService.save(new ImageProductModel(file, savedProduct.getId()));
             }
             return 1;
         } catch (Exception e) {

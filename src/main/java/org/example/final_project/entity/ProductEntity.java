@@ -50,6 +50,4 @@ public class ProductEntity {
     private UserEntity user;
 
 
-    @OneToMany(mappedBy = "product")
-    private List<ProductOptionsEntity> productOptions;
 }

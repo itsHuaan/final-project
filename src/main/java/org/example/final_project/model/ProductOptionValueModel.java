@@ -5,13 +5,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-public class ProductOptionsValueModel {
+public class ProductOptionValueModel {
     private String name;
-    private long productOptionId;
+    private long optionId;
 }
