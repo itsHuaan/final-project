@@ -8,10 +8,13 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface IUserRepository extends JpaRepository<UserEntity, Long>, JpaSpecificationExecutor<UserEntity> {
 
+    @Query("SELECT p FROM UserEntity p WHERE p.email = :email")
+    Optional<UserEntity> findByEmail(String email);
 
 
-
+    Optional<UserEntity> findByUsername(String username);
 }
