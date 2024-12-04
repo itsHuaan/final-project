@@ -7,6 +7,8 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.UserDto;
+import org.example.final_project.entity.UserEntity;
+import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,32 +24,34 @@ public class JwtProvider {
     @Value("${jwt.expiration}")
     private int JWT_EXPIRATION;
 
-    private final IUserService userService;
+    //private final IUserService userService;
+    private final IUserRepository userRepository;
 
-    public String generateTokenByUsername(String username) {
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + JWT_EXPIRATION);
-        UserDto userDto = userService.findByUsername(username);
-        return Jwts.builder()
-                .setSubject(Long.toString(userDto.getUserId()))
-                .claim("username", userDto.getUsername())
-                .claim("email", userDto.getEmail())
-                .claim("role", userDto.getRoleId())
-                .setExpiration(expiryDate)
-                .setIssuedAt(new Date())
-                .signWith(SignatureAlgorithm.HS512, JWT_SECRET)
-                .compact();
-    }
+//    public String generateTokenByUsername(String username) {
+//        Date now = new Date();
+//        Date expiryDate = new Date(now.getTime() + JWT_EXPIRATION);
+//        //UserDto userDto = userService.findByUsername(username);
+//        UserEntity user = userRepository.findByUsername(username).get();
+//        return Jwts.builder()
+//                .setSubject(Long.toString(user.getUserId()))
+//                .claim("username", user.getUsername())
+//                .claim("email", user.getEmail())
+//                .claim("role", user.getRole().getRoleId())
+//                .setExpiration(expiryDate)
+//                .setIssuedAt(new Date())
+//                .signWith(SignatureAlgorithm.HS512, JWT_SECRET)
+//                .compact();
+//    }
 
     public String generateTokenByEmail(String email) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + JWT_EXPIRATION);
-        UserDto userDto = userService.findByEmail(email);
+       UserEntity userEntity = userRepository.findByEmail(email).get();
         return Jwts.builder()
-                .setSubject(Long.toString(userDto.getUserId()))
-                .claim("username", userDto.getUsername())
-                .claim("email", userDto.getEmail())
-                .claim("role", userDto.getRoleId())
+                .setSubject(Long.toString(userEntity.getUserId()))
+                .claim("username", userEntity.getUsername())
+                .claim("email", userEntity.getEmail())
+                .claim("role", userEntity.getRole().getRoleId())
                 .setExpiration(expiryDate)
                 .setIssuedAt(new Date())
                 .signWith(SignatureAlgorithm.HS512, JWT_SECRET)
@@ -57,10 +61,10 @@ public class JwtProvider {
     public String generateForgetPasswordToken(String email) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + JWT_EXPIRATION);
-        UserDto userDto = userService.findByEmail(email);
+        UserEntity userEntity = userRepository.findByEmail(email).get();
         return Jwts.builder()
                 .setSubject(email)
-                .claim("username", userDto.getUsername())
+                .claim("username", userEntity.getUsername())
                 .setExpiration(expiryDate)
                 .setIssuedAt(new Date())
                 .signWith(SignatureAlgorithm.HS512, JWT_SECRET)
