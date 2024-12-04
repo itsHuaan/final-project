@@ -73,6 +73,41 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .cors(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(requests -> {
+                    try {
+                        requests
+                                .requestMatchers("/public/**",
+                                        "/error",
+                                        "/login",
+                                        "/**",
+                                        "/oauth/")
+                                .permitAll()
+                                .anyRequest()
+                                .authenticated();
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .oauth2Login(oauth2Configurer ->
+                        oauth2Configurer
+                                .successHandler(userService.onSuccessHandler())
+                                .userInfoEndpoint((t) -> t.userService(userService))
+                                .failureHandler(userService.onFailureHandler())
+                )
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint(unauthorized)
+                        .accessDeniedHandler(forbidden))
+                .httpBasic(Customizer.withDefaults());
+
+        return http.build();
+    }
+
+    /*@Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable);
         http.cors(AbstractHttpConfigurer::disable);
         http
@@ -105,6 +140,6 @@ public class SecurityConfig {
                         .accessDeniedHandler(forbidden))
                 .httpBasic(Customizer.withDefaults());
         return http.build();
-    }
+    }*/
 
 }
