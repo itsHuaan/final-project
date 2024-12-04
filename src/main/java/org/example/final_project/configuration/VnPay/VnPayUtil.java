@@ -34,28 +34,17 @@ public class VnPayUtil {
     }
 
     public static String getIpAddress(HttpServletRequest request) {
-        String ipAddress;
+        String ipAdress;
         try {
-            ipAddress = request.getHeader("X-FORWARDED-FOR");
-            if (ipAddress != null && ipAddress.contains(",")) {
-                ipAddress = ipAddress.split(",")[0].trim();
-            }
-            if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
-                ipAddress = request.getHeader("X-REAL-IP");
-            }
-            if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
-                ipAddress = request.getRemoteAddr();
-            }
-            if (ipAddress == null || ipAddress.isEmpty()) {
-                ipAddress = "152.42.160.56";
+            ipAdress = request.getHeader("X-FORWARDED-FOR");
+            if (ipAdress == null) {
+                ipAdress = request.getRemoteAddr();
             }
         } catch (Exception e) {
-            ipAddress = "Invalid IP: " + e.getMessage();
+            ipAdress = "Invalid IP:" + e.getMessage();
         }
-
-        return ipAddress;
+        return ipAdress;
     }
-
 
     public static String getRandomNumber(int len) {
         Random rnd = new Random();
