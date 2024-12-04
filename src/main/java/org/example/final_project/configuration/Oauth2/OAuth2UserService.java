@@ -10,6 +10,7 @@ import org.example.final_project.entity.RoleEntity;
 import org.example.final_project.entity.UserEntity;
 import org.example.final_project.mapper.UserMapper;
 import org.example.final_project.repository.IUserRepository;
+import org.example.final_project.util.Const;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -37,7 +38,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
     @Override
     //chạy hàm này đầu tiên
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        //hàm này load thông tin từ google
+        //load thông tin từ phương thức đăng nhập
         OAuth2User oAuth2User = super.loadUser(userRequest);
         String provideName = null ;
         OAuth2UserCustom userCustom =OAuth2UserCustom.builder().build();
