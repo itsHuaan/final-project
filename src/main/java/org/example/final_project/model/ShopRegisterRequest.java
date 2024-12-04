@@ -1,0 +1,23 @@
+package org.example.final_project.model;
+
+import lombok.*;
+import org.example.final_project.model.enum_status.STATUS;
+import org.springframework.web.multipart.MultipartFile;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
+@Builder
+public class ShopRegisterRequest {
+    private Long userId;
+    private MultipartFile id_front;
+    private MultipartFile id_back;
+    private String tax_code;
+    private String shop_name;
+    private int shop_address;
+    private String shop_address_detail;
+    private String phone;
+
+}
