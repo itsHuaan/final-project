@@ -73,8 +73,8 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable();
-        http.cors().disable();
+        http.csrf(AbstractHttpConfigurer::disable);
+        http.cors(AbstractHttpConfigurer::disable);
         http
                 .authorizeHttpRequests((requests) -> {
                             try {
@@ -87,13 +87,7 @@ public class SecurityConfig {
                                         )
                                         .permitAll()
                                         .anyRequest()
-                                        .authenticated()
-                                        .and()
-                                        .exceptionHandling()
-                                        .authenticationEntryPoint(unauthorized)
-                                        .accessDeniedHandler(forbidden)
-                                        .and()
-                                        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                                        .authenticated();
                             } catch (Exception e) {
                                 throw new RuntimeException(e);
                             }
@@ -102,10 +96,14 @@ public class SecurityConfig {
                 .oauth2Login(oauth2Configurer ->
                         oauth2Configurer
                                 .successHandler(userService.onSuccessHandler())
-                                .userInfoEndpoint((t) ->  t.userService(userService))
+                                .userInfoEndpoint((t) -> t.userService(userService))
                                 .failureHandler(userService.onFailureHandler())
                 )
-                .httpBasic();
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint(unauthorized)
+                        .accessDeniedHandler(forbidden))
+                .httpBasic(Customizer.withDefaults());
         return http.build();
     }
 
