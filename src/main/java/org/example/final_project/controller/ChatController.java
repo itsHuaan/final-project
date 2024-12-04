@@ -11,6 +11,7 @@ import org.example.final_project.service.impl.ChatMessageService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,7 +26,8 @@ public class ChatController {
     ChatMessageService chatMessageService;
 
     @MessageMapping("/chat")
-    public void processMessage(@Payload ChatMessageModel chatMessageModel) {
+    @SendTo("/user/{recipientId}/queue/messages")
+    public ChatNotification processMessage(@Payload ChatMessageModel chatMessageModel) {
         ChatMessageDto chatMessageDto = new ChatMessageDto();
         try {
             chatMessageService.save(chatMessageModel);
@@ -33,15 +35,14 @@ public class ChatController {
         } catch (IllegalArgumentException e) {
             log.error(e.getMessage());
         }
-        messagingTemplate.convertAndSendToUser(String.valueOf(chatMessageModel.getRecipientId()),
-                "/queue/messages",
-                ChatNotification.builder()
-                        .id(chatMessageDto.getId())
-                        .senderId(chatMessageDto.getSenderId())
-                        .recipientId(chatMessageDto.getRecipientId())
-                        .content(chatMessageDto.getMessage())
-                        .build());
+        return ChatNotification.builder()
+                .id(chatMessageDto.getId())
+                .senderId(chatMessageDto.getSenderId())
+                .recipientId(chatMessageDto.getRecipientId())
+                .content(chatMessageDto.getMessage())
+                .build();
     }
+
 
     @GetMapping("/message/{senderId}/{recipientId}")
     public ResponseEntity<?> findChatMessage(@PathVariable long recipientId, @PathVariable long senderId){
