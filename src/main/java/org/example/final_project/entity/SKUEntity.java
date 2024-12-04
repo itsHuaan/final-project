@@ -26,6 +26,12 @@ public class SKUEntity {
     private ProductEntity product;
 
 
-    @OneToMany(mappedBy = "skuEntity")
-    private List<StockEntity> stockEntities;
+    @ManyToOne
+    @JoinColumn(name="option_id")
+    private ProductOptionsEntity option;
+
+
+    @ManyToOne
+    @JoinColumn(name="value_id")
+    private ProductOptionValuesEntity value;
 }
