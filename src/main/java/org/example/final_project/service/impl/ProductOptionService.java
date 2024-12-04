@@ -26,67 +26,72 @@ public class ProductOptionService implements IProductOptionService {
     IProductOptionValueService valueService;
     @Autowired
     IProductRepository productRepository;
+
     @Override
     public List<ProductOptionDto> getAll() {
-        return optionRepository.findAll().stream().map(x->mapper.convertToDto(x)).collect(Collectors.toList());
+        return optionRepository.findAll().stream().map(x -> mapper.convertToDto(x)).collect(Collectors.toList());
     }
 
     @Override
     public ProductOptionDto getById(Long id) {
-        if(optionRepository.findById(id).isPresent()){
+        if (optionRepository.findById(id).isPresent()) {
             return mapper.convertToDto(optionRepository.findById(id).get());
-        }else{
+        } else {
             throw new IllegalArgumentException("Value not found");
         }
     }
 
     @Override
     public int save(ProductOptionsModel model) {
-        try{
-            ProductOptionsEntity entity=mapper.convertToEntity(model);
-            entity.setProduct(productRepository.findById(model.getProductId()).get());
-            ProductOptionsEntity savedOption=optionRepository.save(entity);
-            for (ProductOptionValueModel value:model.getValues()){
-                valueService.save(new ProductOptionValueModel(value.getName(),savedOption.getId()));
+        try {
+            ProductOptionsEntity entity = mapper.convertToEntity(model);
+            if (productRepository.findById(model.getProductId()).isPresent()) {
+                entity.setProduct(productRepository.findById(model.getProductId()).get());
+                ProductOptionsEntity savedOption = optionRepository.save(entity);
+                for (ProductOptionValueModel value : model.getValues()) {
+                    valueService.save(new ProductOptionValueModel(value.getName(), savedOption.getId()));
+                }
+            }else{
+                throw new IllegalArgumentException("Value not found");
             }
             return 1;
-        }catch(Exception e){
+        } catch (Exception e) {
             throw e;
         }
     }
 
     @Override
     public int update(Long aLong, ProductOptionsModel model) {
-        try{
-            if(optionRepository.findById(aLong).isPresent()){
-                ProductOptionsEntity entity=mapper.convertToEntity(model);
+        try {
+            if (optionRepository.findById(aLong).isPresent()) {
+                ProductOptionsEntity entity = mapper.convertToEntity(model);
                 entity.setId(aLong);
                 optionRepository.save(entity);
                 return 1;
-            }else{
+            } else {
                 throw new IllegalArgumentException("Value not found");
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             throw e;
         }
     }
 
     @Override
     public int delete(Long id) {
-        try{
-            if(optionRepository.findById(id).isPresent()){
+        try {
+            if (optionRepository.findById(id).isPresent()) {
                 optionRepository.deleteById(id);
                 return 1;
-            }else{
+            } else {
                 throw new IllegalArgumentException("Value not found");
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             throw e;
         }
     }
 
     @Override
     public List<ProductOptionDto> getAllByProduct(long productId) {
-        return optionRepository.findAllByProduct_Id(productId).stream().map(x->mapper.convertToDto(x)).collect(Collectors.toList());
+        return optionRepository.findAllByProduct_Id(productId).stream().map(x -> mapper.convertToDto(x)).collect(Collectors.toList());
     }
 }
