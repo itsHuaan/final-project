@@ -1,8 +1,7 @@
-package org.example.final_project.controller;
+package org.example.final_project.configuration.VnPay;
 
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.example.final_project.configuration.VnPay.PaymentService;
 import org.example.final_project.util.Const;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.UnsupportedEncodingException;
 
 @RestController
-@RequestMapping(name = Const.API_PREFIX + "/payment")
+@RequestMapping(Const.API_PREFIX + "/payment")
 public class PaymentController {
     @Autowired
     private PaymentService paymentService;
