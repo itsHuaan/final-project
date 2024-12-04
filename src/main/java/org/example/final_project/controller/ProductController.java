@@ -5,8 +5,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.annotation.MultipartConfig;
 import org.example.final_project.dto.ApiResponse;
 import org.example.final_project.model.ProductModel;
-import org.example.final_project.model.ProductOptionsModel;
-import org.example.final_project.model.ProductOptionsValueModel;
 import org.example.final_project.model.validation.PageableValidation;
 import org.example.final_project.service.impl.ProductService;
 import org.example.final_project.util.Const;
@@ -14,10 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 
@@ -62,7 +58,7 @@ public class ProductController {
     }
 
     @PostMapping(value="/create-new")
-    ResponseEntity<ApiResponse<?>> addNewProduct(@RequestBody ProductModel model) {
+    ResponseEntity<ApiResponse<?>> addNewProduct(@ModelAttribute ProductModel model) {
         try {
             productService.save(model);
             return ResponseEntity.ok(createResponse(
@@ -297,4 +293,5 @@ public class ProductController {
             ));
         }
     }
+
 }

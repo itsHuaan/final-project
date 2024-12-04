@@ -1,7 +1,6 @@
 package org.example.final_project.dto;
 
 import lombok.*;
-import org.example.final_project.entity.ProductStockEntity;
 
 import java.util.List;
 
@@ -10,9 +9,8 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-public class ProductOptionsDto {
+public class ProductOptionDto {
     private long id;
     private String name;
-    private double price;
-    private ProductDto productDto;
+    private List<ProductOptionValueDto> values;
 }

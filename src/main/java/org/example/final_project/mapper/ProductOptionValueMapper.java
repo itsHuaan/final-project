@@ -1,19 +1,19 @@
 package org.example.final_project.mapper;
 
-import org.example.final_project.dto.ProductOptionValuesDto;
+import org.example.final_project.dto.ProductOptionValueDto;
 import org.example.final_project.entity.ProductOptionValuesEntity;
-import org.example.final_project.model.ProductOptionsValueModel;
+import org.example.final_project.model.ProductOptionValueModel;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ProductOptionValuesMapper {
-    public ProductOptionValuesDto convertToDto(ProductOptionValuesEntity entity){
-        return ProductOptionValuesDto.builder()
+public class ProductOptionValueMapper {
+    public ProductOptionValueDto convertToDto(ProductOptionValuesEntity entity){
+        return ProductOptionValueDto.builder()
                 .id(entity.getId())
                 .name(entity.getName())
                 .build();
     }
-    public ProductOptionValuesEntity convertToEntity(ProductOptionsValueModel model){
+    public ProductOptionValuesEntity convertToEntity(ProductOptionValueModel model){
         return ProductOptionValuesEntity.builder()
                 .name(model.getName())
                 .build();

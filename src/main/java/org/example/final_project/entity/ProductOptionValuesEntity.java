@@ -19,6 +19,11 @@ public class ProductOptionValuesEntity {
     private String name;
 
 
-    @OneToMany(mappedBy = "productOptionValue")
-    private List<ProductStockEntity> productStocks;
+    @OneToMany(mappedBy = "valuesEntity")
+    private List<StockEntity> stockEntities;
+
+
+    @ManyToOne
+    @JoinColumn(name="option_id")
+    private ProductOptionsEntity option;
 }

@@ -4,15 +4,15 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.List;
+import org.springframework.web.multipart.MultipartFile;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-public class ProductOptionsModel {
-    private String name;
-    private List<ProductOptionValueModel> values;
+public class SKUModel {
     private long productId;
+    private double price;
+    private long quantity;
+    private MultipartFile file;
 }
