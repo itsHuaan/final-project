@@ -8,6 +8,7 @@ import org.example.final_project.dto.CategoryDto;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -20,14 +21,12 @@ public class ProductModel {
     private long numberOfLike;
     private double rating;
     private String description;
-    private long parent_id;
-    private long quantity;
-    private double price;
+    private long sold;
     private String note;
+    private long categoryId;
+    private long user_id;
+    private ProductOptionsModel[] options;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
-    private long categoryId;
-    private long user_id;
-
 }

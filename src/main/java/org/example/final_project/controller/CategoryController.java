@@ -1,5 +1,7 @@
 package org.example.final_project.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.example.final_project.dto.ApiResponse;
 import org.example.final_project.model.CategoryModel;
 import org.example.final_project.service.impl.CategoryService;
@@ -13,111 +15,91 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 
+import static org.example.final_project.dto.ApiResponse.createResponse;
+
 @RestController
 @RequestMapping(Const.API_PREFIX + "/category")
+@Tag(name = "Category")
 public class CategoryController {
     @Autowired
     CategoryService categoryService;
 
-    @GetMapping("/getAll")
+    @GetMapping("/get-all")
     ResponseEntity<ApiResponse<?>> getAllCategory(@RequestParam(required = false) Integer pageSize,
                                                   @RequestParam(required = false) Integer pageIndex) {
         if (pageSize != null && pageIndex != null) {
             if (pageSize > 0 && pageIndex >= 0) {
-                return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
-                        200,
+                return ResponseEntity.status(HttpStatus.OK).body(createResponse(
+                        HttpStatus.OK,
                         "Successfully",
-                        categoryService.findAllByPage(PageRequest.of(pageIndex, pageSize)),
-                        LocalDateTime.now()));
+                        categoryService.findAllByPage(PageRequest.of(pageIndex, pageSize))));
             } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
-                        400,
-                        "Bad request",
-                        null,
-                        LocalDateTime.now()
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+                        HttpStatus.BAD_REQUEST,
+                        "Size Or Index Illegal",
+                        null
                 ));
             }
         } else {
-            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
-                    200,
+            return ResponseEntity.status(HttpStatus.OK).body(createResponse(
+                    HttpStatus.OK,
                     "Successfully",
-                    categoryService.findAllByPage(Pageable.unpaged()),
-                    LocalDateTime.now()
+                    categoryService.findAllByPage(Pageable.unpaged())
             ));
         }
     }
 
-    @PostMapping("/addNew")
+    @PostMapping("/create-new")
     ResponseEntity<ApiResponse<?>> addNewCategory(@ModelAttribute CategoryModel model) {
-        if (categoryService.save(model) == 1) {
-            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
-                    201,
+        try {
+            categoryService.save(model);
+            return ResponseEntity.status(HttpStatus.OK).body(createResponse(
+                    HttpStatus.CREATED,
                     "Add Category Successfully",
-                    null,
-                    LocalDateTime.now()
+                    null
             ));
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
-                    400,
-                    "Bad Request",
-                    null,
-                    LocalDateTime.now()
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+                    HttpStatus.BAD_REQUEST,
+                    e.getMessage(),
+                    null
             ));
         }
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/{id}")
     ResponseEntity<ApiResponse<?>> updateCategory(@PathVariable("id") long id,
                                                   @ModelAttribute CategoryModel model) {
-        try{
-        if (categoryService.update(id, model) == 1) {
-            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
-                    200,
+        try {
+            categoryService.update(id, model);
+            return ResponseEntity.status(HttpStatus.OK).body(createResponse(
+                    HttpStatus.OK,
                     "Update Category Successfully",
-                    null,
-                    LocalDateTime.now()
+                    null
             ));
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
-                    400,
-                    "Occur Error When Updating Category with Id= " + id,
-                    null,
-                    LocalDateTime.now()
-            ));
-        }
-        }catch(IllegalAccessError e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
-                    400,
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+                    HttpStatus.BAD_REQUEST,
                     e.getMessage(),
-                    null,
-                    LocalDateTime.now()
+                    null
             ));
         }
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     ResponseEntity<ApiResponse<?>> deleteCategory(@PathVariable("id") long id) {
-        try{
-        if (categoryService.delete(id) == 1) {
-            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
-                    204,
+        try {
+            categoryService.delete(id);
+            return ResponseEntity.status(HttpStatus.OK).body(createResponse(
+                    HttpStatus.NO_CONTENT,
                     "Delete Category Successfully",
-                    null,
-                    LocalDateTime.now()
+                    null
             ));
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
-                    400,
-                    "Occur Error When Deleting Category with Id= " + id,
-                    null,
-                    LocalDateTime.now()
-            ));
-        }}catch(IllegalArgumentException e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
-                    400,
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+                    HttpStatus.BAD_REQUEST,
                     e.getMessage(),
-                    null,
-                    LocalDateTime.now()
+                    null
             ));
         }
     }
@@ -125,66 +107,53 @@ public class CategoryController {
     @PutMapping("/activate/{id}")
     ResponseEntity<ApiResponse<?>> inactivateCategory(@PathVariable("id") long id,
                                                       @RequestParam int type) {
-        try{
-        if (categoryService.activateCategory(id, type) == 1) {
-            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
-                    204,
-                    "Inactivate Category Successfully",
-                    null,
-                    LocalDateTime.now()
-            ));
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
-                    400,
-                    "Occur Error When inactivating Category with Id= " + id,
-                    null,
-                    LocalDateTime.now()
-            ));
-        }}catch(IllegalArgumentException e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
-                    400,
+        try {
+            categoryService.activateCategory(id, type);
+                return ResponseEntity.status(HttpStatus.OK).body(createResponse(
+                        HttpStatus.NO_CONTENT,
+                        "Inactivate Category Successfully",
+                        null
+                ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+                    HttpStatus.BAD_REQUEST,
                     e.getMessage(),
-                    null,
-                    LocalDateTime.now()
+                    null
             ));
         }
     }
 
-    @GetMapping("/findByParentId/{id}")
+    @GetMapping("/{id}/child")
     ResponseEntity<ApiResponse<?>> findCategoryByParentId(@PathVariable("id") long parentId,
                                                           @RequestParam(required = false) Integer pageSize,
                                                           @RequestParam(required = false) Integer pageIndex) {
-        try{
-        if (pageSize != null && pageIndex != null) {
-            if (pageSize > 0 && pageIndex >= 0) {
-                return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
-                        200,
-                        "Successfully",
-                        categoryService.getAllByParentId(parentId, PageRequest.of(pageIndex, pageSize)),
-                        LocalDateTime.now()
-                ));
+        try {
+            if (pageSize != null && pageIndex != null) {
+                if (pageSize > 0 && pageIndex >= 0) {
+                    return ResponseEntity.status(HttpStatus.OK).body(createResponse(
+                            HttpStatus.OK,
+                            "Successfully",
+                            categoryService.getAllByParentId(parentId, PageRequest.of(pageIndex, pageSize))
+                    ));
+                } else {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+                            HttpStatus.BAD_REQUEST,
+                            "Size Or Index Illegal",
+                            null
+                    ));
+                }
             } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
-                        400,
-                        "Bad Request",
-                        null,
-                        LocalDateTime.now()
+                return ResponseEntity.status(HttpStatus.OK).body(createResponse(
+                        HttpStatus.OK,
+                        "Successfully",
+                        categoryService.getAllByParentId(parentId, Pageable.unpaged())
                 ));
             }
-        } else {
-            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
-                    200,
-                    "Successfully",
-                    categoryService.getAllByParentId(parentId, Pageable.unpaged()),
-                    LocalDateTime.now()
-            ));
-        }}
-        catch(IllegalArgumentException e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
-                    400,
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+                    HttpStatus.BAD_REQUEST,
                     e.getMessage(),
-                    null,
-                    LocalDateTime.now()
+                    null
             ));
         }
     }

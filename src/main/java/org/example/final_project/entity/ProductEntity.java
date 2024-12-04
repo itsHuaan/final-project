@@ -24,22 +24,32 @@ public class ProductEntity {
     private long numberOfLike;
     private double rating;
     private String description;
-    private long parent_id;
-    private long quantity;
-    private double price;
     private int isActive;
     private String note;
+    private long sold;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
+
+
     @ManyToOne
     @JoinColumn(name = "category_id")
     private CategoryEntity categoryEntity;
+
+
     @OneToMany(mappedBy = "productEntity")
     private List<ImageProductEntity> images;
+
+
     @OneToMany(mappedBy = "product")
     private List<FeedbackEntity> feedbacks;
+
+
     @ManyToOne
     @JoinColumn(name="user_id")
     private UserEntity user;
+
+
+    @OneToMany(mappedBy = "product")
+    private List<ProductOptionsEntity> productOptions;
 }
