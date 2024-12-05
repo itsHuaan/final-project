@@ -24,7 +24,7 @@ public class CartMapper {
         return CartDto.builder()
                 .cartId(cartEntity.getCartId())
                 .user(userMapper.toDto(cartEntity.getUser()))
-                .quantity(cartEntity.getCartItems().size())
+                .cartQuantity(cartEntity.getCartItems().size())
                 .cartItems(cartEntity.getCartItems().stream().map(cartItemMapper::toDto).toList())
                 .totalPrice(cartEntity.getTotalPrice())
                 .createdAt(cartEntity.getCreatedAt())

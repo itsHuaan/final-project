@@ -1,9 +1,6 @@
 package org.example.final_project.dto;
 
-import jakarta.persistence.*;
 import lombok.*;
-import org.example.final_project.entity.CartEntity;
-import org.example.final_project.entity.SKUEntity;
 
 import java.time.LocalDateTime;
 
@@ -15,7 +12,7 @@ import java.time.LocalDateTime;
 public class CartItemDto {
     private Long cartId;
     private SKUDto product;
-    private Integer quantity;
+    private Integer itemQuantity;
     private double price;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
