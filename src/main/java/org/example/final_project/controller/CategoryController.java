@@ -2,19 +2,15 @@ package org.example.final_project.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.example.final_project.dto.ApiResponse;
 import org.example.final_project.dto.CategoryDto;
 import org.example.final_project.model.CategoryModel;
 import org.example.final_project.service.impl.CategoryService;
 import org.example.final_project.util.Const;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.example.final_project.dto.ApiResponse.createResponse;
@@ -42,7 +38,7 @@ public class CategoryController {
     }
 
     @Operation(summary = "Create new category")
-    @PostMapping("/create-new")
+    @PostMapping
     ResponseEntity<?> addNewCategory(@ModelAttribute CategoryModel model) {
         try {
             categoryService.save(model);
