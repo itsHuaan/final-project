@@ -9,6 +9,7 @@ import org.example.final_project.model.enum_status.ActivateStatus;
 import org.example.final_project.repository.IProductRepository;
 import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.*;
+import org.example.final_project.util.specification.ProductSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -63,7 +64,7 @@ public class ProductService implements IProductService {
             for (MultipartFile file : productModel.getFiles()) {
                 imageService.save(new ImageProductModel(file, savedProduct.getId()));
             }
-            return 1;
+            return (int) savedProduct.getId();
         } catch (Exception e) {
             throw e;
         }
@@ -142,14 +143,6 @@ public class ProductService implements IProductService {
         }
     }
 
-    @Override
-    public Page<ProductDto> getAllByParentId(long parentId, Pageable pageable) {
-        try {
-            return null;
-        } catch (Exception e) {
-            throw e;
-        }
-    }
 
     @Override
     public Page<ProductDto> getAllProductByStatus(int status, Pageable pageable) {
@@ -213,7 +206,7 @@ public class ProductService implements IProductService {
                 if (pageable != null) {
                     return iProductRepository.findAll(Specification.where(isNotDeleted()).and(hasUserId(userId).and(hasUserNotDeleted(userId))), pageable).map(x -> productMapper.convertToDto(x));
                 } else {
-                    return iProductRepository.findAll(Specification.where(isNotDeleted()).and(hasUserId(userId).and(hasUserNotDeleted(userId))), PageRequest.of(0, iProductRepository.findAll().size())).map(x -> productMapper.convertToDto(x));
+                    return iProductRepository.findAll(Specification.where(isNotDeleted()).and(hasUserId(userId).and(hasUserNotDeleted(userId))), Pageable.unpaged()).map(x -> productMapper.convertToDto(x));
                 }
             } else {
                 throw new IllegalArgumentException("Value not found");
@@ -222,4 +215,19 @@ public class ProductService implements IProductService {
             throw e;
         }
     }
+
+    @Override
+    public Page<ProductDto> getAllProductByCategory(long categoryId, Pageable pageable) {
+        if (pageable != null) {
+            return iProductRepository.findAll(Specification.where(hasCategory(categoryId)).and(isNotDeleted()),pageable).map(x->productMapper.convertToDto(x));
+        }else{
+            return iProductRepository.findAll(Specification.where(hasCategory(categoryId)).and(isNotDeleted()),Pageable.unpaged()).map(x->productMapper.convertToDto(x));
+        }
+    }
+
+    @Override
+    public Page<ProductDto> getAllProductByPrice(double startPrice, double endPrice, Pageable pageable) {
+        return null;
+    }
+
 }

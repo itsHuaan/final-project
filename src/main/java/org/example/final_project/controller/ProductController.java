@@ -57,11 +57,11 @@ public class ProductController {
     @PostMapping(value="/create-new")
     ResponseEntity<ApiResponse<?>> addNewProduct(@ModelAttribute ProductModel model) {
         try {
-            productService.save(model);
+            int id=productService.save(model);
             return ResponseEntity.ok(createResponse(
                     HttpStatus.CREATED,
                     "Add Product Successfully",
-                    null
+                    id
             ));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
@@ -149,33 +149,6 @@ public class ProductController {
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
-                    HttpStatus.BAD_REQUEST,
-                    e.getMessage(),
-                    null
-            ));
-        }
-    }
-
-    @GetMapping("/variable/{product-id}")
-    ResponseEntity<ApiResponse<?>> findByParentId(@PathVariable("product-id") long parentId,
-                                                  @RequestParam(required = false) Integer pageSize,
-                                                  @RequestParam(required = false) Integer pageIndex) {
-        try {
-            if (PageableValidation.setDefault(pageSize, pageIndex) != null) {
-                return ResponseEntity.status(HttpStatus.OK).body(createResponse(
-                        HttpStatus.OK,
-                        "Successfully",
-                        productService.getAllByParentId(parentId, PageableValidation.setDefault(pageSize, pageIndex))
-                ));
-            } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
-                        HttpStatus.BAD_REQUEST,
-                        "Size Or Index Illegal",
-                        null
-                ));
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
                     HttpStatus.BAD_REQUEST,
                     e.getMessage(),
                     null
