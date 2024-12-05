@@ -152,10 +152,10 @@ public class CartController {
             );
         }
     }
-    @Operation(summary = "Checkouot")
+
+    @Operation(summary = "Checkout")
     @GetMapping("/checkout/{cartId}")
     public ResponseEntity<?> checkout(@PathVariable Long cartId) {
         return ResponseEntity.status(HttpStatus.OK).body(cartService.getCheckOutDetail(cartId));
-
     }
 }
