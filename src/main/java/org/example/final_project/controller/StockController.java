@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 import static org.example.final_project.dto.ApiResponse.createResponse;
 
@@ -38,9 +37,11 @@ public class StockController {
     }
 
     @PostMapping("/create-new")
-    ResponseEntity addNewStock(@ModelAttribute SKUModel model) {
+    ResponseEntity addNewStock(@ModelAttribute SKUModel[] models) {
         try {
-            skuService.saveCustom(model);
+            for (SKUModel model : models) {
+                skuService.saveCustom(model);
+            }
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.CREATED,
                     "Successfully",

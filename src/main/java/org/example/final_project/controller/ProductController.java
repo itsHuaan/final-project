@@ -1,7 +1,11 @@
 package org.example.final_project.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.annotation.MultipartConfig;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.ApiResponse;
 import org.example.final_project.model.ProductModel;
 import org.example.final_project.model.validation.PageableValidation;
@@ -19,12 +23,14 @@ import static org.example.final_project.dto.ApiResponse.createResponse;
 @RestController
 @MultipartConfig
 @RequestMapping(Const.API_PREFIX + "/product")
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Tag(name = "Product")
 public class ProductController {
-    @Autowired
     ProductService productService;
 
-    @GetMapping("/")
+    @Operation(summary = "Get all product")
+    @GetMapping
     ResponseEntity<ApiResponse<?>> getAllByPage(@RequestParam(required = false) Integer pageSize,
                                                 @RequestParam(required = false) Integer pageIndex) {
         try {
@@ -54,14 +60,15 @@ public class ProductController {
         }
     }
 
-    @PostMapping(value="/create-new")
-    ResponseEntity<ApiResponse<?>> addNewProduct(@ModelAttribute ProductModel model) {
+    @Operation(summary = "Create new product")
+    @PostMapping
+    ResponseEntity<?> addNewProduct(@ModelAttribute ProductModel model) {
         try {
-            productService.save(model);
+            int id=productService.save(model);
             return ResponseEntity.ok(createResponse(
                     HttpStatus.CREATED,
                     "Add Product Successfully",
-                    null
+                    id
             ));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
@@ -72,8 +79,9 @@ public class ProductController {
         }
     }
 
+    @Operation(summary = "Update a product")
     @PutMapping("/{id}")
-    ResponseEntity<ApiResponse<?>> updateProduct(@PathVariable("id") long id,
+    ResponseEntity<?> updateProduct(@PathVariable("id") long id,
                                                  @RequestBody ProductModel model) {
         try {
             productService.update(id, model);
@@ -90,8 +98,9 @@ public class ProductController {
         }
     }
 
+    @Operation(summary = "Delete a product")
     @DeleteMapping("/{id}")
-    ResponseEntity<ApiResponse<?>> deleteProduct(@PathVariable("id") long id) {
+    ResponseEntity<?> deleteProduct(@PathVariable("id") long id) {
         try {
             productService.delete(id);
             return ResponseEntity.ok(createResponse(
@@ -108,8 +117,9 @@ public class ProductController {
         }
     }
 
+    @Operation(summary = "Change the product status")
     @PutMapping("/activate/{product-id}")
-    ResponseEntity<ApiResponse<?>> inactivateProduct(@PathVariable("product-id") long id,
+    ResponseEntity<?> inactivateProduct(@PathVariable("product-id") long id,
                                                      @RequestParam int type,
                                                      @RequestParam String note) {
         try {
@@ -128,8 +138,9 @@ public class ProductController {
         }
     }
 
+    @Operation(summary = "Search product by its name")
     @GetMapping("/name/{name}")
-    ResponseEntity<ApiResponse<?>> findProductByName(@PathVariable("name") String name,
+    ResponseEntity<?> findProductByName(@PathVariable("name") String name,
                                                      @RequestParam(required = false) Integer pageSize,
                                                      @RequestParam(required = false) Integer pageIndex) {
         try {
@@ -156,35 +167,9 @@ public class ProductController {
         }
     }
 
-    @GetMapping("/variable/{product-id}")
-    ResponseEntity<ApiResponse<?>> findByParentId(@PathVariable("product-id") long parentId,
-                                                  @RequestParam(required = false) Integer pageSize,
-                                                  @RequestParam(required = false) Integer pageIndex) {
-        try {
-            if (PageableValidation.setDefault(pageSize, pageIndex) != null) {
-                return ResponseEntity.status(HttpStatus.OK).body(createResponse(
-                        HttpStatus.OK,
-                        "Successfully",
-                        productService.getAllByParentId(parentId, PageableValidation.setDefault(pageSize, pageIndex))
-                ));
-            } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
-                        HttpStatus.BAD_REQUEST,
-                        "Size Or Index Illegal",
-                        null
-                ));
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
-                    HttpStatus.BAD_REQUEST,
-                    e.getMessage(),
-                    null
-            ));
-        }
-    }
-
+    @Operation(summary = "Get product by its status")
     @GetMapping("/status/{type}")
-    ResponseEntity<ApiResponse<?>> getAllProductByStatus(@PathVariable("type") int type,
+    ResponseEntity<?> getAllProductByStatus(@PathVariable("type") int type,
                                                          @RequestParam(required = false) Integer pageSize,
                                                          @RequestParam(required = false) Integer pageIndex) {
         try {
@@ -210,8 +195,9 @@ public class ProductController {
         }
     }
 
+    @Operation(summary = "Get relative products")
     @GetMapping("/relative/{product-id}")
-    ResponseEntity<ApiResponse<?>> getAllProductRelative(@PathVariable("product-id") long id,
+    ResponseEntity<?> getAllProductRelative(@PathVariable("product-id") long id,
                                                          @RequestParam(required = false) Integer pageSize,
                                                          @RequestParam(required = false) Integer pageIndex) {
         try {
@@ -237,8 +223,9 @@ public class ProductController {
         }
     }
 
+    @Operation(summary = "Get shop's other product")
     @GetMapping("/other/{shop-id}")
-    ResponseEntity<ApiResponse<?>> getOtherProductOfShop(@PathVariable("shop-id") long productId,
+    ResponseEntity<?> getOtherProductOfShop(@PathVariable("shop-id") long productId,
                                                          @RequestParam(required = false) Integer pageSize,
                                                          @RequestParam(required = false) Integer pageIndex) {
         try {
@@ -264,8 +251,9 @@ public class ProductController {
         }
     }
 
+    @Operation(summary = "Get all product by shop")
     @GetMapping("/shop/{shop-id}")
-    ResponseEntity<ApiResponse<?>> getAllProductByShop(@PathVariable("shop-id") long userId,
+    ResponseEntity<?> getAllProductByShop(@PathVariable("shop-id") long userId,
                                                        @RequestParam(required = false) Integer pageSize,
                                                        @RequestParam(required = false) Integer pageIndex) {
         try {

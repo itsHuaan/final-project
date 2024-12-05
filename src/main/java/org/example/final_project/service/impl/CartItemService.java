@@ -53,14 +53,41 @@ public class CartItemService implements ICartItemService {
     }
 
     @Override
-    public void updateQuantity(Long cartId, Long productId, Integer quantity) {
+    public void updateQuantity(Long cartId, Long productId, Integer quantity, boolean isAddingOne) {
         CartItemEntity currentCartItem = cartItemRepository.findOne(Specification.where(
                 hasCartId(cartId).and(hasProductId(productId))
         )).orElse(null);
         if (currentCartItem != null) {
-            currentCartItem.setQuantity(currentCartItem.getQuantity() + quantity);
+            if (isAddingOne) {
+                currentCartItem.setQuantity(currentCartItem.getQuantity() + quantity);
+            } else {
+                currentCartItem.setQuantity(quantity);
+            }
             cartItemRepository.save(currentCartItem);
         }
+    }
+
+    @Override
+    public int deleteCartItem(Long cartId, Long productId) {
+        CartItemEntity currentCartItem = cartItemRepository.findOne(Specification.where(
+                hasCartId(cartId).and(hasProductId(productId))
+        )).orElse(null);
+        if (currentCartItem != null) {
+            cartItemRepository.delete(currentCartItem);
+            return 1;
+        }
+        return 0;
+    }
+
+    @Override
+    public int clearCartItem(Long cartId) {
+        List<CartItemEntity> currentCartItems = cartItemRepository.findAll(Specification.where(
+                hasCartId(cartId)));
+        if (!currentCartItems.isEmpty()) {
+            cartItemRepository.deleteAll(currentCartItems);
+            return 1;
+        }
+        return 0;
     }
 
     @Override

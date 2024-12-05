@@ -6,5 +6,7 @@ import org.example.final_project.model.CartItemModel;
 
 public interface ICartItemService extends IBaseService<CartItemDto, CartItemModel, Long>{
     CartItemDto getCartItem(Long cartId, Long productId);
-    void updateQuantity(Long cartId, Long productId, Integer quantity);
+    void updateQuantity(Long cartId, Long productId, Integer quantity, boolean isAddingOne);
+    int deleteCartItem(Long cartId, Long productId);
+    int clearCartItem(Long cartId);
 }

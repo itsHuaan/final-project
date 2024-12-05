@@ -3,6 +3,7 @@ package org.example.final_project.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.CartDto;
@@ -49,6 +50,87 @@ public class CartController {
     }
 
 
+    @Operation(summary = "Delete all cart items")
+    @DeleteMapping("/{userId}/clear")
+    public ResponseEntity<?> clearCart(@PathVariable Long userId) {
+        try {
+            CartDto cart = cartService.getUserCart(userId);
+            return cartItemService.clearCartItem(cart.getCartId()) != 0
+                    ? ResponseEntity.status(HttpStatus.OK).body(
+                    createResponse(HttpStatus.OK,
+                            "Deleted cart " + cart.getCartId() + " successfully.",
+                            null)
+            )
+                    : ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    createResponse(HttpStatus.BAD_REQUEST,
+                            "Failed to delete cart " + cart.getCartId() + ".",
+                            null)
+            );
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    createResponse(HttpStatus.NOT_FOUND,
+                            e.getMessage(),
+                            null)
+            );
+        }
+    }
+
+    @Operation(summary = "Delete cart item")
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<?> deleteCart(@PathVariable Long userId, @RequestParam Long productId) {
+        try {
+            CartDto cart = cartService.getUserCart(userId);
+            int result = cartItemService.deleteCartItem(cart.getCartId(), productId);
+            return result != 0
+                    ? ResponseEntity.status(HttpStatus.OK).body(
+                    createResponse(HttpStatus.OK,
+                            "Deleted product " + productId + " successfully.",
+                            null)
+            )
+                    : ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    createResponse(HttpStatus.BAD_REQUEST,
+                            "Failed to delete product " + productId + ".",
+                            null)
+            );
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    createResponse(HttpStatus.NOT_FOUND,
+                            e.getMessage(),
+                            null)
+            );
+        }
+    }
+
+    @Operation(summary = "Update cart item quantity")
+    @PutMapping("/{userId}")
+    public ResponseEntity<?> updateCart(@PathVariable Long userId, @RequestBody AddToCartRequest request) {
+        try {
+            String message;
+            CartDto cart = cartService.getUserCart(userId);
+            CartItemDto cartItem = cartItemService.getCartItem(cart.getCartId(), request.getProductId());
+            if (request.getQuantity() > 0) {
+                cartItemService.updateQuantity(cartItem.getCartId(), request.getProductId(), request.getQuantity(), false);
+                message = "Quantity for " + request.getProductId() + " updated successfully";
+            } else {
+                int result = cartItemService.deleteCartItem(cart.getCartId(), request.getProductId());
+                message = result != 0
+                        ? "Deleted product " + request.getProductId() + " successfully."
+                        : "Failed to delete product " + request.getProductId() + ".";
+            }
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    createResponse(HttpStatus.OK,
+                            message,
+                            null)
+            );
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    createResponse(HttpStatus.NOT_FOUND,
+                            e.getMessage(),
+                            null)
+            );
+        }
+    }
+
     @Operation(summary = "Add to cart")
     @PostMapping("add-to-cart/{userId}")
     public ResponseEntity<?> addToCart(@PathVariable Long userId,
@@ -56,7 +138,7 @@ public class CartController {
         try {
             CartDto cart = cartService.getUserCart(userId);
             CartItemDto cartItem = cartItemService.getCartItem(cart.getCartId(), request.getProductId());
-            cartItemService.updateQuantity(cartItem.getCartId(), request.getProductId(), request.getQuantity());
+            cartItemService.updateQuantity(cartItem.getCartId(), request.getProductId(), request.getQuantity(), true);
             return ResponseEntity.status(HttpStatus.CREATED).body(
                     createResponse(HttpStatus.CREATED,
                             "Added " + request.getQuantity() + " product of " + request.getProductId() + " to cart.",
@@ -69,5 +151,11 @@ public class CartController {
                             null)
             );
         }
+    }
+
+    @Operation(summary = "Checkout")
+    @GetMapping("/checkout/{cartId}")
+    public ResponseEntity<?> checkout(@PathVariable Long cartId) {
+        return ResponseEntity.status(HttpStatus.OK).body(cartService.getCheckOutDetail(cartId));
     }
 }

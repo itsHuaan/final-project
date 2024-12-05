@@ -36,7 +36,9 @@ public class CategoryService implements ICategoryService {
 
     @Override
     public List<CategoryDto> getAll() {
-        return iCategoryRepository.findAll().stream().filter(x -> x.getDeletedAt() == null && x.getIsActive() == 1).map(categoryMapper::convertToDto).collect(Collectors.toList());
+        return iCategoryRepository.findAll(Specification.where(isNotDeleted())).stream()
+                .map(categoryMapper::convertToDto)
+                .toList();
     }
 
     @Override
@@ -126,24 +128,10 @@ public class CategoryService implements ICategoryService {
         }
     }
 
-
     @Override
-    public Page<CategoryDto> findAllByPage(Pageable pageable) {
-        if (pageable != null) {
-            Page<CategoryDto> page = iCategoryRepository.findAll(Specification.where(isNotDeleted()), pageable).map(x -> categoryMapper.convertToDto(x));
-            return page;
-        } else {
-            Page<CategoryDto> page = iCategoryRepository.findAll(Specification.where(isNotDeleted()), PageRequest.of(0, iCategoryRepository.findAll().size())).map(x -> categoryMapper.convertToDto(x));
-            return page;
-        }
-    }
-
-    @Override
-    public Page<CategoryDto> getAllByParentId(long parent_id, Pageable pageable) {
-        if (pageable != null) {
-            return iCategoryRepository.findAll(Specification.where(isNotDeleted()).and(hasParentId(parent_id)), pageable).map(x -> categoryMapper.convertToDto(x));
-        } else {
-            return iCategoryRepository.findAll(Specification.where(isNotDeleted()).and(hasParentId(parent_id)), PageRequest.of(0, iCategoryRepository.findAll().size())).map(x -> categoryMapper.convertToDto(x));
-        }
+    public List<CategoryDto> getAllByParentId(long parent_id) {
+        return iCategoryRepository.findAll(Specification.where(isNotDeleted()).and(hasParentId(parent_id))).stream()
+                .map(categoryMapper::convertToDto)
+                .toList();
     }
 }

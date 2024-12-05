@@ -2,6 +2,7 @@ package org.example.final_project.service;
 
 import org.example.final_project.dto.ApiResponse;
 import org.example.final_project.dto.UserDto;
+import org.example.final_project.entity.UserEntity;
 import org.example.final_project.model.ChangeAccountStatusRequest;
 import org.example.final_project.model.ProfileUpdateRequest;
 import org.example.final_project.model.ShopRegisterRequest;
@@ -43,4 +44,6 @@ public interface IUserService extends IBaseService<UserDto, UserModel, Long> {
     Page<UserDto> getAllShop(Integer status, Integer pageIndex, Integer pageSize) throws Exception;
 
     int addAddress(long userId, AddShippingAddressRequest request);
+    List<UserDto> findByShopName(String shopName , Integer shopStatus);
+    int updateShop( Long userId , ShopModel shopModel);
 }

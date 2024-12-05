@@ -24,7 +24,6 @@ public class CartEntity {
     private UserEntity user;
 
     private double totalPrice = 0;
-    private Boolean status = true;
 
     @OneToMany(mappedBy = "cart")
     private List<CartItemEntity> cartItems = new ArrayList<>();
