@@ -1,7 +1,5 @@
 package org.example.final_project.mapper;
 
-import com.cloudinary.Cloudinary;
-import com.cloudinary.utils.ObjectUtils;
 import org.example.final_project.dto.SKUDto;
 import org.example.final_project.entity.SKUEntity;
 import org.example.final_project.model.SKUModel;
@@ -30,6 +28,7 @@ public class SKUMapper {
         return SKUEntity.builder()
                 .price(model.getPrice())
                 .quantity(model.getQuantity())
+                .image(model.getImage())
                 .build();
     }
 }
