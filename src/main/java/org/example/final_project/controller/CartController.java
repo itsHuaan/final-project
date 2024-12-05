@@ -3,6 +3,7 @@ package org.example.final_project.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.CartDto;
@@ -150,5 +151,11 @@ public class CartController {
                             null)
             );
         }
+    }
+    @Operation(summary = "Checkouot")
+    @GetMapping("/checkout/{cartId}")
+    public ResponseEntity<?> checkout(@PathVariable Long cartId) {
+        return ResponseEntity.status(HttpStatus.OK).body(cartService.getCheckOutDetail(cartId));
+
     }
 }
