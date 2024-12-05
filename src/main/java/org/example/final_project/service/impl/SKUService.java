@@ -87,9 +87,9 @@ public class SKUService implements ISKUService {
         } else {
             throw new IllegalArgumentException("Value not found");
         }
-        if (model.getFile() != null && !model.getFile().isEmpty()) {
-            entity.setImage(cloudinary.uploader().upload(model.getFile().getBytes(), ObjectUtils.emptyMap()).get("url").toString());
-        }
+//        if (model.getFile() != null && !model.getFile().isEmpty()) {
+//            entity.setImage(cloudinary.uploader().upload(model.getFile().getBytes(), ObjectUtils.emptyMap()).get("url").toString());
+//        }
         iskuRepository.save(entity);
         return 1;
     }

@@ -1,6 +1,8 @@
 package org.example.final_project.repository;
 
+import org.example.final_project.dto.ProductDto;
 import org.example.final_project.entity.ProductEntity;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -12,7 +14,4 @@ import java.util.List;
 
 @Repository
 public interface IProductRepository extends JpaRepository<ProductEntity, Long>, JpaSpecificationExecutor<ProductEntity> {
-
-
-
 }
