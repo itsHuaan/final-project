@@ -361,6 +361,7 @@ public class UserService implements IUserService, UserDetailsService {
         }
     }
 
+
     @Override
     public Page<UserDto> getAllShop(Integer status, Integer pageIndex, Integer pageSize) throws Exception {
         Specification<UserEntity> specification = UserSpecification.isShop();
@@ -405,6 +406,38 @@ public class UserService implements IUserService, UserDetailsService {
 
         shippingAddressRepository.save(newShippingAddress);
         return 1;
+    }
+    @Override
+    public List<UserDto> findByShopName(String shopName , Integer shopStatus) {
+        List<UserEntity> userEntityList = new ArrayList<>();
+        if (shopName == null && shopStatus == null ) {
+            userEntityList = userRepository.findAll();
+        }
+         else if (shopName != null) {
+            if(shopStatus == null){
+                userEntityList = userRepository.findByShopName(shopName);
+            }else {
+                userEntityList = userRepository.findByShopStatusAndName(shopStatus, shopName);
+            }
+        }else {
+            userEntityList = userRepository.findByShopStatus(shopStatus);
+        }
+        return userEntityList.stream().map(e->userMapper.toDto(e)).toList();
+
+    }
+    @Override
+    public int updateShop( Long userId , ShopModel shopModel){
+        Optional<UserEntity> user = userRepository.findById(userId);
+        if(user.isPresent()){
+            UserEntity userEntity = user.get();
+            userEntity.setAddress_id_shop(shopModel.getShop_address());
+            userEntity.setShop_name(shopModel.getShop_name());
+            userEntity.setAddress_id_shop(shopModel.getShop_address());
+            userRepository.save(userEntity);
+            return 1;
+        }
+        return 0;
+
     }
 }
 
