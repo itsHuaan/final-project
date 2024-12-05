@@ -7,9 +7,13 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.ApiResponse;
+import org.example.final_project.dto.ProductOptionDto;
+import org.example.final_project.dto.SKUDto;
 import org.example.final_project.model.ProductModel;
 import org.example.final_project.model.validation.PageableValidation;
-import org.example.final_project.service.impl.ProductService;
+import org.example.final_project.service.IProductOptionService;
+import org.example.final_project.service.IProductService;
+import org.example.final_project.service.ISKUService;
 import org.example.final_project.util.Const;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -18,6 +22,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
+import java.util.List;
+
 import static org.example.final_project.dto.ApiResponse.createResponse;
 
 @RestController
@@ -27,8 +33,12 @@ import static org.example.final_project.dto.ApiResponse.createResponse;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Tag(name = "Product")
 public class ProductController {
-    ProductService productService;
-
+    @Autowired
+    IProductService productService;
+    @Autowired
+    IProductOptionService optionService;
+    @Autowired
+    ISKUService iskuService;
     @Operation(summary = "Get all product")
     @GetMapping
     ResponseEntity<ApiResponse<?>> getAllByPage(@RequestParam(required = false) Integer pageSize,
@@ -62,13 +72,15 @@ public class ProductController {
 
     @Operation(summary = "Create new product")
     @PostMapping
-    ResponseEntity<?> addNewProduct(@ModelAttribute ProductModel model) {
+    ResponseEntity<?> addNewProduct(ProductModel model) {
         try {
-            int id=productService.save(model);
+            int productId=productService.saveCustom(model);
+            List<ProductOptionDto> optionList=optionService.saveAllOption(model.getOptions());
+            List<SKUDto> stockList=iskuService.addListSKU(productId,optionList);
             return ResponseEntity.ok(createResponse(
                     HttpStatus.CREATED,
                     "Add Product Successfully",
-                    id
+                    stockList
             ));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(

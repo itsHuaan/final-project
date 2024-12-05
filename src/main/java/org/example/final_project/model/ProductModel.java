@@ -29,4 +29,5 @@ public class ProductModel {
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
+    private List<String> options;
 }
