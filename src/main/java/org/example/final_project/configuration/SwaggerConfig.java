@@ -21,12 +21,12 @@ public class SwaggerConfig {
     public OpenAPI OpenAPI() {
         List<Server> server = new ArrayList<>();
         server.add(new Server().url("http://localhost:8080").description("Server URL in Local environment"));
-        server.add(new Server().url("http://152.42.160.56:8080/").description("Server URL in Dev environment"));
+        server.add(new Server().url("https://team03-api.cyvietnam.id.vn/").description("Server URL in Dev environment"));
 
 
-        Server stagingServer = new Server();
+        /*Server stagingServer = new Server();
         stagingServer.setUrl("http://152.42.160.56:8080");
-        stagingServer.setDescription("Server URL in Remote environment");
+        stagingServer.setDescription("Server URL in Remote environment");*/
 
 
         Info info = new Info()
