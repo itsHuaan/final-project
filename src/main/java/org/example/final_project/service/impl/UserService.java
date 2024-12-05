@@ -65,6 +65,7 @@ public class UserService implements IUserService, UserDetailsService {
 
     Cloudinary cloudinary;
     IAddressService addressService;
+    private final EmailService emailService;
 
 
     @Override

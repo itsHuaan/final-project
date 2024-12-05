@@ -18,6 +18,7 @@ public class CartDto {
     private Long cartId;
     private UserDto user;
 
+    private int quantity;
     private double totalPrice = 0;
     private Boolean status = true;
 

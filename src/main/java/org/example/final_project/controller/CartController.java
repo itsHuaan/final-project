@@ -48,16 +48,77 @@ public class CartController {
         }
     }
 
-    @Operation(summary = "Update quantity")
-    @PostMapping("update-quantity/{userId}")
-    public ResponseEntity<?> updateCart(@PathVariable Long userId, @RequestBody AddToCartRequest request) {
+
+    @Operation(summary = "Delete all cart items")
+    @DeleteMapping("/{userId}/clear")
+    public ResponseEntity<?> clearCart(@PathVariable Long userId) {
         try {
             CartDto cart = cartService.getUserCart(userId);
+            return cartItemService.clearCartItem(cart.getCartId()) != 0
+                    ? ResponseEntity.status(HttpStatus.OK).body(
+                    createResponse(HttpStatus.OK,
+                            "Deleted cart " + cart.getCartId() + " successfully.",
+                            null)
+            )
+                    : ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    createResponse(HttpStatus.BAD_REQUEST,
+                            "Failed to delete cart " + cart.getCartId() + ".",
+                            null)
+            );
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    createResponse(HttpStatus.NOT_FOUND,
+                            e.getMessage(),
+                            null)
+            );
+        }
+    }
+
+    @Operation(summary = "Delete cart item")
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<?> deleteCart(@PathVariable Long userId, @RequestParam Long productId) {
+        try {
+            CartDto cart = cartService.getUserCart(userId);
+            int result = cartItemService.deleteCartItem(cart.getCartId(), productId);
+            return result != 0
+                    ? ResponseEntity.status(HttpStatus.OK).body(
+                    createResponse(HttpStatus.OK,
+                            "Deleted product " + productId + " successfully.",
+                            null)
+            )
+                    : ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    createResponse(HttpStatus.BAD_REQUEST,
+                            "Failed to delete product " + productId + ".",
+                            null)
+            );
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    createResponse(HttpStatus.NOT_FOUND,
+                            e.getMessage(),
+                            null)
+            );
+        }
+    }
+
+    @Operation(summary = "Update cart item quantity")
+    @PutMapping("/{userId}")
+    public ResponseEntity<?> updateCart(@PathVariable Long userId, @RequestBody AddToCartRequest request) {
+        try {
+            String message;
+            CartDto cart = cartService.getUserCart(userId);
             CartItemDto cartItem = cartItemService.getCartItem(cart.getCartId(), request.getProductId());
-            cartItemService.updateQuantity(cartItem.getCartId(), request.getProductId(), request.getQuantity(), false);
-            return ResponseEntity.status(HttpStatus.CREATED).body(
-                    createResponse(HttpStatus.CREATED,
-                            "Quantity for " + request.getProductId() + " updated successfully",
+            if (request.getQuantity() > 0) {
+                cartItemService.updateQuantity(cartItem.getCartId(), request.getProductId(), request.getQuantity(), false);
+                message = "Quantity for " + request.getProductId() + " updated successfully";
+            } else {
+                int result = cartItemService.deleteCartItem(cart.getCartId(), request.getProductId());
+                message = result != 0
+                        ? "Deleted product " + request.getProductId() + " successfully."
+                        : "Failed to delete product " + request.getProductId() + ".";
+            }
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    createResponse(HttpStatus.OK,
+                            message,
                             null)
             );
         } catch (IllegalArgumentException e) {
