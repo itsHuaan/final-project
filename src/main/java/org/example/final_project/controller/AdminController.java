@@ -3,9 +3,11 @@ package org.example.final_project.controller;
 import com.cloudinary.api.exceptions.BadRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.example.final_project.dto.ApiResponse;
 import org.example.final_project.dto.UserDto;
+import org.example.final_project.model.ShopModel;
 import org.example.final_project.service.impl.UserService;
 import org.example.final_project.util.Const;
 import org.springframework.data.domain.Page;
@@ -15,6 +17,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.example.final_project.dto.ApiResponse.createResponse;
 
@@ -58,6 +61,17 @@ public class AdminController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(createResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error occurred", null));
         }
+    }
+    @Operation(summary = "find shop by Name or status")
+    @GetMapping("/find-shop-name")
+    public ResponseEntity<?> getShopByName(@RequestParam(required = false) String shop_name , @RequestParam(required = false) Integer shop_status ) {
+        List<UserDto> userDtoList = userService.findByShopName(shop_name,shop_status);
+        return ResponseEntity.ok(userDtoList);
+    }
+    @Operation(summary = "update shop")
+    @PutMapping("/{id}/update-shop")
+    public ResponseEntity<String> updateShop(@PathVariable long id, @RequestBody ShopModel shopModel) {
+        return ResponseEntity.ok(userService.updateShop(id,shopModel) ==1 ? "đã update thành công" : "chưa update thành công ");
     }
 
 }
