@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Getter
 @Setter
 public class SKUModel {
+    private String image;
     private long productId;
     private long optionId;
     private long valueId;

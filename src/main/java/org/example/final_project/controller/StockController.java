@@ -37,9 +37,11 @@ public class StockController {
     }
 
     @PostMapping("/create-new")
-    ResponseEntity addNewStock(@ModelAttribute SKUModel model) {
+    ResponseEntity addNewStock(@ModelAttribute SKUModel[] models) {
         try {
-            skuService.saveCustom(model);
+            for (SKUModel model : models) {
+                skuService.saveCustom(model);
+            }
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.CREATED,
                     "Successfully",
