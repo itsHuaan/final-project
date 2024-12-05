@@ -9,7 +9,6 @@ import java.util.List;
 
 public interface ICategoryService extends IBaseService<CategoryDto, CategoryModel,Long> {
     int activateCategory(long id,int type);
-    Page<CategoryDto> findAllByPage(Pageable pageable);
-    Page<CategoryDto> getAllByParentId(long parent_id,Pageable pageable);
+    List<CategoryDto> getAllByParentId(long parent_id);
 
 }

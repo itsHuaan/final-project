@@ -48,6 +48,26 @@ public class CartController {
         }
     }
 
+    @Operation(summary = "Update quantity")
+    @PostMapping("update-quantity/{userId}")
+    public ResponseEntity<?> updateCart(@PathVariable Long userId, @RequestBody AddToCartRequest request) {
+        try {
+            CartDto cart = cartService.getUserCart(userId);
+            CartItemDto cartItem = cartItemService.getCartItem(cart.getCartId(), request.getProductId());
+            cartItemService.updateQuantity(cartItem.getCartId(), request.getProductId(), request.getQuantity(), false);
+            return ResponseEntity.status(HttpStatus.CREATED).body(
+                    createResponse(HttpStatus.CREATED,
+                            "Quantity for " + request.getProductId() + " updated successfully",
+                            null)
+            );
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    createResponse(HttpStatus.NOT_FOUND,
+                            e.getMessage(),
+                            null)
+            );
+        }
+    }
 
     @Operation(summary = "Add to cart")
     @PostMapping("add-to-cart/{userId}")
@@ -56,7 +76,7 @@ public class CartController {
         try {
             CartDto cart = cartService.getUserCart(userId);
             CartItemDto cartItem = cartItemService.getCartItem(cart.getCartId(), request.getProductId());
-            cartItemService.updateQuantity(cartItem.getCartId(), request.getProductId(), request.getQuantity());
+            cartItemService.updateQuantity(cartItem.getCartId(), request.getProductId(), request.getQuantity(), true);
             return ResponseEntity.status(HttpStatus.CREATED).body(
                     createResponse(HttpStatus.CREATED,
                             "Added " + request.getQuantity() + " product of " + request.getProductId() + " to cart.",
