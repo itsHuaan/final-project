@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Setter
 @Builder
 public class CartItemDto {
-    private Long cartDetailId;
+    private Long cartItemId;
     private Long cartId;
     private SKUDto product;
     private Integer quantity;
