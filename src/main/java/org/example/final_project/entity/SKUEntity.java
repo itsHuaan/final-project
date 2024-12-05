@@ -34,4 +34,7 @@ public class SKUEntity {
     @ManyToOne
     @JoinColumn(name="value_id")
     private ProductOptionValuesEntity value;
+
+    @OneToMany(mappedBy = "product")
+    private List<CartItemEntity> cartItems;
 }

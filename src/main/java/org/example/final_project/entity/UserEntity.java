@@ -59,6 +59,9 @@ public class    UserEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserShippingAddressEntity> shippingAddresses = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CartEntity> carts;
+
     private String provider;
 }
 
