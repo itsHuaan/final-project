@@ -133,6 +133,7 @@ public class SKUService implements ISKUService {
                     SKUModel skuModel=new SKUModel();
                     skuModel.setOptionId1(temp.getOption().getId());
                     skuModel.setValueId1(temp.getValue().getId());
+                    skuModel.setProductId(productId);
                     stockList.add(saveCustom(skuModel));
                 }
             }
