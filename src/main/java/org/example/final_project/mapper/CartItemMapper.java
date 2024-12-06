@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.CartItemDto;
+import org.example.final_project.dto.CartSkuDto;
 import org.example.final_project.entity.CartEntity;
 import org.example.final_project.entity.CartItemEntity;
 import org.example.final_project.entity.SKUEntity;
@@ -18,16 +19,16 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CartItemMapper {
-    SKUMapper skuMapper;
+    CartSkuMapper cartSkuMapper;
     ICartRepository cartRepository;
     ISKURepository skuRepository;
 
     public CartItemDto toDto(CartItemEntity cartItemEntity) {
         return CartItemDto.builder()
                 .cartId(cartItemEntity.getCart().getCartId())
-                .product(skuMapper.convertToDto(cartItemEntity.getProduct()))
+                .item(cartSkuMapper.convertToDto(cartItemEntity.getProduct()))
                 .itemQuantity(cartItemEntity.getQuantity())
-                .price(cartItemEntity.getProduct().getPrice() * cartItemEntity.getQuantity())
+                .totalPrice(cartItemEntity.getProduct().getPrice() * cartItemEntity.getQuantity())
                 .build();
     }
 

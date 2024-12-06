@@ -63,5 +63,7 @@ public class    UserEntity {
     private List<CartEntity> carts;
 
     private String provider;
+    @OneToMany(mappedBy = "user" , cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    private List<OrderEntity> orderEntities;
 }
 

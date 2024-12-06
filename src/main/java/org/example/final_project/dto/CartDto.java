@@ -12,7 +12,7 @@ import java.util.List;
 @Builder
 public class CartDto {
     private Long cartId;
-    private UserDto user;
+    private CartUserDto user;
 
     private int cartQuantity;
     private double totalPrice = 0;

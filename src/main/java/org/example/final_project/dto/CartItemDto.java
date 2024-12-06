@@ -11,9 +11,9 @@ import java.time.LocalDateTime;
 @Builder
 public class CartItemDto {
     private Long cartId;
-    private SKUDto product;
+    private CartSkuDto item;
     private Integer itemQuantity;
-    private double price;
+    private double totalPrice;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;

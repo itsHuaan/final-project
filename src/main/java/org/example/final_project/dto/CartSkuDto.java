@@ -7,14 +7,10 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
-public class SKUDto {
+public class CartSkuDto {
     private long id;
-    private String shopName;
-    private long shopId;
     private CartProductDto cartProductDto;
-    private ProductOptionDto option1;
     private ProductOptionValueDto value1;
-    private ProductOptionDto option2;
     private ProductOptionValueDto value2;
     private double price;
     private long quantity;
