@@ -2,6 +2,7 @@ package org.example.final_project.service.impl;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.example.final_project.dto.ProductOptionDto;
 import org.example.final_project.dto.ProductOptionValueDto;
 import org.example.final_project.dto.SKUDto;
@@ -13,6 +14,7 @@ import org.example.final_project.repository.IProductOptionValueRepository;
 import org.example.final_project.repository.IProductRepository;
 import org.example.final_project.repository.ISKURepository;
 import org.example.final_project.service.ISKUService;
+import org.example.final_project.util.ConvertJsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +22,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.example.final_project.util.ConvertJsonObject.convertJsonToSKU;
 
 @Service
 public class SKUService implements ISKUService {
@@ -111,5 +115,19 @@ public class SKUService implements ISKUService {
         }
     }
 
-
+    @Override
+    public int updateListStock(List<String> jsonSKUModels) throws JsonProcessingException {
+        try{
+            for(SKUModel model: convertJsonToSKU(jsonSKUModels)){
+                SKUEntity entity=iskuRepository.findById(model.getId()).get();
+                entity.setQuantity(model.getQuantity());
+                entity.setPrice(model.getPrice());
+                entity.setImage(model.getImage());
+                iskuRepository.save(entity);
+            }
+            return 1;
+        }catch (Exception e){
+            throw e;
+        }
+    }
 }

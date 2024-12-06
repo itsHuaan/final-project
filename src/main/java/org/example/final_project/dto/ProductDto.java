@@ -26,4 +26,5 @@ public class ProductDto {
     private CategoryDto categoryDto;
     private List<ImageProductDto> images;
     private List<SKUDto> skuDtoList;
+    private UserDto userDto;
 }
