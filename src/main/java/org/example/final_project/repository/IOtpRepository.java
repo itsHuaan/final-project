@@ -8,6 +8,4 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import java.util.Optional;
 
 public interface IOtpRepository extends JpaRepository<OtpEntity, Long>, JpaSpecificationExecutor<OtpEntity> {
-    @Override
-    Optional<OtpEntity> findOne(Specification<OtpEntity> spec);
 }
