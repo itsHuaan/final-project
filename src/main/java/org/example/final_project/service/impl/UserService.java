@@ -226,8 +226,8 @@ public class UserService implements IUserService, UserDetailsService {
         long shopAddressId = request.getShop_address();
 
         if (optionalUserEntity.isPresent() || !addressRepository.existsById(shopAddressId)) {
-            UserEntity userEntity = userRepository.findById(request.getUserId()).get();
-            if (userEntity.getShop_status() == 0) {
+            UserEntity userEntity = optionalUserEntity.get();
+            if (userEntity.getShop_status() == 0 ) {
                 String id_back = imageService.uploadOneImage(request.getId_back());
                 userEntity.setId_back(id_back);
                 String id_front = imageService.uploadOneImage(request.getId_front());
@@ -238,7 +238,7 @@ public class UserService implements IUserService, UserDetailsService {
                 userEntity.setShop_address_detail(request.getShop_address_detail());
                 userEntity.setPhone(request.getPhone());
                 userEntity.setTime_created_shop(LocalDateTime.now());
-                userEntity.setShop_status(STATUS.INACTIVE.getStatus());
+                userEntity.setShop_status(STATUS.WAIT.getStatus());
                 userRepository.save(userEntity);
                 return createResponse(HttpStatus.OK, "Wait for confirm ", null);
             } else if (userEntity.getShop_status() == 1) {
