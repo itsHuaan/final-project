@@ -85,14 +85,15 @@ public class SKUService implements ISKUService {
     }
 
     @Override
-    public SKUDto saveCustom(SKUModel model) throws IOException {
+    public SKUDto saveCustom(SKUModel model) {
         SKUEntity entity = skuMapper.convertToEntity(model);
         entity.setProduct(productRepository.findById(model.getProductId()).get());
         entity.setOption1(optionRepository.findById(model.getOptionId1()).get());
         entity.setValue1(valueRepository.findById(model.getValueId1()).get());
         entity.setOption2(optionRepository.findById(model.getOptionId2()).get());
         entity.setValue2(valueRepository.findById(model.getValueId2()).get());
-        return skuMapper.convertToDto(iskuRepository.save(entity));
+        SKUEntity savedSKU=iskuRepository.save(entity);
+        return skuMapper.convertToDto(savedSKU);
     }
 
     @Override

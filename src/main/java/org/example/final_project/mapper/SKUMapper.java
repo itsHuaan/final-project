@@ -42,8 +42,6 @@ public class SKUMapper {
                         ? valueService.getById(entity.getValue2().getId())
                         : null)
                 .cartProductDto(cartProductMapper.toDto(entity.getProduct()))
-                .shopId(entity.getProduct().getUser().getUserId())
-                .shopName(entity.getProduct().getUser().getShop_name())
                 .price(entity.getPrice())
                 .quantity(entity.getQuantity())
                 .image(entity.getImage())
