@@ -14,6 +14,9 @@ public class SKUMapper {
     IProductOptionValueService valueService;
     @Autowired
     IProductOptionService optionService;
+
+        @Autowired
+        CartProductMapper cartProductMapper;
     public SKUDto convertToDto(SKUEntity entity){
         return SKUDto.builder()
                 .id(entity.getId())
@@ -21,7 +24,7 @@ public class SKUMapper {
                 .value1(valueService.getById(entity.getValue1().getId()))
                 .option2(optionService.getById(entity.getOption2().getId()))
                 .value2(valueService.getById(entity.getValue2().getId()))
-                .productName(entity.getProduct().getName())
+                .cartProductDto(cartProductMapper.toDto(entity.getProduct()))
                 .shopId(entity.getProduct().getUser().getUserId())
                 .shopName(entity.getProduct().getUser().getShop_name())
                 .price(entity.getPrice())
