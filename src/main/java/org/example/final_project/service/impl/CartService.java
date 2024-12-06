@@ -79,14 +79,14 @@ public class CartService implements ICartService {
     }
 
     @Override
-    public CheckoutDto getCheckOutDetail(Long cartId) {
+    public CheckoutDto getCheckOutDetail(Long cartId){
         Optional<CartEntity> cartEntity = cartRepository.findById(cartId);
-        if (cartEntity.isPresent()) {
+        if(cartEntity.isPresent()){
             CartEntity cart = cartEntity.get();
             List<CartItemEntity> cartItemEntities = cartItemRepository.findByCartId(cart.getCartId());
             double totalAmount = cart.getTotalPrice();
             UserEntity userEntity = userRepository.findById(cart.getUser().getUserId()).orElseThrow(null);
-            List<CartItemDto> list = cartItemEntities.stream().map(cartItemMapper::toDto).toList();
+            List<CartItemDto> list = cartItemEntities.stream().map(e->cartItemMapper.toDto(e)).toList();
             UserDto userDto = userMapper.toDto(userEntity);
             return CheckoutDto.builder()
                     .cartItems(list)

@@ -2,6 +2,7 @@ package org.example.final_project.configuration.VnPay;
 
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.example.final_project.util.Const;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.UnsupportedEncodingException;
 
+@Slf4j
 @RestController
 @RequestMapping(Const.API_PREFIX + "/payment")
 public class PaymentController {
@@ -23,6 +25,7 @@ public class PaymentController {
                                          HttpServletRequest request) throws UnsupportedEncodingException {
         request.setAttribute("amount",amount);
         String vnpayUrl = paymentService.creatUrlPaymentForVnPay(request);
+        log.info(vnpayUrl);
         return ResponseEntity.ok().body(vnpayUrl);
     }
 
