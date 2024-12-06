@@ -1,0 +1,25 @@
+package org.example.final_project.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+@Entity
+@Table(name="tbl_orderdetail")
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@Builder
+public class OrderDetailEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @ManyToOne
+    @JoinColumn(name = "order_id" )
+    private OrderEntity orderEntity;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id", nullable = false)
+    private ProductEntity product;
+
+}

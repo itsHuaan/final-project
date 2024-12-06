@@ -7,4 +7,5 @@ import org.example.final_project.model.CartModel;
 public interface ICartService extends IBaseService<CartDto, CartModel, Long>{
     CartDto getUserCart(Long userId);
     CheckoutDto getCheckOutDetail(Long cartId);
+    int submitCheckout();
 }

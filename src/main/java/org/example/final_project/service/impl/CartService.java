@@ -96,4 +96,9 @@ public class CartService implements ICartService {
         }
         return null;
     }
+    @Override
+    public int submitCheckout() {
+        return 1;
+    }
+
 }

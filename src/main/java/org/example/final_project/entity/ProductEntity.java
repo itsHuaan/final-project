@@ -49,7 +49,9 @@ public class ProductEntity {
     @JoinColumn(name="user_id")
     private UserEntity user;
 
-
     @OneToMany(mappedBy = "product")
     private List<SKUEntity> skuEntities;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<OrderDetailEntity> orderDetails;
 }
