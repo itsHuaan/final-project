@@ -15,7 +15,7 @@ import java.util.List;
 public class ProductOptionValuesEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
     private String name;
 
 

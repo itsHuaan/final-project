@@ -15,15 +15,28 @@ public class SKUMapper {
     @Autowired
     IProductOptionService optionService;
 
-        @Autowired
-        CartProductMapper cartProductMapper;
-    public SKUDto convertToDto(SKUEntity entity){
+    @Autowired
+    CartProductMapper cartProductMapper;
+
+    public SKUDto convertToDto(SKUEntity entity) {
+        Long optionId1 = entity.getOption1().getId();
+        Long optionId2 = entity.getOption2().getId();
+        Long value1 = entity.getValue1().getId();
+        Long value2 = entity.getValue2().getId();
         return SKUDto.builder()
                 .id(entity.getId())
-                .option1(optionService.getById(entity.getOption1().getId()))
-                .value1(valueService.getById(entity.getValue1().getId()))
-                .option2(optionService.getById(entity.getOption2().getId()))
-                .value2(valueService.getById(entity.getValue2().getId()))
+                .option1(optionId1 != null
+                        ? optionService.getById(entity.getOption1().getId())
+                        : null)
+                .value1(value1 != null
+                        ? valueService.getById(entity.getValue1().getId())
+                        : null)
+                .option2(optionId2 != null
+                        ? optionService.getById(entity.getOption2().getId())
+                        : null)
+                .value2(value2 != null
+                        ? valueService.getById(entity.getValue2().getId())
+                        : null)
                 .cartProductDto(cartProductMapper.toDto(entity.getProduct()))
                 .shopId(entity.getProduct().getUser().getUserId())
                 .shopName(entity.getProduct().getUser().getShop_name())
@@ -32,7 +45,8 @@ public class SKUMapper {
                 .image(entity.getImage())
                 .build();
     }
-    public SKUEntity convertToEntity(SKUModel model){
+
+    public SKUEntity convertToEntity(SKUModel model) {
         return SKUEntity.builder()
                 .id(model.getId())
                 .price(model.getPrice())
