@@ -3,6 +3,7 @@ package org.example.final_project.util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.final_project.model.ProductOptionsModel;
+import org.example.final_project.model.SKUModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,5 +16,13 @@ public class ConvertJsonObject {
             options.add(objectMapper.readValue(item, ProductOptionsModel.class));
         }
         return options;
+    }
+    public static List<SKUModel> convertJsonToSKU(List<String> jsonObject) throws JsonProcessingException {
+        ObjectMapper objectMapper=new ObjectMapper();
+        List<SKUModel> skuList=new ArrayList<>();
+        for(String item:jsonObject){
+            skuList.add(objectMapper.readValue(item, SKUModel.class));
+        }
+        return skuList;
     }
 }

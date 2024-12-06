@@ -20,7 +20,7 @@ public class ImageUploader {
     Cloudinary cloudinary;
 
     @PostMapping("/upload")
-    ResponseEntity uploadImage(@RequestPart MultipartFile file) throws IOException {
+    ResponseEntity uploadImage(MultipartFile file) throws IOException {
         return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                 HttpStatus.OK,
                 "Successfully",

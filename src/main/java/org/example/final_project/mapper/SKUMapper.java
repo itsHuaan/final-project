@@ -27,6 +27,7 @@ public class SKUMapper {
     }
     public SKUEntity convertToEntity(SKUModel model){
         return SKUEntity.builder()
+                .id(model.getId())
                 .price(model.getPrice())
                 .quantity(model.getQuantity())
                 .image(model.getImage())

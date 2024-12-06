@@ -6,6 +6,7 @@ import org.example.final_project.model.ProductModel;
 import org.example.final_project.repository.ICategoryRepository;
 import org.example.final_project.repository.IImageProductRepository;
 import org.example.final_project.service.ISKUService;
+import org.example.final_project.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -24,6 +25,8 @@ public class ProductMapper {
     ImageProductMapper imageMapper;
     @Autowired
     ISKUService iskuService;
+    @Autowired
+    IUserService iUserService;
     public ProductDto convertToDto(ProductEntity productEntity){
         return ProductDto.builder()
                 .id(productEntity.getId())
@@ -40,6 +43,7 @@ public class ProductMapper {
                 .categoryDto(categoryMapper.convertToDto(productEntity.getCategoryEntity()))
                 .images(imageProductRepository.findAllByProductEntity_Id(productEntity.getId()).stream().map(x->imageMapper.convertToDto(x)).collect(Collectors.toList()))
                 .skuDtoList(iskuService.getAllByProduct(productEntity.getId()))
+                .userDto(iUserService.getById(productEntity.getId()))
                 .build();
     }
     public ProductEntity convertToEntity(ProductModel model){

@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.util.List;
+
 import static org.example.final_project.dto.ApiResponse.createResponse;
 
 @RestController
@@ -36,12 +38,10 @@ public class StockController {
         }
     }
 
-    @PostMapping("/create-new")
-    ResponseEntity addNewStock(@ModelAttribute SKUModel[] models) {
+    @PutMapping
+    ResponseEntity updateStock(@ModelAttribute List<String> jsonModels) {
         try {
-            for (SKUModel model : models) {
-                skuService.saveCustom(model);
-            }
+            skuService.updateListStock(jsonModels);
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.CREATED,
                     "Successfully",
