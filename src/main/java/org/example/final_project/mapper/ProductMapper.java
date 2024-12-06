@@ -27,7 +27,12 @@ public class ProductMapper {
     ISKUService iskuService;
     @Autowired
     IUserService iUserService;
-    public ProductDto convertToDto(ProductEntity productEntity){
+    @Autowired
+    UserMapper userMapper;
+    @Autowired
+    ShopMapper shopMapper;
+
+    public ProductDto convertToDto(ProductEntity productEntity) {
         return ProductDto.builder()
                 .id(productEntity.getId())
                 .name(productEntity.getName())
@@ -41,12 +46,13 @@ public class ProductMapper {
                 .deletedAt(productEntity.getDeletedAt())
                 .isActive(productEntity.getIsActive())
                 .categoryDto(categoryMapper.convertToDto(productEntity.getCategoryEntity()))
-                .images(imageProductRepository.findAllByProductEntity_Id(productEntity.getId()).stream().map(x->imageMapper.convertToDto(x)).collect(Collectors.toList()))
-                .skuDtoList(iskuService.getAllByProduct(productEntity.getId()))
-                .userDto(iUserService.getById(productEntity.getId()))
+                .images(imageProductRepository.findAllByProductEntity_Id(productEntity.getId()).stream().map(x -> imageMapper.convertToDto(x)).collect(Collectors.toList()))
+                .variants(iskuService.getAllByProduct(productEntity.getId()))
+                .shopDto(shopMapper.toDto(productEntity.getUser()))
                 .build();
     }
-    public ProductEntity convertToEntity(ProductModel model){
+
+    public ProductEntity convertToEntity(ProductModel model) {
         return ProductEntity.builder()
                 .name(model.getName())
                 .numberOfLike(model.getNumberOfLike())

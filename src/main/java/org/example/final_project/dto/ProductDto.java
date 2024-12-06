@@ -25,6 +25,6 @@ public class ProductDto {
     private LocalDateTime deletedAt;
     private CategoryDto categoryDto;
     private List<ImageProductDto> images;
-    private List<SKUDto> skuDtoList;
-    private UserDto userDto;
+    private List<SKUDto> variants;
+    private ShopDto shopDto;
 }
