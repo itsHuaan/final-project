@@ -34,12 +34,23 @@ public class VnPayUtil {
     }
 
     public static String getIpAddress(HttpServletRequest request) {
-        String ipAddress = request.getHeader("X-FORWARDED-FOR"); // Lấy IP từ header nếu qua proxy
+        String ipAddress = request.getHeader("X-Forwarded-For");
         if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
-            ipAddress = request.getRemoteAddr(); // Lấy IP trực tiếp từ client
+            ipAddress = request.getHeader("Proxy-Client-IP");
+        }
+        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getHeader("WL-Proxy-Client-IP");
+        }
+        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getRemoteAddr();
+        }
+        // Nếu có proxy chain, lấy IP đầu tiên
+        if (ipAddress != null && ipAddress.contains(",")) {
+            ipAddress = ipAddress.split(",")[0].trim();
         }
         return ipAddress;
     }
+
 
     public static String getRandomNumber(int len) {
         Random rnd = new Random();
