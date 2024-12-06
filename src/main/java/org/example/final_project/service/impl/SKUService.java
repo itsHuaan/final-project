@@ -99,27 +99,40 @@ public class SKUService implements ISKUService {
     public List<SKUDto> addListSKU(long productId, List<ProductOptionDto> optionList) throws IOException {
         try {
             List<SKUDto> stockList = new ArrayList<>();
-            List<OptionValueTemp> temps1 = new ArrayList<>();
-            List<OptionValueTemp> temps2 = new ArrayList<>();
-            for (int i = 0; i < 2; i++) {
-                if (i == 0) {
-                    for (ProductOptionValueDto value : optionList.get(i).getValues()) {
-                        temps1.add(new OptionValueTemp(optionList.get(i), value));
-                    }
-                } else {
-                    for (ProductOptionValueDto value : optionList.get(i).getValues()) {
-                        temps2.add(new OptionValueTemp(optionList.get(i), value));
+            if (optionList.size() == 2) {
+                List<OptionValueTemp> temps1 = new ArrayList<>();
+                List<OptionValueTemp> temps2 = new ArrayList<>();
+                for (int i = 0; i < 2; i++) {
+                    if (i == 0) {
+                        for (ProductOptionValueDto value : optionList.get(i).getValues()) {
+                            temps1.add(new OptionValueTemp(optionList.get(i), value));
+                        }
+                    } else {
+                        for (ProductOptionValueDto value : optionList.get(i).getValues()) {
+                            temps2.add(new OptionValueTemp(optionList.get(i), value));
+                        }
                     }
                 }
-            }
-            for (int i = 0; i < temps1.size(); i++) {
-                for (int j = 0; j < temps2.size(); j++) {
-                    SKUModel skuModel = new SKUModel();
-                    skuModel.setProductId(productId);
-                    skuModel.setOptionId1(temps1.get(i).getOption().getId());
-                    skuModel.setValueId1(temps1.get(i).getValue().getId());
-                    skuModel.setOptionId2(temps2.get(j).getOption().getId());
-                    skuModel.setValueId2(temps2.get(j).getValue().getId());
+                for (int i = 0; i < temps1.size(); i++) {
+                    for (int j = 0; j < temps2.size(); j++) {
+                        SKUModel skuModel = new SKUModel();
+                        skuModel.setProductId(productId);
+                        skuModel.setOptionId1(temps1.get(i).getOption().getId());
+                        skuModel.setValueId1(temps1.get(i).getValue().getId());
+                        skuModel.setOptionId2(temps2.get(j).getOption().getId());
+                        skuModel.setValueId2(temps2.get(j).getValue().getId());
+                        stockList.add(saveCustom(skuModel));
+                    }
+                }
+            } else if (optionList.size() == 1) {
+                List<OptionValueTemp> temps = new ArrayList<>();
+                for (ProductOptionValueDto value:optionList.get(0).getValues()){
+                    temps.add(new OptionValueTemp(optionList.get(0),value));
+                }
+                for(OptionValueTemp temp:temps){
+                    SKUModel skuModel=new SKUModel();
+                    skuModel.setOptionId1(temp.getOption().getId());
+                    skuModel.setValueId1(temp.getValue().getId());
                     stockList.add(saveCustom(skuModel));
                 }
             }

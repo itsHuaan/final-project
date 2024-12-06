@@ -82,13 +82,22 @@ public class ProductOptionService implements IProductOptionService {
 
     @Override
     public List<ProductOptionDto> saveAllOption(List<String> jsonOptions) throws JsonProcessingException {
-        try{
-            List<ProductOptionsEntity> list=new ArrayList<>();
-            for(ProductOptionsModel model: ConvertJsonObject.convertJsonToOption(jsonOptions)){
-                list.add(saveCustom(model));
+        try {
+            List<ProductOptionsEntity> list = new ArrayList<>();
+            if (jsonOptions != null && jsonOptions.size() != 0) {
+                for (ProductOptionsModel model : ConvertJsonObject.convertJsonToOption(jsonOptions)) {
+                    list.add(saveCustom(model));
+                }
+            }else{
+                ProductOptionsModel optionsModel=new ProductOptionsModel();
+                optionsModel.setName("default");
+                ProductOptionValueModel valueModel=new ProductOptionValueModel();
+                valueModel.setName("default");
+                optionsModel.setValues(List.of(valueModel));
+                list.add(saveCustom(optionsModel));
             }
-            return list.stream().map(x->mapper.convertToDto(x)).collect(Collectors.toList());
-        }catch(Exception e){
+            return list.stream().map(x -> mapper.convertToDto(x)).collect(Collectors.toList());
+        } catch (Exception e) {
             throw e;
         }
     }
