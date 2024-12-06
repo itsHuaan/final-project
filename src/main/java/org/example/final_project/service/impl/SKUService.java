@@ -3,6 +3,7 @@ package org.example.final_project.service.impl;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.example.final_project.dto.OptionValueTemp;
 import org.example.final_project.dto.ProductOptionDto;
 import org.example.final_project.dto.ProductOptionValueDto;
 import org.example.final_project.dto.SKUDto;
@@ -86,47 +87,60 @@ public class SKUService implements ISKUService {
     @Override
     public SKUDto saveCustom(SKUModel model) throws IOException {
         SKUEntity entity = skuMapper.convertToEntity(model);
-        if (productRepository.findById(model.getProductId()).isPresent() && optionRepository.findById(model.getOptionId()).isPresent() && valueRepository.findById(model.getValueId()).isPresent()) {
-            entity.setProduct(productRepository.findById(model.getProductId()).get());
-            entity.setOption(optionRepository.findById(model.getOptionId()).get());
-            entity.setValue(valueRepository.findById(model.getValueId()).get());
-        } else {
-            throw new IllegalArgumentException("Value not found");
-        }
+        entity.setProduct(productRepository.findById(model.getProductId()).get());
+        entity.setOption1(optionRepository.findById(model.getOptionId1()).get());
+        entity.setValue1(valueRepository.findById(model.getValueId1()).get());
+        entity.setOption2(optionRepository.findById(model.getOptionId2()).get());
+        entity.setValue2(valueRepository.findById(model.getValueId2()).get());
         return skuMapper.convertToDto(iskuRepository.save(entity));
     }
 
     @Override
     public List<SKUDto> addListSKU(long productId, List<ProductOptionDto> optionList) throws IOException {
-        try{
-            List<SKUDto> stockList=new ArrayList<>();
-            for (ProductOptionDto option:optionList){
-                for(ProductOptionValueDto value:option.getValues()){
-                    SKUModel skuModel=new SKUModel();
+        try {
+            List<SKUDto> stockList = new ArrayList<>();
+            List<OptionValueTemp> temps1 = new ArrayList<>();
+            List<OptionValueTemp> temps2 = new ArrayList<>();
+            for (int i = 0; i < 2; i++) {
+                if (i == 0) {
+                    for (ProductOptionValueDto value : optionList.get(i).getValues()) {
+                        temps1.add(new OptionValueTemp(optionList.get(i), value));
+                    }
+                } else {
+                    for (ProductOptionValueDto value : optionList.get(i).getValues()) {
+                        temps2.add(new OptionValueTemp(optionList.get(i), value));
+                    }
+                }
+            }
+            for (int i = 0; i < temps1.size(); i++) {
+                for (int j = 0; j < temps2.size(); j++) {
+                    SKUModel skuModel = new SKUModel();
                     skuModel.setProductId(productId);
-                    skuModel.setOptionId(option.getId());
-                    skuModel.setValueId(value.getId());
+                    skuModel.setOptionId1(temps1.get(i).getOption().getId());
+                    skuModel.setValueId1(temps1.get(i).getValue().getId());
+                    skuModel.setOptionId2(temps2.get(j).getOption().getId());
+                    skuModel.setValueId2(temps2.get(j).getValue().getId());
                     stockList.add(saveCustom(skuModel));
                 }
             }
             return stockList;
-        }catch(Exception e){
+        } catch (Exception e) {
             throw e;
         }
     }
 
     @Override
     public int updateListStock(List<String> jsonSKUModels) throws JsonProcessingException {
-        try{
-            for(SKUModel model: convertJsonToSKU(jsonSKUModels)){
-                SKUEntity entity=iskuRepository.findById(model.getId()).get();
+        try {
+            for (SKUModel model : convertJsonToSKU(jsonSKUModels)) {
+                SKUEntity entity = iskuRepository.findById(model.getId()).get();
                 entity.setQuantity(model.getQuantity());
                 entity.setPrice(model.getPrice());
                 entity.setImage(model.getImage());
                 iskuRepository.save(entity);
             }
             return 1;
-        }catch (Exception e){
+        } catch (Exception e) {
             throw e;
         }
     }

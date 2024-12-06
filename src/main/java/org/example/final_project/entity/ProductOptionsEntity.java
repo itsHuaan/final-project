@@ -23,6 +23,10 @@ public class ProductOptionsEntity {
     private List<ProductOptionValuesEntity> valuesEntities;
 
 
-    @OneToMany(mappedBy = "option")
-    private List<SKUEntity> skuEntities;
+    @OneToMany(mappedBy = "option1")
+    private List<SKUEntity> skuEntities1;
+
+
+    @OneToMany(mappedBy = "option2")
+    private List<SKUEntity> skuEntities2;
 }

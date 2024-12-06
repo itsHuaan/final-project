@@ -2,6 +2,7 @@ package org.example.final_project.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.example.final_project.dto.ProductOptionDto;
 
 import java.util.List;
 
@@ -27,13 +28,21 @@ public class SKUEntity {
 
 
     @ManyToOne
-    @JoinColumn(name="option_id")
-    private ProductOptionsEntity option;
-
+    @JoinColumn(name="option_id1")
+    private ProductOptionsEntity option1;
 
     @ManyToOne
-    @JoinColumn(name="value_id")
-    private ProductOptionValuesEntity value;
+    @JoinColumn(name="option_id2")
+    private ProductOptionsEntity option2;
+
+    @ManyToOne
+    @JoinColumn(name="value_id1")
+    private ProductOptionValuesEntity value1;
+
+    @ManyToOne
+    @JoinColumn(name="value_id2")
+    private ProductOptionValuesEntity value2;
+
 
     @OneToMany(mappedBy = "product")
     private List<CartItemEntity> cartItems;

@@ -19,8 +19,12 @@ public class ProductOptionValuesEntity {
     private String name;
 
 
-    @OneToMany(mappedBy = "value")
-    private List<SKUEntity> skuEntities;
+    @OneToMany(mappedBy = "value1")
+    private List<SKUEntity> skuEntities1;
+
+
+    @OneToMany(mappedBy = "value2")
+    private List<SKUEntity> skuEntities2;
 
 
     @ManyToOne

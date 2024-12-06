@@ -10,8 +10,12 @@ import lombok.*;
 public class SKUDto {
     private long id;
     private String productName;
-    private ProductOptionDto option;
-    private ProductOptionValueDto value;
+    private String shopName;
+    private long shopId;
+    private ProductOptionDto option1;
+    private ProductOptionValueDto value1;
+    private ProductOptionDto option2;
+    private ProductOptionValueDto value2;
     private double price;
     private long quantity;
     private String image;
