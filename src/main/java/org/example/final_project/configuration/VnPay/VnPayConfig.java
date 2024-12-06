@@ -47,12 +47,15 @@ public class VnPayConfig {
         vnpParamsMap.put("vnp_Locale", "vn");
         vnpParamsMap.put("vnp_ReturnUrl", this.vnp_ReturnUrl);
 
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
+        // Set thời gian theo múi giờ Việt Nam (GMT+7)
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
 
+        // Thời gian tạo giao dịch
         String vnpCreateDate = formatter.format(calendar.getTime());
         vnpParamsMap.put("vnp_CreateDate", vnpCreateDate);
 
+        // Thời gian hết hạn giao dịch
         calendar.add(Calendar.MINUTE, 15);
         String vnp_ExpireDate = formatter.format(calendar.getTime());
         vnpParamsMap.put("vnp_ExpireDate", vnp_ExpireDate);

@@ -30,5 +30,8 @@ public class OrderEntity {
     @JoinColumn(name = "user_id" , nullable = false  )
     private UserEntity user;
 
+    @OneToMany(mappedBy = "orderEntity")
+    private List<OrderDetailEntity> orderDetailEntities;
+
 
 }
