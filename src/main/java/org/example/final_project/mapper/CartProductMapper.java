@@ -10,6 +10,7 @@ public class CartProductMapper {
         return CartProductDto.builder()
                 .productId(productEntity.getId())
                 .productName(productEntity.getName())
+                .productImage(productEntity.getImages().get(0).getImageLink())
                 .categoryId(productEntity.getCategoryEntity().getId())
                 .categoryName(productEntity.getCategoryEntity().getName())
                 .shopId(productEntity.getUser().getUserId())
