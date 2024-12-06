@@ -19,11 +19,12 @@ public class CartMapper {
     UserMapper userMapper;
     CartItemMapper cartItemMapper;
     IUserRepository userRepository;
+    CartUserMapper cartUserMapper;
 
     public CartDto toDto(CartEntity cartEntity) {
         return CartDto.builder()
                 .cartId(cartEntity.getCartId())
-                .user(userMapper.toDto(cartEntity.getUser()))
+                .user(cartUserMapper.toDto(cartEntity.getUser()))
                 .cartQuantity(cartEntity.getCartItems().size())
                 .cartItems(cartEntity.getCartItems().stream().map(cartItemMapper::toDto).toList())
                 .totalPrice(cartEntity.getTotalPrice())
