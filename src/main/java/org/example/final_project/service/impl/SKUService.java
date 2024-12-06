@@ -2,6 +2,8 @@ package org.example.final_project.service.impl;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import org.example.final_project.dto.ProductOptionDto;
+import org.example.final_project.dto.ProductOptionValueDto;
 import org.example.final_project.dto.SKUDto;
 import org.example.final_project.entity.SKUEntity;
 import org.example.final_project.mapper.SKUMapper;
@@ -13,9 +15,9 @@ import org.example.final_project.repository.ISKURepository;
 import org.example.final_project.service.ISKUService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -78,7 +80,7 @@ public class SKUService implements ISKUService {
     }
 
     @Override
-    public int saveCustom(SKUModel model) throws IOException {
+    public SKUDto saveCustom(SKUModel model) throws IOException {
         SKUEntity entity = skuMapper.convertToEntity(model);
         if (productRepository.findById(model.getProductId()).isPresent() && optionRepository.findById(model.getOptionId()).isPresent() && valueRepository.findById(model.getValueId()).isPresent()) {
             entity.setProduct(productRepository.findById(model.getProductId()).get());
@@ -87,7 +89,27 @@ public class SKUService implements ISKUService {
         } else {
             throw new IllegalArgumentException("Value not found");
         }
-        iskuRepository.save(entity);
-        return 1;
+        return skuMapper.convertToDto(iskuRepository.save(entity));
     }
+
+    @Override
+    public List<SKUDto> addListSKU(long productId, List<ProductOptionDto> optionList) throws IOException {
+        try{
+            List<SKUDto> stockList=new ArrayList<>();
+            for (ProductOptionDto option:optionList){
+                for(ProductOptionValueDto value:option.getValues()){
+                    SKUModel skuModel=new SKUModel();
+                    skuModel.setProductId(productId);
+                    skuModel.setOptionId(option.getId());
+                    skuModel.setValueId(value.getId());
+                    stockList.add(saveCustom(skuModel));
+                }
+            }
+            return stockList;
+        }catch(Exception e){
+            throw e;
+        }
+    }
+
+
 }

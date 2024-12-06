@@ -38,20 +38,5 @@ public class ProductOptionController {
             ));
         }
     }
-    @GetMapping("/{product-id}")
-    ResponseEntity getAllByProduct(@PathVariable("product-id")long productId){
-        try{
-            return ResponseEntity.status(HttpStatus.OK).body(createResponse(
-                    HttpStatus.OK,
-                    "Successfully",
-                    optionService.getAllByProduct(productId)
-            ));
-        }catch(Exception e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
-                    HttpStatus.BAD_REQUEST,
-                    e.getMessage(),
-                    null
-            ));
-        }
-    }
+
 }

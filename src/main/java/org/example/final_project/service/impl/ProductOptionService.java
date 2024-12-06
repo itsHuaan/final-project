@@ -1,5 +1,6 @@
 package org.example.final_project.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.example.final_project.dto.ProductOptionDto;
 import org.example.final_project.entity.ProductOptionValuesEntity;
 import org.example.final_project.entity.ProductOptionsEntity;
@@ -10,9 +11,11 @@ import org.example.final_project.repository.IProductOptionRepository;
 import org.example.final_project.repository.IProductRepository;
 import org.example.final_project.service.IProductOptionService;
 import org.example.final_project.service.IProductOptionValueService;
+import org.example.final_project.util.ConvertJsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -43,21 +46,7 @@ public class ProductOptionService implements IProductOptionService {
 
     @Override
     public int save(ProductOptionsModel model) {
-        try {
-            ProductOptionsEntity entity = mapper.convertToEntity(model);
-            if (productRepository.findById(model.getProductId()).isPresent()) {
-                entity.setProduct(productRepository.findById(model.getProductId()).get());
-                ProductOptionsEntity savedOption = optionRepository.save(entity);
-                for (ProductOptionValueModel value : model.getValues()) {
-                    valueService.save(new ProductOptionValueModel(value.getName(), savedOption.getId()));
-                }
-            }else{
-                throw new IllegalArgumentException("Value not found");
-            }
-            return 1;
-        } catch (Exception e) {
-            throw e;
-        }
+        return 0;
     }
 
     @Override
@@ -90,8 +79,31 @@ public class ProductOptionService implements IProductOptionService {
         }
     }
 
+
     @Override
-    public List<ProductOptionDto> getAllByProduct(long productId) {
-        return optionRepository.findAllByProduct_Id(productId).stream().map(x -> mapper.convertToDto(x)).collect(Collectors.toList());
+    public List<ProductOptionDto> saveAllOption(List<String> jsonOptions) throws JsonProcessingException {
+        try{
+            List<ProductOptionsEntity> list=new ArrayList<>();
+            for(ProductOptionsModel model: ConvertJsonObject.convertJsonToOption(jsonOptions)){
+                list.add(saveCustom(model));
+            }
+            return list.stream().map(x->mapper.convertToDto(x)).collect(Collectors.toList());
+        }catch(Exception e){
+            throw e;
+        }
+    }
+
+    @Override
+    public ProductOptionsEntity saveCustom(ProductOptionsModel model) {
+        try {
+            ProductOptionsEntity entity = mapper.convertToEntity(model);
+            ProductOptionsEntity savedOption = optionRepository.save(entity);
+            for (ProductOptionValueModel value : model.getValues()) {
+                valueService.save(new ProductOptionValueModel(value.getName(), savedOption.getId()));
+            }
+            return savedOption;
+        } catch (Exception e) {
+            throw e;
+        }
     }
 }

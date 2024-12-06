@@ -19,6 +19,7 @@ public class SKUMapper {
                 .id(entity.getId())
                 .option(optionService.getById(entity.getOption().getId()))
                 .value(valueService.getById(entity.getValue().getId()))
+                .productName(entity.getProduct().getName())
                 .price(entity.getPrice())
                 .quantity(entity.getQuantity())
                 .image(entity.getImage())

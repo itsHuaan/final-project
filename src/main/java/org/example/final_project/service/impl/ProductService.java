@@ -1,14 +1,17 @@
 package org.example.final_project.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.example.final_project.dto.ProductDto;
 import org.example.final_project.entity.ProductEntity;
 import org.example.final_project.mapper.ProductMapper;
 import org.example.final_project.model.ImageProductModel;
 import org.example.final_project.model.ProductModel;
+import org.example.final_project.model.ProductOptionsModel;
 import org.example.final_project.model.enum_status.ActivateStatus;
 import org.example.final_project.repository.IProductRepository;
 import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.*;
+import org.example.final_project.util.ConvertJsonObject;
 import org.example.final_project.util.specification.ProductSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -22,6 +25,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.example.final_project.util.ConvertJsonObject.convertJsonToOption;
 import static org.example.final_project.util.specification.ProductSpecification.*;
 
 @Service
@@ -34,6 +38,8 @@ public class ProductService implements IProductService {
     IImageProductService imageService;
     @Autowired
     IUserRepository iUserRepository;
+    @Autowired
+    IProductOptionService optionService;
 
 
     @Override
@@ -56,18 +62,7 @@ public class ProductService implements IProductService {
 
     @Override
     public int save(ProductModel productModel) {
-        try {
-            ProductEntity productEntity = productMapper.convertToEntity(productModel);
-            productEntity.setIsActive(0);
-            productEntity.setUser(iUserRepository.findById(productModel.getUser_id()).get());
-            ProductEntity savedProduct = iProductRepository.save(productEntity);
-            for (MultipartFile file : productModel.getFiles()) {
-                imageService.save(new ImageProductModel(file, savedProduct.getId()));
-            }
-            return (int) savedProduct.getId();
-        } catch (Exception e) {
-            throw e;
-        }
+        return 0;
     }
 
     @Override
@@ -93,6 +88,22 @@ public class ProductService implements IProductService {
                 iProductRepository.save(productEntity);
             }
             return 1;
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    @Override
+    public int saveCustom(ProductModel productModel) throws JsonProcessingException {
+        try {
+            ProductEntity productEntity = productMapper.convertToEntity(productModel);
+            productEntity.setIsActive(0);
+            productEntity.setUser(iUserRepository.findById(productModel.getUser_id()).get());
+            ProductEntity savedProduct = iProductRepository.save(productEntity);
+            for (MultipartFile file : productModel.getFiles()) {
+                imageService.save(new ImageProductModel(file, savedProduct.getId()));
+            }
+            return (int) savedProduct.getId();
         } catch (Exception e) {
             throw e;
         }

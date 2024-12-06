@@ -9,6 +9,7 @@ import lombok.*;
 @Builder
 public class SKUDto {
     private long id;
+    private String productName;
     private ProductOptionDto option;
     private ProductOptionValueDto value;
     private double price;

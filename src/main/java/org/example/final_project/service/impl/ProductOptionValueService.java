@@ -1,12 +1,15 @@
 package org.example.final_project.service.impl;
 
 import org.example.final_project.dto.ProductOptionValueDto;
+import org.example.final_project.entity.ProductEntity;
 import org.example.final_project.entity.ProductOptionValuesEntity;
 import org.example.final_project.mapper.ProductOptionValueMapper;
 import org.example.final_project.model.ProductOptionValueModel;
 import org.example.final_project.repository.IProductOptionRepository;
 import org.example.final_project.repository.IProductOptionValueRepository;
+import org.example.final_project.repository.IProductRepository;
 import org.example.final_project.service.IProductOptionValueService;
+import org.example.final_project.service.ISKUService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +24,8 @@ public class ProductOptionValueService implements IProductOptionValueService {
     ProductOptionValueMapper mapper;
     @Autowired
     IProductOptionRepository optionRepository;
+    @Autowired
+    ISKUService iskuService;
 
     @Override
     public List<ProductOptionValueDto> getAll() {
@@ -46,6 +51,7 @@ public class ProductOptionValueService implements IProductOptionValueService {
             ProductOptionValuesEntity entity = mapper.convertToEntity(productOptionValueModel);
             entity.setOption(optionRepository.findById(productOptionValueModel.getOptionId()).get());
             valueRepository.save(entity);
+
             return 1;
         } catch (Exception e) {
             throw e;

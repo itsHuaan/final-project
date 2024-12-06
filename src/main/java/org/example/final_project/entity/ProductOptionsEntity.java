@@ -23,11 +23,6 @@ public class ProductOptionsEntity {
     private List<ProductOptionValuesEntity> valuesEntities;
 
 
-    @ManyToOne
-    @JoinColumn(name="product_id")
-    private ProductEntity product;
-
-
     @OneToMany(mappedBy = "option")
     private List<SKUEntity> skuEntities;
 }
