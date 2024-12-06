@@ -2,10 +2,12 @@ package org.example.final_project.configuration.VnPay;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PaymentService {
@@ -29,6 +31,7 @@ public class PaymentService {
         }
         vnpParamsMap.put("vnp_Amount", String.valueOf(amount));
         vnpParamsMap.put("vnp_IpAddr", VnPayUtil.getIpAddress(request));
+        log.info(VnPayUtil.getIpAddress(request));
         String queryUrl = VnPayUtil.getPaymentURL(vnpParamsMap, true);
         String hashData = VnPayUtil.getPaymentURL(vnpParamsMap, false);
         String vnpSecure = VnPayUtil.hmacSHA512(config.getSecretKey(), hashData);
