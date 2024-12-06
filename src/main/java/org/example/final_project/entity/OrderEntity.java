@@ -21,6 +21,8 @@ public class OrderEntity {
     private Double total_price;
     private String shipping_address;
     private String shipping_city;
+    private String status_checkout;
+    private String method_checkout;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
