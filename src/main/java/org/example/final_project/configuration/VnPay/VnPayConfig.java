@@ -34,6 +34,7 @@ public class VnPayConfig {
     @Value("${vnpay.orderType}")
     private String orderType;
 
+
     public Map<String, String> getVNPayConfig() {
         Map<String, String> vnpParamsMap = new HashMap<>();
         vnpParamsMap.put("vnp_Version", this.vnp_Version);

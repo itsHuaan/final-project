@@ -19,6 +19,8 @@ import java.io.UnsupportedEncodingException;
 public class PaymentController {
     @Autowired
     private PaymentService paymentService;
+    @Autowired
+    private HttpServletRequest request;
 
     @GetMapping("/create-payment")
     public ResponseEntity<?> submidOrder(@RequestParam("amount") String amount,
@@ -37,6 +39,11 @@ public class PaymentController {
         }else {
             return ResponseEntity.ok("error");
         }
+    }
+    @GetMapping("/get-client-ip")
+    public String getClientIpAddress() {
+        String clientIp = VnPayUtil.getIpAddress(request);
+        return "Client IP: " + clientIp;
     }
 
 

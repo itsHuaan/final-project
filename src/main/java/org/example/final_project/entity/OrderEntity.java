@@ -2,8 +2,10 @@ package org.example.final_project.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.apache.catalina.User;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name="tbl_order")
@@ -22,6 +24,9 @@ public class OrderEntity {
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
+    @ManyToOne
+    @JoinColumn(name = "user_id" , nullable = false  )
+    private UserEntity user;
 
 
 }

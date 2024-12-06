@@ -26,11 +26,9 @@ public class PaymentService {
         }
         String bankCode = request.getParameter("bankCode");
         Map<String, String> vnpParamsMap = config.getVNPayConfig();
-        if (bankCode != null && !bankCode.isEmpty()) {
-            vnpParamsMap.put("vnp_BankCode", bankCode);
-        }
+        vnpParamsMap.put("vnp_BankCode", bankCode);
         vnpParamsMap.put("vnp_Amount", String.valueOf(amount));
-        vnpParamsMap.put("vnp_IpAddr", "127.0.0.1");
+        vnpParamsMap.put("vnp_IpAddr", VnPayUtil.getIpAddress(request));
         String queryUrl = VnPayUtil.getPaymentURL(vnpParamsMap, true);
         String hashData = VnPayUtil.getPaymentURL(vnpParamsMap, false);
         String vnpSecure = VnPayUtil.hmacSHA512(config.getSecretKey(), hashData);
