@@ -31,6 +31,7 @@ public class FeedbackMapper {
                 .user(userMapper.toUserFeedBackDto(feedback.getUser()))
                 .content(feedback.getContent())
                 .rate(feedback.getRate())
+                .createdAt(feedback.getCreatedAt())
 //                .feedbackImages(iImageFeedbackService.findAllByFeedback(feedback.getId()))
                 .build();
     }

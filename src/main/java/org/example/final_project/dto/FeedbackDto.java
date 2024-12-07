@@ -8,6 +8,7 @@ import org.example.final_project.entity.FeedbackImageEntity;
 import org.example.final_project.entity.ProductEntity;
 import org.example.final_project.entity.UserEntity;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @AllArgsConstructor
@@ -20,6 +21,7 @@ public class FeedbackDto {
     private UserFeedBackDto user;
     private double rate;
     private String content;
+    private LocalDateTime createdAt;
 //    private ProductDto product;
 //    private List<FeedbackImageDto> feedbackImages;
 }
