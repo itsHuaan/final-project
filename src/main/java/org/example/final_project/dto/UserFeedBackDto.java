@@ -10,7 +10,7 @@ import lombok.*;
 @Builder
 public class UserFeedBackDto {
     private Long userId;
-    private String name;
     private String username;
+    private String name;
     private String profilePicture;
 }

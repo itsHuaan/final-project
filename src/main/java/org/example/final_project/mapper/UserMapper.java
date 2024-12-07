@@ -75,7 +75,7 @@ public class UserMapper {
     public UserFeedBackDto toUserFeedBackDto(UserEntity userEntity) {
         return UserFeedBackDto.builder()
                 .userId(userEntity.getUserId())
-                .username(userEntity.getName())
+                .username(userEntity.getUsername())
                 .name(userEntity.getName())
                 .profilePicture(userEntity.getProfilePicture())
                 .build();
