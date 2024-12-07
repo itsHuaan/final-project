@@ -1,10 +1,9 @@
 package org.example.final_project.service.impl;
 
 import com.cloudinary.Cloudinary;
-import com.cloudinary.utils.ObjectUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.example.final_project.dto.OptionValueTemp;
-import org.example.final_project.dto.ProductOptionDto;
+import org.example.final_project.dto.ProductOptionDetailDto;
 import org.example.final_project.dto.ProductOptionValueDto;
 import org.example.final_project.dto.SKUDto;
 import org.example.final_project.entity.SKUEntity;
@@ -15,7 +14,6 @@ import org.example.final_project.repository.IProductOptionValueRepository;
 import org.example.final_project.repository.IProductRepository;
 import org.example.final_project.repository.ISKURepository;
 import org.example.final_project.service.ISKUService;
-import org.example.final_project.util.ConvertJsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -97,7 +95,7 @@ public class SKUService implements ISKUService {
     }
 
     @Override
-    public List<SKUDto> addListSKU(long productId, List<ProductOptionDto> optionList) throws IOException {
+    public List<SKUDto> addListSKU(long productId, List<ProductOptionDetailDto> optionList) throws IOException {
         try {
             List<SKUDto> stockList = new ArrayList<>();
             if (optionList.size() == 2) {

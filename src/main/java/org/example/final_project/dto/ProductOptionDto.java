@@ -2,8 +2,6 @@ package org.example.final_project.dto;
 
 import lombok.*;
 
-import java.util.List;
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -12,5 +10,4 @@ import java.util.List;
 public class ProductOptionDto {
     private long id;
     private String name;
-    private List<ProductOptionValueDto> values;
 }

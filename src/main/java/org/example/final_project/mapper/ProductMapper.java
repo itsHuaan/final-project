@@ -34,8 +34,8 @@ public class ProductMapper {
 
     public ProductDto convertToDto(ProductEntity productEntity) {
         return ProductDto.builder()
-                .id(productEntity.getId())
-                .name(productEntity.getName())
+                .productId(productEntity.getId())
+                .productName(productEntity.getName())
                 .numberOfLike(productEntity.getNumberOfLike())
                 .numberOfFeedBack(productEntity.getNumberOfFeedBack())
                 .rating(productEntity.getRating())
@@ -45,10 +45,10 @@ public class ProductMapper {
                 .modifiedAt(productEntity.getModifiedAt())
                 .deletedAt(productEntity.getDeletedAt())
                 .isActive(productEntity.getIsActive())
-                .categoryDto(categoryMapper.convertToDto(productEntity.getCategoryEntity()))
+                .category(categoryMapper.convertToDto(productEntity.getCategoryEntity()))
                 .images(imageProductRepository.findAllByProductEntity_Id(productEntity.getId()).stream().map(x -> imageMapper.convertToDto(x)).collect(Collectors.toList()))
                 .variants(iskuService.getAllByProduct(productEntity.getId()))
-                .shopDto(shopMapper.toDto(productEntity.getUser()))
+                .shop(shopMapper.toDto(productEntity.getUser()))
                 .build();
     }
 

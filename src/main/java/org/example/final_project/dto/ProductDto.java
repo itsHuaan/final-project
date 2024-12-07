@@ -11,8 +11,8 @@ import java.util.List;
 @Setter
 @Builder
 public class ProductDto {
-    private long id;
-    private String name;
+    private long productId;
+    private String productName;
     private long numberOfFeedBack;
     private long numberOfLike;
     private double rating;
@@ -23,8 +23,8 @@ public class ProductDto {
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
-    private CategoryDto categoryDto;
+    private CategoryDto category;
     private List<ImageProductDto> images;
     private List<SKUDto> variants;
-    private ShopDto shopDto;
+    private ShopDto shop;
 }

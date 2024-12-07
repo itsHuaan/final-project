@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.ApiResponse;
 import org.example.final_project.dto.ProductDto;
-import org.example.final_project.dto.ProductOptionDto;
+import org.example.final_project.dto.ProductOptionDetailDto;
 import org.example.final_project.dto.SKUDto;
 import org.example.final_project.model.ProductModel;
 import org.example.final_project.model.validation.PageableValidation;
@@ -100,7 +100,7 @@ public class ProductController {
     ResponseEntity<?> addNewProduct(ProductModel model) {
         try {
             int productId = productService.saveCustom(model);
-            List<ProductOptionDto> optionList = optionService.saveAllOption(model.getOptions());
+            List<ProductOptionDetailDto> optionList = optionService.saveAllOption(model.getOptions());
             List<SKUDto> stockList = iskuService.addListSKU(productId, optionList);
             return ResponseEntity.ok(createResponse(
                     HttpStatus.CREATED,
