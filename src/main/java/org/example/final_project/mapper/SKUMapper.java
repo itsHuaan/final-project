@@ -25,21 +25,13 @@ public class SKUMapper {
     public SKUDto convertToDto(SKUEntity entity) {
         ProductOptionsEntity option1 = entity.getOption1();
         ProductOptionsEntity option2 = entity.getOption2();
-        ProductOptionValuesEntity value1 = entity.getValue1();
-        ProductOptionValuesEntity value2 = entity.getValue2();
         return SKUDto.builder()
                 .id(entity.getId())
                 .option1(option1!=null
                         ? optionMapper.convertToDto1(entity.getOption1())
                         : null)
-                .value1(value1 != null
-                        ? valueService.getById(entity.getValue1().getId())
-                        : null)
                 .option2(option2 != null
                         ? optionMapper.convertToDto1(entity.getOption2())
-                        : null)
-                .value2(value2 != null
-                        ? valueService.getById(entity.getValue2().getId())
                         : null)
                 .cartProductDto(cartProductMapper.toDto(entity.getProduct()))
                 .price(entity.getPrice())

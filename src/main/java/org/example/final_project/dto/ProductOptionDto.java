@@ -10,4 +10,5 @@ import lombok.*;
 public class ProductOptionDto {
     private long id;
     private String name;
+    private ProductOptionValueDto value;
 }

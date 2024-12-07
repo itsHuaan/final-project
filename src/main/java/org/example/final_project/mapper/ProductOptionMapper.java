@@ -2,6 +2,7 @@ package org.example.final_project.mapper;
 
 import org.example.final_project.dto.ProductOptionDetailDto;
 import org.example.final_project.dto.ProductOptionDto;
+import org.example.final_project.dto.ProductOptionValueDto;
 import org.example.final_project.entity.ProductOptionsEntity;
 import org.example.final_project.model.ProductOptionsModel;
 import org.example.final_project.repository.IProductOptionValueRepository;
@@ -23,12 +24,21 @@ public class ProductOptionMapper {
                 .values(valueRepository.findAllByOption_Id(optionsEntity.getId()).stream().map(x->valueMapper.convertToDto(x)).collect(Collectors.toList()))
                 .build();
     }
-    public ProductOptionDto convertToDto1(ProductOptionsEntity optionsEntity){
+    public ProductOptionDto convertToDto1(ProductOptionsEntity optionsEntity) {
+        ProductOptionValueDto valueDto = optionsEntity.getValuesEntities() != null && !optionsEntity.getValuesEntities().isEmpty()
+                ? ProductOptionValueDto.builder()
+                .id(optionsEntity.getValuesEntities().get(0).getId())
+                .name(optionsEntity.getValuesEntities().get(0).getName())
+                .build()
+                : null;
+
         return ProductOptionDto.builder()
                 .id(optionsEntity.getId())
                 .name(optionsEntity.getName())
+                .value(valueDto)
                 .build();
     }
+
     public ProductOptionsEntity convertToEntity(ProductOptionsModel model){
         return ProductOptionsEntity.builder()
                 .name(model.getName())
