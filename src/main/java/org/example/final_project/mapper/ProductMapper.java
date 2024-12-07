@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.ProductDto;
+import org.example.final_project.entity.FeedbackEntity;
 import org.example.final_project.entity.ProductEntity;
 import org.example.final_project.model.ProductModel;
 import org.example.final_project.repository.ICategoryRepository;
@@ -24,14 +25,18 @@ public class ProductMapper {
     ImageProductMapper imageMapper;
     ISKUService iskuService;
     UserMapper userMapper;
+    FeedbackMapper feedbackMapper;
 
     public ProductDto convertToDto(ProductEntity productEntity) {
         return ProductDto.builder()
                 .productId(productEntity.getId())
                 .productName(productEntity.getName())
-                .numberOfLike(productEntity.getNumberOfLike())
-                .numberOfFeedBack(productEntity.getNumberOfFeedBack())
-                .rating(productEntity.getRating())
+//                .numberOfLike(productEntity.getNumberOfLike())
+                .numberOfFeedBack(productEntity.getFeedbacks().size())
+                .rating(productEntity.getFeedbacks().stream()
+                        .mapToDouble(FeedbackEntity::getRate)
+                        .average()
+                        .orElse(0.0))
                 .description(productEntity.getDescription())
                 .note(productEntity.getNote())
                 .createdAt(productEntity.getCreatedAt())
@@ -42,15 +47,13 @@ public class ProductMapper {
                 .images(imageProductRepository.findAllByProductEntity_Id(productEntity.getId()).stream().map(imageMapper::convertToDto).collect(Collectors.toList()))
                 .variants(iskuService.getAllByProduct(productEntity.getId()))
                 .shop(userMapper.toShopDto(productEntity.getUser()))
+                .feedbacks(productEntity.getFeedbacks().stream().map(feedbackMapper::convertToDto).toList())
                 .build();
     }
 
     public ProductEntity convertToEntity(ProductModel model) {
         return ProductEntity.builder()
                 .name(model.getName())
-                .numberOfLike(model.getNumberOfLike())
-                .numberOfFeedBack(model.getNumberOfFeedBack())
-                .rating(model.getRating())
                 .description(model.getDescription())
                 .note(model.getNote())
                 .createdAt(LocalDateTime.now())

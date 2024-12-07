@@ -19,9 +19,9 @@ import java.util.List;
 @Getter
 @Setter
 public class FeedbackModel {
-    private String content;
     private long userId;
     private long productId;
     private double rate;
-    private MultipartFile[] files;
+    private String content;
+//    private MultipartFile[] files;
 }

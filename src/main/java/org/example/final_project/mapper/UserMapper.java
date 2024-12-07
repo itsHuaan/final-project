@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.ShopDto;
 import org.example.final_project.dto.UserDto;
+import org.example.final_project.dto.UserFeedBackDto;
 import org.example.final_project.entity.RoleEntity;
 import org.example.final_project.entity.UserEntity;
 import org.example.final_project.model.UserModel;
@@ -68,6 +69,15 @@ public class UserMapper {
                 .shopName(userEntity.getShop_name())
                 .shopAddress(String.join(", ", addressService.findAddressNamesFromParentId(Long.parseLong(String.valueOf(userEntity.getAddress_id_shop())))))
                 .shopAddressDetail(userEntity.getShop_address_detail())
+                .build();
+    }
+
+    public UserFeedBackDto toUserFeedBackDto(UserEntity userEntity) {
+        return UserFeedBackDto.builder()
+                .userId(userEntity.getUserId())
+                .username(userEntity.getName())
+                .name(userEntity.getName())
+                .profilePicture(userEntity.getProfilePicture())
                 .build();
     }
 }

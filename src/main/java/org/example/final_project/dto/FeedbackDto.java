@@ -17,9 +17,9 @@ import java.util.List;
 @Builder
 public class FeedbackDto {
     private long id;
-    private String content;
-    private UserDto user;
+    private UserFeedBackDto user;
     private double rate;
-    private ProductDto product;
-    private List<FeedbackImageDto> feedbackImages;
+    private String content;
+//    private ProductDto product;
+//    private List<FeedbackImageDto> feedbackImages;
 }

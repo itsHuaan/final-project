@@ -27,4 +27,5 @@ public class ProductDto {
     private List<ImageProductDto> images;
     private List<SKUDto> variants;
     private ShopDto shop;
+    private List<FeedbackDto> feedbacks;
 }
