@@ -109,8 +109,10 @@ public class CartController {
             CartDto cart = cartService.getUserCart(userId);
             CartItemDto cartItem = cartItemService.getCartItem(cart.getCartId(), request.getProductId());
             if (request.getQuantity() > 0) {
-                cartItemService.updateQuantity(cartItem.getCartId(), request.getProductId(), request.getQuantity(), false);
-                message = "Quantity for " + request.getProductId() + " updated successfully";
+                int result = cartItemService.updateQuantity(cartItem.getCartId(), request.getProductId(), request.getQuantity(), false);
+                message = result != 0
+                        ? "Quantity for " + request.getProductId() + " updated successfully"
+                        : "Failed to update quantity for " + request.getProductId() + ".";
             } else {
                 int result = cartItemService.deleteCartItem(cart.getCartId(), request.getProductId());
                 message = result != 0
