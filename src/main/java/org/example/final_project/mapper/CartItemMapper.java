@@ -19,14 +19,14 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CartItemMapper {
-    CartSkuMapper cartSkuMapper;
+    VariantMapper variantMapper;
     ICartRepository cartRepository;
     ISKURepository skuRepository;
 
     public CartItemDto toDto(CartItemEntity cartItemEntity) {
         return CartItemDto.builder()
                 .cartId(cartItemEntity.getCart().getCartId())
-                .item(cartSkuMapper.convertToDto(cartItemEntity.getProduct()))
+                .item(variantMapper.toDto(cartItemEntity.getProduct()))
                 .itemQuantity(cartItemEntity.getQuantity())
                 .totalPrice(cartItemEntity.getProduct().getPrice() * cartItemEntity.getQuantity())
                 .build();

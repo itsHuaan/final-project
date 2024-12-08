@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.ProductDto;
+import org.example.final_project.dto.ProductFamilyDto;
 import org.example.final_project.entity.FeedbackEntity;
 import org.example.final_project.entity.ProductEntity;
 import org.example.final_project.model.ProductModel;
@@ -61,6 +62,20 @@ public class ProductMapper {
                 .categoryEntity(iCategoryRepository.findById(model.getCategoryId()).isPresent()
                         ? iCategoryRepository.findById(model.getCategoryId()).get()
                         : null)
+                .build();
+    }
+
+    public ProductFamilyDto toProductFamilyDto(ProductEntity productEntity){
+        return ProductFamilyDto.builder()
+                .productId(productEntity.getId())
+                .productName(productEntity.getName())
+                .productImage(productEntity.getImages() != null
+                        ? productEntity.getImages().get(0).getImageLink()
+                        : null)
+                .categoryId(productEntity.getCategoryEntity().getId())
+                .categoryName(productEntity.getCategoryEntity().getName())
+                .shopId(productEntity.getUser().getUserId())
+                .shopName(productEntity.getUser().getShop_name())
                 .build();
     }
 }

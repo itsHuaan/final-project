@@ -1,8 +1,14 @@
 package org.example.final_project.mapper;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.example.final_project.dto.ProductFamilyDto;
 import org.example.final_project.dto.ProductOptionDetailDto;
 import org.example.final_project.dto.ProductOptionDto;
 import org.example.final_project.dto.ProductOptionValueDto;
+import org.example.final_project.entity.ProductEntity;
+import org.example.final_project.entity.ProductOptionValuesEntity;
 import org.example.final_project.entity.ProductOptionsEntity;
 import org.example.final_project.model.ProductOptionsModel;
 import org.example.final_project.repository.IProductOptionValueRepository;
@@ -12,32 +18,34 @@ import org.springframework.stereotype.Component;
 import java.util.stream.Collectors;
 
 @Component
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ProductOptionMapper {
-    @Autowired
     ProductOptionValueMapper valueMapper;
-    @Autowired
     IProductOptionValueRepository valueRepository;
     public ProductOptionDetailDto convertToDto(ProductOptionsEntity optionsEntity){
         return ProductOptionDetailDto.builder()
                 .id(optionsEntity.getId())
                 .name(optionsEntity.getName())
-                .values(valueRepository.findAllByOption_Id(optionsEntity.getId()).stream().map(x->valueMapper.convertToDto(x)).collect(Collectors.toList()))
+                .values(valueRepository.findAllByOption_Id(optionsEntity.getId()).stream().map(valueMapper::convertToDto).collect(Collectors.toList()))
                 .build();
     }
-    public ProductOptionDto convertToDto1(ProductOptionsEntity optionsEntity) {
-        ProductOptionValueDto valueDto = optionsEntity.getValuesEntities() != null && !optionsEntity.getValuesEntities().isEmpty()
+
+    public ProductOptionDto convertToDtoWithValue(ProductOptionsEntity optionsEntity, ProductOptionValuesEntity valueEntity) {
+        ProductOptionValueDto valueDto = valueEntity != null
                 ? ProductOptionValueDto.builder()
-                .id(optionsEntity.getValuesEntities().get(0).getId())
-                .name(optionsEntity.getValuesEntities().get(0).getName())
+                .valueId(valueEntity.getId())
+                .name(valueEntity.getName())
                 .build()
                 : null;
 
         return ProductOptionDto.builder()
-                .id(optionsEntity.getId())
+                .optionId(optionsEntity.getId())
                 .name(optionsEntity.getName())
                 .value(valueDto)
                 .build();
     }
+
 
     public ProductOptionsEntity convertToEntity(ProductOptionsModel model){
         return ProductOptionsEntity.builder()

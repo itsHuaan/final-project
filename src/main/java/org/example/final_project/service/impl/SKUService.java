@@ -117,9 +117,9 @@ public class SKUService implements ISKUService {
                         SKUModel skuModel = new SKUModel();
                         skuModel.setProductId(productId);
                         skuModel.setOptionId1(temps1.get(i).getOption().getId());
-                        skuModel.setValueId1(temps1.get(i).getValue().getId());
+                        skuModel.setValueId1(temps1.get(i).getValue().getValueId());
                         skuModel.setOptionId2(temps2.get(j).getOption().getId());
-                        skuModel.setValueId2(temps2.get(j).getValue().getId());
+                        skuModel.setValueId2(temps2.get(j).getValue().getValueId());
                         stockList.add(saveCustom(skuModel));
                     }
                 }
@@ -131,7 +131,7 @@ public class SKUService implements ISKUService {
                 for(OptionValueTemp temp:temps){
                     SKUModel skuModel=new SKUModel();
                     skuModel.setOptionId1(temp.getOption().getId());
-                    skuModel.setValueId1(temp.getValue().getId());
+                    skuModel.setValueId1(temp.getValue().getValueId());
                     skuModel.setProductId(productId);
                     stockList.add(saveCustom(skuModel));
                 }

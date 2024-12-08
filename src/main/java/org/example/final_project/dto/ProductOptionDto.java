@@ -8,7 +8,7 @@ import lombok.*;
 @Setter
 @Builder
 public class ProductOptionDto {
-    private long id;
+    private long optionId;
     private String name;
     private ProductOptionValueDto value;
 }
