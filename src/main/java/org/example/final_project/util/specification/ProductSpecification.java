@@ -40,4 +40,8 @@ public class ProductSpecification {
         return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("categoryEntity").get("id"),categoryId);
     }
+    public static Specification<ProductEntity> hasShopAddress(long shopId) {
+        return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("user").get("userId"),shopId);
+    }
 }

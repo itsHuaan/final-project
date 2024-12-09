@@ -233,8 +233,15 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public Page<ProductDto> getAllProductByPrice(double startPrice, double endPrice, Pageable pageable) {
-        return null;
+    public Page<ProductDto> getAllProductByFilter(Long categoryId, Long addressId, Double startPrice, Double endPrice) {
+        Specification<ProductEntity> filter=Specification.where(isNotDeleted());
+        if(categoryId!=null){
+            filter=filter.and(hasCategoryId(categoryId));
+        }
+        if(addressId!=null){
+            filter=filter.and(hasShopAddress())
+        }
     }
+
 
 }
