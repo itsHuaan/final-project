@@ -53,7 +53,7 @@ public class CartItemService implements ICartItemService {
     }
 
     @Override
-    public void updateQuantity(Long cartId, Long productId, Integer quantity, boolean isAddingOne) {
+    public int updateQuantity(Long cartId, Long productId, Integer quantity, boolean isAddingOne) {
         CartItemEntity currentCartItem = cartItemRepository.findOne(Specification.where(
                 hasCartId(cartId).and(hasProductId(productId))
         )).orElse(null);
@@ -64,7 +64,9 @@ public class CartItemService implements ICartItemService {
                 currentCartItem.setQuantity(quantity);
             }
             cartItemRepository.save(currentCartItem);
+            return 1;
         }
+        return 0;
     }
 
     @Override

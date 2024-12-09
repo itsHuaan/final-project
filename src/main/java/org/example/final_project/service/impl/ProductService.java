@@ -44,16 +44,12 @@ public class ProductService implements IProductService {
 
     @Override
     public List<ProductDto> getAll() {
-        try {
-            return iProductRepository.findAll().stream().filter(x -> x.getIsActive() == 1 && x.getDeletedAt() == null).map(x -> productMapper.convertToDto(x)).collect(Collectors.toList());
-        } catch (Exception e) {
-            throw e;
-        }
+        return iProductRepository.findAll().stream().filter(x -> x.getIsActive() == 1 && x.getDeletedAt() == null).map(productMapper::convertToDto).collect(Collectors.toList());
     }
 
     @Override
     public ProductDto getById(Long id) {
-        if (iProductRepository.findById(id).get() != null) {
+        if (iProductRepository.findById(id).isPresent()) {
             return productMapper.convertToDto(iProductRepository.findById(id).get());
         } else {
             throw new IllegalArgumentException("Value not found");
@@ -69,7 +65,7 @@ public class ProductService implements IProductService {
     public int update(Long aLong, ProductModel productModel) {
         try {
             ProductEntity productEntity = productMapper.convertToEntity(productModel);
-            if (iProductRepository.findById(aLong).get() != null) {
+            if (iProductRepository.findById(aLong).isPresent()) {
                 productEntity.setId(aLong);
                 iProductRepository.save(productEntity);
             }

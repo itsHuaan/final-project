@@ -1,5 +1,8 @@
 package org.example.final_project.controller;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.ApiResponse;
 import org.example.final_project.model.FeedbackModel;
 import org.example.final_project.service.IFeedbackService;
@@ -14,26 +17,32 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 
+import static org.example.final_project.dto.ApiResponse.createResponse;
+
 @RestController
-@RequestMapping(Const.API_PREFIX+"/feedback")
-public class FeedbackController {   
-    @Autowired
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@RequestMapping(Const.API_PREFIX + "/feedback")
+public class FeedbackController {
     IFeedbackService feedbackService;
-    @PostMapping("/addNew")
-    ResponseEntity<ApiResponse<?>> addNewFeedback(@ModelAttribute FeedbackModel model){
-        if(feedbackService.save(model)==1){
-            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
-                    204,
-                    "Feedback Successfully",
-                    null,
-                    LocalDateTime.now()
-            ));
-        }else{
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
-                    400,
-                    "Bad Request",
-                    null,
-                    LocalDateTime.now()
+
+    @PostMapping
+    ResponseEntity<?> addNewFeedback(FeedbackModel feedback) {
+        try {
+            feedbackService.save(feedback);
+            return ResponseEntity.status(HttpStatus.CREATED).body(
+                    createResponse(
+                            HttpStatus.CREATED,
+                            "Feedback added",
+                            null
+                    )
+            );
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    createResponse(
+                            HttpStatus.BAD_REQUEST,
+                            "Failed to add feedback",
+                            null
                     )
             );
         }

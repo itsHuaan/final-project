@@ -1,8 +1,7 @@
 package org.example.final_project.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.example.final_project.dto.ProductOptionDto;
-import org.example.final_project.entity.ProductOptionValuesEntity;
+import org.example.final_project.dto.ProductOptionDetailDto;
 import org.example.final_project.entity.ProductOptionsEntity;
 import org.example.final_project.mapper.ProductOptionMapper;
 import org.example.final_project.model.ProductOptionValueModel;
@@ -31,12 +30,12 @@ public class ProductOptionService implements IProductOptionService {
     IProductRepository productRepository;
 
     @Override
-    public List<ProductOptionDto> getAll() {
+    public List<ProductOptionDetailDto> getAll() {
         return optionRepository.findAll().stream().map(x -> mapper.convertToDto(x)).collect(Collectors.toList());
     }
 
     @Override
-    public ProductOptionDto getById(Long id) {
+    public ProductOptionDetailDto getById(Long id) {
         if (optionRepository.findById(id).isPresent()) {
             return mapper.convertToDto(optionRepository.findById(id).get());
         } else {
@@ -81,7 +80,7 @@ public class ProductOptionService implements IProductOptionService {
 
 
     @Override
-    public List<ProductOptionDto> saveAllOption(List<String> jsonOptions) throws JsonProcessingException {
+    public List<ProductOptionDetailDto> saveAllOption(List<String> jsonOptions) throws JsonProcessingException {
         try {
             List<ProductOptionsEntity> list = new ArrayList<>();
             if (jsonOptions != null && jsonOptions.size() != 0) {

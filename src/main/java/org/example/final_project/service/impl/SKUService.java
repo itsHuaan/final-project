@@ -1,10 +1,9 @@
 package org.example.final_project.service.impl;
 
 import com.cloudinary.Cloudinary;
-import com.cloudinary.utils.ObjectUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.example.final_project.dto.OptionValueTemp;
-import org.example.final_project.dto.ProductOptionDto;
+import org.example.final_project.dto.ProductOptionDetailDto;
 import org.example.final_project.dto.ProductOptionValueDto;
 import org.example.final_project.dto.SKUDto;
 import org.example.final_project.entity.SKUEntity;
@@ -15,7 +14,6 @@ import org.example.final_project.repository.IProductOptionValueRepository;
 import org.example.final_project.repository.IProductRepository;
 import org.example.final_project.repository.ISKURepository;
 import org.example.final_project.service.ISKUService;
-import org.example.final_project.util.ConvertJsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -85,18 +83,19 @@ public class SKUService implements ISKUService {
     }
 
     @Override
-    public SKUDto saveCustom(SKUModel model) throws IOException {
+    public SKUDto saveCustom(SKUModel model) {
         SKUEntity entity = skuMapper.convertToEntity(model);
         entity.setProduct(productRepository.findById(model.getProductId()).get());
         entity.setOption1(optionRepository.findById(model.getOptionId1()).get());
         entity.setValue1(valueRepository.findById(model.getValueId1()).get());
         entity.setOption2(optionRepository.findById(model.getOptionId2()).get());
         entity.setValue2(valueRepository.findById(model.getValueId2()).get());
-        return skuMapper.convertToDto(iskuRepository.save(entity));
+        SKUEntity savedSKU=iskuRepository.save(entity);
+        return skuMapper.convertToDto(savedSKU);
     }
 
     @Override
-    public List<SKUDto> addListSKU(long productId, List<ProductOptionDto> optionList) throws IOException {
+    public List<SKUDto> addListSKU(long productId, List<ProductOptionDetailDto> optionList) throws IOException {
         try {
             List<SKUDto> stockList = new ArrayList<>();
             if (optionList.size() == 2) {
@@ -118,9 +117,9 @@ public class SKUService implements ISKUService {
                         SKUModel skuModel = new SKUModel();
                         skuModel.setProductId(productId);
                         skuModel.setOptionId1(temps1.get(i).getOption().getId());
-                        skuModel.setValueId1(temps1.get(i).getValue().getId());
+                        skuModel.setValueId1(temps1.get(i).getValue().getValueId());
                         skuModel.setOptionId2(temps2.get(j).getOption().getId());
-                        skuModel.setValueId2(temps2.get(j).getValue().getId());
+                        skuModel.setValueId2(temps2.get(j).getValue().getValueId());
                         stockList.add(saveCustom(skuModel));
                     }
                 }
@@ -132,7 +131,7 @@ public class SKUService implements ISKUService {
                 for(OptionValueTemp temp:temps){
                     SKUModel skuModel=new SKUModel();
                     skuModel.setOptionId1(temp.getOption().getId());
-                    skuModel.setValueId1(temp.getValue().getId());
+                    skuModel.setValueId1(temp.getValue().getValueId());
                     skuModel.setProductId(productId);
                     stockList.add(saveCustom(skuModel));
                 }

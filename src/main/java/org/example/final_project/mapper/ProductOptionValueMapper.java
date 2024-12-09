@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 public class ProductOptionValueMapper {
     public ProductOptionValueDto convertToDto(ProductOptionValuesEntity entity){
         return ProductOptionValueDto.builder()
-                .id(entity.getId())
+                .valueId(entity.getId())
                 .name(entity.getName())
                 .build();
     }

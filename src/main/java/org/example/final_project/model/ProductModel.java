@@ -18,9 +18,6 @@ import java.util.List;
 public class ProductModel {
     private MultipartFile[] files;
     private String name;
-    private long numberOfFeedBack;
-    private long numberOfLike;
-    private double rating;
     private String description;
     private long sold;
     private String note;
