@@ -157,7 +157,7 @@ public class ProductController {
                                         @RequestParam int type,
                                         @RequestParam String note) {
         try {
-            productService.inActivateProduct(id, type, note);
+            productService.deactivateProduct(id, type, note);
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.NO_CONTENT,
                     "Inactivate Product Successfully",
