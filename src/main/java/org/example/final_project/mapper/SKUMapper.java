@@ -53,7 +53,6 @@ public class SKUMapper {
                 .id(model.getId())
                 .price(model.getPrice())
                 .quantity(model.getQuantity())
-                .image(model.getImage())
                 .build();
     }
 }
