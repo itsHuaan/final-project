@@ -106,7 +106,7 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public int inActivateProduct(long id, int type, String note) {
+    public int deactivateProduct(long id, int type, String note) {
         try {
             ProductEntity productEntity = iProductRepository.findById(id).get();
             if (productEntity != null) {

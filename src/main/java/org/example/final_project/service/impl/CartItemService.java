@@ -70,24 +70,18 @@ public class CartItemService implements ICartItemService {
     }
 
     @Override
-    public int deleteCartItem(Long cartId, Long productId) {
-        CartItemEntity currentCartItem = cartItemRepository.findOne(Specification.where(
-                hasCartId(cartId).and(hasProductId(productId))
-        )).orElse(null);
-        if (currentCartItem != null) {
-            cartItemRepository.delete(currentCartItem);
-            return 1;
+    public int deleteCartItems(Long cartId, List<Long> productIds) {
+        Specification<CartItemEntity> specification = Specification.where(hasCartId(cartId));
+        List<CartItemEntity> cartItems;
+        if (productIds == null || productIds.isEmpty()){
+            cartItems = cartItemRepository.findAll(specification);
+        } else {
+            specification = specification.and(hasProductIds(productIds));
+            cartItems = cartItemRepository.findAll(specification);
         }
-        return 0;
-    }
-
-    @Override
-    public int clearCartItem(Long cartId) {
-        List<CartItemEntity> currentCartItems = cartItemRepository.findAll(Specification.where(
-                hasCartId(cartId)));
-        if (!currentCartItems.isEmpty()) {
-            cartItemRepository.deleteAll(currentCartItems);
-            return 1;
+        if (!cartItems.isEmpty()) {
+            cartItemRepository.deleteAll(cartItems);
+            return cartItems.size();
         }
         return 0;
     }
