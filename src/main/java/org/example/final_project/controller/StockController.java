@@ -38,10 +38,10 @@ public class StockController {
         }
     }
 
-    @PutMapping
-    ResponseEntity updateStock(@ModelAttribute List<String> jsonModels) {
+    @PostMapping
+    ResponseEntity updateStock(@RequestBody List<SKUModel> skuModels) {
         try {
-            skuService.updateListStock(jsonModels);
+            skuService.updateListStock(skuModels);
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.CREATED,
                     "Successfully",

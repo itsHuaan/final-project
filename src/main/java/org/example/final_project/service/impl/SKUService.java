@@ -1,7 +1,6 @@
 package org.example.final_project.service.impl;
 
 import com.cloudinary.Cloudinary;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.example.final_project.dto.OptionValueTemp;
 import org.example.final_project.dto.ProductOptionDetailDto;
 import org.example.final_project.dto.ProductOptionValueDto;
@@ -16,13 +15,10 @@ import org.example.final_project.repository.ISKURepository;
 import org.example.final_project.service.ISKUService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static org.example.final_project.util.ConvertJsonObject.convertJsonToSKU;
 
 @Service
 public class SKUService implements ISKUService {
@@ -90,7 +86,7 @@ public class SKUService implements ISKUService {
         entity.setValue1(valueRepository.findById(model.getValueId1()).get());
         entity.setOption2(optionRepository.findById(model.getOptionId2()).get());
         entity.setValue2(valueRepository.findById(model.getValueId2()).get());
-        SKUEntity savedSKU=iskuRepository.save(entity);
+        SKUEntity savedSKU = iskuRepository.save(entity);
         return skuMapper.convertToDto(savedSKU);
     }
 
@@ -125,11 +121,11 @@ public class SKUService implements ISKUService {
                 }
             } else if (optionList.size() == 1) {
                 List<OptionValueTemp> temps = new ArrayList<>();
-                for (ProductOptionValueDto value:optionList.get(0).getValues()){
-                    temps.add(new OptionValueTemp(optionList.get(0),value));
+                for (ProductOptionValueDto value : optionList.get(0).getValues()) {
+                    temps.add(new OptionValueTemp(optionList.get(0), value));
                 }
-                for(OptionValueTemp temp:temps){
-                    SKUModel skuModel=new SKUModel();
+                for (OptionValueTemp temp : temps) {
+                    SKUModel skuModel = new SKUModel();
                     skuModel.setOptionId1(temp.getOption().getId());
                     skuModel.setValueId1(temp.getValue().getValueId());
                     skuModel.setProductId(productId);
@@ -143,14 +139,16 @@ public class SKUService implements ISKUService {
     }
 
     @Override
-    public int updateListStock(List<String> jsonSKUModels) throws JsonProcessingException {
+    public int updateListStock(List<SKUModel> skuModels) throws IOException {
         try {
-            for (SKUModel model : convertJsonToSKU(jsonSKUModels)) {
-                SKUEntity entity = iskuRepository.findById(model.getId()).get();
-                entity.setQuantity(model.getQuantity());
-                entity.setPrice(model.getPrice());
-                entity.setImage(model.getImage());
-                iskuRepository.save(entity);
+            for (SKUModel model : skuModels) {
+                if (iskuRepository.findById(model.getId()).isPresent()) {
+                    SKUEntity entity = iskuRepository.findById(model.getId()).get();
+                    entity.setQuantity(model.getQuantity());
+                    entity.setPrice(model.getPrice());
+                    entity.setImage(model.getImage());
+                    iskuRepository.save(entity);
+                }
             }
             return 1;
         } catch (Exception e) {

@@ -17,12 +17,4 @@ public class ConvertJsonObject {
         }
         return options;
     }
-    public static List<SKUModel> convertJsonToSKU(List<String> jsonObject) throws JsonProcessingException {
-        ObjectMapper objectMapper=new ObjectMapper();
-        List<SKUModel> skuList=new ArrayList<>();
-        for(String item:jsonObject){
-            skuList.add(objectMapper.readValue(item, SKUModel.class));
-        }
-        return skuList;
-    }
 }
