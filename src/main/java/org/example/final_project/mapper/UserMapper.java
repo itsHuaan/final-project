@@ -2,10 +2,13 @@ package org.example.final_project.mapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.example.final_project.dto.ShopDto;
 import org.example.final_project.dto.UserDto;
+import org.example.final_project.dto.UserFeedBackDto;
 import org.example.final_project.entity.RoleEntity;
 import org.example.final_project.entity.UserEntity;
 import org.example.final_project.model.UserModel;
+import org.example.final_project.service.IAddressService;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -13,6 +16,8 @@ import org.springframework.stereotype.Component;
 @FieldDefaults(makeFinal = true)
 public class UserMapper {
     ShippingAddressMapper shippingAddressMapper;
+
+    IAddressService addressService;
 
     public UserDto toDto(UserEntity userEntity) {
         return UserDto.builder()
@@ -55,6 +60,24 @@ public class UserMapper {
                 .shop_status(userModel.getShop_status())
                 .phone(userModel.getPhone())
                 .gender(userModel.getGender())
+                .build();
+    }
+
+    public ShopDto toShopDto(UserEntity userEntity) {
+        return ShopDto.builder()
+                .shopId(userEntity.getUserId())
+                .shopName(userEntity.getShop_name())
+                .shopAddress(String.join(", ", addressService.findAddressNamesFromParentId(Long.parseLong(String.valueOf(userEntity.getAddress_id_shop())))))
+                .shopAddressDetail(userEntity.getShop_address_detail())
+                .build();
+    }
+
+    public UserFeedBackDto toUserFeedBackDto(UserEntity userEntity) {
+        return UserFeedBackDto.builder()
+                .userId(userEntity.getUserId())
+                .username(userEntity.getUsername())
+                .name(userEntity.getName())
+                .profilePicture(userEntity.getProfilePicture())
                 .build();
     }
 }

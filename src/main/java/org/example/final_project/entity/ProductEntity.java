@@ -18,11 +18,6 @@ public class ProductEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private String name;
-    @Column(name="number_of_feedback")
-    private long numberOfFeedBack;
-    @Column(name="number_of_like")
-    private long numberOfLike;
-    private double rating;
     private String description;
     private int isActive;
     private String note;
@@ -49,7 +44,9 @@ public class ProductEntity {
     @JoinColumn(name="user_id")
     private UserEntity user;
 
-
     @OneToMany(mappedBy = "product")
     private List<SKUEntity> skuEntities;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<OrderDetailEntity> orderDetails;
 }

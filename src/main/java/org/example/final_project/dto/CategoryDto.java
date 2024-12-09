@@ -10,9 +10,9 @@ import java.time.LocalDateTime;
 @Setter
 @Builder
 public class CategoryDto {
-    private long id;
-    private String name;
-    private long parent_id;
+    private long categoryId;
+    private String categoryName;
+    private long parentId;
     private String image;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;

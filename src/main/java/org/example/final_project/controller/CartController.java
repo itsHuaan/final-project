@@ -18,6 +18,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 import static org.example.final_project.dto.ApiResponse.createResponse;
 
 @RestController
@@ -109,8 +111,10 @@ public class CartController {
             CartDto cart = cartService.getUserCart(userId);
             CartItemDto cartItem = cartItemService.getCartItem(cart.getCartId(), request.getProductId());
             if (request.getQuantity() > 0) {
-                cartItemService.updateQuantity(cartItem.getCartId(), request.getProductId(), request.getQuantity(), false);
-                message = "Quantity for " + request.getProductId() + " updated successfully";
+                int result = cartItemService.updateQuantity(cartItem.getCartId(), request.getProductId(), request.getQuantity(), false);
+                message = result != 0
+                        ? "Quantity for " + request.getProductId() + " updated successfully"
+                        : "Failed to update quantity for " + request.getProductId() + ".";
             } else {
                 int result = cartItemService.deleteCartItem(cart.getCartId(), request.getProductId());
                 message = result != 0
@@ -155,7 +159,7 @@ public class CartController {
 
     @Operation(summary = "Checkout")
     @GetMapping("/checkout/{cartId}")
-    public ResponseEntity<?> checkout(@PathVariable Long cartId) {
-        return ResponseEntity.status(HttpStatus.OK).body(cartService.getCheckOutDetail(cartId));
+    public ResponseEntity<?> checkout(@PathVariable Long cartId , @RequestParam List<Long> productId) {
+        return ResponseEntity.status(HttpStatus.OK).body(cartService.getCheckOutDetail(cartId, productId));
     }
 }

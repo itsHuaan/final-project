@@ -15,7 +15,7 @@ import java.util.List;
 @Builder
 @Entity
 @Table(name = "tbl_user")
-public class    UserEntity {
+public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
@@ -41,7 +41,7 @@ public class    UserEntity {
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<FeedbackEntity> feedbacks;
     private String id_front;
     private String id_back;
@@ -63,7 +63,7 @@ public class    UserEntity {
     private List<CartEntity> carts;
 
     private String provider;
-    @OneToMany(mappedBy = "user" , cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderEntity> orderEntities;
 }
 

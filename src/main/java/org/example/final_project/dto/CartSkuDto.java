@@ -8,8 +8,8 @@ import lombok.*;
 @Setter
 @Builder
 public class CartSkuDto {
-    private long id;
-    private CartProductDto cartProductDto;
+    private long itemId;
+    private ProductFamilyDto productFamily;
     private ProductOptionValueDto value1;
     private ProductOptionValueDto value2;
     private double price;

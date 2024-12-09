@@ -1,4 +1,9 @@
 package org.example.final_project.repository;
 
-public interface IOrderRepository {
+import org.example.final_project.entity.OrderEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface IOrderRepository extends JpaRepository<OrderEntity, Long> {
 }

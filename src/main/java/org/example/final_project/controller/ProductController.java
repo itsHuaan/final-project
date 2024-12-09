@@ -6,9 +6,7 @@ import jakarta.servlet.annotation.MultipartConfig;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.example.final_project.dto.ApiResponse;
-import org.example.final_project.dto.ProductOptionDto;
-import org.example.final_project.dto.SKUDto;
+import org.example.final_project.dto.*;
 import org.example.final_project.model.ProductModel;
 import org.example.final_project.model.validation.PageableValidation;
 import org.example.final_project.service.IProductOptionService;
@@ -21,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -39,10 +38,33 @@ public class ProductController {
     IProductOptionService optionService;
     @Autowired
     ISKUService iskuService;
+
+
+    @Operation(summary = "Get product by id")
+    @GetMapping("/{product-id}")
+    public ResponseEntity<?> getProductById(@PathVariable("product-id") Long productId) {
+        ProductDto result = productService.getById(productId);
+        return result != null
+                ? ResponseEntity.status(HttpStatus.OK).body(
+                createResponse(
+                        HttpStatus.OK,
+                        "Fetched",
+                        result
+                )
+        )
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                createResponse(
+                        HttpStatus.OK,
+                        "No product found",
+                        null
+                )
+        );
+    }
+
     @Operation(summary = "Get all product")
     @GetMapping
-    ResponseEntity<ApiResponse<?>> getAllByPage(@RequestParam(required = false) Integer pageSize,
-                                                @RequestParam(required = false) Integer pageIndex) {
+    ResponseEntity<?> getAllByPage(@RequestParam(required = false) Integer pageSize,
+                                   @RequestParam(required = false) Integer pageIndex) {
         try {
             Pageable pageable = Pageable.unpaged();
             if (pageSize != null && pageIndex != null) {
@@ -74,9 +96,9 @@ public class ProductController {
     @PostMapping
     ResponseEntity<?> addNewProduct(ProductModel model) {
         try {
-            int productId=productService.saveCustom(model);
-            List<ProductOptionDto> optionList=optionService.saveAllOption(model.getOptions());
-            List<SKUDto> stockList=iskuService.addListSKU(productId,optionList);
+            int productId = productService.saveCustom(model);
+            List<ProductOptionDetailDto> optionList = optionService.saveAllOption(model.getOptions());
+            List<SKUDto> stockList = iskuService.addListSKU(productId, optionList);
             return ResponseEntity.ok(createResponse(
                     HttpStatus.CREATED,
                     "Add Product Successfully",
@@ -94,7 +116,7 @@ public class ProductController {
     @Operation(summary = "Update a product")
     @PutMapping("/{id}")
     ResponseEntity<?> updateProduct(@PathVariable("id") long id,
-                                                 @RequestBody ProductModel model) {
+                                    @RequestBody ProductModel model) {
         try {
             productService.update(id, model);
             return ResponseEntity.ok(createResponse(HttpStatus.OK,
@@ -132,8 +154,8 @@ public class ProductController {
     @Operation(summary = "Change the product status")
     @PutMapping("/activate/{product-id}")
     ResponseEntity<?> inactivateProduct(@PathVariable("product-id") long id,
-                                                     @RequestParam int type,
-                                                     @RequestParam String note) {
+                                        @RequestParam int type,
+                                        @RequestParam String note) {
         try {
             productService.inActivateProduct(id, type, note);
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
@@ -153,8 +175,8 @@ public class ProductController {
     @Operation(summary = "Search product by its name")
     @GetMapping("/name/{name}")
     ResponseEntity<?> findProductByName(@PathVariable("name") String name,
-                                                     @RequestParam(required = false) Integer pageSize,
-                                                     @RequestParam(required = false) Integer pageIndex) {
+                                        @RequestParam(required = false) Integer pageSize,
+                                        @RequestParam(required = false) Integer pageIndex) {
         try {
             if (PageableValidation.setDefault(pageSize, pageIndex) != null) {
                 return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
@@ -182,8 +204,8 @@ public class ProductController {
     @Operation(summary = "Get product by its status")
     @GetMapping("/status/{type}")
     ResponseEntity<?> getAllProductByStatus(@PathVariable("type") int type,
-                                                         @RequestParam(required = false) Integer pageSize,
-                                                         @RequestParam(required = false) Integer pageIndex) {
+                                            @RequestParam(required = false) Integer pageSize,
+                                            @RequestParam(required = false) Integer pageIndex) {
         try {
             if (PageableValidation.setDefault(pageSize, pageIndex) != null) {
                 return ResponseEntity.status(HttpStatus.OK).body(createResponse(
@@ -210,8 +232,8 @@ public class ProductController {
     @Operation(summary = "Get relative products")
     @GetMapping("/relative/{product-id}")
     ResponseEntity<?> getAllProductRelative(@PathVariable("product-id") long id,
-                                                         @RequestParam(required = false) Integer pageSize,
-                                                         @RequestParam(required = false) Integer pageIndex) {
+                                            @RequestParam(required = false) Integer pageSize,
+                                            @RequestParam(required = false) Integer pageIndex) {
         try {
             if (PageableValidation.setDefault(pageSize, pageIndex) != null) {
                 return ResponseEntity.status(HttpStatus.OK).body(createResponse(
@@ -238,8 +260,8 @@ public class ProductController {
     @Operation(summary = "Get shop's other product")
     @GetMapping("/other/{shop-id}")
     ResponseEntity<?> getOtherProductOfShop(@PathVariable("shop-id") long productId,
-                                                         @RequestParam(required = false) Integer pageSize,
-                                                         @RequestParam(required = false) Integer pageIndex) {
+                                            @RequestParam(required = false) Integer pageSize,
+                                            @RequestParam(required = false) Integer pageIndex) {
         try {
             if (PageableValidation.setDefault(pageSize, pageIndex) != null) {
                 return ResponseEntity.status(HttpStatus.OK).body(createResponse(
@@ -266,8 +288,8 @@ public class ProductController {
     @Operation(summary = "Get all product by shop")
     @GetMapping("/shop/{shop-id}")
     ResponseEntity<?> getAllProductByShop(@PathVariable("shop-id") long userId,
-                                                       @RequestParam(required = false) Integer pageSize,
-                                                       @RequestParam(required = false) Integer pageIndex) {
+                                          @RequestParam(required = false) Integer pageSize,
+                                          @RequestParam(required = false) Integer pageIndex) {
         try {
             if (PageableValidation.setDefault(pageSize, pageIndex) != null) {
                 return ResponseEntity.status(HttpStatus.OK).body(createResponse(

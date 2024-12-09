@@ -2,7 +2,6 @@ package org.example.final_project.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.example.final_project.dto.ProductOptionDto;
 
 import java.util.List;
 
