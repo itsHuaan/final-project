@@ -9,6 +9,10 @@ import org.example.final_project.dto.UserDto;
 import org.example.final_project.dto.ApiResponse;
 
 import org.example.final_project.model.*;
+import org.example.final_project.model.ChangeAccountStatusRequest;
+import org.example.final_project.model.ChangePasswordRequest;
+import org.example.final_project.model.ProfileUpdateRequest;
+import org.example.final_project.model.ShopRegisterRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

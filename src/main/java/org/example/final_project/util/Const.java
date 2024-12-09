@@ -8,4 +8,6 @@ public class Const {
     public static final String SALTCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
     public static final String regex = "^[\\w!#$%&amp;'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&amp;'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
     public static final Pattern EMAIL_PATTERN = Pattern.compile(regex);
+    public static final String GOOGLE = "GOOGLE";
+    public static final String FACEBOOK = "FACEBOOK";
 }

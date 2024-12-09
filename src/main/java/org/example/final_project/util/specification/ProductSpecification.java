@@ -24,10 +24,6 @@ public class ProductSpecification {
         return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("categoryEntity").get("id"), categoryId);
     }
-    public static Specification<ProductEntity> hasParentId(long parentId) {
-        return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
-                criteriaBuilder.equal(root.get("user").get("id"), parentId);
-    }
     public static Specification<ProductEntity> notHaveId(long id) {
         return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.notEqual(root.get("id"), id);
@@ -40,5 +36,8 @@ public class ProductSpecification {
         return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.isNull(root.get("user").get("deletedAt"));
     }
-
+    public static Specification<ProductEntity> hasCategory(long categoryId) {
+        return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("categoryEntity").get("id"),categoryId);
+    }
 }

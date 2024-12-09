@@ -2,6 +2,11 @@ package org.example.final_project.service;
 
 import org.example.final_project.dto.ApiResponse;
 import org.example.final_project.dto.UserDto;
+import org.example.final_project.entity.UserEntity;
+import org.example.final_project.model.ChangeAccountStatusRequest;
+import org.example.final_project.model.ProfileUpdateRequest;
+import org.example.final_project.model.ShopRegisterRequest;
+import org.example.final_project.model.UserModel;
 import org.example.final_project.model.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -41,4 +46,6 @@ public interface IUserService extends IBaseService<UserDto, UserModel, Long> {
     int addAddress(long userId, AddShippingAddressRequest request);
 
     List<UserDto> findActiveUsers();
+    List<UserDto> findByShopName(String shopName , Integer shopStatus);
+    int updateShop( Long userId , ShopModel shopModel);
 }

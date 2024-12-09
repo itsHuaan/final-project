@@ -19,6 +19,7 @@ import org.example.final_project.model.validation.AuthValidation;
 
 import static org.example.final_project.dto.ApiResponse.*;
 import static org.example.final_project.util.Const.EMAIL_PATTERN;
+import static org.example.final_project.util.RandomMethods.generateUsername;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -41,7 +42,7 @@ public class AuthService implements IAuthService {
         }
         try {
             String jwt = jwtProvider.generateForgetPasswordToken(email);
-            EmailModel emailModel = new EmailModel(email, "It seems like somebody forgot their password...", EmailTemplate.forgotPasswordEmailContent(jwt));
+            EmailModel emailModel = new EmailModel(email, "Psst... we heard you need a password rescue!", EmailTemplate.forgotPasswordEmailContent(jwt));
             emailService.sendEmail(emailModel);
             return createResponse(HttpStatus.OK, "Email sent to " + email, jwt);
         } catch (Exception e) {
@@ -75,10 +76,10 @@ public class AuthService implements IAuthService {
 
     @Override
     public ApiResponse<?> changePassword(String username, ChangePasswordRequest request) {
-        if (userService.changePassword(username, request.getOldPassword(), request.getNewPassword()) == 1){
+        if (userService.changePassword(username, request.getOldPassword(), request.getNewPassword()) == 1) {
             return createResponse(HttpStatus.OK, "Password changed successfully.", null);
         }
-        if (userService.changePassword(username, request.getOldPassword(), request.getNewPassword()) == -1){
+        if (userService.changePassword(username, request.getOldPassword(), request.getNewPassword()) == -1) {
             throw new IllegalStateException(AuthValidation.ACCOUNT_UNAVAILABLE);
         } else {
             throw new IllegalArgumentException("Incorrect old password.");
@@ -138,7 +139,7 @@ public class AuthService implements IAuthService {
             throw new RuntimeException("Failed to save OTP");
         }
 
-        EmailModel emailModel = new EmailModel(email, "OTP", EmailTemplate.otpEmailContent(otpModel.getOtpCode()));
+        EmailModel emailModel = new EmailModel(email, "Here’s your one-time pass—don’t spend it all in one place!", EmailTemplate.otpEmailContent(otpModel.getOtpCode()));
         return emailService.sendEmail(emailModel)
                 ? createResponse(HttpStatus.OK, "OTP confirmation email sent to " + email, null)
                 : createResponse(HttpStatus.BAD_REQUEST, "Email not sent", null);
@@ -150,11 +151,12 @@ public class AuthService implements IAuthService {
             throw new IllegalArgumentException("Invalid email format.");
         }
 
+        String username = generateUsername(credentials.getEmail());
         UserModel userModel = new UserModel();
-        userModel.setName(credentials.getName() != null ? credentials.getName() : credentials.getUsername());
+        userModel.setName(credentials.getName() != null ? credentials.getName() : username);
+        userModel.setUsername(username);
         userModel.setEmail(credentials.getEmail());
         userModel.setPassword(credentials.getPassword());
-        userModel.setUsername(credentials.getUsername());
 
         if (userService.save(userModel) == 0) {
             throw new IllegalStateException(AuthValidation.ACCOUNT_CONFLICT);
