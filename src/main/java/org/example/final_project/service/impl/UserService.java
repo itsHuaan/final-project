@@ -41,6 +41,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -420,7 +421,7 @@ public class UserService implements IUserService, UserDetailsService {
         }else {
             userEntityList = userRepository.findByShopStatus(shopStatus);
         }
-        return userEntityList.stream().map(e->userMapper.toDto(e)).toList();
+        return userEntityList.stream().map(userMapper::toDto).toList();
 
     }
     @Override
