@@ -18,6 +18,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 import static org.example.final_project.dto.ApiResponse.createResponse;
 
 @RestController
@@ -155,7 +157,7 @@ public class CartController {
 
     @Operation(summary = "Checkout")
     @GetMapping("/checkout/{cartId}")
-    public ResponseEntity<?> checkout(@PathVariable Long cartId) {
-        return ResponseEntity.status(HttpStatus.OK).body(cartService.getCheckOutDetail(cartId));
+    public ResponseEntity<?> checkout(@PathVariable Long cartId , @RequestParam List<Long> productId) {
+        return ResponseEntity.status(HttpStatus.OK).body(cartService.getCheckOutDetail(cartId, productId));
     }
 }

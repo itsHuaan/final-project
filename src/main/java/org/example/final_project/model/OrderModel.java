@@ -2,18 +2,19 @@ package org.example.final_project.model;
 
 import lombok.*;
 
+import java.util.List;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @Builder
 public class OrderModel {
-    private int user_id;
-    private String city;
-    private String district;
-    private String town;
-    private String address_detail ;
-    private String phone;
-    private String email;
-    private String total_price;
+    private long userId;
+    private String addressShipping;
+    private long productId;
+    private long shopId;
+    private long statusCheckout;
+    private String methodCheckout;
+    private Double totalPrice;
 }
