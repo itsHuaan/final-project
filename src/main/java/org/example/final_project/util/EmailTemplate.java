@@ -29,7 +29,7 @@ public class EmailTemplate {
                 "            <p>Hello,</p>\n" +
                 "            <p>We received a request to reset your password. To proceed with resetting your password, please click the button below:</p>\n" +
                 "            <p style=\"text-align: center;\">\n" +
-                "                <a href=\"http://152.42.160.56:3000/en/reset-password?token=" + token + "\"\n" +
+                "                <a href=\"https://team03.cyvietnam.id.vn/en/reset-password?token=" + token + "\"\n" +
                 "                   style=\"background-color: #435ebe; color: white; padding: 10px 20px; text-align: center; text-decoration: none; font-size: 16px; border-radius: 5px; display: inline-block;\">\n" +
                 "                    Reset Password\n" +
                 "                </a>\n" +

@@ -24,5 +24,5 @@ public class FeedbackModel {
     private long productId;
     private double rate;
     private String content;
-//    private MultipartFile[] files;
+    private MultipartFile[] files;
 }

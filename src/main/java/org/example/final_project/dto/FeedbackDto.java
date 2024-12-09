@@ -21,7 +21,7 @@ public class FeedbackDto {
     private UserFeedBackDto user;
     private double rate;
     private String content;
+    private String replyFromSeller;
     private LocalDateTime createdAt;
-//    private ProductDto product;
-//    private List<FeedbackImageDto> feedbackImages;
+    private List<FeedbackImageDto> feedbackImages;
 }

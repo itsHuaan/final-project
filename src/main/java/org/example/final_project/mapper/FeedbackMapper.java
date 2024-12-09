@@ -8,6 +8,7 @@ import org.example.final_project.entity.FeedbackEntity;
 import org.example.final_project.entity.ProductEntity;
 import org.example.final_project.entity.UserEntity;
 import org.example.final_project.model.FeedbackModel;
+import org.example.final_project.repository.IImageFeedBackRepository;
 import org.example.final_project.repository.IProductRepository;
 import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.IImageFeedbackService;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -23,16 +25,19 @@ public class FeedbackMapper {
     UserMapper userMapper;
     IProductRepository iProductRepository;
     IUserRepository iUserRepository;
-    IImageFeedbackService iImageFeedbackService;
+    IImageFeedBackRepository iImageFeedBackRepository;
+    FeedbackImageMapper feedbackImageMapper;
 
     public FeedbackDto convertToDto(FeedbackEntity feedback) {
+
         return FeedbackDto.builder()
                 .id(feedback.getId())
                 .user(userMapper.toUserFeedBackDto(feedback.getUser()))
                 .content(feedback.getContent())
                 .rate(feedback.getRate())
+                .replyFromSeller(feedback.getReplyFromSeller())
                 .createdAt(feedback.getCreatedAt())
-//                .feedbackImages(iImageFeedbackService.findAllByFeedback(feedback.getId()))
+                .feedbackImages(iImageFeedBackRepository.findByFeedback_Id(feedback.getId()).stream().map(feedbackImageMapper::convertToDto).collect(Collectors.toList()))
                 .build();
     }
 
