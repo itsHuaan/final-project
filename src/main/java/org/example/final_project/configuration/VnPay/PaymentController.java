@@ -30,7 +30,7 @@ public class PaymentController {
 
     @PostMapping("/create-payment")
     public ResponseEntity<?> submidOrder(@RequestBody OrderModel order,
-                                         HttpServletRequest request) throws UnsupportedEncodingException {
+                                         HttpServletRequest request) throws Exception {
         request.setAttribute("amount",order.getAmount());
         String tex = VnPayUtil.getRandomNumber(8);
         request.setAttribute("tex",tex);

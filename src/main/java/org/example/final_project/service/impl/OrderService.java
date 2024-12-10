@@ -1,6 +1,7 @@
 package org.example.final_project.service.impl;
 
 import com.cloudinary.api.exceptions.NotFound;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.criteria.Order;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
@@ -38,9 +39,10 @@ public class OrderService implements IOrderService {
     private final IOrderRepository orderRepository;
     private final IOrderDetailRepository orderDetailRepository;
     private final IOrderTrackingRepository orderTrackingRepository;
+    private final EmailService emailService;
 
     @Override
-    public String submitCheckout(OrderModel orderModel , HttpServletRequest request) {
+    public String submitCheckout(OrderModel orderModel , HttpServletRequest request) throws Exception {
         String vnp_TxnRef = (String) request.getAttribute("tex");
         String method = orderModel.getMethodCheckout();
         double totalPrice = Double.parseDouble(orderModel.getAmount());
@@ -84,11 +86,15 @@ public class OrderService implements IOrderService {
         }
 
         if(method.toLowerCase().equals("vnpay")){
+            emailService.sendOrderToEmail(orderModel,request);
             return paymentService.creatUrlPaymentForVnPay(request);
         }else {
+            emailService.sendOrderToEmail(orderModel,request);
             return "đặt hàng thành công";
         }
     }
+
+
     @Override
     public ApiResponse<?> statusPayment(HttpServletRequest request) {
         String status = request.getParameter("vnp_ResponseCode");
@@ -113,4 +119,5 @@ public class OrderService implements IOrderService {
         }
         return createResponse(HttpStatus.NOT_FOUND, "Not Found User ", null);
     }
+
 }

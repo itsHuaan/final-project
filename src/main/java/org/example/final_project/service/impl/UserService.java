@@ -243,9 +243,15 @@ public class UserService implements IUserService, UserDetailsService {
                 return createResponse(HttpStatus.OK, "Wait for confirm ", null);
             } else if (userEntity.getShop_status() == 1) {
                 return createResponse(HttpStatus.CONFLICT, "User register Shop", null);
+            } else if(userEntity.getShop_status() == 2){
+                return createResponse(HttpStatus.CONFLICT, "Shop is Waiting", null);
+            }else if(userEntity.getShop_status() == 3){
+                return createResponse(HttpStatus.CONFLICT, "Shop is Refusing", null);
+            }else if(userEntity.getShop_status() == 4){
+                return createResponse(HttpStatus.CONFLICT, "Shop Locked", null);
             }
         }
-        throw new NotFound("Not found Userr or Address");
+        throw new NotFound("Not found User");
     }
 
     @Override
