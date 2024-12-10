@@ -62,15 +62,4 @@ public class ProductSpecification {
             return criteriaBuilder.greaterThanOrEqualTo(subquery, ratingThreshold);
         };
     }
-
-//    public static Specification<ProductEntity> hasAverageRatingLessThan(double ratingThreshold) {
-//        return (root, query, criteriaBuilder) -> {
-//            Subquery<Double> subquery = query.subquery(Double.class);
-//            Root<FeedbackEntity> feedback = subquery.from(FeedbackEntity.class);
-//            subquery.select(criteriaBuilder.avg(feedback.get("rate")))
-//                    .where(criteriaBuilder.equal(feedback.get("product"), root));
-//
-//            return criteriaBuilder.lessThan(subquery, ratingThreshold);
-//        };
-//    }
 }

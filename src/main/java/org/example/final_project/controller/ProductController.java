@@ -6,7 +6,9 @@ import jakarta.servlet.annotation.MultipartConfig;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.example.final_project.configuration.UserDetailsImpl;
 import org.example.final_project.dto.*;
+import org.example.final_project.entity.UserEntity;
 import org.example.final_project.model.ProductModel;
 import org.example.final_project.model.validation.PageableValidation;
 import org.example.final_project.service.IProductOptionService;
@@ -18,7 +20,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -112,16 +118,34 @@ public class ProductController {
         }
     }
 
+    @PreAuthorize("isAuthenticated() and hasRole('ROLE_SELLER')")
     @Operation(summary = "Update a product")
     @PutMapping("/{id}")
     ResponseEntity<?> updateProduct(@PathVariable("id") long id,
-                                    @RequestBody ProductModel model) {
+                                    ProductModel model) {
         try {
-            productService.update(id, model);
-            return ResponseEntity.ok(createResponse(HttpStatus.OK,
-                    "Update Product Successfully",
-                    null
-            ));
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication.getPrincipal() instanceof UserDetailsImpl userDetails) {
+                if (userDetails.getUser().getUserId() == model.getUser_id()) {
+                    productService.update(id, model);
+                    return ResponseEntity.ok(createResponse(HttpStatus.OK,
+                            "Update Product Successfully",
+                            null
+                    ));
+                } else {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+                            HttpStatus.BAD_REQUEST,
+                            "Product not in shop",
+                            null
+                    ));
+                }
+            }else{
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+                        HttpStatus.BAD_REQUEST,
+                        "Something went wrong",
+                        null
+                ));
+            }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
                     HttpStatus.BAD_REQUEST,
@@ -320,14 +344,14 @@ public class ProductController {
                                             @RequestParam(required = false) Double endPrice,
                                             @RequestParam(required = false) Double rating,
                                             @RequestParam(required = false) Integer pageSize,
-                                            @RequestParam(required = false) Integer pageIndex){
-        if(PageableValidation.setDefault(pageSize,pageIndex)!=null){
+                                            @RequestParam(required = false) Integer pageIndex) {
+        if (PageableValidation.setDefault(pageSize, pageIndex) != null) {
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.OK,
                     "Successfully",
-                    productService.getAllProductByFilter(categoryId,addressId,startPrice,endPrice,rating,PageableValidation.setDefault(pageSize,pageIndex))
+                    productService.getAllProductByFilter(categoryId, addressId, startPrice, endPrice, rating, PageableValidation.setDefault(pageSize, pageIndex))
             ));
-        }else{
+        } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
                     HttpStatus.BAD_REQUEST,
                     "Invalid Page size or index",
