@@ -107,7 +107,7 @@ public class ProductController {
             return ResponseEntity.ok(createResponse(
                     HttpStatus.CREATED,
                     "Add Product Successfully",
-                    stockList
+                    productId
             ));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
