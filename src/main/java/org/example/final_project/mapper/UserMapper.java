@@ -53,9 +53,6 @@ public class UserMapper {
                 .time_created_shop(userEntity.getTime_created_shop())
                 .profilePicture(userEntity.getProfilePicture())
                 .addresses(userEntity.getShippingAddresses().stream().map(shippingAddressMapper::toDto).toList())
-                .shopInfo(userEntity.getShop_status() == 1
-                        ? toShopInfoDto(userEntity)
-                        : null)
                 .build();
     }
 
@@ -78,11 +75,23 @@ public class UserMapper {
     }
 
     public ShopDto toShopDto(UserEntity userEntity) {
+        List<FeedbackEntity> feedbacks = productRepository.findAll(Specification.where(hasUserId(userEntity.getUserId())))
+                .stream()
+                .flatMap(product -> product.getFeedbacks().stream())
+                .toList();
+        LocalDateTime createdTime = userEntity.getTime_created_shop();
+        Duration duration = createdTime != null
+                ? Duration.between(createdTime, LocalDateTime.now())
+                : Duration.ZERO;
         return ShopDto.builder()
                 .shopId(userEntity.getUserId())
                 .shopName(userEntity.getShop_name())
                 .shopAddress(String.join(", ", addressService.findAddressNamesFromParentId(Long.parseLong(String.valueOf(userEntity.getAddress_id_shop())))))
                 .shopAddressDetail(userEntity.getShop_address_detail())
+                .feedbackCount((long) feedbacks.size())
+                .productCount((long) productRepository.findAll(Specification.where(hasUserId(userEntity.getUserId())))
+                        .size())
+                .joined(duration.toDays())
                 .build();
     }
 
@@ -92,21 +101,6 @@ public class UserMapper {
                 .username(userEntity.getUsername())
                 .name(userEntity.getName())
                 .profilePicture(userEntity.getProfilePicture())
-                .build();
-    }
-
-    public ShopInfoDto toShopInfoDto(UserEntity userEntity) {
-        List<FeedbackEntity> feedbacks = productRepository.findAll(Specification.where(hasUserId(userEntity.getUserId())))
-                .stream()
-                .flatMap(product -> product.getFeedbacks().stream())
-                .toList();
-        Duration joined = Duration.between(userEntity.getTime_created_shop(), LocalDateTime.now());
-        return ShopInfoDto.builder()
-                .shopName(userEntity.getShop_name())
-                .feedbackCount((long) feedbacks.size())
-                .productCount((long) productRepository.findAll(Specification.where(hasUserId(userEntity.getUserId())))
-                        .size())
-                .joined(joined.toDays())
                 .build();
     }
 }
