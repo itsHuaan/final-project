@@ -8,5 +8,5 @@ import lombok.*;
 @Setter
 @Builder
 public class ProductSummaryDto {
-
+    private Long productId;
 }
