@@ -19,7 +19,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -313,4 +312,27 @@ public class ProductController {
         }
     }
 
+    @Operation(summary = "Filter product")
+    @GetMapping("/filter")
+    ResponseEntity<?> getAllProductByFilter(@RequestParam(required = false) List<Long> categoryId,
+                                            @RequestParam(required = false) List<Long> addressId,
+                                            @RequestParam(required = false) Double startPrice,
+                                            @RequestParam(required = false) Double endPrice,
+                                            @RequestParam(required = false) Double rating,
+                                            @RequestParam(required = false) Integer pageSize,
+                                            @RequestParam(required = false) Integer pageIndex){
+        if(PageableValidation.setDefault(pageSize,pageIndex)!=null){
+            return ResponseEntity.status(HttpStatus.OK).body(createResponse(
+                    HttpStatus.OK,
+                    "Successfully",
+                    productService.getAllProductByFilter(categoryId,addressId,startPrice,endPrice,rating,PageableValidation.setDefault(pageSize,pageIndex))
+            ));
+        }else{
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+                    HttpStatus.BAD_REQUEST,
+                    "Invalid Page size or index",
+                    null
+            ));
+        }
+    }
 }
