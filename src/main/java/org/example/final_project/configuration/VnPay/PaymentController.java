@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.example.final_project.model.CartItemRequest;
 import org.example.final_project.model.OrderModel;
+import org.example.final_project.service.IOrderService;
 import org.example.final_project.service.impl.OrderService;
 import org.example.final_project.util.Const;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,12 +22,11 @@ import static org.example.final_project.dto.ApiResponse.createResponse;
 @RestController
 @RequestMapping(Const.API_PREFIX + "/payment")
 public class PaymentController {
-    @Autowired
-    private PaymentService paymentService;
+
     @Autowired
     private HttpServletRequest request;
     @Autowired
-    private OrderService orderService;
+    private IOrderService orderService;
 
     @PostMapping("/create-payment")
     public ResponseEntity<?> submidOrder(@RequestBody OrderModel order,

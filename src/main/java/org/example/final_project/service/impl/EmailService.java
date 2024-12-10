@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 public class EmailService implements IEmailService {
     JavaMailSender emailSender;
 
+
+
     @Override
     public boolean sendEmail(EmailModel email) {
         try {
