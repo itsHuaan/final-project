@@ -33,7 +33,6 @@ public class PaymentController {
                                          HttpServletRequest request) throws Exception {
 
         request.setAttribute("amount",order.getAmount());
-        request.setAttribute("order",order);
         String tex = VnPayUtil.getRandomNumber(8);
         request.setAttribute("tex",tex);
         String vnpayUrl = orderService.submitCheckout(order, request);
