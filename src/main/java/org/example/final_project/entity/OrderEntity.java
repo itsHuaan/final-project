@@ -33,7 +33,7 @@ public class OrderEntity {
     @OneToMany(mappedBy = "orderEntity")
     private List<OrderDetailEntity> orderDetailEntities;
 
-    @OneToMany(mappedBy = "orderEntity")
+    @OneToMany(mappedBy = "order")
     private List<OrderTrackingEntity> orderTrackingEntities;
 
 
