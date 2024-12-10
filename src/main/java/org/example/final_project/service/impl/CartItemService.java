@@ -4,7 +4,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.CartItemDto;
+import org.example.final_project.entity.CartEntity;
 import org.example.final_project.entity.CartItemEntity;
+import org.example.final_project.entity.SKUEntity;
 import org.example.final_project.mapper.CartItemMapper;
 import org.example.final_project.model.CartItemModel;
 import org.example.final_project.repository.ICartItemRepository;
@@ -30,7 +32,7 @@ public class CartItemService implements ICartItemService {
     ISKURepository skuRepository;
     CartItemMapper cartItemMapper;
 
-    @Override
+    /*@Override
     public CartItemDto getCartItem(Long cartId, Long productId) {
         return cartItemMapper.toDto(
                 cartItemRepository.findOne(Specification.where(
@@ -50,19 +52,53 @@ public class CartItemService implements ICartItemService {
                                 }
                         )
         );
+    }*/
+
+    @Override
+    public CartItemDto getCartItem(Long cartId, Long productId) {
+        CartItemEntity cartItemEntity = cartItemRepository.findOne(Specification.where(
+                hasCartId(cartId).and(hasProductId(productId)))
+        ).orElseGet(() -> {
+            SKUEntity product = skuRepository.findById(productId).orElseThrow(
+                    () -> new IllegalArgumentException("Product not found")
+            );
+
+            CartEntity cart = cartRepository.findById(cartId).orElseThrow(
+                    () -> new IllegalArgumentException("Cart not found")
+            );
+
+            CartItemEntity newCartItemEntity = new CartItemEntity();
+            newCartItemEntity.setCart(cart);
+            newCartItemEntity.setProduct(product);
+            newCartItemEntity.setQuantity(0);
+            newCartItemEntity.setCreatedAt(LocalDateTime.now());
+            return cartItemRepository.save(newCartItemEntity);
+        });
+
+        return cartItemMapper.toDto(cartItemEntity);
     }
+
 
     @Override
     public int updateQuantity(Long cartId, Long productId, Integer quantity, boolean isAddingOne) {
         CartItemEntity currentCartItem = cartItemRepository.findOne(Specification.where(
                 hasCartId(cartId).and(hasProductId(productId))
         )).orElse(null);
+
+        SKUEntity product = skuRepository.findById(productId).orElseThrow(
+                () -> new IllegalArgumentException("Product not found")
+        );
+
         if (currentCartItem != null) {
-            if (isAddingOne) {
-                currentCartItem.setQuantity(currentCartItem.getQuantity() + quantity);
-            } else {
-                currentCartItem.setQuantity(quantity);
+            int newQuantity = isAddingOne
+                    ? currentCartItem.getQuantity() + quantity
+                    : quantity;
+
+            if (newQuantity > product.getQuantity()) {
+                throw new IllegalArgumentException("Requested quantity exceeds available stock");
             }
+
+            currentCartItem.setQuantity(newQuantity);
             cartItemRepository.save(currentCartItem);
             return 1;
         }
@@ -73,7 +109,7 @@ public class CartItemService implements ICartItemService {
     public int deleteCartItems(Long cartId, List<Long> productIds) {
         Specification<CartItemEntity> specification = Specification.where(hasCartId(cartId));
         List<CartItemEntity> cartItems;
-        if (productIds == null || productIds.isEmpty()){
+        if (productIds == null || productIds.isEmpty()) {
             cartItems = cartItemRepository.findAll(specification);
         } else {
             specification = specification.and(hasProductIds(productIds));
