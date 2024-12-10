@@ -95,7 +95,7 @@ public class CartItemService implements ICartItemService {
                     : quantity;
 
             if (newQuantity > product.getQuantity()) {
-                throw new IllegalArgumentException("Requested quantity exceeds available stock");
+                throw new IndexOutOfBoundsException("Requested quantity exceeds available stock");
             }
 
             currentCartItem.setQuantity(newQuantity);
