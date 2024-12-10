@@ -13,7 +13,12 @@ import lombok.*;
 public class OrderDetailEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
+    private long shopId;
+    private long quantity;
+    private Double price;
+    private long option1;
+    private long option2;
     @ManyToOne
     @JoinColumn(name = "order_id" )
     private OrderEntity orderEntity;

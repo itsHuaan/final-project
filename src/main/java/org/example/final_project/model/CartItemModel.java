@@ -12,4 +12,6 @@ public class CartItemModel {
     private Long cartId;
     private Long skuId;
     private int quantity;
+
+
 }

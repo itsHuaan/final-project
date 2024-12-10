@@ -9,5 +9,4 @@ import java.util.List;
 public interface ICartService extends IBaseService<CartDto, CartModel, Long>{
     CartDto getUserCart(Long userId);
     CheckoutDto getCheckOutDetail(Long cartId  , List<Long> selectedCartItemIds);
-    int submitCheckout();
 }
