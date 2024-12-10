@@ -3,16 +3,13 @@ package org.example.final_project.mapper;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.example.final_project.dto.ProductFamilyDto;
 import org.example.final_project.dto.ProductOptionDetailDto;
 import org.example.final_project.dto.ProductOptionDto;
 import org.example.final_project.dto.ProductOptionValueDto;
-import org.example.final_project.entity.ProductEntity;
 import org.example.final_project.entity.ProductOptionValuesEntity;
 import org.example.final_project.entity.ProductOptionsEntity;
 import org.example.final_project.model.ProductOptionsModel;
 import org.example.final_project.repository.IProductOptionValueRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.stream.Collectors;

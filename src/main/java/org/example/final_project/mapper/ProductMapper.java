@@ -3,18 +3,27 @@ package org.example.final_project.mapper;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.example.final_project.dto.ImageProductDto;
 import org.example.final_project.dto.ProductDto;
 import org.example.final_project.dto.ProductFamilyDto;
+import org.example.final_project.dto.ProductSummaryDto;
 import org.example.final_project.entity.FeedbackEntity;
 import org.example.final_project.entity.ProductEntity;
+import org.example.final_project.entity.SKUEntity;
 import org.example.final_project.model.ProductModel;
 import org.example.final_project.repository.ICategoryRepository;
 import org.example.final_project.repository.IImageProductRepository;
+import org.example.final_project.repository.IProductRepository;
 import org.example.final_project.service.ISKUService;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static org.example.final_project.util.specification.ProductSpecification.isNotDeleted;
 
 @Component
 @RequiredArgsConstructor
@@ -27,6 +36,7 @@ public class ProductMapper {
     ISKUService iskuService;
     UserMapper userMapper;
     FeedbackMapper feedbackMapper;
+    IProductRepository productRepository;
 
     public ProductDto convertToDto(ProductEntity productEntity) {
         return ProductDto.builder()
@@ -76,6 +86,34 @@ public class ProductMapper {
                 .categoryName(productEntity.getCategoryEntity().getName())
                 .shopId(productEntity.getUser().getUserId())
                 .shopName(productEntity.getUser().getShop_name())
+                .build();
+    }
+
+    public ProductSummaryDto toProductSummaryDto(ProductEntity productEntity) {
+        List<SKUEntity> variants = productEntity.getSkuEntities();
+        return ProductSummaryDto.builder()
+                .productId(productEntity.getId())
+                .productName(productEntity.getName())
+                .numberOfFeedBack(productEntity.getFeedbacks().size())
+                .rating(productEntity.getFeedbacks().stream()
+                        .mapToDouble(FeedbackEntity::getRate)
+                        .average()
+                        .orElse(0.0))
+                .createdAt(productEntity.getCreatedAt())
+                .modifiedAt(productEntity.getModifiedAt())
+                .deletedAt(productEntity.getDeletedAt())
+                .category(categoryMapper.toCategorySummaryDto(productEntity.getCategoryEntity()))
+                .image(imageProductRepository.findAllByProductEntity_Id(productEntity.getId())
+                        .stream()
+                        .map(imageMapper::convertToDto)
+                        .findFirst()
+                        .map(ImageProductDto::getImageLink)
+                        .orElse(null))
+                .price(variants.stream()
+                        .map(SKUEntity::getPrice)
+                        .filter(Objects::nonNull)
+                        .min(Double::compareTo)
+                        .orElse(0.0))
                 .build();
     }
 }
