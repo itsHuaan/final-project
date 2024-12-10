@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface IProductService extends IBaseService<ProductDto, ProductModel,Long> {
     int saveCustom(ProductModel productModel) throws JsonProcessingException;
-    int inActivateProduct(long id,int type, String note);
+    int deactivateProduct(long id,int type, String note);
     Page<ProductDto> findAllByPage(Pageable pageable);
     Page<ProductDto> findAllByNameAndPage(String name,Pageable pageable);
     Page<ProductDto> getAllProductByStatus(int status,Pageable pageable);

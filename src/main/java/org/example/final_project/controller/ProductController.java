@@ -6,10 +6,7 @@ import jakarta.servlet.annotation.MultipartConfig;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.example.final_project.dto.ApiResponse;
-import org.example.final_project.dto.ProductDto;
-import org.example.final_project.dto.ProductOptionDetailDto;
-import org.example.final_project.dto.SKUDto;
+import org.example.final_project.dto.*;
 import org.example.final_project.model.ProductModel;
 import org.example.final_project.model.validation.PageableValidation;
 import org.example.final_project.service.IProductOptionService;
@@ -160,7 +157,7 @@ public class ProductController {
                                         @RequestParam int type,
                                         @RequestParam String note) {
         try {
-            productService.inActivateProduct(id, type, note);
+            productService.deactivateProduct(id, type, note);
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.NO_CONTENT,
                     "Inactivate Product Successfully",

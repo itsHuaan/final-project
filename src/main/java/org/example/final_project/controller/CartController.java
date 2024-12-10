@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.example.final_project.dto.ApiResponse.createResponse;
@@ -51,47 +52,22 @@ public class CartController {
         }
     }
 
-
-    @Operation(summary = "Delete all cart items")
-    @DeleteMapping("/{userId}/clear")
-    public ResponseEntity<?> clearCart(@PathVariable Long userId) {
-        try {
-            CartDto cart = cartService.getUserCart(userId);
-            return cartItemService.clearCartItem(cart.getCartId()) != 0
-                    ? ResponseEntity.status(HttpStatus.OK).body(
-                    createResponse(HttpStatus.OK,
-                            "Deleted cart " + cart.getCartId() + " successfully.",
-                            null)
-            )
-                    : ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                    createResponse(HttpStatus.BAD_REQUEST,
-                            "Failed to delete cart " + cart.getCartId() + ".",
-                            null)
-            );
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    createResponse(HttpStatus.NOT_FOUND,
-                            e.getMessage(),
-                            null)
-            );
-        }
-    }
-
-    @Operation(summary = "Delete cart item")
+    @Operation(summary = "Remove single or multiple items or clear all from cart",
+            description = "Add product IDs to the list to remove them. To remove a single item, add a single product ID to the list. Leave the list blank or add all product IDs to clear the cart.")
     @DeleteMapping("/{userId}")
-    public ResponseEntity<?> deleteCart(@PathVariable Long userId, @RequestParam Long productId) {
+    public ResponseEntity<?> deleteCart(@PathVariable Long userId, @RequestBody List<Long> productIds) {
         try {
             CartDto cart = cartService.getUserCart(userId);
-            int result = cartItemService.deleteCartItem(cart.getCartId(), productId);
+            int result = cartItemService.deleteCartItems(cart.getCartId(), productIds);
             return result != 0
                     ? ResponseEntity.status(HttpStatus.OK).body(
                     createResponse(HttpStatus.OK,
-                            "Deleted product " + productId + " successfully.",
+                            "Removed " + result + " products from cart successfully.",
                             null)
             )
                     : ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                     createResponse(HttpStatus.BAD_REQUEST,
-                            "Failed to delete product " + productId + ".",
+                            "Failed to remove product.",
                             null)
             );
         } catch (IllegalArgumentException e) {
@@ -116,10 +92,12 @@ public class CartController {
                         ? "Quantity for " + request.getProductId() + " updated successfully"
                         : "Failed to update quantity for " + request.getProductId() + ".";
             } else {
-                int result = cartItemService.deleteCartItem(cart.getCartId(), request.getProductId());
+                List<Long> productIds = new ArrayList<>();
+                productIds.add(request.getProductId());
+                int result = cartItemService.deleteCartItems(cart.getCartId(), productIds);
                 message = result != 0
-                        ? "Deleted product " + request.getProductId() + " successfully."
-                        : "Failed to delete product " + request.getProductId() + ".";
+                        ? "Removed product " + request.getProductId() + " successfully."
+                        : "Failed to remove product " + request.getProductId() + ".";
             }
             return ResponseEntity.status(HttpStatus.OK).body(
                     createResponse(HttpStatus.OK,
@@ -136,7 +114,7 @@ public class CartController {
     }
 
     @Operation(summary = "Add to cart")
-    @PostMapping("add-to-cart/{userId}")
+    @PostMapping("/{userId}")
     public ResponseEntity<?> addToCart(@PathVariable Long userId,
                                        @RequestBody AddToCartRequest request) {
         try {
