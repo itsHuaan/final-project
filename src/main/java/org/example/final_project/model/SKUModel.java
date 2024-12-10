@@ -12,11 +12,11 @@ import lombok.Setter;
 public class SKUModel {
     private long id;
     private String image;
-    private long productId;
-    private long optionId1;
-    private long valueId1;
-    private long optionId2;
-    private long valueId2;
+    private Long productId;
+    private Long optionId1;
+    private Long valueId1;
+    private Long optionId2;
+    private Long valueId2;
     private double price;
     private long quantity;
 }

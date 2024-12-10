@@ -85,8 +85,10 @@ public class SKUService implements ISKUService {
         entity.setProduct(productRepository.findById(model.getProductId()).get());
         entity.setOption1(optionRepository.findById(model.getOptionId1()).get());
         entity.setValue1(valueRepository.findById(model.getValueId1()).get());
-        entity.setOption2(optionRepository.findById(model.getOptionId2()).get());
-        entity.setValue2(valueRepository.findById(model.getValueId2()).get());
+        if (model.getOptionId2() != null && model.getValueId2() != null) {
+            entity.setOption2(optionRepository.findById(model.getOptionId2()).get());
+            entity.setValue2(valueRepository.findById(model.getValueId2()).get());
+        }
         SKUEntity savedSKU = iskuRepository.save(entity);
         return skuMapper.convertToDto(savedSKU);
     }

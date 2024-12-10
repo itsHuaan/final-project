@@ -19,8 +19,12 @@ public class SKUMapper {
     public SKUDto convertToDto(SKUEntity entity) {
         return SKUDto.builder()
                 .variantId(entity.getId())
-                .option1(optionMapper.convertToDtoWithValue(entity.getOption1(), entity.getValue1()))
-                .option2(optionMapper.convertToDtoWithValue(entity.getOption2(), entity.getValue2()))
+                .option1(entity.getOption1() != null
+                        ? optionMapper.convertToDtoWithValue(entity.getOption1(), entity.getValue1())
+                        : null)
+                .option2(entity.getOption2() != null
+                        ? optionMapper.convertToDtoWithValue(entity.getOption2(), entity.getValue2())
+                        : null)
                 .price(entity.getPrice())
                 .quantity(entity.getQuantity())
                 .image(entity.getImage())
