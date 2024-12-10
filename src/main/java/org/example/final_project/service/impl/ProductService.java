@@ -226,22 +226,27 @@ public class ProductService implements IProductService {
     @Override
     public Page<ProductDto> getAllProductByCategory(long categoryId, Pageable pageable) {
         if (pageable != null) {
-            return iProductRepository.findAll(Specification.where(hasCategory(categoryId)).and(isNotDeleted()),pageable).map(x->productMapper.convertToDto(x));
+            return iProductRepository.findAll(Specification.where(hasCategoryId(categoryId)).and(isNotDeleted()),pageable).map(x->productMapper.convertToDto(x));
         }else{
-            return iProductRepository.findAll(Specification.where(hasCategory(categoryId)).and(isNotDeleted()),Pageable.unpaged()).map(x->productMapper.convertToDto(x));
+            return iProductRepository.findAll(Specification.where(hasCategoryId(categoryId)).and(isNotDeleted()),Pageable.unpaged()).map(x->productMapper.convertToDto(x));
         }
     }
 
     @Override
-    public Page<ProductDto> getAllProductByFilter(Long categoryId, Long addressId, Double startPrice, Double endPrice) {
-        Specification<ProductEntity> filter=Specification.where(isNotDeleted());
+    public Page<ProductDto> getAllProductByFilter(List<Long> categoryId, List<Long> addressId, Double startPrice, Double endPrice,Double rating,Pageable pageable) {
+        Specification<ProductEntity> filter=Specification.where(isNotDeleted()).and(isStatus(1));
         if(categoryId!=null){
-            filter=filter.and(hasCategoryId(categoryId));
+            filter=filter.and(hasCategory(categoryId));
         }
         if(addressId!=null){
-            filter=filter.and(hasShopAddress())
+            filter=filter.and(hasShopAddress(addressId));
         }
+        if(startPrice!=null&&endPrice!=null){
+            filter=filter.and(hasPriceBetween(startPrice,endPrice));
+        }
+        if(rating!=null){
+            filter=filter.and(hasAverageRatingGreaterThan(rating));
+        }
+        return iProductRepository.findAll(filter,pageable).map(x->productMapper.convertToDto(x));
     }
-
-
 }

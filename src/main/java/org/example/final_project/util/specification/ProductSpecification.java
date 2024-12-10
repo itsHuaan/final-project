@@ -3,9 +3,13 @@ package org.example.final_project.util.specification;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
+import org.example.final_project.entity.FeedbackEntity;
 import org.example.final_project.entity.OtpEntity;
 import org.example.final_project.entity.ProductEntity;
 import org.springframework.data.jpa.domain.Specification;
+
+import java.util.List;
 
 public class ProductSpecification {
     public static Specification<ProductEntity> isStatus(int status) {
@@ -36,12 +40,37 @@ public class ProductSpecification {
         return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.isNull(root.get("user").get("deletedAt"));
     }
-    public static Specification<ProductEntity> hasCategory(long categoryId) {
+    public static Specification<ProductEntity> hasCategory(List<Long> categoryId) {
         return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
-                criteriaBuilder.equal(root.get("categoryEntity").get("id"),categoryId);
+                root.get("categoryEntity").get("id").in(categoryId);
     }
-    public static Specification<ProductEntity> hasShopAddress(long shopId) {
+    public static Specification<ProductEntity> hasShopAddress(List<Long> addressId) {
         return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
-                criteriaBuilder.equal(root.get("user").get("userId"),shopId);
+                root.get("user").get("address_id_shop").in(addressId);
     }
+    public static Specification<ProductEntity> hasPriceBetween(Double startPrice,Double endPrice) {
+        return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
+                criteriaBuilder.between(root.join("skuEntities").get("price"), startPrice, endPrice);
+    }
+    public static Specification<ProductEntity> hasAverageRatingGreaterThan(double ratingThreshold) {
+        return (root, query, criteriaBuilder) -> {
+            Subquery<Double> subquery = query.subquery(Double.class);
+            Root<FeedbackEntity> feedback = subquery.from(FeedbackEntity.class);
+            subquery.select(criteriaBuilder.avg(feedback.get("rate")))
+                    .where(criteriaBuilder.equal(feedback.get("product"), root));
+
+            return criteriaBuilder.greaterThanOrEqualTo(subquery, ratingThreshold);
+        };
+    }
+
+//    public static Specification<ProductEntity> hasAverageRatingLessThan(double ratingThreshold) {
+//        return (root, query, criteriaBuilder) -> {
+//            Subquery<Double> subquery = query.subquery(Double.class);
+//            Root<FeedbackEntity> feedback = subquery.from(FeedbackEntity.class);
+//            subquery.select(criteriaBuilder.avg(feedback.get("rate")))
+//                    .where(criteriaBuilder.equal(feedback.get("product"), root));
+//
+//            return criteriaBuilder.lessThan(subquery, ratingThreshold);
+//        };
+//    }
 }
