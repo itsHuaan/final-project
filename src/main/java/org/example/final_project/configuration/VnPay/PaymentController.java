@@ -29,12 +29,12 @@ public class PaymentController {
     private OrderService orderService;
 
     @PostMapping("/create-payment")
-    public ResponseEntity<?> submidOrder(@ModelAttribute OrderModel order, @RequestParam("amount") String amount,
-                                         HttpServletRequest request , @RequestBody List<CartItemRequest> cartItemRequestList) throws UnsupportedEncodingException {
-        request.setAttribute("amount",amount);
+    public ResponseEntity<?> submidOrder(@RequestBody OrderModel order,
+                                         HttpServletRequest request) throws UnsupportedEncodingException {
+        request.setAttribute("amount",order.getAmount());
         String tex = VnPayUtil.getRandomNumber(8);
         request.setAttribute("tex",tex);
-        String vnpayUrl = orderService.submitCheckout(order, request , amount ,cartItemRequestList );
+        String vnpayUrl = orderService.submitCheckout(order, request);
         return ResponseEntity.ok().body(vnpayUrl);
     }
 

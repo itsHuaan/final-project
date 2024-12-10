@@ -14,7 +14,7 @@ public class PaymentService {
     private final VnPayConfig config;
 
     public String creatUrlPaymentForVnPay(HttpServletRequest request) {
-        String amountParam = request.getParameter("amount");
+        String amountParam = (String) request.getAttribute("amount");
         if (amountParam == null || amountParam.isEmpty()) {
             throw new IllegalArgumentException("Amount parameter is missing or invalid");
         }
