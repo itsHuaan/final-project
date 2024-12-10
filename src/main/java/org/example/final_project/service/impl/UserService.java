@@ -97,6 +97,7 @@ public class UserService implements IUserService, UserDetailsService {
             userEntity.setPassword(passwordEncoder.encode(userModel.getPassword()));
             userEntity.setDeletedAt(null);
             userEntity.setIsActive(0);
+            userEntity.setShop_status(0);
             userRepository.save(userEntity);
             return 1;
         }
