@@ -110,6 +110,12 @@ public class CartController {
                             e.getMessage(),
                             null)
             );
+        } catch (IndexOutOfBoundsException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    createResponse(HttpStatus.BAD_REQUEST,
+                            e.getMessage(),
+                            null)
+            );
         }
     }
 
