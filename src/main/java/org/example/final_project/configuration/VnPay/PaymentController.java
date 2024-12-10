@@ -3,12 +3,19 @@ package org.example.final_project.configuration.VnPay;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.example.final_project.model.CartItemRequest;
+import org.example.final_project.model.OrderModel;
+import org.example.final_project.service.impl.OrderService;
 import org.example.final_project.util.Const;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.UnsupportedEncodingException;
+import java.util.List;
+
+import static org.example.final_project.dto.ApiResponse.createResponse;
 
 @Slf4j
 @RestController
@@ -18,23 +25,26 @@ public class PaymentController {
     private PaymentService paymentService;
     @Autowired
     private HttpServletRequest request;
+    @Autowired
+    private OrderService orderService;
 
-    @GetMapping("/create-payment")
-    public ResponseEntity<?> submidOrder(@RequestParam("amount") String amount,
-                                         HttpServletRequest request) throws UnsupportedEncodingException {
+    @PostMapping("/create-payment")
+    public ResponseEntity<?> submidOrder(@ModelAttribute OrderModel order, @RequestParam("amount") String amount,
+                                         HttpServletRequest request , @RequestBody List<CartItemRequest> cartItemRequestList) throws UnsupportedEncodingException {
         request.setAttribute("amount",amount);
-        String vnpayUrl = paymentService.creatUrlPaymentForVnPay(request);
-        log.info(vnpayUrl);
+        String tex = VnPayUtil.getRandomNumber(8);
+        request.setAttribute("tex",tex);
+        String vnpayUrl = orderService.submitCheckout(order, request , amount ,cartItemRequestList );
         return ResponseEntity.ok().body(vnpayUrl);
     }
 
-    @PostMapping("/vnpay-return")
+    @GetMapping("/vnpay-return")
     public ResponseEntity<?> paymentReturn(HttpServletRequest request) {
-        String status = request.getParameter("vnp_ResponseCode");
-        if(status.equals("00")) {
-            return ResponseEntity.ok("ok");
-        }else {
-            return ResponseEntity.ok("error");
+        try {
+            return ResponseEntity.ok(orderService.statusPayment(request));
+        }
+       catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createResponse(HttpStatus.NOT_FOUND, ex.getMessage(), null));
         }
     }
     @GetMapping("/get-client-ip")

@@ -18,19 +18,23 @@ public class OrderEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id ;
-    private Double total_price;
-    private String shipping_address;
-    private String status_checkout;
-    private String method_checkout;
+    private Double totalPrice;
+    private String shippingAddress;
+    private long statusCheckout;
+    private String methodCheckout;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
+    private String orderCode;
     @ManyToOne
     @JoinColumn(name = "user_id" , nullable = false  )
     private UserEntity user;
 
     @OneToMany(mappedBy = "orderEntity")
     private List<OrderDetailEntity> orderDetailEntities;
+
+    @OneToMany(mappedBy = "order")
+    private List<OrderTrackingEntity> orderTrackingEntities;
 
 
 }
