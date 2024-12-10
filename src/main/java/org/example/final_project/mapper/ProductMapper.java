@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.ProductDto;
 import org.example.final_project.dto.ProductFamilyDto;
+import org.example.final_project.dto.ProductSummaryDto;
 import org.example.final_project.entity.FeedbackEntity;
 import org.example.final_project.entity.ProductEntity;
 import org.example.final_project.model.ProductModel;
@@ -76,6 +77,30 @@ public class ProductMapper {
                 .categoryName(productEntity.getCategoryEntity().getName())
                 .shopId(productEntity.getUser().getUserId())
                 .shopName(productEntity.getUser().getShop_name())
+                .build();
+    }
+
+    public ProductSummaryDto toProductSummaryDto(ProductEntity productEntity){
+        return ProductSummaryDto.builder()
+                .productId(productEntity.getId())
+                .productName(productEntity.getName())
+//                .numberOfLike(productEntity.getNumberOfLike())
+                .numberOfFeedBack(productEntity.getFeedbacks().size())
+                .rating(productEntity.getFeedbacks().stream()
+                        .mapToDouble(FeedbackEntity::getRate)
+                        .average()
+                        .orElse(0.0))
+//                .description(productEntity.getDescription())
+//                .note(productEntity.getNote())
+                .createdAt(productEntity.getCreatedAt())
+                .modifiedAt(productEntity.getModifiedAt())
+                .deletedAt(productEntity.getDeletedAt())
+//                .isActive(productEntity.getIsActive())
+                .category(categoryMapper.convertToDto(productEntity.getCategoryEntity()))
+//                .images(imageProductRepository.findAllByProductEntity_Id(productEntity.getId()).stream().map(imageMapper::convertToDto).collect(Collectors.toList()))
+//                .variants(iskuService.getAllByProduct(productEntity.getId()))
+//                .shop(userMapper.toShopDto(productEntity.getUser()))
+//                .feedbacks(productEntity.getFeedbacks().stream().map(feedbackMapper::convertToDto).toList())
                 .build();
     }
 }
