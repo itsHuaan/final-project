@@ -81,12 +81,10 @@ public class OrderService implements IOrderService {
                 productEntity.setId(cartItemRequest.getProductId());
                 orderDetailEntity.setProduct(productEntity);
                 orderDetailRepository.save(orderDetailEntity);
-
             }
         }
-
         if(method.toLowerCase().equals("vnpay")){
-            emailService.sendOrderToEmail(orderModel,request);
+
             return paymentService.creatUrlPaymentForVnPay(request);
         }else {
             emailService.sendOrderToEmail(orderModel,request);
@@ -96,9 +94,10 @@ public class OrderService implements IOrderService {
 
 
     @Override
-    public ApiResponse<?> statusPayment(HttpServletRequest request) {
+    public ApiResponse<?> statusPayment(HttpServletRequest request) throws Exception {
         String status = request.getParameter("vnp_ResponseCode");
         String vnp_TxnRef = request.getParameter("vnp_TxnRef");
+        OrderModel orderModel = (OrderModel) request.getAttribute("order");
         long id = orderRepository.findIdByOrderCode(vnp_TxnRef);
         Optional<OrderEntity> orderEntity = orderRepository.findById(id);
         OrderEntity order;
@@ -106,6 +105,7 @@ public class OrderService implements IOrderService {
             if(status.equals("00")){
                 order = orderEntity.get();
                 order.setStatusCheckout(CheckoutStatus.Completed.getStatus());
+                emailService.sendOrderToEmail(orderModel,request);
                 orderRepository.save(order);
                 return createResponse(HttpStatus.OK, "Successful Payment ", null);
 

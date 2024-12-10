@@ -29,9 +29,10 @@ public class PaymentController {
     private IOrderService orderService;
 
     @PostMapping("/create-payment")
-    public ResponseEntity<?> submidOrder(@RequestBody OrderModel order,
+    public ResponseEntity<?> submitOrder(@RequestBody OrderModel order,
                                          HttpServletRequest request) throws Exception {
         request.setAttribute("amount",order.getAmount());
+        request.setAttribute("order",order);
         String tex = VnPayUtil.getRandomNumber(8);
         request.setAttribute("tex",tex);
         String vnpayUrl = orderService.submitCheckout(order, request);

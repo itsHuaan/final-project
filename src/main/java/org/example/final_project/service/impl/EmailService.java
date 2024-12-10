@@ -57,6 +57,7 @@ public class EmailService implements IEmailService {
     public String tableProductOfUser(OrderModel orderModel, HttpServletRequest request) {
         StringBuilder builder = new StringBuilder();
         String vnp_TxnRef = (String) request.getAttribute("tex");
+        String amount = (String) request.getAttribute("amount");
 
         builder.append(String.format("""
         <html lang="vi">
@@ -70,7 +71,7 @@ public class EmailService implements IEmailService {
             <table align="center" style="width: 400px; background-color: #ffffff; border-spacing: 0; border-radius: 10px; margin-top: 20px;">
               <tr>
                 <td style="padding: 20px; text-align: center; background-color: #ecf1fb; border-top-left-radius: 10px; border-top-right-radius: 10px;">
-                  <h2 style="font-size: 24px; font-weight: 600; color: #001942;">Thanks for using Shoppee</h2>
+                  <h2 style="font-size: 24px; font-weight: 600; color: #001942;">Cảm ơn vì đã sử dụng sản phẩm của chúng tôi</h2>
                   <img src="https://cloudfilesdm.com/postcards/5b305647c0f5e5a664d2cca777f34bf4.png" alt="Confirmed" style="width: 40px; height: 40px; margin-bottom: 8px;">
                   <p style="color: #0067ff; font-size: 14px; font-weight: 500;">Chúng tôi mong sản phẩm sẽ làm hài lòng bạn!</p>
                 </td>
@@ -98,34 +99,27 @@ public class EmailService implements IEmailService {
                 if (productEntity.isPresent()) {
                     ProductEntity productEntity1 = productEntity.get();
                     String productName = productEntity1.getName() != null ? productEntity1.getName() : "Unknown";
-
+                    
                     builder.append("<tr style=\"border-bottom: 1px solid #ddd;\">\n")
                             .append("  <td style=\"padding: 10px; font-size: 16px; color: #333;\">").append(productName).append("</td>\n")
                             .append("  <td style=\"padding: 10px; font-size: 16px; color: #333; text-align: center;\">").append(item.getQuantity()).append("</td>\n")
-                            .append("  <td style=\"padding: 10px; font-size: 16px; color: #333; text-align: right;\">").append(item.getPrice()).append("VNĐ </td>\n")
+                            .append("  <td style=\"padding: 10px; font-size: 16px; color: #333; text-align: right; \">").append(item.getPrice()).append(" VNĐ </td>\n")
                             .append("</tr>");
                 }
             });
         }
 
-        builder.append("""
+        builder.append(String.format( """
               </table>
             </td>
           </tr>
           <tr>
             <td style="padding: 20px; background-color: #ffffff; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;">
               <table width="400px">
-                <tr>
-                  <td style="font-size: 16px; color: #001942;">Subtotal</td>
-                  <td align="right" style="font-size: 16px; color: #001942;">$%.2f</td>
-                </tr>
-                <tr>
-                  <td style="font-size: 16px; color: #001942;">Discount</td>
-                  <td align="right" style="font-size: 16px; color: #001942;">-$%.2f</td>
-                </tr>
+  
                 <tr>
                   <td style="font-size: 16px; font-weight: 600; color: #001942;">Tổng cộng</td>
-                  <td align="right" style="font-size: 16px; font-weight: 600; color: #001942;">$%.2f</td>
+                  <td align="right" style="font-size: 16px; font-weight: 600; color: #001942;">%s VNĐ</td>
                 </tr>
               </table>
             </td>
@@ -133,7 +127,7 @@ public class EmailService implements IEmailService {
         </table>
       </body>
     </html>
-""");
+""",amount));
 
         return builder.toString();
     }
