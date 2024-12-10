@@ -41,6 +41,7 @@ public class PaymentController {
     @GetMapping("/vnpay-return")
     public ResponseEntity<?> paymentReturn(HttpServletRequest request) {
         try {
+            log.debug("");
             return ResponseEntity.ok(orderService.statusPayment(request));
         }
        catch (Exception ex) {
