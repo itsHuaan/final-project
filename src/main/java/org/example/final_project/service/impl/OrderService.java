@@ -41,10 +41,10 @@ public class OrderService {
     private final ICartItemRepository cartItemRepository;
     private final IOrderDetailRepository orderDetailRepository;
 
-    public String submitCheckout(OrderModel orderModel , HttpServletRequest request , String amount , List<CartItemRequest> cartItemRequestList) {
+    public String submitCheckout(OrderModel orderModel , HttpServletRequest request) {
         String vnp_TxnRef = (String) request.getAttribute("tex");
         String method = orderModel.getMethodCheckout();
-        double totalPrice = Double.parseDouble(amount);
+        double totalPrice = Double.parseDouble(orderModel.getAmount());
         OrderEntity orderEntity = OrderMapper.toOrderEntity(orderModel);
         UserEntity userEntity = new UserEntity();
         userEntity.setUserId(orderModel.getUserId());
@@ -54,8 +54,8 @@ public class OrderService {
         orderEntity.setCreatedAt(LocalDateTime.now());
         orderEntity.setStatusCheckout(CheckoutStatus.Pending.getStatus());
         orderRepository.save(orderEntity);
-        if(cartItemRequestList != null) {
-            for (CartItemRequest cartItemRequest : cartItemRequestList) {
+        if(orderModel.getCartItems() != null) {
+            for (CartItemRequest cartItemRequest : orderModel.getCartItems()) {
                 OrderDetailEntity orderDetailEntity = new OrderDetailEntity();
                 orderDetailEntity.setOrderEntity(orderEntity);
                 orderDetailEntity.setPrice(cartItemRequest.getPrice());
@@ -75,7 +75,6 @@ public class OrderService {
         }else {
             return "đặt hàng thành công";
         }
-
     }
     public ApiResponse<?> statusPayment(HttpServletRequest request) {
         String status = request.getParameter("vnp_ResponseCode");
