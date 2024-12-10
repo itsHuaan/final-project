@@ -1,10 +1,15 @@
 package org.example.final_project.dto;
 
+import lombok.*;
+
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@Builder
 public class ShopInfoDto {
     private String shopName;
-    private String shopAddress;
-    private String shopAddressDetail;
     private Long productCount;
-    private String joined;
+    private Long joined;
     private Long feedbackCount;
 }

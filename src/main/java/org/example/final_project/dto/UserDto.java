@@ -19,6 +19,7 @@ public class UserDto {
     private String phone;
     private List<ShippingAddressDto> addresses;
     private int gender;
+    private ShopInfoDto shopInfo;
     private Long roleId;
     private String id_front;
     private String id_back;
