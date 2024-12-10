@@ -1,6 +1,9 @@
 package org.example.final_project.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.ProductDto;
 import org.example.final_project.dto.ProductSummaryDto;
 import org.example.final_project.entity.ProductEntity;
@@ -30,16 +33,13 @@ import static org.example.final_project.util.ConvertJsonObject.convertJsonToOpti
 import static org.example.final_project.util.specification.ProductSpecification.*;
 
 @Service
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ProductService implements IProductService {
-    @Autowired
     IProductRepository iProductRepository;
-    @Autowired
     ProductMapper productMapper;
-    @Autowired
     IImageProductService imageService;
-    @Autowired
     IUserRepository iUserRepository;
-    @Autowired
     IProductOptionService optionService;
 
 
