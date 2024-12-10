@@ -68,6 +68,8 @@ public class ImageProductService implements IImageProductService {
         try{
             if(imageRepository.findById(id).get()!=null){
                 imageRepository.deleteById(id);
+            }else{
+                throw new IllegalArgumentException("Value not present");
             }
             return 1;
         }catch(Exception e){

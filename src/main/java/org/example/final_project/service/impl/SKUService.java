@@ -15,6 +15,7 @@ import org.example.final_project.repository.ISKURepository;
 import org.example.final_project.service.ISKUService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -146,7 +147,9 @@ public class SKUService implements ISKUService {
                     SKUEntity entity = iskuRepository.findById(model.getId()).get();
                     entity.setQuantity(model.getQuantity());
                     entity.setPrice(model.getPrice());
-                    entity.setImage(model.getImage());
+                    if (model.getImage() != null && model.getImage() != "") {
+                        entity.setImage(model.getImage());
+                    }
                     iskuRepository.save(entity);
                 }
             }

@@ -64,8 +64,16 @@ public class ProductService implements IProductService {
     @Override
     public int update(Long aLong, ProductModel productModel) {
         try {
-            ProductEntity productEntity = productMapper.convertToEntity(productModel);
             if (iProductRepository.findById(aLong).isPresent()) {
+                ProductEntity productEntity = productMapper.convertToEntity(productModel);
+                if (productModel.getFiles() != null && productModel.getFiles().length != 0) {
+                    for (MultipartFile file : productModel.getFiles()) {
+                        imageService.save(new ImageProductModel(file, aLong));
+                    }
+                }
+                if(iUserRepository.findById(productModel.getUser_id()).isPresent()){
+                    productEntity.setUser(iUserRepository.findById(productModel.getUser_id()).get());
+                }
                 productEntity.setId(aLong);
                 iProductRepository.save(productEntity);
             }
@@ -96,8 +104,10 @@ public class ProductService implements IProductService {
             productEntity.setIsActive(0);
             productEntity.setUser(iUserRepository.findById(productModel.getUser_id()).get());
             ProductEntity savedProduct = iProductRepository.save(productEntity);
-            for (MultipartFile file : productModel.getFiles()) {
-                imageService.save(new ImageProductModel(file, savedProduct.getId()));
+            if (productModel.getFiles() != null && productModel.getFiles().length != 0) {
+                for (MultipartFile file : productModel.getFiles()) {
+                    imageService.save(new ImageProductModel(file, savedProduct.getId()));
+                }
             }
             return (int) savedProduct.getId();
         } catch (Exception e) {
@@ -226,27 +236,27 @@ public class ProductService implements IProductService {
     @Override
     public Page<ProductDto> getAllProductByCategory(long categoryId, Pageable pageable) {
         if (pageable != null) {
-            return iProductRepository.findAll(Specification.where(hasCategoryId(categoryId)).and(isNotDeleted()),pageable).map(x->productMapper.convertToDto(x));
-        }else{
-            return iProductRepository.findAll(Specification.where(hasCategoryId(categoryId)).and(isNotDeleted()),Pageable.unpaged()).map(x->productMapper.convertToDto(x));
+            return iProductRepository.findAll(Specification.where(hasCategoryId(categoryId)).and(isNotDeleted()), pageable).map(x -> productMapper.convertToDto(x));
+        } else {
+            return iProductRepository.findAll(Specification.where(hasCategoryId(categoryId)).and(isNotDeleted()), Pageable.unpaged()).map(x -> productMapper.convertToDto(x));
         }
     }
 
     @Override
-    public Page<ProductDto> getAllProductByFilter(List<Long> categoryId, List<Long> addressId, Double startPrice, Double endPrice,Double rating,Pageable pageable) {
-        Specification<ProductEntity> filter=Specification.where(isNotDeleted()).and(isStatus(1));
-        if(categoryId!=null){
-            filter=filter.and(hasCategory(categoryId));
+    public Page<ProductDto> getAllProductByFilter(List<Long> categoryId, List<Long> addressId, Double startPrice, Double endPrice, Double rating, Pageable pageable) {
+        Specification<ProductEntity> filter = Specification.where(isNotDeleted()).and(isStatus(1));
+        if (categoryId != null) {
+            filter = filter.and(hasCategory(categoryId));
         }
-        if(addressId!=null){
-            filter=filter.and(hasShopAddress(addressId));
+        if (addressId != null) {
+            filter = filter.and(hasShopAddress(addressId));
         }
-        if(startPrice!=null&&endPrice!=null){
-            filter=filter.and(hasPriceBetween(startPrice,endPrice));
+        if (startPrice != null && endPrice != null) {
+            filter = filter.and(hasPriceBetween(startPrice, endPrice));
         }
-        if(rating!=null){
-            filter=filter.and(hasAverageRatingGreaterThan(rating));
+        if (rating != null) {
+            filter = filter.and(hasAverageRatingGreaterThan(rating));
         }
-        return iProductRepository.findAll(filter,pageable).map(x->productMapper.convertToDto(x));
+        return iProductRepository.findAll(filter, pageable).map(x -> productMapper.convertToDto(x));
     }
 }
