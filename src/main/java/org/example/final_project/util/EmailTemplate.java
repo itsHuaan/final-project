@@ -1,6 +1,10 @@
 package org.example.final_project.util;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.final_project.model.OrderModel;
+import org.springframework.beans.factory.annotation.Autowired;
 public class EmailTemplate {
+
     public static String otpEmailContent(String otp) {
         return "<body style=\"font-family: Arial, sans-serif;\">\n" +
                 "    <div style=\"width: 100%; max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);\">\n" +
@@ -39,4 +43,6 @@ public class EmailTemplate {
                 "    </div>\n" +
                 "</body>";
     }
+
+
 }
