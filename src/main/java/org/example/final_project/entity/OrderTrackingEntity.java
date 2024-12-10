@@ -18,11 +18,11 @@ public class OrderTrackingEntity {
     private long id;
     private int status;
     private LocalDateTime createdAt;
-    private int createdBy;
     private String note;
+    private long shopId;
     private LocalDateTime paidDate;
     @ManyToOne
-    @JoinColumn(name = "order_id", nullable = false)
+    @JoinColumn(name = "order_id")
     private OrderEntity order;
 
 }

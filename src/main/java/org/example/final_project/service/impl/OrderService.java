@@ -15,11 +15,10 @@ import org.example.final_project.entity.*;
 import org.example.final_project.mapper.OrderMapper;
 import org.example.final_project.model.CartItemRequest;
 import org.example.final_project.model.OrderModel;
+import org.example.final_project.model.enum_status.ActivateStatus;
 import org.example.final_project.model.enum_status.CheckoutStatus;
-import org.example.final_project.repository.ICartItemRepository;
-import org.example.final_project.repository.ICartRepository;
-import org.example.final_project.repository.IOrderDetailRepository;
-import org.example.final_project.repository.IOrderRepository;
+import org.example.final_project.repository.*;
+import org.example.final_project.service.IOrderService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -34,13 +33,13 @@ import static org.example.final_project.dto.ApiResponse.createResponse;
 
 @Service
 @RequiredArgsConstructor
-public class OrderService {
+public class OrderService implements IOrderService {
     private final PaymentService paymentService;
     private final IOrderRepository orderRepository;
-    private final ICartRepository cartRepository;
-    private final ICartItemRepository cartItemRepository;
     private final IOrderDetailRepository orderDetailRepository;
+    private final IOrderTrackingRepository orderTrackingRepository;
 
+    @Override
     public String submitCheckout(OrderModel orderModel , HttpServletRequest request) {
         String vnp_TxnRef = (String) request.getAttribute("tex");
         String method = orderModel.getMethodCheckout();
@@ -56,6 +55,19 @@ public class OrderService {
         orderRepository.save(orderEntity);
         if(orderModel.getCartItems() != null) {
             for (CartItemRequest cartItemRequest : orderModel.getCartItems()) {
+                Optional<OrderTrackingEntity> orderTrackingEntity = orderTrackingRepository.findByOrderIdAndShopId(orderEntity.getId(), cartItemRequest.getShopId());
+                if(orderTrackingEntity.isPresent()) {
+                    OrderTrackingEntity orderTrackingEntity1 = orderTrackingEntity.get();
+                    orderTrackingRepository.save(orderTrackingEntity1);
+                }else {
+                    OrderTrackingEntity trackingEntity = new OrderTrackingEntity();
+                    trackingEntity.setStatus(ActivateStatus.NotConfirmed.getValue());
+                    trackingEntity.setOrder(orderEntity);
+                    trackingEntity.setShopId(cartItemRequest.getShopId());
+                    trackingEntity.setCreatedAt(LocalDateTime.now());
+                    orderTrackingRepository.save(trackingEntity);
+                }
+
                 OrderDetailEntity orderDetailEntity = new OrderDetailEntity();
                 orderDetailEntity.setOrderEntity(orderEntity);
                 orderDetailEntity.setPrice(cartItemRequest.getPrice());
@@ -67,6 +79,7 @@ public class OrderService {
                 productEntity.setId(cartItemRequest.getProductId());
                 orderDetailEntity.setProduct(productEntity);
                 orderDetailRepository.save(orderDetailEntity);
+
             }
         }
 
@@ -76,6 +89,7 @@ public class OrderService {
             return "đặt hàng thành công";
         }
     }
+    @Override
     public ApiResponse<?> statusPayment(HttpServletRequest request) {
         String status = request.getParameter("vnp_ResponseCode");
         String vnp_TxnRef = request.getParameter("vnp_TxnRef");
