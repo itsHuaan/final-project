@@ -10,7 +10,7 @@ public class OrderDetailMapper
                 .price(entity.getPrice())
                 .quantity(entity.getQuantity())
                 .shopId(entity.getShopId())
-                .productId(entity.getProduct().getId())
+                .productSkuId(entity.getSkuEntity().getId())
                 .option1(entity.getOption1())
                 .option2(entity.getOption2())
                 .build();

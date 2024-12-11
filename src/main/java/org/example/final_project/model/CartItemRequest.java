@@ -8,7 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class CartItemRequest {
-    private long productId;
+    private long productSkuId;
     private long quantity;
     private long shopId;
     private double price;

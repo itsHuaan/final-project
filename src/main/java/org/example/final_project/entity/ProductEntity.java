@@ -48,11 +48,7 @@ public class ProductEntity {
 
     @OneToMany(mappedBy = "product")
     private List<SKUEntity> skuEntities;
-
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<OrderDetailEntity> orderDetails;
-
-
+    
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FavoriteProductEntity> favorites = new ArrayList<>();
 }

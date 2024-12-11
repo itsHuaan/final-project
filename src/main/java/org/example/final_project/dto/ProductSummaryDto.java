@@ -16,7 +16,6 @@ public class ProductSummaryDto {
     private long numberOfFeedBack;
     private long numberOfLike;
     private double rating;
-    private long sold;
     private CategorySummaryDto category;
     private String image;
     private double price;

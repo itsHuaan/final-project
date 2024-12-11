@@ -15,6 +15,7 @@ import org.example.final_project.service.IFeedbackService;
 import org.example.final_project.service.IImageFeedbackService;
 import org.example.final_project.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -52,8 +53,10 @@ public class FeedbackService implements IFeedbackService {
     @Override
     public int save(FeedbackModel feedbackModel) {
         FeedbackEntity feedback = feedbackRepository.save(feedbackMapper.convertToEntity(feedbackModel));
-        for (MultipartFile image : feedbackModel.getFiles()) {
-            iImageFeedbackService.save(new FeedbackImageModel(image, feedback.getId()));
+        if (feedbackModel.getFiles() != null) {
+            for (MultipartFile image : feedbackModel.getFiles()) {
+                iImageFeedbackService.save(new FeedbackImageModel(image, feedback.getId()));
+            }
         }
         return 1;
     }
@@ -80,7 +83,7 @@ public class FeedbackService implements IFeedbackService {
         if (rating != null) {
             spec = spec.and(hasRatingGreaterThanOrEqualTo(rating));
         }
-        return feedbackRepository.findAll(spec).stream()
+        return feedbackRepository.findAll(spec, Sort.by(Sort.Order.desc("createdAt"))).stream()
                 .map(feedbackMapper::convertToDto)
                 .collect(Collectors.toList());
     }

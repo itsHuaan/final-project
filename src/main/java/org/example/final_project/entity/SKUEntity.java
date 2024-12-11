@@ -45,4 +45,7 @@ public class SKUEntity {
 
     @OneToMany(mappedBy = "product")
     private List<CartItemEntity> cartItems;
+
+    @OneToMany(mappedBy = "skuEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<OrderDetailEntity> orderDetails;
 }
