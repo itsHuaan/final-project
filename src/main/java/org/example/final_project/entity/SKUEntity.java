@@ -20,7 +20,7 @@ public class SKUEntity {
     private long quantity;
     private String image;
 
-    // một sản phẩm gồm nhiều sku
+
     @ManyToOne
     @JoinColumn(name="product_id")
     private ProductEntity product;
@@ -45,4 +45,7 @@ public class SKUEntity {
 
     @OneToMany(mappedBy = "product")
     private List<CartItemEntity> cartItems;
+
+    @OneToMany(mappedBy = "skuEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<OrderDetailEntity> orderDetails;
 }

@@ -7,9 +7,11 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.entity.ProductEntity;
+import org.example.final_project.entity.ProductOptionValuesEntity;
 import org.example.final_project.entity.UserEntity;
 import org.example.final_project.model.EmailModel;
 import org.example.final_project.model.OrderModel;
+import org.example.final_project.repository.IProductOptionValueRepository;
 import org.example.final_project.repository.IProductRepository;
 import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.IEmailService;
@@ -28,6 +30,7 @@ public class EmailService implements IEmailService {
     JavaMailSender emailSender;
     private final IProductRepository productRepository;
     private final IUserRepository userRepository;
+    private final IProductOptionValueRepository productOptionValueRepository;
 
 
     @Override
@@ -94,22 +97,27 @@ public class EmailService implements IEmailService {
                   <table width="400px" style="background-color: #fff; padding: 10px; border-radius: 10px;">
                   <thead>
                             <tr>
-                              <th style="padding: 12px; text-align: left;">Tên sản phẩm</th>
-                              <th style="padding: 12px; text-align: center;">Số lượng</th>
-                              <th style="padding: 12px; text-align: right;">Giá</th>
+                                <th style="padding: 12px; text-align: left; width: 200px;">Tên sản phẩm</th>
+                                <th style="padding: 12px; text-align: left; width: 80px;">Size</th>
+                                <th style="padding: 12px; text-align: left; width: 100px;">Màu</th>
+                                <th style="padding: 12px; text-align: center; width: 60px;">Số lượng</th>
+                                <th style="padding: 12px; text-align: right; width: 100px;">Giá</th>
                             </tr>
                         </thead>
     """, userName , vnp_TxnRef));
 
         if (orderModel.getCartItems() != null && !orderModel.getCartItems().isEmpty()) {
             orderModel.getCartItems().forEach(item -> {
-                Optional<ProductEntity> productEntity = productRepository.findById(item.getProductId());
+                Optional<ProductEntity> productEntity = productRepository.findById(item.getProductSkuId());
                 if (productEntity.isPresent()) {
                     ProductEntity productEntity1 = productEntity.get();
                     String productName = productEntity1.getName() != null ? productEntity1.getName() : "Unknown";
-                    
+                    String option1 = productOptionValueRepository.findById(item.getOption1());
+                    String option2 = productOptionValueRepository.findById(item.getOption2());
                     builder.append("<tr style=\"border-bottom: 1px solid #ddd;\">\n")
                             .append("  <td style=\"padding: 10px; font-size: 16px; color: #333;\">").append(productName).append("</td>\n")
+                            .append("  <td style=\"padding: 10px; font-size: 16px; color: #333; text-align: center;\">").append(option1).append("</td>\n")
+                            .append("  <td style=\"padding: 10px; font-size: 16px; color: #333; text-align: center;\">").append(option2).append("</td>\n")
                             .append("  <td style=\"padding: 10px; font-size: 16px; color: #333; text-align: center;\">").append(item.getQuantity()).append("</td>\n")
                             .append("  <td style=\"padding: 10px; font-size: 16px; color: #333; text-align: right; \">").append(item.getPrice()).append(" VNĐ </td>\n")
                             .append("</tr>");

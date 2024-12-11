@@ -11,4 +11,7 @@ import java.util.Optional;
 public interface IOrderRepository extends JpaRepository<OrderEntity, Long> {
     @Query("select o.id from OrderEntity o where o.orderCode = :orderCode")
     int findIdByOrderCode(String orderCode);
+
+    @Query("select o.totalPrice  from OrderEntity o where o.orderCode = :orderCode")
+    Double findAmountByOrderCode(String orderCode);
 }

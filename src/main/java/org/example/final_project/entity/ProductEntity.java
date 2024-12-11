@@ -24,7 +24,6 @@ public class ProductEntity {
     private String description;
     private int isActive;
     private String note;
-    private long sold;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
@@ -47,11 +46,9 @@ public class ProductEntity {
     @JoinColumn(name="user_id")
     private UserEntity user;
 
-    @OneToMany(mappedBy = "product")
+    @OneToMany(mappedBy = "product",cascade = CascadeType.REMOVE)
     private List<SKUEntity> skuEntities;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<OrderDetailEntity> orderDetails;
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FavoriteProductEntity> favorites = new ArrayList<>();
 }

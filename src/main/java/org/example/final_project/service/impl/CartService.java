@@ -97,10 +97,8 @@ public class CartService implements ICartService {
                          .mapToDouble(cartItem -> cartItem.getQuantity()*cartItem.getProduct().getPrice())
                          .sum();
              }else {
-                 selectedCartItems = cartItemRepository.findByCartId(cart.getCartId());
-                 totalAmount = selectedCartItems.stream()
-                         .mapToDouble(cartItem -> cartItem.getQuantity()*cartItem.getProduct().getPrice())
-                         .sum();
+                 selectedCartItems = new ArrayList<>();
+                 totalAmount = 0;
              }
 
             UserEntity userEntity = userRepository.findById(cart.getUser().getUserId())

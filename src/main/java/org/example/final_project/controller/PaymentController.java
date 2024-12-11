@@ -40,19 +40,36 @@ public class PaymentController {
     public ResponseEntity<Void> paymentReturn(HttpServletRequest request) {
         try {
             orderService.statusPayment(request);
-            return ResponseEntity.status(HttpStatus.FOUND) // 302 Redirect
-                    .header("Location", "https://team03.cyvietnam.id.vn/en") // Redirect URL
+            String vnp_TxnRef = (String) request.getAttribute("tex");
+            String amount = orderService.getTotalPrice(vnp_TxnRef);
+            String redirectUrl = String.format(
+                    "https://team03.cyvietnam.id.vn/en/checkoutsuccess?tex=%s&amount=%s",
+                    vnp_TxnRef, amount
+                    ,
+                    "success"
+            );
+
+            return ResponseEntity.status(HttpStatus.FOUND)
+                    .header("Location", redirectUrl)
                     .build();
         } catch (Exception ex) {
+            String vnp_TxnRef = (String) request.getAttribute("tex");
+            String amount = orderService.getTotalPrice(vnp_TxnRef);
+            String redirectUrl = String.format(
+                    "https://team03.cyvietnam.id.vn/en/checkoutfail?tex=%s&amount=%s",
+                    vnp_TxnRef, amount
+                    ,
+                    "success"
+            );
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .header("Location", "https://team03.cyvietnam.id.vn/en/error")
+                    .header("Location", redirectUrl)
                     .build();
         }
     }
 
     @GetMapping("/get-order")
     public ResponseEntity<?> getOrder(@RequestParam long shopId) {
-        return ResponseEntity.ok(createResponse(HttpStatus.OK,"ok",orderService.getOrderByShopIdAndOrderId(shopId)));
+        return ResponseEntity.ok(orderService.getOrderByShopIdAndOrderId(shopId));
     }
 
 
