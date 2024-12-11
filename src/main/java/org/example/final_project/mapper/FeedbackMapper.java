@@ -49,7 +49,7 @@ public class FeedbackMapper {
                 ? iUserRepository.findById(model.getUserId()).get()
                 : null;
         return FeedbackEntity.builder()
-                .content(model.getContent())
+                .content(model.getContent() != null ? model.getContent() : null)
                 .rate(model.getRate())
                 .product(product)
                 .user(user)

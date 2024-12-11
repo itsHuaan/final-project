@@ -4,7 +4,6 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.example.final_project.repository.IImageProductRepository;
 import org.example.final_project.service.IImageProductService;
 import org.example.final_project.util.Const;
 import org.springframework.beans.factory.annotation.Autowired;

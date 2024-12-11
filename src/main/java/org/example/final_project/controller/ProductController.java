@@ -8,14 +8,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.configuration.UserDetailsImpl;
 import org.example.final_project.dto.*;
-import org.example.final_project.entity.UserEntity;
+import org.example.final_project.model.FavoriteProductModel;
 import org.example.final_project.model.ProductModel;
 import org.example.final_project.model.validation.PageableValidation;
+import org.example.final_project.service.IFavoriteProductService;
 import org.example.final_project.service.IProductOptionService;
 import org.example.final_project.service.IProductService;
 import org.example.final_project.service.ISKUService;
 import org.example.final_project.util.Const;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -37,12 +37,10 @@ import static org.example.final_project.dto.ApiResponse.createResponse;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Tag(name = "Product")
 public class ProductController {
-    @Autowired
     IProductService productService;
-    @Autowired
     IProductOptionService optionService;
-    @Autowired
     ISKUService iskuService;
+    IFavoriteProductService favoriteProductService;
 
 
     @Operation(summary = "Get product by id")
@@ -139,7 +137,7 @@ public class ProductController {
                             null
                     ));
                 }
-            }else{
+            } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
                         HttpStatus.BAD_REQUEST,
                         "Something went wrong",
@@ -280,9 +278,9 @@ public class ProductController {
         }
     }
 
-    @Operation(summary = "Get shop's other product")
-    @GetMapping("/other/{shop-id}")
-    ResponseEntity<?> getOtherProductOfShop(@PathVariable("shop-id") long productId,
+    @Operation(summary = "Get shop's other product", description = "Get all the products of the shop except for the selected product.")
+    @GetMapping("/other/{product-id}")
+    ResponseEntity<?> getOtherProductOfShop(@PathVariable("product-id") long productId,
                                             @RequestParam(required = false) Integer pageSize,
                                             @RequestParam(required = false) Integer pageIndex) {
         try {
@@ -355,6 +353,31 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
                     HttpStatus.BAD_REQUEST,
                     "Invalid Page size or index",
+                    null
+            ));
+        }
+    }
+
+    @Operation(summary = "Add to favorite")
+    @PostMapping("/favorite")
+    ResponseEntity<?> addToFavorite(@RequestBody FavoriteProductModel favoriteProduct) {
+        try {
+            int result = favoriteProductService.save(favoriteProduct);
+            return result == 1
+                    ? ResponseEntity.status(HttpStatus.OK).body(createResponse(
+                    HttpStatus.OK,
+                    "Added to favorite.",
+                    null
+            ))
+                    : ResponseEntity.status(HttpStatus.OK).body(createResponse(
+                    HttpStatus.OK,
+                    "Remove from favorite.",
+                    null
+            ));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+                    HttpStatus.BAD_REQUEST,
+                    "There's an error occurred",
                     null
             ));
         }
