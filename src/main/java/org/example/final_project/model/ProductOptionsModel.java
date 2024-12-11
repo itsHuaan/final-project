@@ -14,5 +14,4 @@ import java.util.List;
 public class ProductOptionsModel {
     private String name;
     private List<ProductOptionValueModel> values;
-    private long productId;
 }
