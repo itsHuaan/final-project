@@ -24,7 +24,8 @@ public class OrderDetailEntity {
     private OrderEntity orderEntity;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false)
-    private ProductEntity product;
+    @JoinColumn(name = "sku_id", nullable = false)
+    private SKUEntity skuEntity;
+
 
 }

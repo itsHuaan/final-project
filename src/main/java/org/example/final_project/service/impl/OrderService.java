@@ -40,6 +40,7 @@ public class OrderService implements IOrderService {
     private final IOrderTrackingRepository orderTrackingRepository;
     private final EmailService emailService;
     private final OrderMapper orderMapper;
+    private final ISKURepository skuRepository;;
 
     @Override
     public String submitCheckout(OrderModel orderModel , HttpServletRequest request) throws Exception {
@@ -55,6 +56,10 @@ public class OrderService implements IOrderService {
         orderEntity.setCreatedAt(LocalDateTime.now());
         orderEntity.setStatusCheckout(CheckoutStatus.Pending.getStatus());
         orderRepository.save(orderEntity);
+
+
+
+
         if(orderModel.getCartItems() != null) {
             for (CartItemRequest cartItemRequest : orderModel.getCartItems()) {
                 Optional<OrderTrackingEntity> orderTrackingEntity = orderTrackingRepository.findByOrderIdAndShopId(orderEntity.getId(), cartItemRequest.getShopId());
@@ -77,15 +82,25 @@ public class OrderService implements IOrderService {
                 orderDetailEntity.setOption1(cartItemRequest.getOption1());
                 orderDetailEntity.setOption2(cartItemRequest.getOption2());
                 orderDetailEntity.setShopId(cartItemRequest.getShopId());
-                ProductEntity productEntity = new ProductEntity();
-                productEntity.setId(cartItemRequest.getProductId());
-                orderDetailEntity.setProduct(productEntity);
+                SKUEntity skuEntity = new SKUEntity();
+                skuEntity.setId(cartItemRequest.getProductSkuId());
+                orderDetailEntity.setSkuEntity(skuEntity);
                 orderDetailRepository.save(orderDetailEntity);
             }
         }
         if(method.toLowerCase().equals("vnpay")){
             return paymentService.creatUrlPaymentForVnPay(request);
         }else {
+            if (orderModel.getCartItems() != null){
+                for (CartItemRequest cartItemRequest : orderModel.getCartItems()) {
+                    Optional<SKUEntity> skuEntity = skuRepository.findById(cartItemRequest.getProductSkuId());
+                    if(skuEntity.isPresent()) {
+                        SKUEntity skuEntity1 = skuEntity.get();
+                        skuEntity1.setQuantity( skuEntity1.getQuantity() - cartItemRequest.getQuantity());
+                        skuRepository.save(skuEntity1);
+                    }
+                }
+            }
             emailService.sendOrderToEmail(orderModel,request);
             return "đặt hàng thành công";
         }
@@ -132,5 +147,12 @@ public class OrderService implements IOrderService {
         List<OrderEntity> orderEntities = orderRepository.findAllById(orderIds);
         List<OrderDto> orderDtos = orderEntities.stream().map(e->orderMapper.toOrderDto(e)).collect(Collectors.toList());
         return createResponse(HttpStatus.OK, "Successfully Retrieved Order Details", orderDtos);
+    }
+
+    @Override
+    public String getTotalPrice(String tex){
+        double amount = orderRepository.findAmountByOrderCode(tex);
+        return String.valueOf(amount);
+
     }
 }
