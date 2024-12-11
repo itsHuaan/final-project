@@ -49,11 +49,6 @@ public class PaymentController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createResponse(HttpStatus.NOT_FOUND, ex.getMessage(), null));
         }
     }
-    @GetMapping("/get-client-ip")
-    public String getClientIpAddress() {
-        String clientIp = VnPayUtil.getIpAddress(request);
-        return "Client IP: " + clientIp;
-    }
 
 
 }
