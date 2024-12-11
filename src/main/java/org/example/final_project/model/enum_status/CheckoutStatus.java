@@ -2,7 +2,11 @@ package org.example.final_project.model.enum_status;
 
 public enum CheckoutStatus {
     Pending(1),
-    Paid(2);
+    Completed (2),
+    Failed(3),
+    Canceled(4);
+
+
 
 
     private int checkout;

@@ -12,4 +12,7 @@ public class ShopDto {
     private String shopName;
     private String shopAddress;
     private String shopAddressDetail;
+    private Long productCount;
+    private Long joined;
+    private Long feedbackCount;
 }

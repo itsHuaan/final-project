@@ -15,15 +15,19 @@ import java.io.IOException;
 public class FeedbackImageMapper {
     @Autowired
     Cloudinary cloudinary;
-    public FeedbackImageDto convertToDto(FeedbackImageEntity image){
+
+    public FeedbackImageDto convertToDto(FeedbackImageEntity image) {
         return FeedbackImageDto.builder()
                 .id(image.getId())
                 .imageLink(image.getImageLink())
                 .build();
     }
+
     public FeedbackImageEntity convertToEntity(FeedbackImageModel feedbackImageModel) throws IOException {
         return FeedbackImageEntity.builder()
-                .imageLink(cloudinary.uploader().upload(feedbackImageModel.getFile().getBytes(), ObjectUtils.emptyMap()).get("url").toString())
+                .imageLink(feedbackImageModel != null
+                        ? cloudinary.uploader().upload(feedbackImageModel.getFile().getBytes(), ObjectUtils.emptyMap()).get("url").toString()
+                        : null)
                 .build();
     }
 }

@@ -22,6 +22,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -82,24 +83,32 @@ public class CartService implements ICartService {
     @Override
     public CheckoutDto getCheckOutDetail(Long cartId  , List<Long> selectedCartItemIds){
         Optional<CartEntity> cartEntity = cartRepository.findById(cartId);
+        List<CartItemEntity> selectedCartItems = new ArrayList<>();
+        double totalAmount;
         if(cartEntity.isPresent()){
             CartEntity cart = cartEntity.get();
             List<CartItemEntity> cartItemEntities = cartItemRepository.findByCartId(cart.getCartId());
 
-            List<CartItemEntity> selectedCartItems = cartItemEntities.stream()
-                    .filter(item -> selectedCartItemIds.contains(item.getCartDetailId()))
-                    .toList();
-
-            double totalAmount = selectedCartItems.stream()
-                    .mapToDouble(cartItem -> cartItem.getQuantity()*cartItem.getProduct().getPrice())  // Lấy giá từng sản phẩm và nhân với số lượng
-                    .sum();
+             if(selectedCartItemIds != null){
+                 selectedCartItems = cartItemEntities.stream()
+                         .filter(item -> selectedCartItemIds.contains(item.getCartDetailId()))
+                         .toList();
+                 totalAmount = selectedCartItems.stream()
+                         .mapToDouble(cartItem -> cartItem.getQuantity()*cartItem.getProduct().getPrice())
+                         .sum();
+             }else {
+                 selectedCartItems = cartItemRepository.findByCartId(cart.getCartId());
+                 totalAmount = selectedCartItems.stream()
+                         .mapToDouble(cartItem -> cartItem.getQuantity()*cartItem.getProduct().getPrice())
+                         .sum();
+             }
 
             UserEntity userEntity = userRepository.findById(cart.getUser().getUserId())
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
             List<CartItemDto> list = selectedCartItems.stream()
                      .map(cartItemMapper::toDto)
-                    .collect(Collectors.toList());
+                    .toList();
 
             UserDto userDto = userMapper.toDto(userEntity);
 
@@ -110,10 +119,6 @@ public class CartService implements ICartService {
                     .build();
         }
         return null;
-    }
-    @Override
-    public int submitCheckout() {
-        return 1;
     }
 
 }

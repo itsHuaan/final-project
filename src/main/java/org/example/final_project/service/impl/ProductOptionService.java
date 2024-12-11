@@ -80,10 +80,10 @@ public class ProductOptionService implements IProductOptionService {
 
 
     @Override
-    public List<ProductOptionDetailDto> saveAllOption(List<String> jsonOptions) throws JsonProcessingException {
+    public List<ProductOptionDetailDto> saveAllOption(String jsonOptions) throws JsonProcessingException {
         try {
             List<ProductOptionsEntity> list = new ArrayList<>();
-            if (jsonOptions != null && jsonOptions.size() != 0) {
+            if (jsonOptions != null) {
                 for (ProductOptionsModel model : ConvertJsonObject.convertJsonToOption(jsonOptions)) {
                     list.add(saveCustom(model));
                 }

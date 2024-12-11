@@ -12,9 +12,7 @@ import java.util.List;
 public class OrderModel {
     private long userId;
     private String addressShipping;
-    private long productId;
-    private long shopId;
-    private long statusCheckout;
     private String methodCheckout;
-    private Double totalPrice;
+    private String amount;
+    private List<CartItemRequest> cartItems;
 }

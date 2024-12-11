@@ -3,7 +3,6 @@ package org.example.final_project.controller;
 import com.cloudinary.api.exceptions.BadRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.example.final_project.dto.ApiResponse;
 import org.example.final_project.dto.UserDto;

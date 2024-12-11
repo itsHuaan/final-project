@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.example.final_project.controller.ProductOptionRequest;
 import org.example.final_project.dto.CategoryDto;
 import org.example.final_project.entity.ProductOptionsEntity;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,5 +27,5 @@ public class ProductModel {
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
-    private List<String> options;
+    private String options;
 }

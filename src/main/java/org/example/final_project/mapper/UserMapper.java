@@ -3,13 +3,23 @@ package org.example.final_project.mapper;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.ShopDto;
+import org.example.final_project.dto.ShopInfoDto;
 import org.example.final_project.dto.UserDto;
 import org.example.final_project.dto.UserFeedBackDto;
+import org.example.final_project.entity.FeedbackEntity;
 import org.example.final_project.entity.RoleEntity;
 import org.example.final_project.entity.UserEntity;
 import org.example.final_project.model.UserModel;
+import org.example.final_project.repository.IProductRepository;
 import org.example.final_project.service.IAddressService;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import static org.example.final_project.util.specification.ProductSpecification.*;
 
 @Component
 @RequiredArgsConstructor
@@ -18,6 +28,7 @@ public class UserMapper {
     ShippingAddressMapper shippingAddressMapper;
 
     IAddressService addressService;
+    IProductRepository productRepository;
 
     public UserDto toDto(UserEntity userEntity) {
         return UserDto.builder()
@@ -64,11 +75,23 @@ public class UserMapper {
     }
 
     public ShopDto toShopDto(UserEntity userEntity) {
+        List<FeedbackEntity> feedbacks = productRepository.findAll(Specification.where(hasUserId(userEntity.getUserId())))
+                .stream()
+                .flatMap(product -> product.getFeedbacks().stream())
+                .toList();
+        LocalDateTime createdTime = userEntity.getTime_created_shop();
+        Duration duration = createdTime != null
+                ? Duration.between(createdTime, LocalDateTime.now())
+                : Duration.ZERO;
         return ShopDto.builder()
                 .shopId(userEntity.getUserId())
                 .shopName(userEntity.getShop_name())
                 .shopAddress(String.join(", ", addressService.findAddressNamesFromParentId(Long.parseLong(String.valueOf(userEntity.getAddress_id_shop())))))
                 .shopAddressDetail(userEntity.getShop_address_detail())
+                .feedbackCount((long) feedbacks.size())
+                .productCount((long) productRepository.findAll(Specification.where(hasUserId(userEntity.getUserId())))
+                        .size())
+                .joined(duration.toDays())
                 .build();
     }
 

@@ -3,12 +3,10 @@ package org.example.final_project.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.CartDto;
 import org.example.final_project.dto.CartItemDto;
-import org.example.final_project.dto.SKUDto;
 import org.example.final_project.model.AddToCartRequest;
 import org.example.final_project.service.ISKUService;
 import org.example.final_project.service.impl.CartItemService;
@@ -110,6 +108,12 @@ public class CartController {
                             e.getMessage(),
                             null)
             );
+        } catch (IndexOutOfBoundsException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    createResponse(HttpStatus.BAD_REQUEST,
+                            e.getMessage(),
+                            null)
+            );
         }
     }
 
@@ -132,12 +136,18 @@ public class CartController {
                             e.getMessage(),
                             null)
             );
+        } catch (IndexOutOfBoundsException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    createResponse(HttpStatus.BAD_REQUEST,
+                            e.getMessage(),
+                            null)
+            );
         }
     }
 
     @Operation(summary = "Checkout")
     @GetMapping("/checkout/{cartId}")
-    public ResponseEntity<?> checkout(@PathVariable Long cartId, @RequestParam List<Long> productId) {
+    public ResponseEntity<?> checkout(@PathVariable Long cartId, @RequestParam(required = false) List<Long> productId) {
         return ResponseEntity.status(HttpStatus.OK).body(cartService.getCheckOutDetail(cartId, productId));
     }
 }

@@ -15,6 +15,7 @@ import org.example.final_project.repository.ISKURepository;
 import org.example.final_project.service.ISKUService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -84,8 +85,10 @@ public class SKUService implements ISKUService {
         entity.setProduct(productRepository.findById(model.getProductId()).get());
         entity.setOption1(optionRepository.findById(model.getOptionId1()).get());
         entity.setValue1(valueRepository.findById(model.getValueId1()).get());
-        entity.setOption2(optionRepository.findById(model.getOptionId2()).get());
-        entity.setValue2(valueRepository.findById(model.getValueId2()).get());
+        if (model.getOptionId2() != null && model.getValueId2() != null) {
+            entity.setOption2(optionRepository.findById(model.getOptionId2()).get());
+            entity.setValue2(valueRepository.findById(model.getValueId2()).get());
+        }
         SKUEntity savedSKU = iskuRepository.save(entity);
         return skuMapper.convertToDto(savedSKU);
     }
@@ -146,7 +149,9 @@ public class SKUService implements ISKUService {
                     SKUEntity entity = iskuRepository.findById(model.getId()).get();
                     entity.setQuantity(model.getQuantity());
                     entity.setPrice(model.getPrice());
-                    entity.setImage(model.getImage());
+                    if (model.getImage() != null) {
+                        entity.setImage(model.getImage());
+                    }
                     iskuRepository.save(entity);
                 }
             }
