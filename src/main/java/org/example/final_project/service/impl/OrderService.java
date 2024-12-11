@@ -113,7 +113,6 @@ public class OrderService implements IOrderService {
                 emailService.sendOrderToEmail(orderModel,request);
                 orderRepository.save(order);
                 return createResponse(HttpStatus.OK, "Successful Payment ", null);
-
             }else {
                 order = orderEntity.get();
                 order.setStatusCheckout(CheckoutStatus.Failed.getStatus());
