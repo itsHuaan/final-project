@@ -52,8 +52,10 @@ public class FeedbackService implements IFeedbackService {
     @Override
     public int save(FeedbackModel feedbackModel) {
         FeedbackEntity feedback = feedbackRepository.save(feedbackMapper.convertToEntity(feedbackModel));
-        for (MultipartFile image : feedbackModel.getFiles()) {
-            iImageFeedbackService.save(new FeedbackImageModel(image, feedback.getId()));
+        if (feedbackModel.getFiles() != null) {
+            for (MultipartFile image : feedbackModel.getFiles()) {
+                iImageFeedbackService.save(new FeedbackImageModel(image, feedback.getId()));
+            }
         }
         return 1;
     }

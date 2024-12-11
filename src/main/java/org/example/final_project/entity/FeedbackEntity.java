@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Min;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -31,6 +32,6 @@ public class FeedbackEntity {
     @JoinColumn(name = "product_id")
     private ProductEntity product;
     @OneToMany(mappedBy = "feedback")
-    private List<FeedbackImageEntity> feedbackImages;
+    private List<FeedbackImageEntity> feedbackImages = new ArrayList<>();
     private LocalDateTime createdAt;
 }

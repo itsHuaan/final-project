@@ -22,6 +22,7 @@ public class ImageFeedbackService implements IImageFeedbackService {
     IFeedbackRepository feedbackRepository;
     @Autowired
     FeedbackImageMapper imageMapper;
+
     @Override
     public List<FeedbackImageDto> getAll() {
         return null;
@@ -34,12 +35,12 @@ public class ImageFeedbackService implements IImageFeedbackService {
 
     @Override
     public int save(FeedbackImageModel feedbackImageModel) {
-        try{
-            FeedbackImageEntity image=imageMapper.convertToEntity(feedbackImageModel);
+        try {
+            FeedbackImageEntity image = imageMapper.convertToEntity(feedbackImageModel);
             image.setFeedback(feedbackRepository.findById(feedbackImageModel.getFeedbackId()).get());
             iImageFeedBackRepository.save(image);
             return 1;
-        }catch(Exception e){
+        } catch (Exception e) {
             System.out.println(e);
             return 0;
         }
@@ -57,6 +58,6 @@ public class ImageFeedbackService implements IImageFeedbackService {
 
     @Override
     public List<FeedbackImageDto> findAllByFeedback(long id) {
-        return iImageFeedBackRepository.findByFeedback_Id(id).stream().map(x->imageMapper.convertToDto(x)).collect(Collectors.toList());
+        return iImageFeedBackRepository.findByFeedback_Id(id).stream().map(x -> imageMapper.convertToDto(x)).collect(Collectors.toList());
     }
 }
