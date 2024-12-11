@@ -13,6 +13,7 @@ import org.example.final_project.configuration.VnPay.VnPayUtil;
 import org.example.final_project.dto.ApiResponse;
 import org.example.final_project.dto.CartItemDto;
 import org.example.final_project.entity.*;
+import org.example.final_project.mapper.OrderDetailMapper;
 import org.example.final_project.mapper.OrderMapper;
 import org.example.final_project.model.CartItemRequest;
 import org.example.final_project.model.OrderModel;
@@ -84,7 +85,6 @@ public class OrderService implements IOrderService {
             }
         }
         if(method.toLowerCase().equals("vnpay")){
-
             return paymentService.creatUrlPaymentForVnPay(request);
         }else {
             emailService.sendOrderToEmail(orderModel,request);
@@ -97,7 +97,6 @@ public class OrderService implements IOrderService {
     public ApiResponse<?> statusPayment(HttpServletRequest request) throws Exception {
         String status = request.getParameter("vnp_ResponseCode");
         String vnp_TxnRef = request.getParameter("vnp_TxnRef");
-        OrderModel orderModel = (OrderModel) request.getAttribute("order");
         long id = orderRepository.findIdByOrderCode(vnp_TxnRef);
         Optional<OrderEntity> orderEntity = orderRepository.findById(id);
         OrderEntity order;
@@ -105,6 +104,12 @@ public class OrderService implements IOrderService {
             if(status.equals("00")){
                 order = orderEntity.get();
                 order.setStatusCheckout(CheckoutStatus.Completed.getStatus());
+                OrderModel orderModel = new OrderModel();
+                orderModel.setUserId(order.getUser().getUserId());
+                orderModel.setAmount(String.valueOf(order.getTotalPrice()));
+                List<CartItemRequest> cartItemRequest = order.getOrderDetailEntities().stream().map(e->OrderDetailMapper.toDTO(e)).toList();
+                orderModel.setCartItems(cartItemRequest);
+                request.setAttribute("tex",order.getOrderCode());
                 emailService.sendOrderToEmail(orderModel,request);
                 orderRepository.save(order);
                 return createResponse(HttpStatus.OK, "Successful Payment ", null);
