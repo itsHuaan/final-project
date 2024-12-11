@@ -361,17 +361,25 @@ public class ProductController {
     @Operation(summary = "Add to favorite")
     @PostMapping("/favorite")
     ResponseEntity<?> addToFavorite(@RequestBody FavoriteProductModel favoriteProduct) {
-        int result = favoriteProductService.save(favoriteProduct);
-        return result == 1
-                ? ResponseEntity.status(HttpStatus.OK).body(createResponse(
-                HttpStatus.OK,
-                "Added to favorite.",
-                null
-        ))
-                : ResponseEntity.status(HttpStatus.OK).body(createResponse(
-                HttpStatus.OK,
-                "Remove from favorite.",
-                null
-        ));
+        try {
+            int result = favoriteProductService.save(favoriteProduct);
+            return result == 1
+                    ? ResponseEntity.status(HttpStatus.OK).body(createResponse(
+                    HttpStatus.OK,
+                    "Added to favorite.",
+                    null
+            ))
+                    : ResponseEntity.status(HttpStatus.OK).body(createResponse(
+                    HttpStatus.OK,
+                    "Remove from favorite.",
+                    null
+            ));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+                    HttpStatus.BAD_REQUEST,
+                    "There's an error occurred",
+                    null
+            ));
+        }
     }
 }
