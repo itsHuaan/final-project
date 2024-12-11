@@ -149,7 +149,7 @@ public class SKUService implements ISKUService {
                     SKUEntity entity = iskuRepository.findById(model.getId()).get();
                     entity.setQuantity(model.getQuantity());
                     entity.setPrice(model.getPrice());
-                    if (model.getImage() != null && model.getImage() != "") {
+                    if (model.getImage() != null) {
                         entity.setImage(model.getImage());
                     }
                     iskuRepository.save(entity);
