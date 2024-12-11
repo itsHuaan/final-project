@@ -19,6 +19,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -58,7 +59,10 @@ public class ProductMapper {
                 .images(imageProductRepository.findAllByProductEntity_Id(productEntity.getId()).stream().map(imageMapper::convertToDto).collect(Collectors.toList()))
                 .variants(iskuService.getAllByProduct(productEntity.getId()))
                 .shop(userMapper.toShopDto(productEntity.getUser()))
-                .feedbacks(productEntity.getFeedbacks().stream().map(feedbackMapper::convertToDto).toList())
+                .feedbacks(productEntity.getFeedbacks().stream()
+                        .sorted(Comparator.comparing(FeedbackEntity::getCreatedAt).reversed())
+                        .map(feedbackMapper::convertToDto)
+                        .toList())
                 .build();
     }
 
