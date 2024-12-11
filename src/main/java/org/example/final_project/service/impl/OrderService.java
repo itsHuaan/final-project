@@ -123,6 +123,14 @@ public class OrderService implements IOrderService {
                 orderModel.setAmount(String.valueOf(order.getTotalPrice()));
                 List<CartItemRequest> cartItemRequest = order.getOrderDetailEntities().stream().map(e->OrderDetailMapper.toDTO(e)).toList();
                 orderModel.setCartItems(cartItemRequest);
+                for (CartItemRequest itemRequest : cartItemRequest) {
+                    Optional<SKUEntity> skuEntity = skuRepository.findById(itemRequest.getProductSkuId());
+                    if(skuEntity.isPresent()) {
+                        SKUEntity skuEntity1 = skuEntity.get();
+                        skuEntity1.setQuantity( skuEntity1.getQuantity() - itemRequest.getQuantity());
+                        skuRepository.save(skuEntity1);
+                    }
+                }
                 request.setAttribute("tex",order.getOrderCode());
                 emailService.sendOrderToEmail(orderModel,request);
                 orderRepository.save(order);
@@ -151,7 +159,7 @@ public class OrderService implements IOrderService {
 
     @Override
     public String getTotalPrice(String tex){
-        double amount = orderRepository.findAmountByOrderCode(tex);
+        Double amount = orderRepository.findAmountByOrderCode(tex);
         return String.valueOf(amount);
 
     }

@@ -13,5 +13,5 @@ public interface IOrderRepository extends JpaRepository<OrderEntity, Long> {
     int findIdByOrderCode(String orderCode);
 
     @Query("select o.totalPrice  from OrderEntity o where o.orderCode = :orderCode")
-    double findAmountByOrderCode(String orderCode);
+    Double findAmountByOrderCode(String orderCode);
 }

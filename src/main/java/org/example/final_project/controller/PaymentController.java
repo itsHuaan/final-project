@@ -38,28 +38,34 @@ public class PaymentController {
 
     @GetMapping("/vnpay-return")
     public ResponseEntity<Void> paymentReturn(HttpServletRequest request) {
-        String vnp_TxnRef = (String) request.getAttribute("tex");
-        String amount = orderService.getTotalPrice(vnp_TxnRef);
         try {
             orderService.statusPayment(request);
+            String vnp_TxnRef = (String) request.getAttribute("tex");
+            String amount = orderService.getTotalPrice(vnp_TxnRef);
             String redirectUrl = String.format(
                     "https://team03.cyvietnam.id.vn/en/checkoutsuccess?tex=%s&amount=%s",
                     vnp_TxnRef, amount
+                    ,
+                    "success"
             );
+
             return ResponseEntity.status(HttpStatus.FOUND)
                     .header("Location", redirectUrl)
                     .build();
         } catch (Exception ex) {
+            String vnp_TxnRef = (String) request.getAttribute("tex");
+            String amount = orderService.getTotalPrice(vnp_TxnRef);
             String redirectUrl = String.format(
                     "https://team03.cyvietnam.id.vn/en/checkoutfail?tex=%s&amount=%s",
                     vnp_TxnRef, amount
+                    ,
+                    "success"
             );
-            return ResponseEntity.status(HttpStatus.FOUND)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .header("Location", redirectUrl)
                     .build();
         }
     }
-
 
     @GetMapping("/get-order")
     public ResponseEntity<?> getOrder(@RequestParam long shopId) {
