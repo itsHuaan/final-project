@@ -12,6 +12,7 @@ import org.example.final_project.configuration.VnPay.VnPayConfig;
 import org.example.final_project.configuration.VnPay.VnPayUtil;
 import org.example.final_project.dto.ApiResponse;
 import org.example.final_project.dto.CartItemDto;
+import org.example.final_project.dto.OrderDto;
 import org.example.final_project.entity.*;
 import org.example.final_project.mapper.OrderDetailMapper;
 import org.example.final_project.mapper.OrderMapper;
@@ -25,10 +26,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.example.final_project.dto.ApiResponse.createResponse;
@@ -41,6 +39,7 @@ public class OrderService implements IOrderService {
     private final IOrderDetailRepository orderDetailRepository;
     private final IOrderTrackingRepository orderTrackingRepository;
     private final EmailService emailService;
+    private final OrderMapper orderMapper;
 
     @Override
     public String submitCheckout(OrderModel orderModel , HttpServletRequest request) throws Exception {
@@ -124,4 +123,14 @@ public class OrderService implements IOrderService {
         return createResponse(HttpStatus.NOT_FOUND, "Not Found User ", null);
     }
 
+    @Override
+    public ApiResponse<?> getOrderByShopIdAndOrderId(long shopId) {
+        List<Long> orderIds = orderDetailRepository.findOrderIdsByShopId(shopId);
+        if (orderIds.isEmpty()) {
+            return createResponse(HttpStatus.NOT_FOUND, "No Orders Found for Shop", Collections.emptyList());
+        }
+        List<OrderEntity> orderEntities = orderRepository.findAllById(orderIds);
+        List<OrderDto> orderDtos = orderEntities.stream().map(e->orderMapper.toOrderDto(e)).collect(Collectors.toList());
+        return createResponse(HttpStatus.OK, "Successfully Retrieved Order Details", orderDtos);
+    }
 }
