@@ -278,9 +278,9 @@ public class ProductController {
         }
     }
 
-    @Operation(summary = "Get shop's other product")
-    @GetMapping("/other/{shop-id}")
-    ResponseEntity<?> getOtherProductOfShop(@PathVariable("shop-id") long productId,
+    @Operation(summary = "Get shop's other product", description = "Get all the products of the shop except for the selected product.")
+    @GetMapping("/other/{product-id}")
+    ResponseEntity<?> getOtherProductOfShop(@PathVariable("product-id") long productId,
                                             @RequestParam(required = false) Integer pageSize,
                                             @RequestParam(required = false) Integer pageIndex) {
         try {
