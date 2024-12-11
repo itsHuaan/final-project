@@ -15,10 +15,15 @@ import org.example.final_project.service.IFeedbackService;
 import org.example.final_project.service.IImageFeedbackService;
 import org.example.final_project.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+
+import static org.example.final_project.util.specification.FeedbackSpecification.*;
 
 @Service
 @RequiredArgsConstructor
@@ -47,7 +52,7 @@ public class FeedbackService implements IFeedbackService {
     @Override
     public int save(FeedbackModel feedbackModel) {
         FeedbackEntity feedback = feedbackRepository.save(feedbackMapper.convertToEntity(feedbackModel));
-        for (MultipartFile image : feedbackModel.getFiles()){
+        for (MultipartFile image : feedbackModel.getFiles()) {
             iImageFeedbackService.save(new FeedbackImageModel(image, feedback.getId()));
         }
         return 1;
@@ -61,5 +66,22 @@ public class FeedbackService implements IFeedbackService {
     @Override
     public int delete(Long id) {
         return 0;
+    }
+
+    @Override
+    public List<FeedbackDto> filterFeedback(long productId, Integer hasImage, Integer hasComment, Double rating) {
+        Specification<FeedbackEntity> spec = Specification.where(hasProductId(productId));
+        if (hasImage != null && hasImage == 1) {
+            spec = spec.and(hasImage());
+        }
+        if (hasComment != null && hasComment == 1) {
+            spec = spec.and(hasComment());
+        }
+        if (rating != null) {
+            spec = spec.and(hasRatingGreaterThanOrEqualTo(rating));
+        }
+        return feedbackRepository.findAll(spec).stream()
+                .map(feedbackMapper::convertToDto)
+                .collect(Collectors.toList());
     }
 }
