@@ -14,13 +14,13 @@ import static org.example.final_project.dto.ApiResponse.createResponse;
 
 @RestController
 @RequestMapping(Const.API_PREFIX+"/option")
-@Tag(name="Product-Option-Controller")
+@Tag(name="Product Option")
 public class ProductOptionController {
     @Autowired
     IProductOptionService optionService;
     @Autowired
     ISKUService iskuService;
-    @PostMapping("/create-new")
+    @PostMapping
     ResponseEntity addNewOption(@RequestBody ProductOptionsModel model){
         try{
             optionService.save(model);
@@ -37,5 +37,4 @@ public class ProductOptionController {
             ));
         }
     }
-
 }

@@ -1,10 +1,8 @@
 package org.example.final_project.service.impl;
 
 import com.cloudinary.Cloudinary;
-import org.example.final_project.dto.OptionValueTemp;
-import org.example.final_project.dto.ProductOptionDetailDto;
-import org.example.final_project.dto.ProductOptionValueDto;
-import org.example.final_project.dto.SKUDto;
+import org.example.final_project.dto.*;
+import org.example.final_project.entity.ProductEntity;
 import org.example.final_project.entity.SKUEntity;
 import org.example.final_project.mapper.SKUMapper;
 import org.example.final_project.model.SKUModel;
@@ -12,13 +10,17 @@ import org.example.final_project.repository.IProductOptionRepository;
 import org.example.final_project.repository.IProductOptionValueRepository;
 import org.example.final_project.repository.IProductRepository;
 import org.example.final_project.repository.ISKURepository;
+import org.example.final_project.service.IProductOptionService;
+import org.example.final_project.service.IProductOptionValueService;
 import org.example.final_project.service.ISKUService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,6 +35,8 @@ public class SKUService implements ISKUService {
     IProductOptionRepository optionRepository;
     @Autowired
     IProductOptionValueRepository valueRepository;
+    @Autowired
+    IProductOptionService optionService;
     @Autowired
     SKUMapper skuMapper;
 
@@ -158,6 +162,23 @@ public class SKUService implements ISKUService {
             return 1;
         } catch (Exception e) {
             throw e;
+        }
+    }
+
+    @Override
+    public Set<ProductOptionDetailDto> getAllOptionOfProduct(long productId) {
+        if (productRepository.findById(productId).isPresent()) {
+            Set<ProductOptionDetailDto> optionList = new HashSet<>();
+            List<SKUEntity> skuList = iskuRepository.findAllByProduct_Id(productId);
+            for (SKUEntity sku : skuList) {
+                optionList.add(optionService.getById(sku.getOption1().getId()));
+                if (sku.getOption2() != null) {
+                    optionList.add(optionService.getById(sku.getOption2().getId()));
+                }
+            }
+            return optionList;
+        } else {
+            return null;
         }
     }
 }

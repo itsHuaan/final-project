@@ -7,4 +7,5 @@ import org.example.final_project.model.SKUModel;
 import java.util.List;
 
 public interface IProductOptionValueService extends IBaseService<ProductOptionValueDto, ProductOptionValueModel,Long> {
+    int saveCustom(Long productId,ProductOptionValueModel valueModel);
 }

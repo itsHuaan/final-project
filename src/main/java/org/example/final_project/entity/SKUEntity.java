@@ -20,7 +20,7 @@ public class SKUEntity {
     private long quantity;
     private String image;
 
-    // một sản phẩm gồm nhiều sku
+
     @ManyToOne
     @JoinColumn(name="product_id")
     private ProductEntity product;
