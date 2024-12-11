@@ -46,9 +46,9 @@ public class ProductEntity {
     @JoinColumn(name="user_id")
     private UserEntity user;
 
-    @OneToMany(mappedBy = "product")
+    @OneToMany(mappedBy = "product",cascade = CascadeType.REMOVE)
     private List<SKUEntity> skuEntities;
-    
+
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FavoriteProductEntity> favorites = new ArrayList<>();
 }

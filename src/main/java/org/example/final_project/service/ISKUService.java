@@ -17,5 +17,5 @@ public interface ISKUService extends IBaseService<SKUDto, SKUModel,Long> {
     SKUDto saveCustom(SKUModel model) throws IOException;
     List<SKUDto> addListSKU(long productId, List<ProductOptionDetailDto> optionList) throws IOException;
     int updateListStock(List<SKUModel> skuModels) throws IOException;
-    Set<ProductOptionDetailDto> getAllOptionOfProduct(long productId);
+    Set<Long> getAllOptionOfProduct(long productId);
 }

@@ -5,6 +5,7 @@ import org.example.final_project.dto.ProductOptionDto;
 import org.example.final_project.dto.ProductOptionValueDto;
 import org.example.final_project.entity.ProductEntity;
 import org.example.final_project.entity.ProductOptionValuesEntity;
+import org.example.final_project.entity.ProductOptionsEntity;
 import org.example.final_project.mapper.ProductOptionValueMapper;
 import org.example.final_project.model.ProductOptionValueModel;
 import org.example.final_project.model.SKUModel;
@@ -17,6 +18,7 @@ import org.example.final_project.service.ISKUService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -29,6 +31,8 @@ public class ProductOptionValueService implements IProductOptionValueService {
     ProductOptionValueMapper mapper;
     @Autowired
     IProductOptionRepository optionRepository;
+    @Autowired
+    ProductOptionValueMapper valueMapper;
     @Autowired
     ISKUService iskuService;
     @Autowired
@@ -54,7 +58,10 @@ public class ProductOptionValueService implements IProductOptionValueService {
 
     @Override
     public int save(ProductOptionValueModel productOptionValueModel) {
-        return 0;
+        ProductOptionValuesEntity value = valueMapper.convertToEntity(productOptionValueModel);
+        value.setOption(optionRepository.findById(productOptionValueModel.getOptionId()).get());
+        valueRepository.save(value);
+        return 1;
     }
 
     @Override
@@ -88,15 +95,27 @@ public class ProductOptionValueService implements IProductOptionValueService {
     }
 
     @Override
-    public int saveCustom(Long productId, ProductOptionValueModel valueModel) {
+    public int saveCustom(Long productId, ProductOptionValueModel valueModel) throws IOException {
         try {
             ProductOptionValuesEntity entity = mapper.convertToEntity(valueModel);
             entity.setOption(optionRepository.findById(valueModel.getOptionId()).get());
-            ProductOptionValuesEntity savedValue= valueRepository.save(entity);
-            if(productRepository.findById(productId).isPresent()){
-                SKUModel skuModel=new SKUModel();
-                Set<ProductOptionDetailDto> optionList=iskuService.getAllOptionOfProduct(productId);
-                int x=0;
+            ProductOptionValuesEntity savedValue = valueRepository.save(entity);
+            if (productRepository.findById(productId).isPresent()) {
+                Set<Long> optionList = iskuService.getAllOptionOfProduct(productId);
+                for (Long optionId : optionList) {
+                    if (optionId != valueModel.getOptionId()) {
+                        ProductOptionsEntity option = optionRepository.findById(optionId).get();
+                        for (ProductOptionValuesEntity value : option.getValuesEntities()) {
+                            SKUModel skuModel = new SKUModel();
+                            skuModel.setProductId(productId);
+                            skuModel.setOptionId1(valueModel.getOptionId());
+                            skuModel.setValueId1(savedValue.getId());
+                            skuModel.setOptionId2(optionId);
+                            skuModel.setValueId2(value.getId());
+                            iskuService.saveCustom(skuModel);
+                        }
+                    }
+                }
             }
             return 1;
         } catch (Exception e) {

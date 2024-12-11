@@ -166,17 +166,15 @@ public class SKUService implements ISKUService {
     }
 
     @Override
-    public Set<ProductOptionDetailDto> getAllOptionOfProduct(long productId) {
+    public Set<Long> getAllOptionOfProduct(long productId) {
         if (productRepository.findById(productId).isPresent()) {
-            Set<ProductOptionDetailDto> optionList = new HashSet<>();
+            Set<Long> optionIdList = new HashSet<>();
             List<SKUEntity> skuList = iskuRepository.findAllByProduct_Id(productId);
             for (SKUEntity sku : skuList) {
-                optionList.add(optionService.getById(sku.getOption1().getId()));
-                if (sku.getOption2() != null) {
-                    optionList.add(optionService.getById(sku.getOption2().getId()));
-                }
+                optionIdList.add(sku.getOption1().getId());
+                optionIdList.add(sku.getOption2().getId());
             }
-            return optionList;
+            return optionIdList;
         } else {
             return null;
         }

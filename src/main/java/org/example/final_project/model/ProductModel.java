@@ -20,7 +20,6 @@ public class ProductModel {
     private MultipartFile[] files;
     private String name;
     private String description;
-    private long sold;
     private String note;
     private long categoryId;
     private long user_id;
