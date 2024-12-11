@@ -42,14 +42,12 @@ public class ChatMessageService implements IChatService {
 
     @Override
     public int save(ChatMessageModel chatMessageModel) {
-        log.info("Saving ChatMessageModel: {}", chatMessageModel); // Thêm log ở đây
         var chatRoomId = chatRoomService.getChatRoomId(chatMessageModel.getSenderId(),
                 chatMessageModel.getRecipientId(),
                 true).orElseThrow(() -> new IllegalArgumentException("Can't find chat room"));
         chatMessageModel.setChatId(chatRoomId);
         chatMessageModel.setSentAt(LocalDateTime.now());
         ChatMessageEntity entity = chatMessageMapper.toEntity(chatMessageModel);
-        log.info("Mapped Entity: {}", entity);
         chatRepository.save(entity);
         chatMessageModel.setId(entity.getId());
         return 1;
