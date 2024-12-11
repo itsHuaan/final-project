@@ -147,7 +147,7 @@ public class CartController {
 
     @Operation(summary = "Checkout")
     @GetMapping("/checkout/{cartId}")
-    public ResponseEntity<?> checkout(@PathVariable Long cartId, @RequestParam(required = false) List<Long> productId) {
-        return ResponseEntity.status(HttpStatus.OK).body(cartService.getCheckOutDetail(cartId, productId));
+    public ResponseEntity<?> checkout(@PathVariable Long cartId, @RequestParam(required = false) List<Long> cartItemId) {
+        return ResponseEntity.status(HttpStatus.OK).body(cartService.getCheckOutDetail(cartId, cartItemId));
     }
 }

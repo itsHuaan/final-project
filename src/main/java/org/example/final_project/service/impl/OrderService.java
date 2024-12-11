@@ -157,6 +157,11 @@ public class OrderService implements IOrderService {
         return createResponse(HttpStatus.OK, "Successfully Retrieved Order Details", orderDtos);
     }
 
+    @Override
+    public ApiResponse<?> getOrderTracking(Long orderId , Long shopId) {
+            List<OrderDetailEntity> orderDetailEntity = orderDetailRepository.shopOrder(orderId,shopId);
+            return createResponse(HttpStatus.OK, "Successfully Retrieved Order Details", orderDetailEntity);
+    }
 
 
 

@@ -9,4 +9,5 @@ public interface IOrderService {
     ApiResponse<?> statusPayment(HttpServletRequest request) throws Exception;
     ApiResponse<?> getOrderByShopIdAndOrderId(long shopId);
     String getTotalPrice(String tex);
+    ApiResponse<?> getOrderTracking(Long orderId , Long shopId);
 }

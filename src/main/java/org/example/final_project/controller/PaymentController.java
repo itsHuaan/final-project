@@ -72,5 +72,10 @@ public class PaymentController {
         return ResponseEntity.ok(orderService.getOrderByShopIdAndOrderId(shopId));
     }
 
+    @GetMapping("/detail")
+    public ResponseEntity<?> getShopDetail(@RequestParam(required = false) Long shopId , @RequestParam(required = false) Long orderId ) {
+        return ResponseEntity.ok(createResponse(HttpStatus.OK,"ok",orderService.getOrderTracking(shopId,orderId)));
+    }
+
 
 }

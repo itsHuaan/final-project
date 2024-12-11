@@ -29,10 +29,10 @@ public class AdminController {
 
     @Operation(summary = "Admin approves store status ")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PostMapping("/{userid}/switching-status-for-shop")
-    public ResponseEntity<ApiResponse<?>> statusOfShop(@PathVariable long userid, @RequestParam("status") int status) {
+    @PostMapping("/{userId}/switching-status-for-shop")
+    public ResponseEntity<ApiResponse<?>> statusOfShop(@PathVariable long userId, @RequestParam("status") int status) {
         try {
-            ApiResponse<?> response = userService.acceptFromAdmin(status, userid);
+            ApiResponse<?> response = userService.acceptFromAdmin(status, userId);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             ApiResponse<?> errorResponse = new ApiResponse<>(HttpStatus.NOT_FOUND.value(), e.getMessage(), null, LocalDateTime.now());
@@ -72,5 +72,7 @@ public class AdminController {
     public ResponseEntity<String> updateShop(@PathVariable long id, @RequestBody ShopModel shopModel) {
         return ResponseEntity.ok(userService.updateShop(id,shopModel) ==1 ? "đã update thành công" : "chưa update thành công ");
     }
+
+
 
 }
