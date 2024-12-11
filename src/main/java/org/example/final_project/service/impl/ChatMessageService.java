@@ -3,7 +3,9 @@ package org.example.final_project.service.impl;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.example.final_project.dto.ChatMessageDto;
+import org.example.final_project.entity.ChatMessageEntity;
 import org.example.final_project.mapper.ChatMessageMapper;
 import org.example.final_project.model.ChatMessageModel;
 import org.example.final_project.repository.IChatRepository;
@@ -19,6 +21,7 @@ import java.util.Objects;
 
 import static org.example.final_project.util.specification.ChatMessageSpecification.hasChatId;
 
+@Slf4j
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
@@ -39,14 +42,19 @@ public class ChatMessageService implements IChatService {
 
     @Override
     public int save(ChatMessageModel chatMessageModel) {
+        log.info("Saving ChatMessageModel: {}", chatMessageModel); // Thêm log ở đây
         var chatRoomId = chatRoomService.getChatRoomId(chatMessageModel.getSenderId(),
                 chatMessageModel.getRecipientId(),
                 true).orElseThrow(() -> new IllegalArgumentException("Can't find chat room"));
         chatMessageModel.setChatId(chatRoomId);
         chatMessageModel.setSentAt(LocalDateTime.now());
-        chatRepository.save(chatMessageMapper.toEntity(chatMessageModel));
+        ChatMessageEntity entity = chatMessageMapper.toEntity(chatMessageModel);
+        log.info("Mapped Entity: {}", entity);
+        chatRepository.save(entity);
+        chatMessageModel.setId(entity.getId());
         return 1;
     }
+
 
     @Override
     public int update(Long aLong, ChatMessageModel chatMessageModel) {

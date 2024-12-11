@@ -26,8 +26,7 @@ public class ChatController {
     ChatMessageService chatMessageService;
 
     @MessageMapping("/chat")
-    @SendTo("/user/{recipientId}/queue/messages")
-    public ChatNotification processMessage(@Payload ChatMessageModel chatMessageModel) {
+    public void processMessage(@Payload ChatMessageModel chatMessageModel) {
         ChatMessageDto chatMessageDto = new ChatMessageDto();
         try {
             chatMessageService.save(chatMessageModel);
@@ -35,14 +34,15 @@ public class ChatController {
         } catch (IllegalArgumentException e) {
             log.error(e.getMessage());
         }
-        return ChatNotification.builder()
-                .id(chatMessageDto.getId())
-                .senderId(chatMessageDto.getSenderId())
-                .recipientId(chatMessageDto.getRecipientId())
-                .content(chatMessageDto.getMessage())
-                .build();
+        messagingTemplate.convertAndSendToUser(String.valueOf(chatMessageModel.getRecipientId()),
+                "/queue/messages",
+                ChatNotification.builder()
+                        .id(chatMessageDto.getId())
+                        .senderId(chatMessageDto.getSenderId())
+                        .recipientId(chatMessageDto.getRecipientId())
+                        .content(chatMessageDto.getMessage())
+                        .build());
     }
-
 
     @GetMapping("/message/{senderId}/{recipientId}")
     public ResponseEntity<?> findChatMessage(@PathVariable long recipientId, @PathVariable long senderId){

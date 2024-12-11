@@ -1,54 +1,111 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css/main.css">
-    <title>Chat Application</title>
+    <title>WebSocket Chat Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #chat-messages {
+            height: 300px;
+            overflow-y: scroll;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+    </style>
 </head>
 <body>
+<h1>WebSocket Chat Test</h1>
 
-<div class="user-form" id="username-page">
-    <h2>Enter Chatroom</h2>
-    <form id="usernameForm">
-        <label for="nickname">Nickname:</label>
-        <input type="text" id="nickname" name="nickname" required>
+<div>
+    <label for="senderId">Sender ID:</label>
+    <input type="number" id="senderId">
 
-        <label for="fullname">Real Name:</label>
-        <input type="text" id="fullname" name="realname" required>
-
-        <button type="submit">Enter Chatroom</button>
-    </form>
+    <label for="recipientId">Recipient ID:</label>
+    <input type="number" id="recipientId">
 </div>
 
-<div class="chat-container hidden" id="chat-page">
-    <div class="users-list">
-        <div class="users-list-container">
-            <h2>Online Users</h2>
-            <ul id="connectedUsers">
-            </ul>
-        </div>
-        <div>
-            <p id="connected-user-fullname"></p>
-            <a class="logout" href="javascript:void(0)" id="logout">Logout</a>
-        </div>
-    </div>
-
-    <div class="chat-area">
-        <div class="chat-area" id="chat-messages">
-        </div>
-
-        <form id="messageForm" name="messageForm" class="hidden">
-            <div class="message-input">
-                <input autocomplete="off" type="text" id="message" placeholder="Type your message...">
-                <button>Send</button>
-            </div>
-        </form>
-    </div>
+<div>
+    <label for="messageInput">Message:</label>
+    <input type="text" id="messageInput">
+    <button onclick="sendMessage()">Send</button>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
-<script src="/js/main.js"></script>
+<div id="chat-messages"></div>
+
+<script>
+    let stompClient = null;
+
+    function connect() {
+        const socket = new SockJS('/ws');
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function (frame) {
+            console.log('Connected: ' + frame);
+
+            const userId = document.getElementById('senderId').value;
+
+            stompClient.subscribe(`/user/${userId}/queue/messages`, function (message) {
+                const messageData = JSON.parse(message.body);
+                console.log("Received message:", messageData);
+                showMessage(messageData);
+            });
+        });
+    }
+
+    function sendMessage() {
+        const senderId = document.getElementById('senderId').value;
+        const recipientId = document.getElementById('recipientId').value;
+        const messageInput = document.getElementById('messageInput');
+
+        if (stompClient) {
+            const chatMessage = {
+                senderId: senderId,
+                recipientId: recipientId,
+                message: messageInput.value
+            };
+
+            console.log("Sending: ", chatMessage);
+            stompClient.send("/app/chat", {}, JSON.stringify(chatMessage));
+            showMessage(chatMessage, true);
+            messageInput.value = '';
+        }
+    }
+
+    function showMessage(messageData, isSender = false) {
+        const chatMessages = document.getElementById('chat-messages');
+        const messageElement = document.createElement('div');
+        messageElement.style.marginBottom = '10px';
+
+        if (isSender || messageData.senderId === document.getElementById('senderId').value) {
+            messageElement.style.textAlign = 'right';
+            messageElement.style.color = 'blue';
+            messageElement.innerHTML = `
+                <strong>You:</strong>
+                <p>${messageData.message}</p>
+            `;
+        } else {
+            messageElement.style.textAlign = 'left';
+            messageElement.style.color = 'green';
+            messageElement.innerHTML = `
+                <strong>From ${messageData.senderId}:</strong>
+                <p>${messageData.content}</p>
+            `;
+        }
+
+        chatMessages.appendChild(messageElement);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    document.getElementById('senderId').addEventListener('change', connect);
+</script>
+
 </body>
 </html>
