@@ -104,15 +104,13 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 //            final ObjectMapper mapper = new ObjectMapper();
 //            mapper.writeValue();
             String redirectUrl = String.format(
-                    "https://team03.cyvietnam.id.vn/en?token=%s&userId=%s&userName=%s&email=%s&role=%s",
+                    "https://team03.cyvietnam.id.vn/en/login/success?token=%s&userId=%s&userName=%s&email=%s&role=%s",
                     jwt,
                     user.getUserId(),
                     URLEncoder.encode(user.getName(), StandardCharsets.UTF_8.toString()),
                     URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8.toString()),
                     URLEncoder.encode(user.getRole().getRoleName(), StandardCharsets.UTF_8.toString())
             );
-
-            // Chuyển hướng tới URL
             response.sendRedirect(redirectUrl);
 
         });
