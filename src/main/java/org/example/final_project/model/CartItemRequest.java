@@ -14,4 +14,5 @@ public class CartItemRequest {
     private double price;
     private long option1;
     private long option2;
+    private String nameProduct;
 }

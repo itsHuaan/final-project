@@ -1,10 +1,16 @@
 package org.example.final_project.repository;
 
+import org.aspectj.weaver.ast.Or;
 import org.example.final_project.entity.OrderEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -14,4 +20,12 @@ public interface IOrderRepository extends JpaRepository<OrderEntity, Long> {
 
     @Query("select o.totalPrice  from OrderEntity o where o.orderCode = :orderCode")
     Double findAmountByOrderCode(String orderCode);
+
+    @Query("SELECT o FROM OrderEntity o WHERE o.id IN :ids")
+    Page<OrderEntity> findAllByIdIn(@Param("ids") List<Long> ids, Pageable pageable);
+
+
+    @Query("SELECT o FROM OrderEntity o WHERE o.id IN :ids")
+    List<OrderEntity> findAllSortById(List<Long> ids, Sort sort);
+
 }
