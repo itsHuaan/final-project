@@ -5,6 +5,7 @@ import org.example.final_project.dto.OptionValueTemp;
 import org.example.final_project.dto.ProductOptionDetailDto;
 import org.example.final_project.dto.ProductOptionDto;
 import org.example.final_project.dto.SKUDto;
+import org.example.final_project.entity.ProductOptionsEntity;
 import org.example.final_project.entity.SKUEntity;
 import org.example.final_project.model.SKUModel;
 
@@ -18,4 +19,6 @@ public interface ISKUService extends IBaseService<SKUDto, SKUModel,Long> {
     List<SKUDto> addListSKU(long productId, List<ProductOptionDetailDto> optionList) throws IOException;
     int updateListStock(List<SKUModel> skuModels) throws IOException;
     Set<Long> getAllOptionOfProduct(long productId);
+    int addListSKU(Long productId, Long optionId);
+    int deleteAllSKUByProductId(Long productId);
 }

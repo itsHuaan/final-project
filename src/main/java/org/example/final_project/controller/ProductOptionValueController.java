@@ -38,6 +38,19 @@ public class ProductOptionValueController{
     }
     @DeleteMapping("/{value-id}")
     ResponseEntity deleteValue(@PathVariable("value-id")Long valueId){
-        return null;
+        try{
+            valueService.delete(valueId);
+            return ResponseEntity.status(HttpStatus.OK).body(createResponse(
+                    HttpStatus.NO_CONTENT,
+                    "Successfully",
+                    null
+            ));
+        }catch(Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+                    HttpStatus.BAD_REQUEST,
+                    e.getMessage(),
+                    null
+            ));
+        }
     }
 }

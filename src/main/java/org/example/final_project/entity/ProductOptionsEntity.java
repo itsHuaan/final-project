@@ -19,14 +19,14 @@ public class ProductOptionsEntity {
     private String name;
 
 
-    @OneToMany(mappedBy = "option",cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "option", cascade = CascadeType.ALL)
     private List<ProductOptionValuesEntity> valuesEntities;
 
 
-    @OneToMany(mappedBy = "option1",cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "option1", cascade = CascadeType.ALL)
     private List<SKUEntity> skuEntities1;
 
 
-    @OneToMany(mappedBy = "option2",cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "option2", cascade = CascadeType.ALL)
     private List<SKUEntity> skuEntities2;
 }

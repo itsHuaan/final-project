@@ -11,4 +11,5 @@ import java.util.List;
 public interface IProductOptionService extends IBaseService<ProductOptionDetailDto,ProductOptionsModel,Long> {
     List<ProductOptionDetailDto> saveAllOption(String jsonOptions) throws JsonProcessingException;
     ProductOptionsEntity saveCustom(ProductOptionsModel model);
+
 }
