@@ -25,6 +25,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
@@ -100,15 +101,19 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
             String jwt = jwtProvider.generateTokenByEmail(user.getEmail());
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-            final ObjectMapper mapper = new ObjectMapper();
-            mapper.writeValue(response.getOutputStream(), new SignInResponse(
-                    user.getUserId(),
-                    "Bearer",
+//            final ObjectMapper mapper = new ObjectMapper();
+//            mapper.writeValue();
+            String redirectUrl = String.format(
+                    "https://team03.cyvietnam.id.vn/en?token=%s&userId=%s&userName=%s&email=%s&role=%s",
                     jwt,
-                    user.getUsername(),
-                    user.getName(),
-                    user.getEmail(),
-                    user.getRole().getRoleName()));
+                    user.getUserId(),
+                    URLEncoder.encode(user.getName(), StandardCharsets.UTF_8.toString()),
+                    URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8.toString()),
+                    URLEncoder.encode(user.getRole().getRoleName(), StandardCharsets.UTF_8.toString())
+            );
+
+            // Chuyển hướng tới URL
+            response.sendRedirect(redirectUrl);
 
         });
     }
