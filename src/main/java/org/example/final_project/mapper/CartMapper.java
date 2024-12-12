@@ -6,7 +6,6 @@ import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.CartDto;
 import org.example.final_project.entity.CartEntity;
 import org.example.final_project.entity.CartItemEntity;
-import org.example.final_project.entity.FeedbackEntity;
 import org.example.final_project.entity.UserEntity;
 import org.example.final_project.model.CartModel;
 import org.example.final_project.repository.IUserRepository;
