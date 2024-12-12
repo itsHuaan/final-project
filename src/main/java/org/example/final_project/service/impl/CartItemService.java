@@ -28,40 +28,8 @@ import static org.example.final_project.util.specification.CartItemSpecification
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CartItemService implements ICartItemService {
     ICartItemRepository cartItemRepository;
-    ICartRepository cartRepository;
     ISKURepository skuRepository;
     CartItemMapper cartItemMapper;
-
-    @Override
-    public CartItemDto getCartItem(Long cartId, Long productId) {
-        return cartItemRepository.findById(cartId).isPresent()
-                ? cartItemMapper.toDto(cartItemRepository.findById(cartId).get())
-                : null;
-    }
-
-    @Override
-    public int addToCart(Long cartId, Long productId, int quantity) {
-        Optional<CartItemEntity> currentCartItem = cartItemRepository.findOne(hasCartId(cartId).and(hasProductId(productId)));
-        if (currentCartItem.isPresent()) {
-            updateQuantity(cartId, productId, quantity, false);
-        } else {
-            SKUEntity product = skuRepository.findById(productId).orElseThrow(
-                    () -> new IllegalArgumentException("Product not found")
-            );
-
-            CartEntity cart = cartRepository.findById(cartId).orElseThrow(
-                    () -> new IllegalArgumentException("Cart not found")
-            );
-            CartItemEntity cartItem = new CartItemEntity();
-            cartItem.setProduct(product);
-            cartItem.setCart(cart);
-            cartItem.setQuantity(quantity);
-            cartItem.setCreatedAt(LocalDateTime.now());
-            cartItemRepository.save(cartItem);
-        }
-        return 1;
-    }
-
 
     @Override
     public int updateQuantity(Long cartId, Long productId, Integer quantity, boolean isAddingOne) {
