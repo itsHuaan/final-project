@@ -3,6 +3,8 @@ package org.example.final_project.service.impl;
 import com.cloudinary.Cloudinary;
 import org.example.final_project.dto.*;
 import org.example.final_project.entity.ProductEntity;
+import org.example.final_project.entity.ProductOptionValuesEntity;
+import org.example.final_project.entity.ProductOptionsEntity;
 import org.example.final_project.entity.SKUEntity;
 import org.example.final_project.mapper.SKUMapper;
 import org.example.final_project.model.SKUModel;
@@ -37,6 +39,8 @@ public class SKUService implements ISKUService {
     IProductOptionValueRepository valueRepository;
     @Autowired
     IProductOptionService optionService;
+    @Autowired
+    IProductOptionValueService valueService;
     @Autowired
     SKUMapper skuMapper;
 
@@ -177,6 +181,61 @@ public class SKUService implements ISKUService {
             return optionIdList;
         } else {
             return null;
+        }
+    }
+
+    @Override
+    public int addListSKU(Long productId, Long optionId) {
+        try {
+            if (productRepository.findById(productId).isPresent()) {
+                List<SKUDto> skuList = getAllByProduct(productId);
+                Set<Long> optionIdList = new HashSet<>();
+                for (SKUDto skuDto : skuList) {
+                    optionIdList.add(skuDto.getOption1().getOptionId());
+                }
+                deleteAllSKUByProductId(productId);
+                // lấy ra tất cả các option cũ của sản phẩm
+                for (Long oldOptionId : optionIdList) {
+                    if (oldOptionId != optionId) {
+                        List<OptionValueTemp> temp1 = new ArrayList<>();//list option-value mới
+                        for (ProductOptionValuesEntity value : valueRepository.findAllByOption_Id(optionId)) {
+                            temp1.add(new OptionValueTemp(optionService.getById(optionId), valueService.getById(value.getId())));
+                        }
+                        List<OptionValueTemp> temp2 = new ArrayList<>();//list option-value cũ
+                        for (ProductOptionValuesEntity value : valueRepository.findAllByOption_Id(oldOptionId)) {
+                            temp2.add(new OptionValueTemp(optionService.getById(oldOptionId), valueService.getById(value.getId())));
+                        }
+                        for (OptionValueTemp newTemp : temp1) {
+                            for (OptionValueTemp oldTemp : temp2) {
+                                SKUModel skuModel = new SKUModel();
+                                skuModel.setProductId(productId);
+                                skuModel.setOptionId1(newTemp.getOption().getId());
+                                skuModel.setValueId1(newTemp.getValue().getValueId());
+                                skuModel.setOptionId2(oldTemp.getOption().getId());
+                                skuModel.setValueId2(oldTemp.getValue().getValueId());
+                                saveCustom(skuModel);
+                            }
+                        }
+                    }
+                }
+                return 1;
+            } else {
+                throw new IndexOutOfBoundsException("Out of options size");
+            }
+        } catch (
+                Exception e) {
+            throw e;
+        }
+    }
+
+    @Override
+    public int deleteAllSKUByProductId(Long productId) {
+        try {
+            List<SKUEntity> skuEntities = iskuRepository.findAllByProduct_Id(productId);
+            iskuRepository.deleteAll(skuEntities);
+            return 1;
+        } catch (Exception e) {
+            throw e;
         }
     }
 }

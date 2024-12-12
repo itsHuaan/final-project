@@ -46,7 +46,7 @@ public class ProductEntity {
     @JoinColumn(name="user_id")
     private UserEntity user;
 
-    @OneToMany(mappedBy = "product",cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "product")
     private List<SKUEntity> skuEntities;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
