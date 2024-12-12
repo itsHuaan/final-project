@@ -22,19 +22,18 @@ public class CartMapper {
     UserMapper userMapper;
     CartItemMapper cartItemMapper;
     IUserRepository userRepository;
-    CartUserMapper cartUserMapper;
 
     public CartDto toDto(CartEntity cartEntity) {
         return CartDto.builder()
                 .cartId(cartEntity.getCartId())
-                .user(cartUserMapper.toDto(cartEntity.getUser()))
+                .user(userMapper.toCartUserDto(cartEntity.getUser()))
                 .cartQuantity(cartEntity.getCartItems().size())
                 .cartItems(cartEntity.getCartItems().stream()
                         .sorted(Comparator.comparing(CartItemEntity::getCreatedAt).reversed())
                         .map(cartItemMapper::toDto)
                         .toList())
-                .totalPrice(cartEntity.getTotalPrice())
                 .createdAt(cartEntity.getCreatedAt())
+                .modifiedAt(cartEntity.getModifiedAt())
                 .build();
     }
 
@@ -45,7 +44,6 @@ public class CartMapper {
 
         return CartEntity.builder()
                 .user(userEntity)
-                .totalPrice(cartModel.getTotalPrice())
                 .createdAt(LocalDateTime.now())
                 .build();
     }

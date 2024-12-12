@@ -8,7 +8,6 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class CartItemModel {
-    private Long cartDetailId;
     private Long cartId;
     private Long skuId;
     private int quantity;

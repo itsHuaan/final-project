@@ -55,7 +55,7 @@ public class CartItemService implements ICartItemService {
             CartItemEntity cartItem = new CartItemEntity();
             cartItem.setProduct(product);
             cartItem.setCart(cart);
-            cartItem.setQuantity(quantity != 0 ? quantity : 1);
+            cartItem.setQuantity(quantity);
             cartItem.setCreatedAt(LocalDateTime.now());
             cartItemRepository.save(cartItem);
         }
@@ -83,6 +83,7 @@ public class CartItemService implements ICartItemService {
             }
 
             currentCartItem.setQuantity(newQuantity);
+            currentCartItem.setModifiedAt(LocalDateTime.now());
             cartItemRepository.save(currentCartItem);
             return 1;
         }
@@ -118,7 +119,16 @@ public class CartItemService implements ICartItemService {
 
     @Override
     public int save(CartItemModel cartItemModel) {
-        return 0;
+        Optional<CartItemEntity> currentCartItem = cartItemRepository.findOne(hasCartId(cartItemModel.getCartId()).and(hasProductId(cartItemModel.getSkuId())));
+        if (currentCartItem.isPresent()) {
+            CartItemEntity cartItem = currentCartItem.get();
+            cartItem.setQuantity(cartItem.getQuantity() + cartItemModel.getQuantity());
+            cartItem.setModifiedAt(LocalDateTime.now());
+            cartItemRepository.save(cartItem);
+        } else {
+            cartItemRepository.save(cartItemMapper.toEntity(cartItemModel));
+        }
+        return 1;
     }
 
     @Override

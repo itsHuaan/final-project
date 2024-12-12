@@ -22,9 +22,6 @@ public class CartEntity {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private UserEntity user;
-
-    private double totalPrice = 0;
-
     @OneToMany(mappedBy = "cart")
     private List<CartItemEntity> cartItems = new ArrayList<>();
     private LocalDateTime createdAt;

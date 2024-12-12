@@ -15,9 +15,6 @@ public class CartDto {
     private CartUserDto user;
 
     private int cartQuantity;
-    private double totalPrice = 0;
-    private Boolean status = true;
-
     private List<CartItemDto> cartItems;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;

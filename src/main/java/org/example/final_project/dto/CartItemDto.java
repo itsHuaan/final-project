@@ -16,5 +16,4 @@ public class CartItemDto {
     private double totalPrice;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
-    private LocalDateTime deletedAt;
 }

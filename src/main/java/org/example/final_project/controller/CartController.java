@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.CartDto;
 import org.example.final_project.model.AddToCartRequest;
+import org.example.final_project.model.CartItemModel;
 import org.example.final_project.service.ISKUService;
 import org.example.final_project.service.impl.CartItemService;
 import org.example.final_project.service.impl.CartService;
@@ -119,10 +120,11 @@ public class CartController {
     @PostMapping("/{userId}")
     public ResponseEntity<?> addToCart(@PathVariable Long userId,
                                        @RequestBody AddToCartRequest request) {
+        int quantity = request.getQuantity() != 0 ? request.getQuantity() : 1;
         try {
-            int quantity = request.getQuantity() != 0 ? request.getQuantity() : 1;
             CartDto cart = cartService.getUserCart(userId);
-            int addToCart = cartItemService.addToCart(cart.getCartId(), request.getProductId(), quantity);
+            CartItemModel cartItem = new CartItemModel(cart.getCartId(), request.getProductId(), quantity);
+            int addToCart = cartItemService.save(cartItem);
             if (addToCart == 1) {
                 return ResponseEntity.status(HttpStatus.CREATED).body(
                         createResponse(HttpStatus.CREATED,
