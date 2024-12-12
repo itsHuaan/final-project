@@ -10,18 +10,18 @@ import lombok.experimental.FieldDefaults;
 import org.example.final_project.configuration.VnPay.PaymentService;
 import org.example.final_project.configuration.VnPay.VnPayConfig;
 import org.example.final_project.configuration.VnPay.VnPayUtil;
-import org.example.final_project.dto.ApiResponse;
-import org.example.final_project.dto.CartItemDto;
-import org.example.final_project.dto.OrderDto;
+import org.example.final_project.dto.*;
 import org.example.final_project.entity.*;
 import org.example.final_project.mapper.OrderDetailMapper;
 import org.example.final_project.mapper.OrderMapper;
+import org.example.final_project.mapper.OrderTrackingMapper;
 import org.example.final_project.model.CartItemRequest;
 import org.example.final_project.model.OrderModel;
 import org.example.final_project.model.enum_status.ActivateStatus;
 import org.example.final_project.model.enum_status.CheckoutStatus;
 import org.example.final_project.repository.*;
 import org.example.final_project.service.IOrderService;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +41,8 @@ public class OrderService implements IOrderService {
     private final EmailService emailService;
     private final OrderMapper orderMapper;
     private final ISKURepository skuRepository;;
+    private final OrderDetailMapper orderDetailMapper;
+
 
     @Override
     public String submitCheckout(OrderModel orderModel , HttpServletRequest request) throws Exception {
@@ -82,6 +84,7 @@ public class OrderService implements IOrderService {
                 orderDetailEntity.setOption1(cartItemRequest.getOption1());
                 orderDetailEntity.setOption2(cartItemRequest.getOption2());
                 orderDetailEntity.setShopId(cartItemRequest.getShopId());
+                orderDetailEntity.setNameProduct(cartItemRequest.getNameProduct());
                 SKUEntity skuEntity = new SKUEntity();
                 skuEntity.setId(cartItemRequest.getProductSkuId());
                 orderDetailEntity.setSkuEntity(skuEntity);
@@ -146,21 +149,53 @@ public class OrderService implements IOrderService {
         return createResponse(HttpStatus.NOT_FOUND, "Not Found User ", null);
     }
 
-    @Override
-    public ApiResponse<?> getOrderByShopIdAndOrderId(long shopId) {
-        List<Long> orderIds = orderDetailRepository.findOrderIdsByShopId(shopId);
-        if (orderIds.isEmpty()) {
-            return createResponse(HttpStatus.NOT_FOUND, "No Orders Found for Shop", Collections.emptyList());
+        @Override
+        public Page<OrderDto> getAllOrderByShopId(long shopId , Integer pageIndex , Integer pageSize ) {
+            List<Long> orderIds = orderDetailRepository.findOrderIdsByShopId(shopId);
+            if (orderIds.isEmpty()) {
+                return Page.empty();
+            }
+            Pageable pageable;
+            if (pageIndex == null || pageSize == null) {
+                List<OrderEntity> orderEntities = orderRepository.findAllSortById(orderIds,Sort.by(Sort.Order.desc("createdAt")));
+                List<OrderDto> orderDtos = orderEntities.stream().map(orderMapper::toOrderDto).toList();
+                return new PageImpl<>(orderDtos);
+            }else {
+                pageable = PageRequest.of(pageIndex, pageSize , Sort.by(Sort.Order.desc("createdAt")));
+
+            }
+            Page<OrderEntity> orderEntities = orderRepository.findAllByIdIn(orderIds, pageable);
+            Page<OrderDto> orderDtos = orderEntities.map(orderMapper::toOrderDto);
+            return orderDtos;
         }
-        List<OrderEntity> orderEntities = orderRepository.findAllById(orderIds);
-        List<OrderDto> orderDtos = orderEntities.stream().map(e->orderMapper.toOrderDto(e)).collect(Collectors.toList());
-        return createResponse(HttpStatus.OK, "Successfully Retrieved Order Details", orderDtos);
-    }
 
     @Override
     public ApiResponse<?> getOrderTracking(Long orderId , Long shopId) {
             List<OrderDetailEntity> orderDetailEntity = orderDetailRepository.shopOrder(orderId,shopId);
-            return createResponse(HttpStatus.OK, "Successfully Retrieved Order Details", orderDetailEntity);
+            List<OrderDetailDto> orderDetailDtos = orderDetailEntity.stream().map(e->orderDetailMapper.toOrderDto(e)).toList();
+            Optional<OrderTrackingEntity> orderTrackingEntity = orderTrackingRepository.findById(orderId);
+            OrderTrackingEntity orderTrackingEntity1 = new OrderTrackingEntity();
+            if(orderTrackingEntity.isPresent()) {
+                orderTrackingEntity1 = orderTrackingEntity.get();
+            }else {
+                return createResponse(HttpStatus.NOT_FOUND, "Order Tracking not found", null);
+            }
+            OrderTrackingDto orderTrackingDto = OrderTrackingMapper.toOrderTrackingDto(orderTrackingEntity1);
+
+            Optional<OrderEntity> orderEntity = orderRepository.findById(orderId);
+            OrderEntity orderEntity1 = new OrderEntity();
+            if(orderEntity.isPresent()) {
+                orderEntity1 = orderEntity.get();
+            }
+            OrderDto orderDto = orderMapper.toOrderDto(orderEntity1);
+
+            OrderTotalDto orderTotalDto = OrderTotalDto.builder()
+                    .orderTracking(orderTrackingDto)
+                    .order(orderDto)
+                    .orderDetails(orderDetailDtos)
+                    .build();
+
+            return createResponse(HttpStatus.OK, "Successfully Retrieved Order Details", orderTotalDto);
     }
 
 

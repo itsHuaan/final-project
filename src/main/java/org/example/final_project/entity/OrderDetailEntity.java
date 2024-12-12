@@ -19,6 +19,7 @@ public class OrderDetailEntity {
     private Double price;
     private long option1;
     private long option2;
+    private String nameProduct;
     @ManyToOne
     @JoinColumn(name = "order_id" )
     private OrderEntity orderEntity;

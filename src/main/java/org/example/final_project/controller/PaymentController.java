@@ -48,7 +48,6 @@ public class PaymentController {
                     ,
                     "success"
             );
-
             return ResponseEntity.status(HttpStatus.FOUND)
                     .header("Location", redirectUrl)
                     .build();
@@ -67,15 +66,7 @@ public class PaymentController {
         }
     }
 
-    @GetMapping("/get-order")
-    public ResponseEntity<?> getOrder(@RequestParam long shopId) {
-        return ResponseEntity.ok(orderService.getOrderByShopIdAndOrderId(shopId));
-    }
 
-    @GetMapping("/detail")
-    public ResponseEntity<?> getShopDetail(@RequestParam(required = false) Long shopId , @RequestParam(required = false) Long orderId ) {
-        return ResponseEntity.ok(createResponse(HttpStatus.OK,"ok",orderService.getOrderTracking(shopId,orderId)));
-    }
 
 
 }
