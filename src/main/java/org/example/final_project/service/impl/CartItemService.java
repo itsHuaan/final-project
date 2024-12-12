@@ -8,18 +8,18 @@ import org.example.final_project.entity.CartEntity;
 import org.example.final_project.entity.CartItemEntity;
 import org.example.final_project.entity.SKUEntity;
 import org.example.final_project.mapper.CartItemMapper;
+import org.example.final_project.model.AddToCartRequest;
 import org.example.final_project.model.CartItemModel;
 import org.example.final_project.repository.ICartItemRepository;
 import org.example.final_project.repository.ICartRepository;
 import org.example.final_project.repository.ISKURepository;
 import org.example.final_project.service.ICartItemService;
-import org.example.final_project.util.specification.CartItemSpecification;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import static org.example.final_project.util.specification.CartItemSpecification.*;
 
@@ -32,33 +32,19 @@ public class CartItemService implements ICartItemService {
     ISKURepository skuRepository;
     CartItemMapper cartItemMapper;
 
-    /*@Override
-    public CartItemDto getCartItem(Long cartId, Long productId) {
-        return cartItemMapper.toDto(
-                cartItemRepository.findOne(Specification.where(
-                                hasCartId(cartId).and(hasProductId(productId))))
-                        .orElseGet(
-                                () -> {
-                                    CartItemEntity newCartItemEntity = new CartItemEntity();
-                                    newCartItemEntity.setCart(cartRepository.findById(cartId).orElseThrow(
-                                            () -> new IllegalArgumentException("Cart not found")
-                                    ));
-                                    newCartItemEntity.setProduct(skuRepository.findById(productId).orElseThrow(
-                                            () -> new IllegalArgumentException("Product not found")
-                                    ));
-                                    newCartItemEntity.setQuantity(0);
-                                    newCartItemEntity.setCreatedAt(LocalDateTime.now());
-                                    return cartItemRepository.save(newCartItemEntity);
-                                }
-                        )
-        );
-    }*/
-
     @Override
     public CartItemDto getCartItem(Long cartId, Long productId) {
-        CartItemEntity cartItemEntity = cartItemRepository.findOne(Specification.where(
-                hasCartId(cartId).and(hasProductId(productId)))
-        ).orElseGet(() -> {
+        return cartItemRepository.findById(cartId).isPresent()
+                ? cartItemMapper.toDto(cartItemRepository.findById(cartId).get())
+                : null;
+    }
+
+    @Override
+    public int addToCart(Long cartId, Long productId, int quantity) {
+        Optional<CartItemEntity> currentCartItem = cartItemRepository.findOne(hasCartId(cartId).and(hasProductId(productId)));
+        if (currentCartItem.isPresent()) {
+            updateQuantity(cartId, productId, quantity, false);
+        } else {
             SKUEntity product = skuRepository.findById(productId).orElseThrow(
                     () -> new IllegalArgumentException("Product not found")
             );
@@ -66,16 +52,14 @@ public class CartItemService implements ICartItemService {
             CartEntity cart = cartRepository.findById(cartId).orElseThrow(
                     () -> new IllegalArgumentException("Cart not found")
             );
-
-            CartItemEntity newCartItemEntity = new CartItemEntity();
-            newCartItemEntity.setCart(cart);
-            newCartItemEntity.setProduct(product);
-            newCartItemEntity.setQuantity(0);
-            newCartItemEntity.setCreatedAt(LocalDateTime.now());
-            return cartItemRepository.save(newCartItemEntity);
-        });
-
-        return cartItemMapper.toDto(cartItemEntity);
+            CartItemEntity cartItem = new CartItemEntity();
+            cartItem.setProduct(product);
+            cartItem.setCart(cart);
+            cartItem.setQuantity(quantity != 0 ? quantity : 1);
+            cartItem.setCreatedAt(LocalDateTime.now());
+            cartItemRepository.save(cartItem);
+        }
+        return 1;
     }
 
 

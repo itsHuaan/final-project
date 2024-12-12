@@ -6,7 +6,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.CartDto;
-import org.example.final_project.dto.CartItemDto;
 import org.example.final_project.model.AddToCartRequest;
 import org.example.final_project.service.ISKUService;
 import org.example.final_project.service.impl.CartItemService;
@@ -83,9 +82,8 @@ public class CartController {
         try {
             String message;
             CartDto cart = cartService.getUserCart(userId);
-            CartItemDto cartItem = cartItemService.getCartItem(cart.getCartId(), request.getProductId());
             if (request.getQuantity() > 0) {
-                int result = cartItemService.updateQuantity(cartItem.getCartId(), request.getProductId(), request.getQuantity(), false);
+                int result = cartItemService.updateQuantity(cart.getCartId(), request.getProductId(), request.getQuantity(), false);
                 message = result != 0
                         ? "Quantity for " + request.getProductId() + " updated successfully"
                         : "Failed to update quantity for " + request.getProductId() + ".";
@@ -122,14 +120,22 @@ public class CartController {
     public ResponseEntity<?> addToCart(@PathVariable Long userId,
                                        @RequestBody AddToCartRequest request) {
         try {
+            int quantity = request.getQuantity() != 0 ? request.getQuantity() : 1;
             CartDto cart = cartService.getUserCart(userId);
-            CartItemDto cartItem = cartItemService.getCartItem(cart.getCartId(), request.getProductId());
-            cartItemService.updateQuantity(cartItem.getCartId(), request.getProductId(), request.getQuantity(), true);
-            return ResponseEntity.status(HttpStatus.CREATED).body(
-                    createResponse(HttpStatus.CREATED,
-                            "Added " + request.getQuantity() + " product of " + request.getProductId() + " to cart.",
-                            null)
-            );
+            int addToCart = cartItemService.addToCart(cart.getCartId(), request.getProductId(), quantity);
+            if (addToCart == 1) {
+                return ResponseEntity.status(HttpStatus.CREATED).body(
+                        createResponse(HttpStatus.CREATED,
+                                "Added " + quantity + " product of " + request.getProductId() + " to cart.",
+                                null)
+                );
+            } else {
+                return ResponseEntity.status(HttpStatus.CREATED).body(
+                        createResponse(HttpStatus.CREATED,
+                                "Failed to add product " + request.getProductId() + " to cart.",
+                                null)
+                );
+            }
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                     createResponse(HttpStatus.NOT_FOUND,

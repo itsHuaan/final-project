@@ -43,7 +43,7 @@ public class SKUEntity {
     private ProductOptionValuesEntity value2;
 
 
-    @OneToMany(mappedBy = "product")
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<CartItemEntity> cartItems;
 
     @OneToMany(mappedBy = "skuEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

@@ -26,7 +26,6 @@ public class CartItemMapper {
     public CartItemDto toDto(CartItemEntity cartItemEntity) {
         return CartItemDto.builder()
                 .cartDetailId(cartItemEntity.getCartDetailId())
-                .cartId(cartItemEntity.getCart().getCartId())
                 .item(variantMapper.toDto(cartItemEntity.getProduct()))
                 .itemQuantity(cartItemEntity.getQuantity())
                 .totalPrice(cartItemEntity.getProduct().getPrice() * cartItemEntity.getQuantity())
