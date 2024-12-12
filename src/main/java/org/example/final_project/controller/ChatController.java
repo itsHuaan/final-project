@@ -6,16 +6,17 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.example.final_project.dto.ChatMessageDto;
 import org.example.final_project.model.ChatMessageModel;
-import org.example.final_project.model.ChatNotification;
+import org.example.final_project.model.ChatNotificationModel;
 import org.example.final_project.service.impl.ChatMessageService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.time.LocalDateTime;
 
 @Slf4j
 @RestController
@@ -36,11 +37,12 @@ public class ChatController {
         }
         messagingTemplate.convertAndSendToUser(String.valueOf(chatMessageModel.getRecipientId()),
                 "/queue/messages",
-                ChatNotification.builder()
+                ChatNotificationModel.builder()
                         .id(chatMessageDto.getId())
                         .senderId(chatMessageDto.getSenderId())
                         .recipientId(chatMessageDto.getRecipientId())
                         .content(chatMessageDto.getMessage())
+                        .sentAt(chatMessageDto.getSentAt())
                         .build());
     }
 
