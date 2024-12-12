@@ -11,11 +11,9 @@ import java.time.LocalDateTime;
 @Builder
 public class CartItemDto {
     private Long cartDetailId;
-    private Long cartId;
     private CartSkuDto item;
     private Integer itemQuantity;
     private double totalPrice;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
-    private LocalDateTime deletedAt;
 }

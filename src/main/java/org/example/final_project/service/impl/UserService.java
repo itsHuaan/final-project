@@ -308,10 +308,10 @@ public class UserService implements IUserService, UserDetailsService {
         }
 
         if (userEntity != null) {
-            userEntity.setName(request.getName() != null ? request.getName() : userEntity.getName());
-            userEntity.setPhone(request.getPhone() != null ? request.getPhone() : userEntity.getPhone());
-            userEntity.setEmail(request.getEmail() != null ? request.getEmail() : userEntity.getEmail());
-            userEntity.setGender(request.getGender() != -1 ? request.getGender() : userEntity.getGender());
+            userEntity.setName(request.getName() != null ? request.getName() : null);
+            userEntity.setPhone(request.getPhone());
+            userEntity.setEmail(request.getEmail());
+            userEntity.setGender(request.getGender());
 
             if (request.getProfilePicture() != null) {
                 try {

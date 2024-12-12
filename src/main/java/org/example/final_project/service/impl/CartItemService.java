@@ -8,18 +8,18 @@ import org.example.final_project.entity.CartEntity;
 import org.example.final_project.entity.CartItemEntity;
 import org.example.final_project.entity.SKUEntity;
 import org.example.final_project.mapper.CartItemMapper;
+import org.example.final_project.model.AddToCartRequest;
 import org.example.final_project.model.CartItemModel;
 import org.example.final_project.repository.ICartItemRepository;
 import org.example.final_project.repository.ICartRepository;
 import org.example.final_project.repository.ISKURepository;
 import org.example.final_project.service.ICartItemService;
-import org.example.final_project.util.specification.CartItemSpecification;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import static org.example.final_project.util.specification.CartItemSpecification.*;
 
@@ -28,56 +28,8 @@ import static org.example.final_project.util.specification.CartItemSpecification
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CartItemService implements ICartItemService {
     ICartItemRepository cartItemRepository;
-    ICartRepository cartRepository;
     ISKURepository skuRepository;
     CartItemMapper cartItemMapper;
-
-    /*@Override
-    public CartItemDto getCartItem(Long cartId, Long productId) {
-        return cartItemMapper.toDto(
-                cartItemRepository.findOne(Specification.where(
-                                hasCartId(cartId).and(hasProductId(productId))))
-                        .orElseGet(
-                                () -> {
-                                    CartItemEntity newCartItemEntity = new CartItemEntity();
-                                    newCartItemEntity.setCart(cartRepository.findById(cartId).orElseThrow(
-                                            () -> new IllegalArgumentException("Cart not found")
-                                    ));
-                                    newCartItemEntity.setProduct(skuRepository.findById(productId).orElseThrow(
-                                            () -> new IllegalArgumentException("Product not found")
-                                    ));
-                                    newCartItemEntity.setQuantity(0);
-                                    newCartItemEntity.setCreatedAt(LocalDateTime.now());
-                                    return cartItemRepository.save(newCartItemEntity);
-                                }
-                        )
-        );
-    }*/
-
-    @Override
-    public CartItemDto getCartItem(Long cartId, Long productId) {
-        CartItemEntity cartItemEntity = cartItemRepository.findOne(Specification.where(
-                hasCartId(cartId).and(hasProductId(productId)))
-        ).orElseGet(() -> {
-            SKUEntity product = skuRepository.findById(productId).orElseThrow(
-                    () -> new IllegalArgumentException("Product not found")
-            );
-
-            CartEntity cart = cartRepository.findById(cartId).orElseThrow(
-                    () -> new IllegalArgumentException("Cart not found")
-            );
-
-            CartItemEntity newCartItemEntity = new CartItemEntity();
-            newCartItemEntity.setCart(cart);
-            newCartItemEntity.setProduct(product);
-            newCartItemEntity.setQuantity(0);
-            newCartItemEntity.setCreatedAt(LocalDateTime.now());
-            return cartItemRepository.save(newCartItemEntity);
-        });
-
-        return cartItemMapper.toDto(cartItemEntity);
-    }
-
 
     @Override
     public int updateQuantity(Long cartId, Long productId, Integer quantity, boolean isAddingOne) {
@@ -99,6 +51,7 @@ public class CartItemService implements ICartItemService {
             }
 
             currentCartItem.setQuantity(newQuantity);
+            currentCartItem.setModifiedAt(LocalDateTime.now());
             cartItemRepository.save(currentCartItem);
             return 1;
         }
@@ -134,7 +87,16 @@ public class CartItemService implements ICartItemService {
 
     @Override
     public int save(CartItemModel cartItemModel) {
-        return 0;
+        Optional<CartItemEntity> currentCartItem = cartItemRepository.findOne(hasCartId(cartItemModel.getCartId()).and(hasProductId(cartItemModel.getSkuId())));
+        if (currentCartItem.isPresent()) {
+            CartItemEntity cartItem = currentCartItem.get();
+            cartItem.setQuantity(cartItem.getQuantity() + cartItemModel.getQuantity());
+            cartItem.setModifiedAt(LocalDateTime.now());
+            cartItemRepository.save(cartItem);
+        } else {
+            cartItemRepository.save(cartItemMapper.toEntity(cartItemModel));
+        }
+        return 1;
     }
 
     @Override

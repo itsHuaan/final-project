@@ -26,19 +26,20 @@ public class CartItemMapper {
     public CartItemDto toDto(CartItemEntity cartItemEntity) {
         return CartItemDto.builder()
                 .cartDetailId(cartItemEntity.getCartDetailId())
-                .cartId(cartItemEntity.getCart().getCartId())
                 .item(variantMapper.toDto(cartItemEntity.getProduct()))
                 .itemQuantity(cartItemEntity.getQuantity())
                 .totalPrice(cartItemEntity.getProduct().getPrice() * cartItemEntity.getQuantity())
+                .createdAt(cartItemEntity.getCreatedAt())
+                .modifiedAt(cartItemEntity.getModifiedAt())
                 .build();
     }
 
     public CartItemEntity toEntity(CartItemModel cartItemModel) {
-        CartEntity cartEntity = cartRepository.findById(cartItemModel.getCartDetailId()).orElseThrow(
-                () -> new IllegalArgumentException("Invalid cartDetailId: " + cartItemModel.getCartDetailId())
+        CartEntity cartEntity = cartRepository.findById(cartItemModel.getCartId()).orElseThrow(
+                () -> new IllegalArgumentException("Cart not found")
         );
         SKUEntity product = skuRepository.findById(cartItemModel.getSkuId()).orElseThrow(
-                () -> new IllegalArgumentException("Invalid skuId: " + cartItemModel.getSkuId())
+                () -> new IllegalArgumentException("Product not found")
         );
         return CartItemEntity.builder()
                 .cart(cartEntity)

@@ -5,12 +5,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.CartDto;
 import org.example.final_project.entity.CartEntity;
+import org.example.final_project.entity.CartItemEntity;
 import org.example.final_project.entity.UserEntity;
 import org.example.final_project.model.CartModel;
 import org.example.final_project.repository.IUserRepository;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 
 @Component
 @RequiredArgsConstructor
@@ -19,16 +21,18 @@ public class CartMapper {
     UserMapper userMapper;
     CartItemMapper cartItemMapper;
     IUserRepository userRepository;
-    CartUserMapper cartUserMapper;
 
     public CartDto toDto(CartEntity cartEntity) {
         return CartDto.builder()
                 .cartId(cartEntity.getCartId())
-                .user(cartUserMapper.toDto(cartEntity.getUser()))
+                .user(userMapper.toCartUserDto(cartEntity.getUser()))
                 .cartQuantity(cartEntity.getCartItems().size())
-                .cartItems(cartEntity.getCartItems().stream().map(cartItemMapper::toDto).toList())
-                .totalPrice(cartEntity.getTotalPrice())
+                .cartItems(cartEntity.getCartItems().stream()
+                        .sorted(Comparator.comparing(CartItemEntity::getCreatedAt).reversed())
+                        .map(cartItemMapper::toDto)
+                        .toList())
                 .createdAt(cartEntity.getCreatedAt())
+                .modifiedAt(cartEntity.getModifiedAt())
                 .build();
     }
 
@@ -39,7 +43,6 @@ public class CartMapper {
 
         return CartEntity.builder()
                 .user(userEntity)
-                .totalPrice(cartModel.getTotalPrice())
                 .createdAt(LocalDateTime.now())
                 .build();
     }

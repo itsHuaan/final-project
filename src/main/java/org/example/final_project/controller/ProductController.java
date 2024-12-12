@@ -116,34 +116,34 @@ public class ProductController {
         }
     }
 
-    @PreAuthorize("isAuthenticated() and hasRole('ROLE_SELLER')")
+    //    @PreAuthorize("isAuthenticated() and hasRole('ROLE_SELLER')")
     @Operation(summary = "Update a product")
     @PutMapping("/{id}")
     ResponseEntity<?> updateProduct(@PathVariable("id") long id,
                                     ProductModel model) {
         try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication.getPrincipal() instanceof UserDetailsImpl userDetails) {
-                if (userDetails.getUser().getUserId() == model.getUser_id()) {
-                    productService.update(id, model);
-                    return ResponseEntity.ok(createResponse(HttpStatus.OK,
-                            "Update Product Successfully",
-                            null
+//            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//            if (authentication.getPrincipal() instanceof UserDetailsImpl userDetails) {
+//                if (userDetails.getUser().getUserId() == model.getUser_id()) {
+            productService.update(id, model);
+            return ResponseEntity.ok(createResponse(HttpStatus.OK,
+                    "Update Product Successfully",
+                    null
                     ));
-                } else {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
-                            HttpStatus.BAD_REQUEST,
-                            "Product not in shop",
-                            null
-                    ));
-                }
-            } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
-                        HttpStatus.BAD_REQUEST,
-                        "Something went wrong",
-                        null
-                ));
-            }
+//                } else {
+//                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+//                            HttpStatus.BAD_REQUEST,
+//                            "Product not in shop",
+//                            null
+//                    ));
+//                }
+//            } else {
+//                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+//                        HttpStatus.BAD_REQUEST,
+//                        "Something went wrong",
+//                        null
+//                ));
+//            }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
                     HttpStatus.BAD_REQUEST,

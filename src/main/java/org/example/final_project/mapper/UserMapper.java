@@ -2,10 +2,7 @@ package org.example.final_project.mapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.example.final_project.dto.ShopDto;
-import org.example.final_project.dto.ShopInfoDto;
-import org.example.final_project.dto.UserDto;
-import org.example.final_project.dto.UserFeedBackDto;
+import org.example.final_project.dto.*;
 import org.example.final_project.entity.FeedbackEntity;
 import org.example.final_project.entity.RoleEntity;
 import org.example.final_project.entity.UserEntity;
@@ -101,6 +98,14 @@ public class UserMapper {
                 .username(userEntity.getUsername())
                 .name(userEntity.getName())
                 .profilePicture(userEntity.getProfilePicture())
+                .build();
+    }
+    public CartUserDto toCartUserDto(UserEntity userEntity) {
+        return CartUserDto.builder()
+                .userId(userEntity.getUserId())
+                .name(userEntity.getName())
+                .username(userEntity.getUsername())
+                .email(userEntity.getEmail())
                 .build();
     }
 }

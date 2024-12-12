@@ -28,5 +28,4 @@ public class CartItemEntity {
     private Integer quantity;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
-    private LocalDateTime deletedAt;
 }

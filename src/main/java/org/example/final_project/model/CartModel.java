@@ -14,5 +14,4 @@ import java.time.LocalDateTime;
 @Setter
 public class CartModel {
     private Long userId;
-    private double totalPrice = 0;
 }
