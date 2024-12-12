@@ -12,4 +12,5 @@ public interface IOrderService {
     Page<OrderDto> getAllOrderByShopId(long shopId , Integer pageIndex , Integer pageSize );
     String getTotalPrice(String tex);
     ApiResponse<?> getOrderTracking(Long orderId , Long shopId);
+    OrderDto findByShopIdAndCodeOrder(long shopId , String orderCode);
 }
