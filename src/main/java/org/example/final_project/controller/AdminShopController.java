@@ -21,15 +21,11 @@ public class AdminShopController {
         return ResponseEntity.ok(orderService.getOrderTracking(shopId, orderId));
     }
 
-
     @GetMapping("/{shopId}/order")
     public ResponseEntity<?> getOrder(@PathVariable long shopId , @RequestParam(required = false) Integer page,
                                       @RequestParam(required = false) Integer size) {
         return ResponseEntity.ok(orderService.getAllOrderByShopId(shopId , page, size));
     }
-
-
-
 
     @GetMapping("/find-order")
     public ResponseEntity<?> findOrder(@RequestParam Long shopId , @RequestParam String orderCode) throws Exception {

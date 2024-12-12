@@ -19,6 +19,7 @@ import org.example.final_project.model.CartItemRequest;
 import org.example.final_project.model.OrderModel;
 import org.example.final_project.model.enum_status.ActivateStatus;
 import org.example.final_project.model.enum_status.CheckoutStatus;
+import org.example.final_project.model.enum_status.StatusShipping;
 import org.example.final_project.repository.*;
 import org.example.final_project.service.IOrderService;
 import org.springframework.data.domain.*;
@@ -70,7 +71,7 @@ public class OrderService implements IOrderService {
                     orderTrackingRepository.save(orderTrackingEntity1);
                 }else {
                     OrderTrackingEntity trackingEntity = new OrderTrackingEntity();
-                    trackingEntity.setStatus(ActivateStatus.NotConfirmed.getValue());
+                    trackingEntity.setStatus(StatusShipping.Create.getStatus());
                     trackingEntity.setOrder(orderEntity);
                     trackingEntity.setShopId(cartItemRequest.getShopId());
                     trackingEntity.setCreatedAt(LocalDateTime.now());
