@@ -164,7 +164,7 @@ public class OrderService implements IOrderService {
                 pageable = PageRequest.of(pageIndex, pageSize , Sort.by(Sort.Order.desc("createdAt")));
 
             }
-            Page<OrderEntity> orderEntities = orderRepository.findAllByIdIn(orderIds, pageable);
+            Page<OrderEntity> orderEntities = orderRepository.findAllByIds(orderIds, pageable);
             Page<OrderDto> orderDtos = orderEntities.map(orderMapper::toOrderDto);
             return orderDtos;
         }
@@ -206,4 +206,19 @@ public class OrderService implements IOrderService {
         return String.valueOf(amount);
 
     }
+
+    @Override
+    public OrderDto findByShopIdAndCodeOrder(long shopId , String orderCode){
+        Optional<OrderEntity> orderEntity = orderRepository.findOrderIdByShopIdAndOrderCode(shopId,orderCode);
+        OrderEntity orderEntity1 = new OrderEntity();
+        if (orderEntity.isPresent()){
+            orderEntity1 = orderEntity.get();
+        }else {
+            orderEntity1 = new OrderEntity();
+        }
+        OrderDto orderDto = orderMapper.toOrderDto(orderEntity1);
+        return orderDto;
+    }
+
+
 }

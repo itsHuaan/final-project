@@ -22,10 +22,13 @@ public interface IOrderRepository extends JpaRepository<OrderEntity, Long> {
     Double findAmountByOrderCode(String orderCode);
 
     @Query("SELECT o FROM OrderEntity o WHERE o.id IN :ids")
-    Page<OrderEntity> findAllByIdIn(@Param("ids") List<Long> ids, Pageable pageable);
+    Page<OrderEntity> findAllByIds(@Param("ids") List<Long> ids, Pageable pageable);
 
 
     @Query("SELECT o FROM OrderEntity o WHERE o.id IN :ids")
     List<OrderEntity> findAllSortById(List<Long> ids, Sort sort);
+
+    @Query("SELECT o FROM OrderEntity o JOIN OrderTrackingEntity ot ON ot.order.id = o.id WHERE ot.shopId = :shopId AND o.orderCode = :orderCode")
+    Optional<OrderEntity> findOrderIdByShopIdAndOrderCode(long shopId, String orderCode);
 
 }
