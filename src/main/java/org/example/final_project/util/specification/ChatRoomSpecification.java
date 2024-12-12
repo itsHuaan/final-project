@@ -17,4 +17,10 @@ public class ChatRoomSpecification {
         return (Root<ChatRoomEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("recipientId"), recipientId);
     }
+
+    public static Specification<ChatRoomEntity> hasChatId(String chatId) {
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("chatId"), chatId);
+    }
+
 }
