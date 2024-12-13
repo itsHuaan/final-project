@@ -7,6 +7,7 @@ import org.example.final_project.entity.ProductOptionValuesEntity;
 import org.example.final_project.entity.ProductOptionsEntity;
 import org.example.final_project.entity.SKUEntity;
 import org.example.final_project.mapper.SKUMapper;
+import org.example.final_project.model.ProductOptionValueModel;
 import org.example.final_project.model.SKUModel;
 import org.example.final_project.repository.IProductOptionRepository;
 import org.example.final_project.repository.IProductOptionValueRepository;
@@ -193,27 +194,29 @@ public class SKUService implements ISKUService {
                 for (SKUDto skuDto : skuList) {
                     optionIdList.add(skuDto.getOption1().getOptionId());
                 }
-                deleteAllSKUByProductId(productId);
+                deleteAllSKUByOptionId(optionIdList.stream().toList().get(0));
                 // lấy ra tất cả các option cũ của sản phẩm
-                for (Long oldOptionId : optionIdList) {
-                    if (oldOptionId != optionId) {
-                        List<OptionValueTemp> temp1 = new ArrayList<>();//list option-value mới
-                        for (ProductOptionValuesEntity value : valueRepository.findAllByOption_Id(optionId)) {
-                            temp1.add(new OptionValueTemp(optionService.getById(optionId), valueService.getById(value.getId())));
-                        }
-                        List<OptionValueTemp> temp2 = new ArrayList<>();//list option-value cũ
-                        for (ProductOptionValuesEntity value : valueRepository.findAllByOption_Id(oldOptionId)) {
-                            temp2.add(new OptionValueTemp(optionService.getById(oldOptionId), valueService.getById(value.getId())));
-                        }
-                        for (OptionValueTemp newTemp : temp1) {
-                            for (OptionValueTemp oldTemp : temp2) {
-                                SKUModel skuModel = new SKUModel();
-                                skuModel.setProductId(productId);
-                                skuModel.setOptionId1(newTemp.getOption().getId());
-                                skuModel.setValueId1(newTemp.getValue().getValueId());
-                                skuModel.setOptionId2(oldTemp.getOption().getId());
-                                skuModel.setValueId2(oldTemp.getValue().getValueId());
-                                saveCustom(skuModel);
+                if (optionId != null) {
+                    for (Long oldOptionId : optionIdList) {
+                        if (oldOptionId != optionId) {
+                            List<OptionValueTemp> temp1 = new ArrayList<>();//list option-value mới
+                            for (ProductOptionValuesEntity value : valueRepository.findAllByOption_Id(optionId)) {
+                                temp1.add(new OptionValueTemp(optionService.getById(optionId), valueService.getById(value.getId())));
+                            }
+                            List<OptionValueTemp> temp2 = new ArrayList<>();//list option-value cũ
+                            for (ProductOptionValuesEntity value : valueRepository.findAllByOption_Id(oldOptionId)) {
+                                temp2.add(new OptionValueTemp(optionService.getById(oldOptionId), valueService.getById(value.getId())));
+                            }
+                            for (OptionValueTemp newTemp : temp1) {
+                                for (OptionValueTemp oldTemp : temp2) {
+                                    SKUModel skuModel = new SKUModel();
+                                    skuModel.setProductId(productId);
+                                    skuModel.setOptionId1(newTemp.getOption().getId());
+                                    skuModel.setValueId1(newTemp.getValue().getValueId());
+                                    skuModel.setOptionId2(oldTemp.getOption().getId());
+                                    skuModel.setValueId2(oldTemp.getValue().getValueId());
+                                    saveCustom(skuModel);
+                                }
                             }
                         }
                     }
@@ -229,9 +232,45 @@ public class SKUService implements ISKUService {
     }
 
     @Override
-    public int deleteAllSKUByProductId(Long productId) {
+    public int addListSKUAfterDeleteOption(Long productId, Long optionId) {
         try {
-            List<SKUEntity> skuEntities = iskuRepository.findAllByProduct_Id(productId);
+            if (productRepository.findById(productId).isPresent()) {
+                List<SKUDto> skuList = getAllByProduct(productId);
+                Set<Long> optionIdList = new HashSet<>();
+                for (SKUDto skuDto : skuList) {
+                    if (skuDto.getOption1() != null) {
+                        optionIdList.add(skuDto.getOption1().getOptionId());
+                    }
+                    if (skuDto.getOption2() != null) {
+                        optionIdList.add(skuDto.getOption2().getOptionId());
+                    }
+                }
+                optionService.delete(optionId);
+                for (Long id : optionIdList) {
+                    if (id != optionId) {
+                        for (ProductOptionValuesEntity value : valueRepository.findAllByOption_Id(id)) {
+                            SKUModel skuModel = new SKUModel();
+                            skuModel.setOptionId1(id);
+                            skuModel.setValueId1(value.getId());
+                            skuModel.setProductId(productId);
+                            saveCustom(skuModel);
+                        }
+                    }
+                }
+                return 1;
+            } else {
+                throw new IndexOutOfBoundsException("Out of options size");
+            }
+        } catch (
+                Exception e) {
+            throw e;
+        }
+    }
+
+
+    public int deleteAllSKUByOptionId(Long optionId) {
+        try {
+            List<SKUEntity> skuEntities = iskuRepository.findAllByOption1_IdOrOption2_Id(optionId, optionId);
             iskuRepository.deleteAll(skuEntities);
             return 1;
         } catch (Exception e) {
