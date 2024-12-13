@@ -13,6 +13,6 @@ public class ChatNotificationModel {
     private Long id;
     private Long senderId;
     private Long recipientId;
-    private String content;
+    private String message;
     private LocalDateTime sentAt;
 }

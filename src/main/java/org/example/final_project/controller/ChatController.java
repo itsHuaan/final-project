@@ -16,8 +16,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
-
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -41,13 +39,13 @@ public class ChatController {
                         .id(chatMessageDto.getId())
                         .senderId(chatMessageDto.getSenderId())
                         .recipientId(chatMessageDto.getRecipientId())
-                        .content(chatMessageDto.getMessage())
+                        .message(chatMessageDto.getMessage())
                         .sentAt(chatMessageDto.getSentAt())
                         .build());
     }
 
     @GetMapping("/message/{senderId}/{recipientId}")
-    public ResponseEntity<?> findChatMessage(@PathVariable long recipientId, @PathVariable long senderId){
-        return ResponseEntity.ok(chatMessageService.getChatMessages(recipientId, senderId));
+    public ResponseEntity<?> findChatMessage(@PathVariable long senderId, @PathVariable long recipientId){
+        return ResponseEntity.ok(chatMessageService.getChatMessages(senderId, recipientId));
     }
 }
