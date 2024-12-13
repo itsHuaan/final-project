@@ -29,10 +29,22 @@ public class OrderDetailService implements IOrderDetailService {
 
 
     @Override
-    public ApiResponse<?> getOrderDetail(long userId) {
+    public ApiResponse<?> getOrderDetail(long userId ) {
         List<Long> orderId = orderRepository.findOrderIdsByUserId(userId);
         List<OrderDetailEntity> list = orderDetailRepository.findAllOrderDetailEntityByOrderId(orderId);
         List<OrderDetailDto> listDto = list.stream().map(orderDetailMapper::toOrderDto).toList();
         return ApiResponse.createResponse(HttpStatus.OK,"get All list", listDto);
     }
+    @Override
+    public ApiResponse<?> getOrderDetailFlowShippingStatus(long userId , long shippingStatus){
+        List<Long> orderId = orderRepository.findOrderIdsByUserId(userId);
+        List<OrderDetailEntity> list = orderDetailRepository.findOrderDetailsByOrderTrackingStatusZeroAndOrderId(shippingStatus,orderId);
+        List<OrderDetailDto> listDto = list.stream().map(orderDetailMapper::toOrderDto).toList();
+        return ApiResponse.createResponse(HttpStatus.OK,"get All list", listDto);
+
+    }
+
+
+
+
 }

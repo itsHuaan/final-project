@@ -7,10 +7,7 @@ import lombok.experimental.FieldDefaults;
 import org.example.final_project.service.IOrderDetailService;
 import org.example.final_project.util.Const;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Order Tracking")
 @RestController
@@ -23,6 +20,12 @@ public class OrderTrackingController {
         public ResponseEntity<?> index(@PathVariable Long userId) {
             return ResponseEntity.ok(orderDetailService.getOrderDetail(userId));
         }
+
+        @GetMapping("")
+        public ResponseEntity<?> index(@RequestParam Long userId , @RequestParam Long shippingStatus) {
+            return ResponseEntity.ok(orderDetailService.getOrderDetailFlowShippingStatus(userId, shippingStatus));
+        }
+
 
 
 

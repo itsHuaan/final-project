@@ -19,5 +19,8 @@ public interface IOrderDetailRepository extends JpaRepository<OrderDetailEntity,
     @Query("SELECT o FROM OrderDetailEntity o WHERE o.orderEntity.id IN :orderIds order by o.createAt desc")
     List<OrderDetailEntity> findAllOrderDetailEntityByOrderId(List<Long> orderIds);
 
+    @Query("SELECT od FROM OrderDetailEntity od JOIN od.orderEntity oe JOIN oe.orderTrackingEntities ot WHERE ot.status = :status AND oe.id IN :orderIds ")
+    List<OrderDetailEntity> findOrderDetailsByOrderTrackingStatusZeroAndOrderId(long status, List<Long> orderIds);
+
 
 }
