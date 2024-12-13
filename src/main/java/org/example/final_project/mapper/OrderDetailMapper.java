@@ -7,6 +7,10 @@ import org.example.final_project.dto.OrderDetailDto;
 import org.example.final_project.dto.SKUDto;
 import org.example.final_project.entity.OrderDetailEntity;
 import org.example.final_project.model.CartItemRequest;
+import org.example.final_project.repository.IOrderDetailRepository;
+import org.example.final_project.repository.IOrderTrackingRepository;
+import org.example.final_project.service.impl.OrderDetailService;
+import org.example.final_project.service.impl.UserService;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -14,7 +18,9 @@ import org.springframework.stereotype.Component;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class OrderDetailMapper
 {
+    private UserService userService;
     private SKUMapper skuMapper;
+
 
     public static CartItemRequest toDTO(OrderDetailEntity entity){
         return CartItemRequest.builder()
@@ -36,6 +42,10 @@ public class OrderDetailMapper
                 .shopId(orderDetailEntity.getShopId())
                 .option1(orderDetailEntity.getOption1())
                 .option2(orderDetailEntity.getOption2())
+                .createdAt(orderDetailEntity.getCreateAt())
+                .productName(orderDetailEntity.getNameProduct())
+                .user(userService.getById(orderDetailEntity.getShopId()))
+                .shippingStatus(orderDetailEntity.getStatusShip())
                 .skuDto(skuDto)
                 .build();
     }

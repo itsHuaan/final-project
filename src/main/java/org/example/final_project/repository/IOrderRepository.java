@@ -31,4 +31,9 @@ public interface IOrderRepository extends JpaRepository<OrderEntity, Long> {
     @Query("SELECT o FROM OrderEntity o JOIN OrderTrackingEntity ot ON ot.order.id = o.id WHERE ot.shopId = :shopId AND o.orderCode = :orderCode")
     Optional<OrderEntity> findOrderIdByShopIdAndOrderCode(long shopId, String orderCode);
 
+    @Query("select t.id from OrderEntity  t where t.user.userId = :userId")
+    List<Long> findOrderIdsByUserId(long userId);
+
+
+
 }

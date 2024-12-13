@@ -4,13 +4,13 @@ public enum StatusShipping {
     Create(0), //mới tạo
     Pending(1), // chờ xử lý
     Confirmed(2), // đã xác nhạn
-    Shipping_pending(3),
-    Shipping_confirmed(4),
-    Delivering(5),
-    Delivered(6),
-    Paid(7),
-    Completed(8),
-    Cancelled(9);
+    Shipping_pending(3), // chờ vận chuyển
+    Shipping_confirmed(4), // đã xacs nhân vận chuyển
+    Delivering(5), // đang giao hàng
+    Delivered(6), // Đã giao hàng
+    Paid(7), // Đã thanh toán
+    Completed(8), // Thành công
+    Cancelled(9);//Hủy
     private int shipStatus;
 
     StatusShipping(int StatusShipping) {

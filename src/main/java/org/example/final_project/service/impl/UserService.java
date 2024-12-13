@@ -239,7 +239,7 @@ public class UserService implements IUserService, UserDetailsService {
                 userEntity.setShop_address_detail(request.getShop_address_detail());
                 userEntity.setPhone(request.getPhone());
                 userEntity.setTime_created_shop(LocalDateTime.now());
-                userEntity.setShop_status(STATUS.INACTIVE.getStatus());
+                userEntity.setShop_status(STATUS.WAIT.getStatus());
                 userRepository.save(userEntity);
                 return createResponse(HttpStatus.OK, "Wait for confirm ", null);
             } else if (userEntity.getShop_status() == 1) {

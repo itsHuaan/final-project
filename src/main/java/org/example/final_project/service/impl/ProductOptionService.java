@@ -2,7 +2,9 @@ package org.example.final_project.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.example.final_project.dto.ProductOptionDetailDto;
+import org.example.final_project.dto.SKUDto;
 import org.example.final_project.entity.ProductOptionsEntity;
+import org.example.final_project.entity.SKUEntity;
 import org.example.final_project.mapper.ProductOptionMapper;
 import org.example.final_project.model.ProductOptionValueModel;
 import org.example.final_project.model.ProductOptionsModel;
@@ -10,12 +12,15 @@ import org.example.final_project.repository.IProductOptionRepository;
 import org.example.final_project.repository.IProductRepository;
 import org.example.final_project.service.IProductOptionService;
 import org.example.final_project.service.IProductOptionValueService;
+import org.example.final_project.service.ISKUService;
 import org.example.final_project.util.ConvertJsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,6 +33,8 @@ public class ProductOptionService implements IProductOptionService {
     IProductOptionValueService valueService;
     @Autowired
     IProductRepository productRepository;
+    @Autowired
+    ISKUService iskuService;
 
     @Override
     public List<ProductOptionDetailDto> getAll() {
@@ -87,10 +94,10 @@ public class ProductOptionService implements IProductOptionService {
                 for (ProductOptionsModel model : ConvertJsonObject.convertJsonToOption(jsonOptions)) {
                     list.add(saveCustom(model));
                 }
-            }else{
-                ProductOptionsModel optionsModel=new ProductOptionsModel();
+            } else {
+                ProductOptionsModel optionsModel = new ProductOptionsModel();
                 optionsModel.setName("default");
-                ProductOptionValueModel valueModel=new ProductOptionValueModel();
+                ProductOptionValueModel valueModel = new ProductOptionValueModel();
                 valueModel.setName("default");
                 optionsModel.setValues(List.of(valueModel));
                 list.add(saveCustom(optionsModel));
@@ -113,5 +120,19 @@ public class ProductOptionService implements IProductOptionService {
         } catch (Exception e) {
             throw e;
         }
+    }
+
+    @Override
+    public int getNumberOfOptionByProduct(Long productId) {
+        Set<Long> optionIds = new HashSet<>();
+        for (SKUDto sku : iskuService.getAllByProduct(productId)) {
+            if (sku.getOption1() != null) {
+                optionIds.add(sku.getOption1().getOptionId());
+            }
+            if (sku.getOption2() != null) {
+                optionIds.add(sku.getOption2().getOptionId());
+            }
+        }
+        return optionIds.size();
     }
 }

@@ -1,6 +1,9 @@
 package org.example.final_project.dto;
 
 import lombok.*;
+import org.example.final_project.model.enum_status.StatusShipping;
+
+import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -14,6 +17,10 @@ public class OrderDetailDto {
     private Double price;
     private long option1;
     private long option2;
+    private String productName;
+    private UserDto user;
+    private LocalDateTime createdAt;
+    private int shippingStatus;
     private SKUDto skuDto;
 
 }
