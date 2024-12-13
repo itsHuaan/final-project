@@ -1,7 +1,6 @@
 package org.example.final_project.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.example.final_project.entity.ProductOptionsEntity;
 import org.example.final_project.model.ProductOptionsModel;
 import org.example.final_project.service.IProductOptionService;
 import org.example.final_project.service.ISKUService;
@@ -26,13 +25,21 @@ public class ProductOptionController {
     ResponseEntity addNewOption(@PathVariable("product-id") Long productId,
                                 @RequestBody ProductOptionsModel model) {
         try {
-            Long savedOptionId = optionService.saveCustom(model).getId();
-            iskuService.addListSKU(productId, savedOptionId);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createResponse(
-                    HttpStatus.CREATED,
-                    "Successfully",
-                    null
-            ));
+            if (optionService.getNumberOfOptionByProduct(productId) < 2) {
+                Long savedOptionId = optionService.saveCustom(model).getId();
+                iskuService.addListSKU(productId, savedOptionId);
+                return ResponseEntity.status(HttpStatus.CREATED).body(createResponse(
+                        HttpStatus.CREATED,
+                        "Successfully",
+                        null
+                ));
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+                        HttpStatus.BAD_REQUEST,
+                        "Product can't have more than 2 options",
+                        null
+                ));
+            }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
                     HttpStatus.BAD_REQUEST,
@@ -43,14 +50,23 @@ public class ProductOptionController {
     }
 
     @DeleteMapping("/{option-id}")
-    ResponseEntity deleteOption(@PathVariable("option-id") Long optionId) {
+    ResponseEntity deleteOption(@PathVariable("option-id") Long optionId,
+                                @RequestParam("productId") Long productId) {
         try {
-            optionService.delete(optionId);
-            return ResponseEntity.status(HttpStatus.OK).body(createResponse(
-                    HttpStatus.NO_CONTENT,
-                    "Successfully",
-                    null
-            ));
+            if (optionService.getNumberOfOptionByProduct(productId) > 1) {
+                iskuService.addListSKUAfterDeleteOption(productId, optionId);
+                return ResponseEntity.status(HttpStatus.OK).body(createResponse(
+                        HttpStatus.NO_CONTENT,
+                        "Successfully",
+                        null
+                ));
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+                        HttpStatus.BAD_REQUEST,
+                        "Product must have at least 1 option",
+                        null
+                ));
+            }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
                     HttpStatus.BAD_REQUEST,

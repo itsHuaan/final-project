@@ -20,5 +20,6 @@ public interface ISKUService extends IBaseService<SKUDto, SKUModel,Long> {
     int updateListStock(List<SKUModel> skuModels) throws IOException;
     Set<Long> getAllOptionOfProduct(long productId);
     int addListSKU(Long productId, Long optionId);
-    int deleteAllSKUByProductId(Long productId);
+
+    int addListSKUAfterDeleteOption(Long productId,Long optionId);
 }
