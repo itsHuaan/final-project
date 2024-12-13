@@ -23,4 +23,10 @@ public class ChatRoomSpecification {
                 criteriaBuilder.equal(root.get("chatId"), chatId);
     }
 
+    public static Specification<ChatRoomEntity> hasNormalizedChat(Long firstId, Long secondId) {
+        return (root, query, cb) -> cb.and(
+                cb.equal(root.get("senderId"), firstId),
+                cb.equal(root.get("recipientId"), secondId)
+        );
+    }
 }

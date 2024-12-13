@@ -9,14 +9,9 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Builder
-public class ChatMessageDto {
-    private Long messageId;
-
-    private String chatId;
-    private Long senderId;
-    private String senderUsername;
-    private Long recipientId;
-    private String recipientUsername;
+public class ChatHistoryDto {
+    private String sender;
+    private String profilePicture;
     private String message;
     private LocalDateTime sentAt;
 }
