@@ -1,6 +1,7 @@
 package org.example.final_project.dto;
 
 import lombok.*;
+import org.example.final_project.model.enum_status.StatusShipping;
 
 import java.time.LocalDateTime;
 
@@ -19,6 +20,7 @@ public class OrderDetailDto {
     private String productName;
     private UserDto user;
     private LocalDateTime createdAt;
+    private int shippingStatus;
     private SKUDto skuDto;
 
 }

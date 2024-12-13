@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.service.IOrderDetailService;
 import org.example.final_project.util.Const;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,6 +25,14 @@ public class OrderTrackingController {
         @GetMapping("")
         public ResponseEntity<?> index(@RequestParam Long userId , @RequestParam Long shippingStatus) {
             return ResponseEntity.ok(orderDetailService.getOrderDetailFlowShippingStatus(userId, shippingStatus));
+        }
+        @GetMapping("/detail-order-user")
+        public ResponseEntity<?> detailOrderUser(long userId , long orderDetailId) {
+            try{
+                return ResponseEntity.ok(orderDetailService.findDetailIn4OfOrder(userId, orderDetailId));
+            }catch (Exception e){
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not Found Order Item");
+            }
         }
 
 

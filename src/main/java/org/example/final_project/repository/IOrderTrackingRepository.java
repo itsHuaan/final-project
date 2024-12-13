@@ -1,5 +1,6 @@
 package org.example.final_project.repository;
 
+import org.example.final_project.entity.OrderDetailEntity;
 import org.example.final_project.entity.OrderTrackingEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,6 +14,9 @@ import java.util.Optional;
 public interface IOrderTrackingRepository extends JpaRepository<OrderTrackingEntity,Long> {
     @Query("select t from OrderTrackingEntity  t where t.order.id = :orderId and t.shopId = :shopId")
     Optional<OrderTrackingEntity> findByOrderIdAndShopId( long orderId, long shopId );
+
+//    @Query("select t from OrderTrackingEntity  t where t.order.id = :orderId")
+//    long findOrderDetailsByOrderTrackingStatusZeroAndOrderId(long orderId);
 
 
 }
