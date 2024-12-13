@@ -18,4 +18,6 @@ public interface ISKURepository extends JpaRepository<SKUEntity,Long> {
 
     @Query("select s from SKUEntity s where s.id = :SkuId")
     Optional<SKUEntity> findbySKUId(long SKUId);
+
+
 }

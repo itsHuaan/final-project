@@ -8,12 +8,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.entity.ProductEntity;
 import org.example.final_project.entity.ProductOptionValuesEntity;
+import org.example.final_project.entity.SKUEntity;
 import org.example.final_project.entity.UserEntity;
 import org.example.final_project.model.EmailModel;
 import org.example.final_project.model.OrderModel;
-import org.example.final_project.repository.IProductOptionValueRepository;
-import org.example.final_project.repository.IProductRepository;
-import org.example.final_project.repository.IUserRepository;
+import org.example.final_project.repository.*;
 import org.example.final_project.service.IEmailService;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -21,6 +20,8 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.text.NumberFormat;
+import java.util.Locale;
 import java.util.Optional;
 
 @Service
@@ -31,6 +32,7 @@ public class EmailService implements IEmailService {
     private final IProductRepository productRepository;
     private final IUserRepository userRepository;
     private final IProductOptionValueRepository productOptionValueRepository;
+    private final ISKURepository iskuRepository;
 
 
     @Override
@@ -47,6 +49,13 @@ public class EmailService implements IEmailService {
             return false;
         }
     }
+    public String formatCurrency(double amount) {
+        NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+        String formattedAmount = currencyFormatter.format(amount);
+
+        return formattedAmount.replace("₫", "").trim();
+    }
+
     public void sendOrderToEmail(OrderModel orderModel , HttpServletRequest request) throws Exception {
         MimeMessage mimeMessage = emailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
@@ -69,6 +78,7 @@ public class EmailService implements IEmailService {
         }
         String userName = user.getUsername();
 
+        String formattedAmount = formatCurrency(Double.parseDouble(amount));
 
         builder.append(String.format("""
         <html lang="vi">
@@ -79,7 +89,7 @@ public class EmailService implements IEmailService {
             <link href="https://fonts.googleapis.com/css?family=Poppins:ital,wght@0,400;0,600" rel="stylesheet" />
           </head>
           <body style="font-family: 'Poppins', Arial, sans-serif; margin: 0; padding: 0;">
-            <table align="center" style="width: 400px; background-color: #ffffff; border-spacing: 0; border-radius: 10px; margin-top: 20px;">
+            <table align="center" style="width: 800px; background-color: #ffffff; border-spacing: 0; border-radius: 10px; margin-top: 20px;">
               <tr>
                 <td style="padding: 20px; text-align: center; background-color: #ecf1fb; border-top-left-radius: 10px; border-top-right-radius: 10px;">
                   <h2 style="font-size: 24px; font-weight: 600; color: #001942;">Cảm ơn %s vì đã sử dụng sản phẩm của chúng tôi</h2>
@@ -94,32 +104,35 @@ public class EmailService implements IEmailService {
               </tr>
               <tr>
                 <td style="background-color: #ecf1fb; padding: 20px;">
-                  <table width="400px" style="background-color: #fff; padding: 10px; border-radius: 10px;">
+                  <table width="800px" style="background-color: #fff; padding: 10px; border-radius: 10px;">
                   <thead>
                             <tr>
-                                <th style="padding: 12px; text-align: left; width: 200px;">Tên sản phẩm</th>
-                                <th style="padding: 12px; text-align: left; width: 80px;">Size</th>
-                                <th style="padding: 12px; text-align: left; width: 100px;">Màu</th>
-                                <th style="padding: 12px; text-align: center; width: 60px;">Số lượng</th>
-                                <th style="padding: 12px; text-align: right; width: 100px;">Giá</th>
+                                <th style="padding: 12px; text-align: center; width: 400px;">Tên sản phẩm</th>
+                                <th style="padding: 12px; text-align: center; width: 160px;">Size</th>
+                                <th style="padding: 12px; text-align: center; width: 200px;">Màu</th>
+                                <th style="padding: 12px; text-align: center; width: 120px;">Số lượng</th>
+                                <th style="padding: 12px; text-align: center; width: 300px;">Giá</th>
                             </tr>
                         </thead>
     """, userName , vnp_TxnRef));
 
         if (orderModel.getCartItems() != null && !orderModel.getCartItems().isEmpty()) {
             orderModel.getCartItems().forEach(item -> {
-                Optional<ProductEntity> productEntity = productRepository.findById(item.getProductSkuId());
-                if (productEntity.isPresent()) {
-                    ProductEntity productEntity1 = productEntity.get();
-                    String productName = productEntity1.getName() != null ? productEntity1.getName() : "Unknown";
+                Optional<SKUEntity> skuEntity = iskuRepository.findById(item.getProductSkuId());
+                if (skuEntity.isPresent()) {
+                    SKUEntity skuEntity1 = skuEntity.get();
+                    ProductEntity productEntity = productRepository.findById(skuEntity1.getProduct().getId()).orElse(null);
+                    String productName = productEntity.getName() != null ? productEntity.getName() : "Unknown";
                     String option1 = productOptionValueRepository.findById(item.getOption1());
                     String option2 = productOptionValueRepository.findById(item.getOption2());
+                    String price = String.valueOf(item.getPrice());
+                    String formattedAmount1 = formatCurrency(Double.parseDouble(price));
                     builder.append("<tr style=\"border-bottom: 1px solid #ddd;\">\n")
-                            .append("  <td style=\"padding: 10px; font-size: 16px; color: #333;\">").append(productName).append("</td>\n")
-                            .append("  <td style=\"padding: 10px; font-size: 16px; color: #333; text-align: center;\">").append(option1).append("</td>\n")
-                            .append("  <td style=\"padding: 10px; font-size: 16px; color: #333; text-align: center;\">").append(option2).append("</td>\n")
-                            .append("  <td style=\"padding: 10px; font-size: 16px; color: #333; text-align: center;\">").append(item.getQuantity()).append("</td>\n")
-                            .append("  <td style=\"padding: 10px; font-size: 16px; color: #333; text-align: right; \">").append(item.getPrice()).append(" VNĐ </td>\n")
+                            .append("  <td style=\"padding: 10px; font-size: 16px; color: #333;text-align: center; width: 400px;\">").append(productName).append("</td>\n")
+                            .append("  <td style=\"padding: 10px; font-size: 16px; color: #333; text-align: center; width: 160px;\">").append(option1).append("</td>\n")
+                            .append("  <td style=\"padding: 10px; font-size: 16px; color: #333; text-align: center; width: 200px;\">").append(option2).append("</td>\n")
+                            .append("  <td style=\"padding: 10px; font-size: 16px; color: #333; text-align: center;width: 120px;\">").append(item.getQuantity()).append("</td>\n")
+                            .append("  <td style=\"padding: 10px; font-size: 16px; color: #333; text-align: center;width: 300px; \">").append(formattedAmount1).append(" VNĐ </td>\n")
                             .append("</tr>");
                 }
             });
@@ -131,7 +144,7 @@ public class EmailService implements IEmailService {
           </tr>
           <tr>
             <td style="padding: 20px; background-color: #ffffff; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;">
-              <table width="400px">
+              <table width="800px">
   
                 <tr>
                   <td style="font-size: 16px; font-weight: 600; color: #001942;">Tổng cộng</td>
@@ -143,7 +156,7 @@ public class EmailService implements IEmailService {
         </table>
       </body>
     </html>
-""",amount));
+""",formattedAmount));
 
         return builder.toString();
     }
