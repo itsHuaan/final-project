@@ -1,6 +1,8 @@
 package org.example.final_project.repository;
 
 import org.example.final_project.entity.OrderDetailEntity;
+import org.example.final_project.entity.OrderEntity;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -13,4 +15,9 @@ public interface IOrderDetailRepository extends JpaRepository<OrderDetailEntity,
 
     @Query("select t from OrderDetailEntity t where t.shopId = :shopId and t.orderEntity.id = :orderId")
     List<OrderDetailEntity> shopOrder(long shopId , long orderId);
+
+    @Query("SELECT o FROM OrderDetailEntity o WHERE o.orderEntity.id IN :orderIds order by o.createAt desc")
+    List<OrderDetailEntity> findAllOrderDetailEntityByOrderId(List<Long> orderIds);
+
+
 }

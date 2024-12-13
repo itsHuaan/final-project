@@ -3,6 +3,8 @@ package org.example.final_project.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name="tbl_orderdetail")
 @AllArgsConstructor
@@ -20,6 +22,7 @@ public class OrderDetailEntity {
     private long option1;
     private long option2;
     private String nameProduct;
+    private LocalDateTime createAt;
     @ManyToOne
     @JoinColumn(name = "order_id" )
     private OrderEntity orderEntity;
