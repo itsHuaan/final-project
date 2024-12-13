@@ -19,4 +19,6 @@ public interface IOrderTrackingRepository extends JpaRepository<OrderTrackingEnt
 //    long findOrderDetailsByOrderTrackingStatusZeroAndOrderId(long orderId);
 
 
+
+
 }

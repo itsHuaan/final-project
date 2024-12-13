@@ -27,9 +27,9 @@ public class OrderTrackingController {
             return ResponseEntity.ok(orderDetailService.getOrderDetailFlowShippingStatus(userId, shippingStatus));
         }
         @GetMapping("/detail-order-user")
-        public ResponseEntity<?> detailOrderUser(long userId , long orderDetailId) {
+        public ResponseEntity<?> detailOrderUser(long userId , long orderId,long shopId) {
             try{
-                return ResponseEntity.ok(orderDetailService.findDetailIn4OfOrder(userId, orderDetailId));
+                return ResponseEntity.ok(orderDetailService.findDetailIn4OfOrder(userId,orderId,shopId));
             }catch (Exception e){
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not Found Order Item");
             }

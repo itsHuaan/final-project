@@ -45,6 +45,7 @@ public class OrderDetailMapper
                 .createdAt(orderDetailEntity.getCreateAt())
                 .productName(orderDetailEntity.getNameProduct())
                 .user(userService.getById(orderDetailEntity.getShopId()))
+                .orderId(orderDetailEntity.getOrderEntity().getId())
                 .shippingStatus(orderDetailEntity.getStatusShip())
                 .skuDto(skuDto)
                 .build();
