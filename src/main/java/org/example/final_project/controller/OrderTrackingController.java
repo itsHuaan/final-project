@@ -22,8 +22,8 @@ public class OrderTrackingController {
             return ResponseEntity.ok(orderDetailService.getOrderDetail(userId));
         }
 
-        @GetMapping("")
-        public ResponseEntity<?> index(@RequestParam Long userId , @RequestParam Long shippingStatus) {
+        @GetMapping("/")
+        public ResponseEntity<?> findByStatusShipping(@RequestParam Long userId , @RequestParam Long shippingStatus) {
             return ResponseEntity.ok(orderDetailService.getOrderDetailFlowShippingStatus(userId, shippingStatus));
         }
         @GetMapping("/detail-order-user")
@@ -34,6 +34,10 @@ public class OrderTrackingController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not Found Order Item");
             }
         }
+
+
+
+
 
 
 
