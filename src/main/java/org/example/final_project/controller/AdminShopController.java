@@ -28,7 +28,7 @@ public class AdminShopController {
     }
 
     @GetMapping("/find-order")
-    public ResponseEntity<?> findOrder(@RequestParam Long shopId , @RequestParam String orderCode) throws Exception {
+    public ResponseEntity<?> findOrder(@RequestParam Long shopId , @RequestParam String orderCode) {
         try {
             return ResponseEntity.ok(orderService.findByShopIdAndCodeOrder(shopId,orderCode));
         }catch (Exception e){
