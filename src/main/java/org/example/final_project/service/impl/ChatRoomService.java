@@ -23,11 +23,11 @@ public class ChatRoomService implements IChatRoomService {
     ChatRoomMapper chatRoomMapper;
 
     @Override
-    public Optional<String> getChatRoomId(Long senderId, Long recipientId, boolean createNewRoomIfNotExists) {
-        return chatRoomRepository.findBySenderIdAndRecipientId(senderId, recipientId)
+    public Optional<String> getChatRoomId(Long senderId, Long recipientId, boolean isExist) {
+        return chatRoomRepository.findOne(Specification.where(hasSenderId(senderId).and(hasRecipientId(recipientId))))
                 .map(ChatRoomEntity::getChatId)
                 .or(() -> {
-                    if (createNewRoomIfNotExists) {
+                    if (isExist) {
                         var chatId = createChatId(senderId, recipientId);
                         return Optional.of(chatId);
                     }
@@ -52,3 +52,4 @@ public class ChatRoomService implements IChatRoomService {
         return chatId;
     }
 }
+

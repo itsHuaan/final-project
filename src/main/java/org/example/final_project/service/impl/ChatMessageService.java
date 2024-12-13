@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static org.example.final_project.util.specification.ChatMessageSpecification.hasChatId;
+import static org.example.final_project.util.specification.ChatMessageSpecification.*;
 
 @Slf4j
 @Service
@@ -67,13 +67,16 @@ public class ChatMessageService implements IChatService {
     @Override
     public List<ChatMessageDto> getChatMessages(Long senderId, Long recipientId) {
         var chatId = chatRoomService.getChatRoomId(senderId, recipientId, false);
-        return chatId.map(this::getByChatId).orElse(new ArrayList<>());
-
+        return chatId.map(id -> getByChatId(id, senderId, recipientId)).orElse(new ArrayList<>());
     }
 
     @Override
-    public List<ChatMessageDto> getByChatId(String chatId) {
-        return chatRepository.findAll(Specification.where(hasChatId(chatId))).stream()
+    public List<ChatMessageDto> getByChatId(String chatId, Long senderId, Long recipientId) {
+        return chatRepository.findAll(
+                        Specification.where(hasChatId(chatId))
+                                .and(hasSenderId(senderId))
+                                .and(hasRecipientId(recipientId))
+                ).stream()
                 .map(chatMessageMapper::toDto)
                 .toList();
     }

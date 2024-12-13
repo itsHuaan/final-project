@@ -8,5 +8,5 @@ import java.util.List;
 public interface IChatService extends IBaseService<ChatMessageDto, ChatMessageModel, Long> {
     List<ChatMessageDto> getChatMessages(Long senderId, Long recipientId);
 
-    List<ChatMessageDto> getByChatId(String chatId);
+    List<ChatMessageDto> getByChatId(String chatId, Long senderId, Long recipientId);
 }
