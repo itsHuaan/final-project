@@ -1,9 +1,8 @@
 package org.example.final_project.dto;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import lombok.*;
+
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -11,9 +10,8 @@ import lombok.*;
 @Setter
 @Builder
 public class ChatRoomDto {
-    private Long id;
     private String chatId;
-
-    private Long senderId;
-    private Long recipientId;
+    private String sender;
+    private String recipient;
+    private List<ChatHistoryDto> messages;
 }

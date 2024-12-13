@@ -12,6 +12,7 @@ import org.example.final_project.configuration.UserDetailsImpl;
 import org.example.final_project.configuration.cloudinary.ImageService;
 import org.example.final_project.dto.ApiResponse;
 
+import org.example.final_project.dto.ChatUserDto;
 import org.example.final_project.dto.UserDto;
 import org.example.final_project.entity.AddressEntity;
 import org.example.final_project.entity.RoleEntity;
@@ -444,6 +445,11 @@ public class UserService implements IUserService, UserDetailsService {
         }
         return 0;
 
+    }
+
+    @Override
+    public List<ChatUserDto> getChatUsers(Long senderId) {
+        return null;
     }
 
     @Override
