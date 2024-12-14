@@ -56,12 +56,10 @@ public class OrderService implements IOrderService {
         orderEntity.setUser(userEntity);
         orderEntity.setTotalPrice(totalPrice);
         orderEntity.setOrderCode(vnp_TxnRef);
+        orderEntity.setPhoneReception(orderModel.getPhoneReception());
         orderEntity.setCreatedAt(LocalDateTime.now());
         orderEntity.setStatusCheckout(CheckoutStatus.Pending.getStatus());
         orderRepository.save(orderEntity);
-
-
-
 
         if(orderModel.getCartItems() != null) {
             for (CartItemRequest cartItemRequest : orderModel.getCartItems()) {

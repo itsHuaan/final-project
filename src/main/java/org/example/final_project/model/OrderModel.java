@@ -13,6 +13,7 @@ public class OrderModel {
     private long userId;
     private String addressShipping;
     private String methodCheckout;
+    private String phoneReception ;
     private String amount;
     private List<CartItemRequest> cartItems;
 }

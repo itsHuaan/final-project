@@ -9,6 +9,7 @@ import org.example.final_project.entity.OrderEntity;
 import org.example.final_project.entity.OrderTrackingEntity;
 import org.example.final_project.entity.UserEntity;
 import org.example.final_project.mapper.OrderDetailMapper;
+import org.example.final_project.mapper.OrderMapper;
 import org.example.final_project.mapper.OrderTrackingMapper;
 import org.example.final_project.repository.IOrderDetailRepository;
 import org.example.final_project.repository.IOrderRepository;
@@ -31,6 +32,7 @@ public class OrderDetailService implements IOrderDetailService {
     OrderDetailMapper orderDetailMapper;
     IUserRepository userRepository;
     IOrderTrackingRepository orderTrackingRepository;
+    OrderMapper orderMapper;
 
 
     @Override
@@ -58,17 +60,23 @@ public class OrderDetailService implements IOrderDetailService {
 
     }
     @Override
-    public ApiResponse<?> findDetailIn4OfOrder(long userId, long oderId , long shopId) {
-       List<OrderDetailEntity> orderDetailEntity = orderDetailRepository.shopOrder(shopId,oderId);
+    public ApiResponse<?> findDetailIn4OfOrder(long userId, long orderId , long shopId) {
+       List<OrderDetailEntity> orderDetailEntity = orderDetailRepository.shopOrder(shopId,orderId);
        List<OrderDetailDto> orderDetailDtos = orderDetailEntity.stream().map(orderDetailMapper::toOrderDto).toList();
 
-        OrderTrackingEntity orderTrackingEntity = orderTrackingRepository.findByOrderIdAndShopId(oderId,shopId ).get();
+        OrderTrackingEntity orderTrackingEntity = orderTrackingRepository.findByOrderIdAndShopId(orderId,shopId ).get();
 
         OrderTrackingDto orderTrackingDto = OrderTrackingMapper.toOrderTrackingDto(orderTrackingEntity);
+        Optional<OrderEntity> orderEntity = orderRepository.findById(orderId);
+        OrderEntity orderEntity1 = new OrderEntity();
+        if(orderEntity.isPresent()) {
+            orderEntity1 = orderEntity.get();
+        }
+        OrderDto orderDto = orderMapper.toOrderDto(orderEntity1);
         OrderTotalDto orderTotalDto1 = OrderTotalDto.builder()
                 .orderDetails(orderDetailDtos)
                 .orderTracking(orderTrackingDto)
-                .order(null)
+                .order(orderDto)
                 .build();
 
        return ApiResponse.createResponse(HttpStatus.OK,"get order detail", orderTotalDto1);
