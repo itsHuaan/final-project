@@ -18,7 +18,7 @@ public class AdminShopController {
     private IOrderService orderService;
     @GetMapping("/detail-order")
     public ResponseEntity<?> getShopDetail(@RequestParam Long shopId , @RequestParam Long orderId ) {
-        return ResponseEntity.ok(orderService.getOrderTracking(shopId, orderId));
+        return ResponseEntity.ok(orderService.getOrderTracking(orderId, shopId));
     }
 
     @GetMapping("/{shopId}/order")

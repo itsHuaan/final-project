@@ -174,7 +174,7 @@ public class OrderService implements IOrderService {
 
     @Override
     public ApiResponse<?> getOrderTracking(Long orderId , Long shopId) {
-            List<OrderDetailEntity> orderDetailEntity = orderDetailRepository.shopOrder(orderId,shopId);
+            List<OrderDetailEntity> orderDetailEntity = orderDetailRepository.shopOrder(shopId,orderId);
             List<OrderDetailDto> orderDetailDtos = orderDetailEntity.stream().map(e->orderDetailMapper.toOrderDto(e)).toList();
             Optional<OrderTrackingEntity> orderTrackingEntity = orderTrackingRepository.findById(orderId);
             OrderTrackingEntity orderTrackingEntity1 = new OrderTrackingEntity();
