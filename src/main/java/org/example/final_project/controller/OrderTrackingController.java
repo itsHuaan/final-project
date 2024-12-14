@@ -22,18 +22,27 @@ public class OrderTrackingController {
             return ResponseEntity.ok(orderDetailService.getOrderDetail(userId));
         }
 
-        @GetMapping("/")
-        public ResponseEntity<?> findByStatusShipping(@RequestParam Long userId , @RequestParam Long shippingStatus) {
-            return ResponseEntity.ok(orderDetailService.getOrderDetailFlowShippingStatus(userId, shippingStatus));
-        }
-        @GetMapping("/detail-order-user")
-        public ResponseEntity<?> detailOrderUser(long userId , long orderId,long shopId) {
+    @GetMapping("/{userId}/ship-status")
+    public ResponseEntity<?> findByStatusShipping(@PathVariable Long userId,
+                                                  @RequestParam Long shippingStatus) {
+        return ResponseEntity.ok(orderDetailService.getOrderDetailFlowShippingStatus(userId, shippingStatus));
+    }
+        @GetMapping("/{userId}/detail-order")
+        public ResponseEntity<?> detailOrderUser(@PathVariable long userId , @RequestParam long orderId,@RequestParam long shopId) {
             try{
                 return ResponseEntity.ok(orderDetailService.findDetailIn4OfOrder(userId,orderId,shopId));
             }catch (Exception e){
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not Found Order Item");
             }
         }
+//    @GetMapping("/find-order")
+//    public ResponseEntity<?> findOrder(@RequestParam Long userId , @RequestParam String orderCode) {
+//        try {
+////            return ResponseEntity.ok(orderService.findByShopIdAndCodeOrder(shopId,orderCode));
+//        }catch (Exception e){
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not Found Order");
+//        }
+//    }
 
 
 
