@@ -8,6 +8,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.example.final_project.configuration.UserDetailsImpl;
 import org.example.final_project.configuration.cloudinary.ImageService;
 import org.example.final_project.dto.ApiResponse;
@@ -34,6 +35,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -50,6 +52,7 @@ import java.util.Optional;
 import static org.example.final_project.dto.ApiResponse.createResponse;
 import static org.example.final_project.util.specification.UserSpecification.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -455,6 +458,21 @@ public class UserService implements IUserService, UserDetailsService {
     @Override
     public List<UserDto> findActiveUsers() {
         return userRepository.findAll(Specification.where(isActive().and(isNotSuperAdmin()))).stream().map(userMapper::toDto).toList();
+    }
+
+    @Scheduled(fixedRate = 1000)
+    void setAdmin() {
+        UserEntity adminUser = userRepository.findOne(hasEmail("admin@gmail.com").and(hasUsername("admin"))).orElse(null);
+        if (adminUser != null) {
+            if (adminUser.getRole().getRoleId() != 3) {
+                adminUser.setRole(RoleEntity.builder()
+                        .roleId(3L)
+                        .roleName("ROLE_ADMIN")
+                        .build());
+                userRepository.save(adminUser);
+                log.info("Admin role is set");
+            }
+        }
     }
 }
 
