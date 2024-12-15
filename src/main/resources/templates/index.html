@@ -103,7 +103,7 @@
 
     function uploadMediaFiles(formData) {
         return new Promise((resolve, reject) => {
-            fetch('/v1/api/image/upload', {
+            fetch('/v1/api/image/chat/upload', {
                 method: 'POST',
                 body: formData
             })
