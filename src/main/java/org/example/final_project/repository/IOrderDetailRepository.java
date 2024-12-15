@@ -24,12 +24,15 @@ public interface IOrderDetailRepository extends JpaRepository<OrderDetailEntity,
     List<OrderDetailEntity> findOrderDetailsByOrderTrackingStatusZeroAndOrderId(long status, List<Long> orderIds);
 
 
-    @Query("SELECT od FROM OrderDetailEntity od " +
+    @Query("select od from OrderDetailEntity od " +
             "JOIN OrderEntity o " +
             "on o.id = od.orderEntity.id " +
             "WHERE od.id = :orderDetailId AND o.user.userId = :userId")
     Optional<OrderDetailEntity> findOrderDetailByOrderDetailIdAndUserId(
             @Param("orderDetailId") long orderDetailId,
             @Param("userId") long userId);
+
+    @Query("select o from OrderDetailEntity o where o.orderEntity.id = :orderIds")
+    List<OrderDetailEntity> findByOrderId(long orderIds);
 
 }

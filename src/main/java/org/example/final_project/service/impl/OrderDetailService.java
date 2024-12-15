@@ -81,6 +81,14 @@ public class OrderDetailService implements IOrderDetailService {
 
        return ApiResponse.createResponse(HttpStatus.OK,"get order detail", orderTotalDto1);
     }
+    @Override
+    public ApiResponse<?> findOrderInforByOrderCode(long userId , String orderCode){
+            long orderId = orderRepository.findOrderIdByUserIdAndOrderCode(userId,orderCode);
+            List<OrderDetailEntity> orderDetailEntities = orderDetailRepository.findByOrderId(orderId);
+            List<OrderDetailDto> orderDetailDtos = orderDetailEntities.stream().map(orderDetailMapper::toOrderDto).toList();
+            return ApiResponse.createResponse(HttpStatus.OK,"get order by orderCode", orderDetailDtos);
+    }
+
 
 
 
