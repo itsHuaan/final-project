@@ -24,6 +24,8 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.example.final_project.dto.ApiResponse.createResponse;
@@ -41,22 +43,24 @@ public class ChatController {
 
     @MessageMapping("/chat")
     public void processMessage(@Payload ChatMessageModel chatMessageModel) {
-        ChatMessageDto chatMessageDto = new ChatMessageDto();
         try {
             chatMessageService.save(chatMessageModel);
-            chatMessageDto = chatMessageService.getById(chatMessageModel.getId());
+            ChatMessageDto chatMessageDto = chatMessageService.getById(chatMessageModel.getId());
+            messagingTemplate.convertAndSendToUser(
+                    String.valueOf(chatMessageDto.getRecipientId()),
+                    "/queue/messages",
+                    ChatNotificationModel.builder()
+                            .id(chatMessageDto.getMessageId())
+                            .senderId(chatMessageDto.getSenderId())
+                            .recipientId(chatMessageDto.getRecipientId())
+                            .message(chatMessageDto.getMessage())
+                            .mediaUrls(chatMessageDto.getMediaUrls())
+                            .sentAt(chatMessageDto.getSentAt())
+                            .build()
+            );
         } catch (IllegalArgumentException e) {
-            log.error(e.getMessage());
+            log.error("Error processing message: {}", e.getMessage());
         }
-        messagingTemplate.convertAndSendToUser(String.valueOf(chatMessageModel.getRecipientId()),
-                "/queue/messages",
-                ChatNotificationModel.builder()
-                        .id(chatMessageDto.getMessageId())
-                        .senderId(chatMessageDto.getSenderId())
-                        .recipientId(chatMessageDto.getRecipientId())
-                        .message(chatMessageDto.getMessage())
-                        .sentAt(chatMessageDto.getSentAt())
-                        .build());
     }
 
     @Operation(summary = "Retrieve chat history by sender ID and recipient Id")

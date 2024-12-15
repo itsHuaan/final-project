@@ -35,6 +35,10 @@
 <div>
     <label for="messageInput">Message:</label>
     <input type="text" id="messageInput">
+    <br>
+    <label for="mediaFiles">Media Files:</label>
+    <input type="file" id="mediaFiles" multiple accept="image/*,video/*">
+    <br>
     <button onclick="sendMessage()">Send</button>
 </div>
 
@@ -64,19 +68,58 @@
         const senderId = document.getElementById('senderId').value;
         const recipientId = document.getElementById('recipientId').value;
         const messageInput = document.getElementById('messageInput');
+        const mediaFilesInput = document.getElementById('mediaFiles');
 
-        if (stompClient) {
-            const chatMessage = {
-                senderId: senderId,
-                recipientId: recipientId,
-                message: messageInput.value
-            };
+        const chatMessage = {
+            senderId: senderId,
+            recipientId: recipientId,
+            message: messageInput.value,
+            mediaUrls: []
+        };
 
-            console.log("Sending: ", chatMessage);
+        const files = mediaFilesInput.files;
+
+        if (files && files.length > 0) {
+            const formData = new FormData();
+            for (const file of files) {
+                formData.append("files", file);
+            }
+
+            // Upload files to a REST endpoint before sending the message
+            uploadMediaFiles(formData).then(mediaUrls => {
+                chatMessage.mediaUrls = mediaUrls;
+
+                // Send the message via WebSocket
+                stompClient.send("/app/chat", {}, JSON.stringify(chatMessage));
+                showMessage(chatMessage, true);
+
+                // Clear inputs
+                messageInput.value = '';
+                mediaFilesInput.value = '';
+            });
+        } else {
+            // Send the message without media files
             stompClient.send("/app/chat", {}, JSON.stringify(chatMessage));
             showMessage(chatMessage, true);
             messageInput.value = '';
         }
+    }
+
+    function uploadMediaFiles(formData) {
+        return new Promise((resolve, reject) => {
+            fetch('/v1/api/image/upload', { // Ensure this endpoint matches your backend route
+                method: 'POST',
+                body: formData
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Failed to upload media files");
+                    }
+                    return response.json();
+                })
+                .then(data => resolve(data)) // Assuming the backend returns an array of URLs
+                .catch(error => reject(error));
+        });
     }
 
     function showMessage(messageData, isSender = false) {
@@ -98,6 +141,28 @@
                 <strong>From ${messageData.senderId}:</strong>
                 <p>${messageData.message}</p>
             `;
+        }
+
+        // Display media files
+        if (messageData.mediaUrls && messageData.mediaUrls.length > 0) {
+            const mediaContainer = document.createElement('div');
+            for (const url of messageData.mediaUrls) {
+                if (url.match(/\.(jpeg|jpg|gif|png)$/)) {
+                    const img = document.createElement('img');
+                    img.src = url;
+                    img.style.maxWidth = '100px';
+                    img.style.marginRight = '5px';
+                    mediaContainer.appendChild(img);
+                } else if (url.match(/\.(mp4|webm|ogg)$/)) {
+                    const video = document.createElement('video');
+                    video.src = url;
+                    video.controls = true;
+                    video.style.maxWidth = '200px';
+                    video.style.marginRight = '5px';
+                    mediaContainer.appendChild(video);
+                }
+            }
+            messageElement.appendChild(mediaContainer);
         }
 
         chatMessages.appendChild(messageElement);

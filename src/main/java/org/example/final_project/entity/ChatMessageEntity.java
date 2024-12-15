@@ -25,6 +25,6 @@ public class ChatMessageEntity {
     private Long recipientId;
     private String message;
     private LocalDateTime sentAt;
-    @OneToMany(mappedBy = "chatMessage", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "chatMessage", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<ChatMessageMediaEntity> chatMedias;
 }
