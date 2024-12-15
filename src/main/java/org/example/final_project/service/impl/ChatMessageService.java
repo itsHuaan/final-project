@@ -4,12 +4,14 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.example.final_project.configuration.cloudinary.MediaUploadService;
 import org.example.final_project.dto.ChatMessageDto;
-import org.example.final_project.dto.ChatUserDto;
 import org.example.final_project.entity.ChatMessageEntity;
+import org.example.final_project.entity.ChatMessageMediaEntity;
 import org.example.final_project.mapper.ChatMessageMapper;
 import org.example.final_project.mapper.ChatRoomMapper;
 import org.example.final_project.model.ChatMessageModel;
+import org.example.final_project.repository.IChatMessageMediaRepository;
 import org.example.final_project.repository.IChatRepository;
 import org.example.final_project.service.IChatRoomService;
 import org.example.final_project.service.IChatMessageService;
@@ -17,8 +19,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -33,6 +38,8 @@ public class ChatMessageService implements IChatMessageService {
     IChatRoomService chatRoomService;
     ChatMessageMapper chatMessageMapper;
     ChatRoomMapper chatRoomMapper;
+    MediaUploadService mediaUploadService;
+    IChatMessageMediaRepository chatMessageMediaRepository;
 
     @Override
     public List<ChatMessageDto> getAll() {
@@ -74,5 +81,29 @@ public class ChatMessageService implements IChatMessageService {
                 .map(chatId -> chatRepository.findAll(Specification.where(hasChatId(chatId)), pageable)
                         .map(chatMessageMapper::toDto))
                 .orElse(Page.empty(pageable));
+    }
+
+    @Override
+    public List<String> saveMediaFiles(Long messageId, List<MultipartFile> mediaFiles) {
+        List<String> mediaUrls = new ArrayList<>();
+        try {
+            ChatMessageEntity chatMessage = chatRepository.findById(messageId)
+                    .orElseThrow(() -> new IllegalArgumentException("Message ID not found: " + messageId));
+            for (MultipartFile file : mediaFiles) {
+                String mediaUrl = mediaUploadService.uploadOneImage(file);
+                mediaUrls.add(mediaUrl);
+
+                ChatMessageMediaEntity mediaEntity = ChatMessageMediaEntity.builder()
+                        .mediaUrl(mediaUrl)
+                        .chatMessage(chatMessage)
+                        .build();
+                chatMessage.getChatMedias().add(mediaEntity);
+                chatMessageMediaRepository.save(mediaEntity);
+            }
+            chatRepository.save(chatMessage);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return mediaUrls;
     }
 }
