@@ -4,11 +4,11 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.example.final_project.dto.ChatHistoryDto;
 import org.example.final_project.dto.ChatMessageDto;
-import org.example.final_project.dto.ChatRoomDto;
+import org.example.final_project.dto.ChatUserDto;
 import org.example.final_project.entity.ChatMessageEntity;
 import org.example.final_project.mapper.ChatMessageMapper;
+import org.example.final_project.mapper.ChatRoomMapper;
 import org.example.final_project.model.ChatMessageModel;
 import org.example.final_project.repository.IChatRepository;
 import org.example.final_project.service.IChatRoomService;
@@ -19,7 +19,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -33,6 +32,7 @@ public class ChatMessageService implements IChatMessageService {
     IChatRepository chatRepository;
     IChatRoomService chatRoomService;
     ChatMessageMapper chatMessageMapper;
+    ChatRoomMapper chatRoomMapper;
 
     @Override
     public List<ChatMessageDto> getAll() {

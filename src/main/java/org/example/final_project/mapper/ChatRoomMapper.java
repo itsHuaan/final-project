@@ -4,7 +4,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.ChatRoomDto;
+import org.example.final_project.dto.ChatUserDto;
 import org.example.final_project.entity.ChatRoomEntity;
+import org.example.final_project.entity.UserEntity;
 import org.example.final_project.repository.IChatRepository;
 import org.example.final_project.repository.IUserRepository;
 import org.springframework.data.jpa.domain.Specification;
@@ -34,6 +36,20 @@ public class ChatRoomMapper {
                         .stream()
                         .map(chatMessageMapper::toChatHistoryDto)
                         .toList())
+                .build();
+    }
+
+
+    public ChatUserDto toChatUserDto(ChatRoomEntity chatRoom) {
+        UserEntity recipient = userRepository.findById(chatRoom.getRecipientId()).orElseThrow(
+                () -> new RuntimeException("Recipient not found")
+        );
+        return ChatUserDto.builder()
+                .userId(recipient.getUserId())
+                .profilePicture(recipient.getProfilePicture())
+                .name(recipient.getName())
+                .username(recipient.getUsername())
+                .lastMessage(chatMessageMapper.toDto(chatRepository.findTopByChatIdOrderBySentAtDesc(chatRoom.getChatId())))
                 .build();
     }
 }

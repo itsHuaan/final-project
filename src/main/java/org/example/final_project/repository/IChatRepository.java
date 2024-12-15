@@ -7,6 +7,5 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import java.util.List;
 
 public interface IChatRepository extends JpaRepository<ChatMessageEntity, Long>, JpaSpecificationExecutor<ChatMessageEntity> {
-    ChatMessageEntity findTopByOrderBySentAtDesc();
-    ChatMessageEntity findBySenderId(long senderId);
+    ChatMessageEntity findTopByChatIdOrderBySentAtDesc(String chatId);
 }

@@ -12,5 +12,5 @@ public class ChatUserDto {
     private String profilePicture;
     private String name;
     private String username;
-    private String lastMessage;
+    private ChatMessageDto lastMessage;
 }

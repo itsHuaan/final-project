@@ -8,6 +8,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.example.final_project.dto.ChatMessageDto;
 import org.example.final_project.dto.ChatRoomDto;
+import org.example.final_project.dto.ChatUserDto;
 import org.example.final_project.model.ChatMessageModel;
 import org.example.final_project.model.ChatNotificationModel;
 import org.example.final_project.service.impl.ChatMessageService;
@@ -82,6 +83,21 @@ public class ChatController {
     @Operation(summary = "Retrieve all recipients who have chatted with the sender")
     @GetMapping("/{senderId}")
     public ResponseEntity<?> findChatUsers(@PathVariable long senderId) {
-        return null;
+        List<ChatUserDto> chatUsers = chatRoomService.getChatUsers(senderId);
+        return !chatUsers.isEmpty()
+                ? ResponseEntity.status(HttpStatus.OK).body(
+                createResponse(
+                        HttpStatus.OK,
+                        "Fetched",
+                        chatUsers
+                )
+        )
+                : ResponseEntity.status(HttpStatus.OK).body(
+                createResponse(
+                        HttpStatus.NO_CONTENT,
+                        "No users fetched",
+                        chatUsers
+                )
+        );
     }
 }
