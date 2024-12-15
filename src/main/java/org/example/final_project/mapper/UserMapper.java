@@ -110,13 +110,4 @@ public class UserMapper {
                 .email(userEntity.getEmail())
                 .build();
     }
-    public ChatUserDto toChatUserDto(UserEntity userEntity) {
-        return ChatUserDto.builder()
-                .userId(userEntity.getUserId())
-                .profilePicture(userEntity.getProfilePicture())
-                .name(userEntity.getName())
-                .username(userEntity.getUsername())
-                .lastMessage(chatRepository.findTopByOrderBySentAtDesc().getMessage())
-                .build();
-    }
 }

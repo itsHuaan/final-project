@@ -10,4 +10,6 @@ public interface IChatRoomService {
     Optional<String> getChatRoomId(Long senderId, Long recipientId, boolean isExist);
 
     ChatRoomDto getChatRoom(Long senderId, Long recipientId);
+
+    List<ChatUserDto> getChatUsers(Long senderId);
 }

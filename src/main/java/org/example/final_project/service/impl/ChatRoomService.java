@@ -49,6 +49,13 @@ public class ChatRoomService implements IChatRoomService {
         return chatRoomMapper.toDto(Objects.requireNonNull(chatRoomRepository.findOne(Specification.where(hasSenderId(senderId).and(hasRecipientId(recipientId)))).orElse(null)));
     }
 
+    @Override
+    public List<ChatUserDto> getChatUsers(Long senderId) {
+        return chatRoomRepository.findBySenderId(senderId).stream()
+                .map(chatRoomMapper::toChatUserDto)
+                .toList();
+    }
+
     private String createChatId(Long senderId, Long recipientId) {
         Long firstId = Math.min(senderId, recipientId);
         Long secondId = Math.max(senderId, recipientId);
