@@ -85,20 +85,16 @@
                 formData.append("files", file);
             }
 
-            // Upload files to a REST endpoint before sending the message
             uploadMediaFiles(formData).then(mediaUrls => {
                 chatMessage.mediaUrls = mediaUrls;
 
-                // Send the message via WebSocket
                 stompClient.send("/app/chat", {}, JSON.stringify(chatMessage));
                 showMessage(chatMessage, true);
 
-                // Clear inputs
                 messageInput.value = '';
                 mediaFilesInput.value = '';
             });
         } else {
-            // Send the message without media files
             stompClient.send("/app/chat", {}, JSON.stringify(chatMessage));
             showMessage(chatMessage, true);
             messageInput.value = '';
@@ -107,7 +103,7 @@
 
     function uploadMediaFiles(formData) {
         return new Promise((resolve, reject) => {
-            fetch('/v1/api/image/upload', { // Ensure this endpoint matches your backend route
+            fetch('/v1/api/image/upload', {
                 method: 'POST',
                 body: formData
             })
@@ -117,7 +113,7 @@
                     }
                     return response.json();
                 })
-                .then(data => resolve(data)) // Assuming the backend returns an array of URLs
+                .then(data => resolve(data))
                 .catch(error => reject(error));
         });
     }
@@ -143,7 +139,6 @@
             `;
         }
 
-        // Display media files
         if (messageData.mediaUrls && messageData.mediaUrls.length > 0) {
             const mediaContainer = document.createElement('div');
             for (const url of messageData.mediaUrls) {

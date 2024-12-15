@@ -13,5 +13,4 @@ import java.util.List;
 
 public interface IChatMessageService extends IBaseService<ChatMessageDto, ChatMessageModel, Long> {
     Page<ChatMessageDto> getChatMessages(Long senderId, Long recipientId, Pageable pageable);
-    List<String> saveMediaFiles(Long messageId, List<MultipartFile> mediaFiles);
 }

@@ -34,6 +34,8 @@ public class ChatMessageMapper {
                             .build())
                     .toList();
             chatMessageEntity.setChatMedias(mediaEntities);
+        } else {
+            chatMessageEntity.setChatMedias(null);
         }
 
         return chatMessageEntity;
