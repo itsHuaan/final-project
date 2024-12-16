@@ -218,9 +218,12 @@ public class ProductService implements IProductService {
     public Page<ProductSummaryDto> getAllProductOfShop(long userId, Pageable pageable) {
         try {
             if (iUserRepository.findById(userId).isPresent()) {
+                Specification<ProductEntity> specification = Specification.where(isNotDeleted())
+                        .and(hasUserId(userId));
+
                 return pageable != null
-                        ? iProductRepository.findAll(Specification.where(isNotDeleted()).and(hasUserId(userId).and(hasUserNotDeleted(userId))), pageable).map(productMapper::toProductSummaryDto)
-                        : iProductRepository.findAll(Specification.where(isNotDeleted()).and(hasUserId(userId).and(hasUserNotDeleted(userId))), Pageable.unpaged()).map(productMapper::toProductSummaryDto);
+                        ? iProductRepository.findAll(specification, pageable).map(productMapper::toProductSummaryDto)
+                        : iProductRepository.findAll(specification, Pageable.unpaged()).map(productMapper::toProductSummaryDto);
             } else {
                 throw new IllegalArgumentException("Value not found");
             }
@@ -228,6 +231,7 @@ public class ProductService implements IProductService {
             throw e;
         }
     }
+
 
     @Override
     public Page<ProductSummaryDto> getAllProductByCategory(long categoryId, Pageable pageable) {
