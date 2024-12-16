@@ -28,6 +28,7 @@ public class OrderMapper {
                 .shippingAddress(order.getShippingAddress())
                 .methodCheckout(order.getMethodCheckout())
                 .id(order.getId())
+                .phoneReception(order.getPhoneReception())
                 .totalPrice(order.getTotalPrice())
                 .statusCheckout(order.getStatusCheckout())
                 .createdAt(order.getCreatedAt())

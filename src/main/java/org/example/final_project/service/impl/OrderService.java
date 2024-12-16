@@ -56,12 +56,10 @@ public class OrderService implements IOrderService {
         orderEntity.setUser(userEntity);
         orderEntity.setTotalPrice(totalPrice);
         orderEntity.setOrderCode(vnp_TxnRef);
+        orderEntity.setPhoneReception(orderModel.getPhoneReception());
         orderEntity.setCreatedAt(LocalDateTime.now());
         orderEntity.setStatusCheckout(CheckoutStatus.Pending.getStatus());
         orderRepository.save(orderEntity);
-
-
-
 
         if(orderModel.getCartItems() != null) {
             for (CartItemRequest cartItemRequest : orderModel.getCartItems()) {
@@ -174,7 +172,7 @@ public class OrderService implements IOrderService {
 
     @Override
     public ApiResponse<?> getOrderTracking(Long orderId , Long shopId) {
-            List<OrderDetailEntity> orderDetailEntity = orderDetailRepository.shopOrder(orderId,shopId);
+            List<OrderDetailEntity> orderDetailEntity = orderDetailRepository.shopOrder(shopId,orderId);
             List<OrderDetailDto> orderDetailDtos = orderDetailEntity.stream().map(e->orderDetailMapper.toOrderDto(e)).toList();
             Optional<OrderTrackingEntity> orderTrackingEntity = orderTrackingRepository.findById(orderId);
             OrderTrackingEntity orderTrackingEntity1 = new OrderTrackingEntity();

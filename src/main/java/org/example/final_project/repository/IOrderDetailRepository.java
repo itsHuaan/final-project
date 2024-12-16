@@ -15,7 +15,7 @@ public interface IOrderDetailRepository extends JpaRepository<OrderDetailEntity,
     List<Long> findOrderIdsByShopId(long shopId);
 
     @Query("select t from OrderDetailEntity t where t.shopId = :shopId and t.orderEntity.id = :orderId")
-    List<OrderDetailEntity> shopOrder(long shopId , long orderId);
+    List<OrderDetailEntity> shopOrder(long shopId, long orderId);
 
     @Query("select o from OrderDetailEntity o where o.orderEntity.id in :orderIds order by o.createAt desc")
     List<OrderDetailEntity> findAllOrderDetailEntityByOrderId(List<Long> orderIds);
@@ -24,14 +24,15 @@ public interface IOrderDetailRepository extends JpaRepository<OrderDetailEntity,
     List<OrderDetailEntity> findOrderDetailsByOrderTrackingStatusZeroAndOrderId(long status, List<Long> orderIds);
 
 
-    @Query("SELECT od FROM OrderDetailEntity od " +
+    @Query("select od from OrderDetailEntity od " +
             "JOIN OrderEntity o " +
-            "on o.id = od.orderEntity.id "+
+            "on o.id = od.orderEntity.id " +
             "WHERE od.id = :orderDetailId AND o.user.userId = :userId")
     Optional<OrderDetailEntity> findOrderDetailByOrderDetailIdAndUserId(
             @Param("orderDetailId") long orderDetailId,
             @Param("userId") long userId);
 
-//    @Query("select od.orderEntity.id from OrderDetailEntity od where od.id = :orderDetailId")
-//    Long findOrderIdByOrderDetailId(long orderDetailId);
+    @Query("select o from OrderDetailEntity o where o.orderEntity.id = :orderIds")
+    List<OrderDetailEntity> findByOrderId(long orderIds);
+
 }

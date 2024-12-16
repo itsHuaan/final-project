@@ -8,10 +8,12 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.example.final_project.configuration.UserDetailsImpl;
-import org.example.final_project.configuration.cloudinary.ImageService;
+import org.example.final_project.configuration.cloudinary.MediaUploadService;
 import org.example.final_project.dto.ApiResponse;
 
+import org.example.final_project.dto.ChatUserDto;
 import org.example.final_project.dto.UserDto;
 import org.example.final_project.entity.AddressEntity;
 import org.example.final_project.entity.RoleEntity;
@@ -33,6 +35,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -49,6 +52,7 @@ import java.util.Optional;
 import static org.example.final_project.dto.ApiResponse.createResponse;
 import static org.example.final_project.util.specification.UserSpecification.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -58,7 +62,7 @@ public class UserService implements IUserService, UserDetailsService {
     IUserRepository userRepository;
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
-    ImageService imageService;
+    MediaUploadService mediaUploadService;
     IAddressRepository addressRepository;
     IShippingAddressRepository shippingAddressRepository;
 
@@ -228,9 +232,9 @@ public class UserService implements IUserService, UserDetailsService {
         if (optionalUserEntity.isPresent() || !addressRepository.existsById(shopAddressId)) {
             UserEntity userEntity = userRepository.findById(request.getUserId()).get();
             if (userEntity.getShop_status() == 0) {
-                String id_back = imageService.uploadOneImage(request.getId_back());
+                String id_back = mediaUploadService.uploadOneImage(request.getId_back());
                 userEntity.setId_back(id_back);
-                String id_front = imageService.uploadOneImage(request.getId_front());
+                String id_front = mediaUploadService.uploadOneImage(request.getId_front());
                 userEntity.setId_front(id_front);
                 userEntity.setShop_name(request.getShop_name());
                 userEntity.setTax_code(request.getTax_code());
@@ -415,7 +419,7 @@ public class UserService implements IUserService, UserDetailsService {
     }
     @Override
     public List<UserDto> findByShopName(String shopName , Integer shopStatus) {
-        List<UserEntity> userEntityList = new ArrayList<>();
+        List<UserEntity> userEntityList;
         if (shopName == null && shopStatus == null ) {
             userEntityList = userRepository.findAll();
         }
@@ -447,8 +451,28 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
+    public List<ChatUserDto> getChatUsers(Long senderId) {
+        return null;
+    }
+
+    @Override
     public List<UserDto> findActiveUsers() {
         return userRepository.findAll(Specification.where(isActive().and(isNotSuperAdmin()))).stream().map(userMapper::toDto).toList();
+    }
+
+    @Scheduled(fixedRate = 1000)
+    void setAdmin() {
+        UserEntity adminUser = userRepository.findOne(hasEmail("admin@gmail.com").and(hasUsername("admin"))).orElse(null);
+        if (adminUser != null) {
+            if (adminUser.getRole().getRoleId() != 3) {
+                adminUser.setRole(RoleEntity.builder()
+                        .roleId(3L)
+                        .roleName("ROLE_ADMIN")
+                        .build());
+                userRepository.save(adminUser);
+                log.info("Admin role is set");
+            }
+        }
     }
 }
 

@@ -1,16 +1,9 @@
 package org.example.final_project.dto;
 
-import lombok.*;
-import org.example.final_project.model.enum_status.StatusShipping;
-
 import java.time.LocalDateTime;
+import java.util.List;
 
-@AllArgsConstructor
-@NoArgsConstructor
-@Getter
-@Setter
-@Builder
-public class OrderDetailDto {
+public class ListOrderDto {
     private long id;
     private long shopId;
     private long orderId;
@@ -22,6 +15,5 @@ public class OrderDetailDto {
     private UserDto user;
     private LocalDateTime createdAt;
     private int shippingStatus;
-    private SKUDto skuDto;
-
+    private List<SKUDto> skuDtos;
 }

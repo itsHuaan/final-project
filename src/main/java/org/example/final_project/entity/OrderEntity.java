@@ -19,6 +19,7 @@ public class OrderEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id ;
     private Double totalPrice;
+    private String phoneReception;
     private String shippingAddress;
     private long statusCheckout;
     private String methodCheckout;

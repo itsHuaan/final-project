@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.*;
 public class AdminShopController {
     @Autowired
     private IOrderService orderService;
-    @GetMapping("/detail-order")
-    public ResponseEntity<?> getShopDetail(@RequestParam Long shopId , @RequestParam Long orderId ) {
-        return ResponseEntity.ok(orderService.getOrderTracking(shopId, orderId));
+    @GetMapping("/{shopId}/detail-order")
+    public ResponseEntity<?> getShopDetail(@PathVariable Long shopId , @RequestParam Long orderId ) {
+        return ResponseEntity.ok(orderService.getOrderTracking(orderId, shopId));
     }
 
     @GetMapping("/{shopId}/order")
@@ -27,8 +27,8 @@ public class AdminShopController {
         return ResponseEntity.ok(orderService.getAllOrderByShopId(shopId , page, size));
     }
 
-    @GetMapping("/find-order")
-    public ResponseEntity<?> findOrder(@RequestParam Long shopId , @RequestParam String orderCode) {
+    @GetMapping("/{shopId}/find-order")
+    public ResponseEntity<?> findOrder(@PathVariable Long shopId , @RequestParam String orderCode) {
         try {
             return ResponseEntity.ok(orderService.findByShopIdAndCodeOrder(shopId,orderCode));
         }catch (Exception e){

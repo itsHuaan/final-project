@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 public class OrderDto {
     private long id ;
     private Double totalPrice;
+    private String phoneReception;
     private String shippingAddress;
     private long statusCheckout;
     private String methodCheckout;

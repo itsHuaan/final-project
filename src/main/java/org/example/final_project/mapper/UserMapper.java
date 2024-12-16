@@ -7,6 +7,7 @@ import org.example.final_project.entity.FeedbackEntity;
 import org.example.final_project.entity.RoleEntity;
 import org.example.final_project.entity.UserEntity;
 import org.example.final_project.model.UserModel;
+import org.example.final_project.repository.IChatRepository;
 import org.example.final_project.repository.IProductRepository;
 import org.example.final_project.service.IAddressService;
 import org.springframework.data.jpa.domain.Specification;
@@ -26,6 +27,7 @@ public class UserMapper {
 
     IAddressService addressService;
     IProductRepository productRepository;
+    IChatRepository chatRepository;
 
     public UserDto toDto(UserEntity userEntity) {
         return UserDto.builder()

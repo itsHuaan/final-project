@@ -186,8 +186,8 @@ public class UserController {
 
     @MessageMapping("/user.addUser")
     @SendTo("/user/public")
-    public UserDto addUser(@Payload SignInRequest request) {
-        return userService.findByEmail(request.getEmail());
+    public UserDto addUser(@Payload Long userId) {
+        return userService.getById(userId);
     }
 
     @GetMapping("/active-users")

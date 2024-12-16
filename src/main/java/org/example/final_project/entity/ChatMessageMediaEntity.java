@@ -1,26 +1,21 @@
 package org.example.final_project.entity;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
-
 @Entity
-@Table(name="tbl_chatroom")
+@Table(name="tbl_chat_media")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @Builder
-public class ChatRoomEntity {
+public class ChatMessageMediaEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private String chatId;
-
-    private Long senderId;
-    private Long recipientId;
-    private LocalDateTime lastUpdatedAt;
+    private String mediaUrl;
+    @ManyToOne
+    @JoinColumn(name="chat_message_id")
+    private ChatMessageEntity chatMessage;
 }

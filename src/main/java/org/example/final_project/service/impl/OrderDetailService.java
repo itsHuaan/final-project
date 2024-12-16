@@ -3,11 +3,13 @@ package org.example.final_project.service.impl;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.example.final_project.dto.ApiResponse;
-import org.example.final_project.dto.OrderDetailDto;
+import org.example.final_project.dto.*;
 import org.example.final_project.entity.OrderDetailEntity;
+import org.example.final_project.entity.OrderEntity;
+import org.example.final_project.entity.OrderTrackingEntity;
 import org.example.final_project.entity.UserEntity;
 import org.example.final_project.mapper.OrderDetailMapper;
+import org.example.final_project.mapper.OrderMapper;
 import org.example.final_project.mapper.OrderTrackingMapper;
 import org.example.final_project.repository.IOrderDetailRepository;
 import org.example.final_project.repository.IOrderRepository;
@@ -30,13 +32,17 @@ public class OrderDetailService implements IOrderDetailService {
     OrderDetailMapper orderDetailMapper;
     IUserRepository userRepository;
     IOrderTrackingRepository orderTrackingRepository;
+    OrderMapper orderMapper;
 
 
     @Override
     public ApiResponse<?> getOrderDetail(long userId ) {
         List<Long> orderId = orderRepository.findOrderIdsByUserId(userId);
         List<OrderDetailEntity> list = orderDetailRepository.findAllOrderDetailEntityByOrderId(orderId);
+
         List<OrderDetailDto> listDto = list.stream().map(orderDetailMapper::toOrderDto).toList();
+
+
 
         return ApiResponse.createResponse(HttpStatus.OK,"get all order tracking", listDto);
 
@@ -54,11 +60,35 @@ public class OrderDetailService implements IOrderDetailService {
 
     }
     @Override
-    public ApiResponse<?> findDetailIn4OfOrder(long userId, long orderDetailId) {
-       OrderDetailEntity orderDetailEntity = orderDetailRepository.findOrderDetailByOrderDetailIdAndUserId(orderDetailId,userId).orElse(null);
-       OrderDetailDto orderDetailDto = orderDetailMapper.toOrderDto(orderDetailEntity);
-       return ApiResponse.createResponse(HttpStatus.OK,"get order detail", orderDetailDto);
+    public ApiResponse<?> findDetailIn4OfOrder(long userId, long orderId , long shopId) {
+       List<OrderDetailEntity> orderDetailEntity = orderDetailRepository.shopOrder(shopId,orderId);
+       List<OrderDetailDto> orderDetailDtos = orderDetailEntity.stream().map(orderDetailMapper::toOrderDto).toList();
+
+        OrderTrackingEntity orderTrackingEntity = orderTrackingRepository.findByOrderIdAndShopId(orderId,shopId ).get();
+
+        OrderTrackingDto orderTrackingDto = OrderTrackingMapper.toOrderTrackingDto(orderTrackingEntity);
+        Optional<OrderEntity> orderEntity = orderRepository.findById(orderId);
+        OrderEntity orderEntity1 = new OrderEntity();
+        if(orderEntity.isPresent()) {
+            orderEntity1 = orderEntity.get();
+        }
+        OrderDto orderDto = orderMapper.toOrderDto(orderEntity1);
+        OrderTotalDto orderTotalDto1 = OrderTotalDto.builder()
+                .orderDetails(orderDetailDtos)
+                .orderTracking(orderTrackingDto)
+                .order(orderDto)
+                .build();
+
+       return ApiResponse.createResponse(HttpStatus.OK,"get order detail", orderTotalDto1);
     }
+    @Override
+    public ApiResponse<?> findOrderInforByOrderCode(long userId , String orderCode){
+            long orderId = orderRepository.findOrderIdByUserIdAndOrderCode(userId,orderCode);
+            List<OrderDetailEntity> orderDetailEntities = orderDetailRepository.findByOrderId(orderId);
+            List<OrderDetailDto> orderDetailDtos = orderDetailEntities.stream().map(orderDetailMapper::toOrderDto).toList();
+            return ApiResponse.createResponse(HttpStatus.OK,"get order by orderCode", orderDetailDtos);
+    }
+
 
 
 

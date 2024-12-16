@@ -1,22 +1,20 @@
-package org.example.final_project.dto;
+package org.example.final_project.model;
 
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
-public class ChatMessageDto {
-    private Long messageId;
-    private String chatId;
+public class ChatNotificationModel {
+    private Long id;
     private Long senderId;
-    private String senderUsername;
     private Long recipientId;
-    private String recipientUsername;
     private String message;
     private List<String> mediaUrls;
     private LocalDateTime sentAt;

@@ -1,6 +1,7 @@
 package org.example.final_project.service;
 
 import org.example.final_project.dto.ApiResponse;
+import org.example.final_project.dto.ChatUserDto;
 import org.example.final_project.dto.UserDto;
 import org.example.final_project.entity.UserEntity;
 import org.example.final_project.model.ChangeAccountStatusRequest;
@@ -35,7 +36,7 @@ public interface IUserService extends IBaseService<UserDto, UserModel, Long> {
 
     ApiResponse<?> registerForBeingShop(ShopRegisterRequest request) throws Exception;
 
-    ApiResponse<?> acceptFromAdmin(int status , long userId) throws Exception;
+    ApiResponse<?> acceptFromAdmin(int status, long userId) throws Exception;
 
     ResponseEntity<?> updateProfile(String username, ProfileUpdateRequest request);
 
@@ -46,6 +47,10 @@ public interface IUserService extends IBaseService<UserDto, UserModel, Long> {
     int addAddress(long userId, AddShippingAddressRequest request);
 
     List<UserDto> findActiveUsers();
-    List<UserDto> findByShopName(String shopName , Integer shopStatus);
-    int updateShop( Long userId , ShopModel shopModel);
+
+    List<UserDto> findByShopName(String shopName, Integer shopStatus);
+
+    int updateShop(Long userId, ShopModel shopModel);
+
+    List<ChatUserDto> getChatUsers(Long senderId);
 }
