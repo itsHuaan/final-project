@@ -16,49 +16,57 @@ public class ProductSpecification {
         return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("isActive"), status);
     }
+
     public static Specification<ProductEntity> isNotDeleted() {
         return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.and(
-                        criteriaBuilder.or(
-                                criteriaBuilder.isNull(root.get("user").get("deletedAt")),
-                                criteriaBuilder.equal(root.get("user").get("shop_status"), 1)
-                        ),
+                        criteriaBuilder.isNull(root.get("user").get("deletedAt")),
+                        criteriaBuilder.equal(root.get("user").get("shop_status"), 1),
                         criteriaBuilder.isNull(root.get("deletedAt")),
                         criteriaBuilder.isNull(root.get("categoryEntity").get("deletedAt"))
                 );
     }
+
     public static Specification<ProductEntity> hasName(String name) {
         return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.like(root.get("name"), name);
     }
+
     public static Specification<ProductEntity> hasCategoryId(long categoryId) {
         return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("categoryEntity").get("id"), categoryId);
     }
+
     public static Specification<ProductEntity> notHaveId(long id) {
         return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.notEqual(root.get("id"), id);
     }
+
     public static Specification<ProductEntity> hasUserId(long userId) {
         return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("user").get("id"), userId);
     }
+
     public static Specification<ProductEntity> hasUserNotDeleted(long userId) {
         return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.isNull(root.get("user").get("deletedAt"));
     }
+
     public static Specification<ProductEntity> hasCategory(List<Long> categoryId) {
         return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 root.get("categoryEntity").get("id").in(categoryId);
     }
+
     public static Specification<ProductEntity> hasShopAddress(List<Long> addressId) {
         return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 root.get("user").get("address_id_shop").in(addressId);
     }
-    public static Specification<ProductEntity> hasPriceBetween(Double startPrice,Double endPrice) {
+
+    public static Specification<ProductEntity> hasPriceBetween(Double startPrice, Double endPrice) {
         return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.between(root.join("skuEntities").get("price"), startPrice, endPrice);
     }
+
     public static Specification<ProductEntity> hasAverageRatingGreaterThan(double ratingThreshold) {
         return (root, query, criteriaBuilder) -> {
             Subquery<Double> subquery = query.subquery(Double.class);
