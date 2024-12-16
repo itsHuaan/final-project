@@ -247,11 +247,11 @@ public class UserService implements IUserService, UserDetailsService {
                 return createResponse(HttpStatus.OK, "Wait for confirm ", null);
             } else if (userEntity.getShop_status() == 1) {
                 return createResponse(HttpStatus.CONFLICT, "User register Shop", null);
-            } else if(userEntity.getShop_status() == 2){
+            } else if (userEntity.getShop_status() == 2) {
                 return createResponse(HttpStatus.CONFLICT, "Shop is Waiting", null);
-            }else if(userEntity.getShop_status() == 3){
+            } else if (userEntity.getShop_status() == 3) {
                 return createResponse(HttpStatus.CONFLICT, "Shop is Refusing", null);
-            }else if(userEntity.getShop_status() == 4){
+            } else if (userEntity.getShop_status() == 4) {
                 return createResponse(HttpStatus.CONFLICT, "Shop Locked", null);
             }
         }
@@ -376,17 +376,17 @@ public class UserService implements IUserService, UserDetailsService {
     public Page<UserDto> getAllShop(Integer status, Integer pageIndex, Integer pageSize) throws Exception {
         Specification<UserEntity> specification = UserSpecification.isShop();
         Pageable pageable = Pageable.unpaged();
-        if (status != 0){
+        if (status != 0) {
             specification = specification.and(hasShopStatus(status));
         }
-        if (pageIndex != null && pageSize != null){
-            if(pageIndex < 0){
+        if (pageIndex != null && pageSize != null) {
+            if (pageIndex < 0) {
                 throw new BadRequest("Page index can not be less than 0");
             }
             if (pageSize <= 0) {
                 throw new BadRequest("Page size can not be less than 0.");
             }
-            pageable  = PageRequest.of(pageIndex, pageSize);
+            pageable = PageRequest.of(pageIndex, pageSize);
         }
         return userRepository.findAll(specification, pageable).map(userEntity -> {
             UserDto userDto = userMapper.toDto(userEntity);
@@ -417,28 +417,29 @@ public class UserService implements IUserService, UserDetailsService {
         shippingAddressRepository.save(newShippingAddress);
         return 1;
     }
+
     @Override
-    public List<UserDto> findByShopName(String shopName , Integer shopStatus) {
+    public List<UserDto> findByShopName(String shopName, Integer shopStatus) {
         List<UserEntity> userEntityList;
-        if (shopName == null && shopStatus == null ) {
+        if (shopName == null && shopStatus == null) {
             userEntityList = userRepository.findAll();
-        }
-         else if (shopName != null) {
-            if(shopStatus == null){
+        } else if (shopName != null) {
+            if (shopStatus == null) {
                 userEntityList = userRepository.findByShopName(shopName);
-            }else {
+            } else {
                 userEntityList = userRepository.findByShopStatusAndName(shopStatus, shopName);
             }
-        }else {
+        } else {
             userEntityList = userRepository.findByShopStatus(shopStatus);
         }
         return userEntityList.stream().map(userMapper::toDto).toList();
 
     }
+
     @Override
-    public int updateShop( Long userId , ShopModel shopModel){
+    public int updateShop(Long userId, ShopModel shopModel) {
         Optional<UserEntity> user = userRepository.findById(userId);
-        if(user.isPresent()){
+        if (user.isPresent()) {
             UserEntity userEntity = user.get();
             userEntity.setAddress_id_shop(shopModel.getShop_address());
             userEntity.setShop_name(shopModel.getShop_name());
@@ -453,6 +454,15 @@ public class UserService implements IUserService, UserDetailsService {
     @Override
     public List<ChatUserDto> getChatUsers(Long senderId) {
         return null;
+    }
+
+    @Override
+    public Page<UserDto> filterUser(Pageable pageable, String name) {
+        Specification<UserEntity> spec = Specification.where(isNotDeleted().and(isNotSuperAdmin()));
+        if (name != null) {
+            spec = spec.and(containName(name));
+        }
+        return userRepository.findAll(spec, pageable).map(userMapper::toDto);
     }
 
     @Override
