@@ -21,7 +21,10 @@ public class ProductSpecification {
                 criteriaBuilder.and(
                         criteriaBuilder.isNull(root.get("deletedAt")),
                         criteriaBuilder.isNull(root.get("categoryEntity").get("deletedAt")),
-                        criteriaBuilder.isNull(root.get("user").get("deletedAt"))
+                        criteriaBuilder.or(
+                                criteriaBuilder.isNull(root.get("user").get("deletedAt")),
+                                criteriaBuilder.equal(root.get("user").get("shop_status"), 1)
+                        )
                 );
     }
     public static Specification<ProductEntity> hasName(String name) {
