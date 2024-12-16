@@ -15,6 +15,7 @@ import org.example.final_project.model.ShopRegisterRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.example.final_project.model.validation.PageableValidation;
 import org.example.final_project.service.IAddressService;
 import org.example.final_project.service.IAuthService;
 import org.example.final_project.service.IShippingAddressService;
@@ -22,6 +23,7 @@ import org.example.final_project.service.IUserService;
 import org.example.final_project.util.Const;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -62,6 +64,32 @@ public class UserController {
                 result,
                 LocalDateTime.now()))
                 : ResponseEntity.noContent().build();
+    }
+
+
+    @Operation(summary = "Filter user")
+    @GetMapping("/filter")
+    public ResponseEntity<?> filterUser(@RequestParam(defaultValue = "0") Integer pageIndex,
+                                        @RequestParam(defaultValue = "10") Integer pageSize,
+                                        @RequestParam String name) {
+        Pageable pageable = PageableValidation.setDefault(pageIndex, pageSize) != null
+                ? PageRequest.of(pageIndex, pageSize)
+                : Pageable.unpaged();
+        Page<UserDto> result = userService.filterUser(pageable, name);
+        return result.hasContent()
+                ? ResponseEntity.status(HttpStatus.OK).body(
+                createResponse(
+                        HttpStatus.OK,
+                        "Fetched",
+                        result
+                )
+        )
+                : ResponseEntity.status(HttpStatus.OK).body(createResponse(
+                        HttpStatus.NO_CONTENT,
+                        "No user found",
+                        result
+                )
+        );
     }
 
     @Operation(summary = "Get user by id")
