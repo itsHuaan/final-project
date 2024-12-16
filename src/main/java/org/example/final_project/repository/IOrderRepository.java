@@ -34,6 +34,9 @@ public interface IOrderRepository extends JpaRepository<OrderEntity, Long> {
     @Query("select t.id from OrderEntity  t where t.user.userId = :userId")
     List<Long> findOrderIdsByUserId(long userId);
 
+    @Query("select o.id from OrderEntity o where o.user.userId = :userId and o.orderCode = :orderCode")
+    long findOrderIdByUserIdAndOrderCode(long userId, String orderCode);
+
 
 
 }

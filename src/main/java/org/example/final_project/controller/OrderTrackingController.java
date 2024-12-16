@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(value = Const.API_PREFIX + "/user-tracking")
 public class OrderTrackingController {
         IOrderDetailService orderDetailService;
+
         @GetMapping("/{userId}")
         public ResponseEntity<?> index(@PathVariable Long userId) {
             return ResponseEntity.ok(orderDetailService.getOrderDetail(userId));
@@ -35,14 +36,14 @@ public class OrderTrackingController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not Found Order Item");
             }
         }
-//    @GetMapping("/find-order")
-//    public ResponseEntity<?> findOrder(@RequestParam Long userId , @RequestParam String orderCode) {
-//        try {
-////            return ResponseEntity.ok(orderService.findByShopIdAndCodeOrder(shopId,orderCode));
-//        }catch (Exception e){
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not Found Order");
-//        }
-//    }
+    @GetMapping("/{userId}/find-order")
+    public ResponseEntity<?> findOrder(@PathVariable long userId , @RequestParam String orderCode) {
+        try {
+            return ResponseEntity.ok(orderDetailService.findOrderInforByOrderCode(userId,orderCode));
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not Found Order");
+        }
+    }
 
 
 

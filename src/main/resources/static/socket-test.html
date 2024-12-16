@@ -17,7 +17,9 @@
     }
 
     function onConnected() {
-      stompClient.subscribe('/topic/public', onMessageReceived);
+      stompClient.subscribe('/topic/public', function (payload) {
+        displayStatusChange(JSON.parse(payload.body).content);
+      });
       console.log('Connected to WebSocket');
     }
 
@@ -45,19 +47,22 @@
       }
     }
 
-    function onMessageReceived(payload) {
-      const message = JSON.parse(payload.body);
+    function displayStatusChange(message) {
+      console.log('Received message:', message);
+
       const responseDiv = document.getElementById('response');
-      const messageText = `Order ID: ${message.orderId}, Shop ID: ${message.shopId}, Status: ${message.status}`;
+
       const messageElement = document.createElement('p');
-      messageElement.innerText = messageText;
+      messageElement.innerText = `Order ID: ${message.orderId}, Shop ID: ${message.shopId}, Status: ${message.status}, Content: ${message.content}`;
+
       responseDiv.appendChild(messageElement);
     }
+
 
     window.onload = connect;
   </script>
 </head>
-<body >
+<body>
 <h1>Test WebSocket Interface</h1>
 
 <div>

@@ -23,11 +23,14 @@ public class SocketOrderController {
         int status = statusMessageDto.getStatus();
         long shopId = statusMessageDto.getShopId();
         long orderId = statusMessageDto.getOrderId();
+        int result =  iOrderTrackingService.updateStatusShipping(status, shopId, orderId);
 
-
-        if (status == 1) {
-            iOrderTrackingService.updateStatusShipping(status, shopId, orderId);
+        if (result == 1) {
             statusMessageDto.setContent("Status update success for Order ID: " + orderId);
+            statusMessageDto.setStatus(status);
+            statusMessageDto.setShopId(shopId);
+            statusMessageDto.setOrderId(orderId);
+            return statusMessageDto;
         } else {
             statusMessageDto.setContent("Status update failed for Order ID: " + orderId);
         }
