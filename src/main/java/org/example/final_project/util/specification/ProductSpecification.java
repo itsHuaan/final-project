@@ -77,4 +77,9 @@ public class ProductSpecification {
             return criteriaBuilder.greaterThanOrEqualTo(subquery, ratingThreshold);
         };
     }
+
+    public static Specification<ProductEntity> hasId(long productId) {
+        return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("id"), productId);
+    }
 }

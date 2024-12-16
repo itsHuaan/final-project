@@ -50,8 +50,11 @@ public class ProductService implements IProductService {
 
     @Override
     public ProductDto getById(Long id) {
-        if (iProductRepository.findById(id).isPresent()) {
-            return productMapper.convertToDto(iProductRepository.findById(id).get());
+        Specification<ProductEntity> specification = Specification.where(
+                hasId(id).and(isNotDeleted())
+        );
+        if (iProductRepository.findOne(specification).isPresent()) {
+            return productMapper.convertToDto(iProductRepository.findOne(specification).get());
         } else {
             throw new IllegalArgumentException("Value not found");
         }
