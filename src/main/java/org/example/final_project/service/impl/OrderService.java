@@ -45,6 +45,7 @@ public class OrderService implements IOrderService {
     private final OrderDetailMapper orderDetailMapper;
 
 
+
     @Override
     public String submitCheckout(OrderModel orderModel , HttpServletRequest request) throws Exception {
         String vnp_TxnRef = (String) request.getAttribute("tex");
@@ -219,6 +220,21 @@ public class OrderService implements IOrderService {
         }
         OrderDto orderDto = orderMapper.toOrderDto(orderEntity1);
         return orderDto;
+    }
+    @Override
+    public ApiResponse<?>  checkQuatityInStock(long skuId , long currentQuatity){
+        Optional<SKUEntity> skuEntity = skuRepository.findById(skuId);
+        if(skuEntity.isPresent()) {
+            SKUEntity skuEntity1 = skuEntity.get();
+            if(skuEntity1.getQuantity() < currentQuatity) {
+                return createResponse(HttpStatus.BAD_REQUEST, "The current quantity is greater than the quantity in the stock", null);
+            }else {
+                return createResponse(HttpStatus.OK, "The current quantity matches the quantity in stock", null);
+            }
+
+
+        }
+        return createResponse(HttpStatus.NOT_FOUND, "Not Found Product ", null);
     }
 
 
