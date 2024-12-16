@@ -9,6 +9,7 @@ import lombok.*;
 @Builder
 public class CartItemRequest {
     private long productSkuId;
+    private long cartDetailId;
     private long quantity;
     private long shopId;
     private double price;
