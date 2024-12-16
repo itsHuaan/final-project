@@ -11,6 +11,7 @@ import java.awt.*;
 public class StatusMessageDto {
     private TrayIcon.MessageType type;
     private String content;
+    private long userId;
     private int status;
     private long shopId;
     private long orderId;
