@@ -14,6 +14,5 @@ public class CartItemDto {
     private CartSkuDto item;
     private Integer itemQuantity;
     private double totalPrice;
-    private LocalDateTime createdAt;
-    private LocalDateTime modifiedAt;
+    private LocalDateTime lastUpdated;
 }

@@ -10,14 +10,10 @@ import org.example.final_project.entity.ProductEntity;
 import org.example.final_project.mapper.ProductMapper;
 import org.example.final_project.model.ImageProductModel;
 import org.example.final_project.model.ProductModel;
-import org.example.final_project.model.ProductOptionsModel;
 import org.example.final_project.model.enum_status.ActivateStatus;
 import org.example.final_project.repository.IProductRepository;
 import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.*;
-import org.example.final_project.util.ConvertJsonObject;
-import org.example.final_project.util.specification.ProductSpecification;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,7 +25,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.example.final_project.util.ConvertJsonObject.convertJsonToOption;
 import static org.example.final_project.util.specification.ProductSpecification.*;
 
 @Service
@@ -51,7 +46,7 @@ public class ProductService implements IProductService {
     @Override
     public ProductDto getById(Long id) {
         Specification<ProductEntity> specification = Specification.where(
-                hasId(id).and(isNotDeleted())
+                hasId(id).and(isValid())
         );
         if (iProductRepository.findOne(specification).isPresent()) {
             return productMapper.convertToDto(iProductRepository.findOne(specification).get());
@@ -144,8 +139,8 @@ public class ProductService implements IProductService {
     public Page<ProductSummaryDto> findAllByPage(Pageable pageable) {
         try {
             return pageable != null
-                    ? iProductRepository.findAll(Specification.where(isNotDeleted()), pageable).map(productMapper::toProductSummaryDto)
-                    : iProductRepository.findAll(Specification.where(isNotDeleted()), Pageable.unpaged()).map(productMapper::toProductSummaryDto);
+                    ? iProductRepository.findAll(Specification.where(isValid()), pageable).map(productMapper::toProductSummaryDto)
+                    : iProductRepository.findAll(Specification.where(isValid()), Pageable.unpaged()).map(productMapper::toProductSummaryDto);
         } catch (Exception e) {
             throw e;
         }
@@ -155,8 +150,8 @@ public class ProductService implements IProductService {
     public Page<ProductSummaryDto> findAllByNameAndPage(String name, Pageable pageable) {
         try {
             return pageable != null
-                    ? iProductRepository.findAll(Specification.where(isNotDeleted().and(hasName(name))), pageable).map(productMapper::toProductSummaryDto)
-                    : iProductRepository.findAll(Specification.where(isNotDeleted().and(hasName(name))), Pageable.unpaged()).map(productMapper::toProductSummaryDto);
+                    ? iProductRepository.findAll(Specification.where(isValid().and(hasName(name))), pageable).map(productMapper::toProductSummaryDto)
+                    : iProductRepository.findAll(Specification.where(isValid().and(hasName(name))), Pageable.unpaged()).map(productMapper::toProductSummaryDto);
         } catch (Exception e) {
             throw e;
         }
@@ -167,13 +162,13 @@ public class ProductService implements IProductService {
     public Page<ProductSummaryDto> getAllProductByStatus(int status, Pageable pageable) {
         if (pageable != null) {
             if (ActivateStatus.Active.checkIfExist(status)) {
-                return iProductRepository.findAll(Specification.where(isStatus(status)).and(isNotDeleted()), pageable).map(productMapper::toProductSummaryDto);
+                return iProductRepository.findAll(Specification.where(isStatus(status)).and(isValid()), pageable).map(productMapper::toProductSummaryDto);
             } else {
                 throw new IllegalArgumentException("Value not found");
             }
         } else {
             if (ActivateStatus.Active.checkIfExist(status)) {
-                return iProductRepository.findAll(Specification.where(isStatus(status)).and(isNotDeleted()), PageRequest.of(0, iProductRepository.findAll().size())).map(productMapper::toProductSummaryDto);
+                return iProductRepository.findAll(Specification.where(isStatus(status)).and(isValid()), PageRequest.of(0, iProductRepository.findAll().size())).map(productMapper::toProductSummaryDto);
             } else {
                 throw new IllegalArgumentException("Value not found");
             }
@@ -186,13 +181,13 @@ public class ProductService implements IProductService {
             if (pageable != null) {
                 if (iProductRepository.findById(productId).isPresent()) {
                     ProductEntity productEntity = iProductRepository.findById(productId).get();
-                    return iProductRepository.findAll(Specification.where(isNotDeleted()).and(hasCategoryId(productEntity.getCategoryEntity().getId()).and(hasUserNotDeleted(productEntity.getUser().getUserId()))).and(notHaveId(productId)), pageable).map(productMapper::toProductSummaryDto);
+                    return iProductRepository.findAll(Specification.where(isValid()).and(hasCategoryId(productEntity.getCategoryEntity().getId()).and(hasUserNotDeleted(productEntity.getUser().getUserId()))).and(notHaveId(productId)), pageable).map(productMapper::toProductSummaryDto);
                 } else {
                     throw new IllegalArgumentException("Value Not Found");
                 }
             } else {
                 ProductEntity productEntity = iProductRepository.findById(productId).get();
-                return iProductRepository.findAll(Specification.where(isNotDeleted()).and(hasCategoryId(productEntity.getCategoryEntity().getId())).and(notHaveId(productId).and(hasUserNotDeleted(productEntity.getUser().getUserId()))), Pageable.unpaged()).map(productMapper::toProductSummaryDto);
+                return iProductRepository.findAll(Specification.where(isValid()).and(hasCategoryId(productEntity.getCategoryEntity().getId())).and(notHaveId(productId).and(hasUserNotDeleted(productEntity.getUser().getUserId()))), Pageable.unpaged()).map(productMapper::toProductSummaryDto);
             }
         } catch (Exception e) {
             throw e;
@@ -205,9 +200,9 @@ public class ProductService implements IProductService {
             if (iProductRepository.findById(productId).isPresent()) {
                 ProductEntity productEntity = iProductRepository.findById(productId).get();
                 if (pageable != null) {
-                    return iProductRepository.findAll(Specification.where(isNotDeleted()).and(notHaveId(productId)).and(hasUserId(productEntity.getUser().getUserId())).and(hasUserNotDeleted(productEntity.getUser().getUserId())), pageable).map(productMapper::toProductSummaryDto);
+                    return iProductRepository.findAll(Specification.where(isValid()).and(notHaveId(productId)).and(hasUserId(productEntity.getUser().getUserId())).and(hasUserNotDeleted(productEntity.getUser().getUserId())), pageable).map(productMapper::toProductSummaryDto);
                 } else {
-                    return iProductRepository.findAll(Specification.where(isNotDeleted()).and(notHaveId(productId)).and(hasUserId(productEntity.getUser().getUserId())).and(hasUserNotDeleted(productEntity.getUser().getUserId())), Pageable.unpaged()).map(productMapper::toProductSummaryDto);
+                    return iProductRepository.findAll(Specification.where(isValid()).and(notHaveId(productId)).and(hasUserId(productEntity.getUser().getUserId())).and(hasUserNotDeleted(productEntity.getUser().getUserId())), Pageable.unpaged()).map(productMapper::toProductSummaryDto);
                 }
             } else {
                 throw new IllegalArgumentException("Value Not Found");
@@ -221,7 +216,7 @@ public class ProductService implements IProductService {
     public Page<ProductSummaryDto> getAllProductOfShop(long userId, Pageable pageable) {
         try {
             if (iUserRepository.findById(userId).isPresent()) {
-                Specification<ProductEntity> specification = Specification.where(isNotDeleted())
+                Specification<ProductEntity> specification = Specification.where(isValid())
                         .and(hasUserId(userId));
 
                 return pageable != null
@@ -239,13 +234,13 @@ public class ProductService implements IProductService {
     @Override
     public Page<ProductSummaryDto> getAllProductByCategory(long categoryId, Pageable pageable) {
         return pageable != null
-                ? iProductRepository.findAll(Specification.where(hasCategoryId(categoryId)).and(isNotDeleted()), pageable).map(productMapper::toProductSummaryDto)
-                : iProductRepository.findAll(Specification.where(hasCategoryId(categoryId)).and(isNotDeleted()), Pageable.unpaged()).map(productMapper::toProductSummaryDto);
+                ? iProductRepository.findAll(Specification.where(hasCategoryId(categoryId)).and(isValid()), pageable).map(productMapper::toProductSummaryDto)
+                : iProductRepository.findAll(Specification.where(hasCategoryId(categoryId)).and(isValid()), Pageable.unpaged()).map(productMapper::toProductSummaryDto);
     }
 
     @Override
     public Page<ProductSummaryDto> getAllProductByFilter(List<Long> categoryId, List<Long> addressId, Double startPrice, Double endPrice, Double rating, Pageable pageable) {
-        Specification<ProductEntity> filter = Specification.where(isNotDeleted()).and(isStatus(1));
+        Specification<ProductEntity> filter = Specification.where(isValid()).and(isStatus(1));
         if (categoryId != null) {
             filter = filter.and(hasCategory(categoryId));
         }

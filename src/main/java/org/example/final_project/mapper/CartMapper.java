@@ -28,7 +28,7 @@ public class CartMapper {
                 .user(userMapper.toCartUserDto(cartEntity.getUser()))
                 .cartQuantity(cartEntity.getCartItems().size())
                 .cartItems(cartEntity.getCartItems().stream()
-                        .sorted(Comparator.comparing(CartItemEntity::getCreatedAt).reversed())
+                        .sorted(Comparator.comparing(CartItemEntity::getLastUpdated).reversed())
                         .map(cartItemMapper::toDto)
                         .toList())
                 .createdAt(cartEntity.getCreatedAt())
