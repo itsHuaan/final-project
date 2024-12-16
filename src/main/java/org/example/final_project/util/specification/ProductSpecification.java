@@ -19,12 +19,12 @@ public class ProductSpecification {
     public static Specification<ProductEntity> isNotDeleted() {
         return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.and(
-                        criteriaBuilder.isNull(root.get("deletedAt")),
-                        criteriaBuilder.isNull(root.get("categoryEntity").get("deletedAt")),
                         criteriaBuilder.or(
                                 criteriaBuilder.isNull(root.get("user").get("deletedAt")),
                                 criteriaBuilder.equal(root.get("user").get("shop_status"), 1)
-                        )
+                        ),
+                        criteriaBuilder.isNull(root.get("deletedAt")),
+                        criteriaBuilder.isNull(root.get("categoryEntity").get("deletedAt"))
                 );
     }
     public static Specification<ProductEntity> hasName(String name) {

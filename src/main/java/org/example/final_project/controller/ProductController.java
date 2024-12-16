@@ -46,22 +46,32 @@ public class ProductController {
     @Operation(summary = "Get product by id")
     @GetMapping("/{product-id}")
     public ResponseEntity<?> getProductById(@PathVariable("product-id") Long productId) {
-        ProductDto result = productService.getById(productId);
-        return result != null
-                ? ResponseEntity.status(HttpStatus.OK).body(
-                createResponse(
-                        HttpStatus.OK,
-                        "Fetched",
-                        result
-                )
-        )
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                createResponse(
-                        HttpStatus.OK,
-                        "No product found",
-                        null
-                )
-        );
+        try {
+            ProductDto result = productService.getById(productId);
+            return result != null
+                    ? ResponseEntity.status(HttpStatus.OK).body(
+                    createResponse(
+                            HttpStatus.OK,
+                            "Fetched",
+                            result
+                    )
+            )
+                    : ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    createResponse(
+                            HttpStatus.NOT_FOUND,
+                            "No product found",
+                            null
+                    )
+            );
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    createResponse(
+                            HttpStatus.NOT_FOUND,
+                            "No product found",
+                            null
+                    )
+            );
+        }
     }
 
     @Operation(summary = "Get all product")
@@ -129,7 +139,7 @@ public class ProductController {
             return ResponseEntity.ok(createResponse(HttpStatus.OK,
                     "Update Product Successfully",
                     null
-                    ));
+            ));
 //                } else {
 //                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
 //                            HttpStatus.BAD_REQUEST,
