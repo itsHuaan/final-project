@@ -90,6 +90,9 @@ public class CartItemService implements ICartItemService {
         Optional<CartItemEntity> currentCartItem = cartItemRepository.findOne(hasCartId(cartItemModel.getCartId()).and(hasProductId(cartItemModel.getSkuId())));
         if (currentCartItem.isPresent()) {
             CartItemEntity cartItem = currentCartItem.get();
+            if (cartItemModel.getQuantity() + cartItem.getQuantity() > cartItem.getProduct().getQuantity()) {
+                throw new IndexOutOfBoundsException("Requested quantity exceeds available stock");
+            }
             cartItem.setQuantity(cartItem.getQuantity() + cartItemModel.getQuantity());
             cartItem.setModifiedAt(LocalDateTime.now());
             cartItemRepository.save(cartItem);
