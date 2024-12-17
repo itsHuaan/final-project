@@ -1,4 +1,4 @@
-package org.example.final_project.util.specification;
+package org.example.final_project.specification;
 
 import jakarta.persistence.criteria.*;
 import org.example.final_project.entity.FeedbackEntity;

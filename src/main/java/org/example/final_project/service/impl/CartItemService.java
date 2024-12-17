@@ -20,9 +20,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.example.final_project.util.specification.CartItemSpecification.*;
-import static org.example.final_project.util.specification.ProductSpecification.*;
-
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)

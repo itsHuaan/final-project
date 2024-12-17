@@ -17,8 +17,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.example.final_project.util.specification.ProductSpecification.*;
-
 @Component
 @RequiredArgsConstructor
 @FieldDefaults(makeFinal = true)

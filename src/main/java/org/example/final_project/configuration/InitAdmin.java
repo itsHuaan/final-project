@@ -8,17 +8,14 @@ import org.example.final_project.entity.RoleEntity;
 import org.example.final_project.entity.UserEntity;
 import org.example.final_project.repository.IRoleRepository;
 import org.example.final_project.repository.IUserRepository;
-import org.example.final_project.service.IUserService;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Role;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import static org.example.final_project.util.specification.RoleSpecification.isRole;
-import static org.example.final_project.util.specification.UserSpecification.hasUsername;
+import static org.example.final_project.specification.RoleSpecification.isRole;
+import static org.example.final_project.specification.UserSpecification.hasUsername;
 
 @Configuration
 @RequiredArgsConstructor

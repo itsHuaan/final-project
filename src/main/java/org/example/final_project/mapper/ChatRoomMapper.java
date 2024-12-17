@@ -12,7 +12,7 @@ import org.example.final_project.repository.IUserRepository;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
-import static org.example.final_project.util.specification.ChatMessageSpecification.hasChatId;
+import static org.example.final_project.specification.ChatMessageSpecification.hasChatId;
 
 @Component
 @RequiredArgsConstructor

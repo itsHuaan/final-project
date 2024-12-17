@@ -13,17 +13,12 @@ import org.example.final_project.model.enum_status.ActivateStatus;
 import org.example.final_project.repository.ICategoryRepository;
 import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.ICategoryService;
-import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
-
-import static org.example.final_project.util.specification.CategorySpecification.*;
 
 @Service
 @RequiredArgsConstructor

@@ -20,8 +20,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
-import static org.example.final_project.util.specification.ChatMessageSpecification.*;
-
 @Slf4j
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
