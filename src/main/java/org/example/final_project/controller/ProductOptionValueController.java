@@ -19,7 +19,7 @@ public class ProductOptionValueController{
     @Autowired
     IProductOptionValueService valueService;
     @PostMapping("/{product-id}")
-    ResponseEntity addNewValue(@PathVariable("product-id") Long productId,
+    ResponseEntity<?> addNewValue(@PathVariable("product-id") Long productId,
                                ProductOptionValueModel valueModel){
         try{
             valueService.saveCustom(productId,valueModel);
@@ -37,7 +37,7 @@ public class ProductOptionValueController{
         }
     }
     @DeleteMapping("/{value-id}")
-    ResponseEntity deleteValue(@PathVariable("value-id")Long valueId){
+    ResponseEntity<?> deleteValue(@PathVariable("value-id")Long valueId){
         try{
             valueService.delete(valueId);
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(

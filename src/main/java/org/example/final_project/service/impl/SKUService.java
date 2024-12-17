@@ -2,12 +2,9 @@ package org.example.final_project.service.impl;
 
 import com.cloudinary.Cloudinary;
 import org.example.final_project.dto.*;
-import org.example.final_project.entity.ProductEntity;
 import org.example.final_project.entity.ProductOptionValuesEntity;
-import org.example.final_project.entity.ProductOptionsEntity;
 import org.example.final_project.entity.SKUEntity;
 import org.example.final_project.mapper.SKUMapper;
-import org.example.final_project.model.ProductOptionValueModel;
 import org.example.final_project.model.SKUModel;
 import org.example.final_project.repository.IProductOptionRepository;
 import org.example.final_project.repository.IProductOptionValueRepository;
@@ -20,10 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -91,12 +85,22 @@ public class SKUService implements ISKUService {
     @Override
     public SKUDto saveCustom(SKUModel model) {
         SKUEntity entity = skuMapper.convertToEntity(model);
-        entity.setProduct(productRepository.findById(model.getProductId()).get());
-        entity.setOption1(optionRepository.findById(model.getOptionId1()).get());
-        entity.setValue1(valueRepository.findById(model.getValueId1()).get());
+        entity.setProduct(productRepository.findById(model.getProductId()).orElseThrow(
+                () -> new NoSuchElementException("Value invalid")
+        ));
+        entity.setOption1(optionRepository.findById(model.getOptionId1()).orElseThrow(
+                () -> new NoSuchElementException("Value invalid")
+        ));
+        entity.setValue1(valueRepository.findById(model.getValueId1()).orElseThrow(
+                () -> new NoSuchElementException("Value invalid")
+        ));
         if (model.getOptionId2() != null && model.getValueId2() != null) {
-            entity.setOption2(optionRepository.findById(model.getOptionId2()).get());
-            entity.setValue2(valueRepository.findById(model.getValueId2()).get());
+            entity.setOption2(optionRepository.findById(model.getOptionId2()).orElseThrow(
+                    () -> new NoSuchElementException("Value invalid")
+            ));
+            entity.setValue2(valueRepository.findById(model.getValueId2()).orElseThrow(
+                    () -> new NoSuchElementException("Value invalid")
+            ));
         }
         SKUEntity savedSKU = iskuRepository.save(entity);
         return skuMapper.convertToDto(savedSKU);

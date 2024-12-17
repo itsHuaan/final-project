@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import static org.example.final_project.dto.ApiResponse.createResponse;
 
@@ -22,7 +23,7 @@ public class StockController {
     ISKUService skuService;
 
     @GetMapping("/{product-id}")
-    ResponseEntity getAllStockByProduct(@PathVariable("product-id") long productId) {
+    ResponseEntity<?> getAllStockByProduct(@PathVariable("product-id") long productId) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.OK,
@@ -39,7 +40,7 @@ public class StockController {
     }
 
     @PostMapping
-    ResponseEntity updateStock(@RequestBody List<SKUModel> skuModels) {
+    ResponseEntity<?> updateStock(@RequestBody List<SKUModel> skuModels) {
         try {
             skuService.updateListStock(skuModels);
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
