@@ -118,7 +118,7 @@ public class ProductController {
                     productId
             ));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+            return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.BAD_REQUEST,
                     e.getMessage(),
                     null
