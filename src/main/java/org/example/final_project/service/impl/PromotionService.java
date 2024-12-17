@@ -49,7 +49,7 @@ public class PromotionService implements IPromotionService {
     @Override
     public int save(PromotionModel model) {
         try {
-            PromotionEntity promotion=promotionMapper.convertToEntity(model);
+            PromotionEntity promotion = promotionMapper.convertToEntity(model);
             promotion.setStatus(PromotionStatus.COMING_SOON.getValue());
             iPromotionRepository.save(promotion);
             return 1;
@@ -101,28 +101,32 @@ public class PromotionService implements IPromotionService {
         try {
             if (iPromotionRepository.findById(promotionId).isPresent()) {
                 PromotionEntity promotion = iPromotionRepository.findById(promotionId).get();
-                if(productRepository.findById(productId).isPresent()){
-                    ProductEntity product=productRepository.findById(productId).get();
+                if (productRepository.findById(productId).isPresent()) {
+                    ProductEntity product = productRepository.findById(productId).get();
                     product.getPromotions().add(promotion);
                     productRepository.save(product);
-                }else{
+                } else {
                     throw new IllegalArgumentException("Product is not present");
                 }
-            }else{
+            } else {
                 throw new IllegalArgumentException("Promotion is not present");
             }
             return 1;
-        }catch(Exception e){
+        } catch (Exception e) {
             throw e;
         }
     }
 
     @Override
     public PromotionEntity findAllPromotionByNow(Long productId) {
-        List<PromotionEntity> promotionList=iPromotionRepository.findAll(isActiveButNotActivatedAndHaveProduct(productId).and(isNotDeleted()));
-        PromotionEntity maxPercentage=promotionList.stream().max(Comparator.comparing(PromotionEntity::getDiscountPercentage)).get();
-        maxPercentage.setStatus(PromotionStatus.ACTIVE.getValue());
-        iPromotionRepository.save(maxPercentage);
-        return maxPercentage;
+        List<PromotionEntity> promotionList = iPromotionRepository.findAll(isActiveButNotActivatedAndHaveProduct(productId).and(isNotDeleted()));
+        if (promotionList.size()!=0) {
+            PromotionEntity maxPercentage = promotionList.stream().max(Comparator.comparing(PromotionEntity::getDiscountPercentage)).get();
+            maxPercentage.setStatus(PromotionStatus.ACTIVE.getValue());
+            iPromotionRepository.save(maxPercentage);
+            return maxPercentage;
+        } else {
+            return null;
+        }
     }
 }
