@@ -20,6 +20,7 @@ public class ProductSummaryDto {
     private String image;
     private ShopDto shopDto;
     private double price;
+    private Integer status;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
