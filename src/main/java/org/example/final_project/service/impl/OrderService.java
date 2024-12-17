@@ -270,6 +270,10 @@ public class OrderService implements IOrderService {
         return createResponse(HttpStatus.NOT_FOUND, "Not Found Product ", null);
     }
 
+//    public ApiResponse<?> findByStatusShipping(long shopId , int statusShipping){
+//        List<Long> orderIds = orderTrackingRepository.
+//    }
+
 
 
 
