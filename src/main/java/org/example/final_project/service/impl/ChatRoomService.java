@@ -3,22 +3,27 @@ package org.example.final_project.service.impl;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.example.final_project.dto.ChatRoomDto;
 import org.example.final_project.dto.ChatUserDto;
 import org.example.final_project.entity.ChatRoomEntity;
+import org.example.final_project.entity.UserEntity;
 import org.example.final_project.mapper.ChatRoomMapper;
 import org.example.final_project.repository.IChatRoomRepository;
+import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.IChatRoomService;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 
 import static org.example.final_project.util.specification.ChatRoomSpecification.*;
 
+@Slf4j
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
@@ -26,6 +31,7 @@ public class ChatRoomService implements IChatRoomService {
 
     IChatRoomRepository chatRoomRepository;
     ChatRoomMapper chatRoomMapper;
+    IUserRepository userRepository;
 
     @Override
     public Optional<String> getChatRoomId(Long senderId, Long recipientId, boolean isExist) {
@@ -37,8 +43,12 @@ public class ChatRoomService implements IChatRoomService {
                 .map(ChatRoomEntity::getChatId)
                 .or(() -> {
                     if (isExist) {
-                        var chatId = createChatId(firstId, secondId);
-                        return Optional.of(chatId);
+                        try {
+                            var chatId = createChatId(firstId, secondId);
+                            return Optional.of(chatId);
+                        } catch (NoSuchElementException e) {
+                            log.error(e.getMessage());
+                        }
                     }
                     return Optional.empty();
                 });
@@ -57,24 +67,27 @@ public class ChatRoomService implements IChatRoomService {
     }
 
     private String createChatId(Long senderId, Long recipientId) {
-        Long firstId = Math.min(senderId, recipientId);
-        Long secondId = Math.max(senderId, recipientId);
-        var chatId = String.format("%s_%s", firstId, secondId);
+        Long _senderId = userRepository.findById(senderId).orElseThrow(
+                () -> new NoSuchElementException("Sender not found")
+        ).getUserId();
+        Long _recipientId = userRepository.findById(recipientId).orElseThrow(
+                () -> new NoSuchElementException("Recipient not found")
+        ).getUserId();
+        var chatId = String.format("%s_%s", Math.min(_senderId, _recipientId), Math.max(_senderId, _recipientId));
         LocalDateTime now = LocalDateTime.now();
         ChatRoomEntity senderRecipient = ChatRoomEntity.builder()
                 .chatId(chatId)
-                .senderId(senderId)
-                .recipientId(recipientId)
+                .senderId(_senderId)
+                .recipientId(_recipientId)
                 .lastUpdatedAt(now)
                 .build();
         ChatRoomEntity recipientSender = ChatRoomEntity.builder()
                 .chatId(chatId)
-                .senderId(recipientId)
-                .recipientId(senderId)
+                .senderId(_recipientId)
+                .recipientId(_senderId)
                 .lastUpdatedAt(now)
                 .build();
-        chatRoomRepository.save(senderRecipient);
-        chatRoomRepository.save(recipientSender);
+        chatRoomRepository.saveAll(List.of(senderRecipient, recipientSender));
         return chatId;
     }
 }
