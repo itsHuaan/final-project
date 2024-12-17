@@ -20,8 +20,7 @@ import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON;
 public class WebsocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/user");
-        registry.enableSimpleBroker("/note");
+        registry.enableSimpleBroker("/user", "/note");
         registry.setApplicationDestinationPrefixes("/app");
         registry.setUserDestinationPrefix("/user");
     }
