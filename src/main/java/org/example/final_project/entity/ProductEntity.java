@@ -51,4 +51,7 @@ public class ProductEntity {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FavoriteProductEntity> favorites = new ArrayList<>();
+    @ManyToMany
+    @JoinTable(name="tbl_product_promotion",joinColumns = @JoinColumn(name="product_id"),inverseJoinColumns = @JoinColumn(name="promotion_id"))
+    List<PromotionEntity> promotions;
 }

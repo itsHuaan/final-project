@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name="tbl_promotion")
@@ -24,4 +25,7 @@ public class PromotionEntity {
     @Column(name="end_date")
     private LocalDateTime endDate;
     private int status;
+    @ManyToMany(mappedBy = "promotions")
+    private List<ProductEntity> products;
+    private LocalDateTime deletedAt;
 }
