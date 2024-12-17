@@ -4,14 +4,13 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.CartItemDto;
-import org.example.final_project.entity.CartEntity;
 import org.example.final_project.entity.CartItemEntity;
+import org.example.final_project.entity.ProductEntity;
 import org.example.final_project.entity.SKUEntity;
 import org.example.final_project.mapper.CartItemMapper;
-import org.example.final_project.model.AddToCartRequest;
 import org.example.final_project.model.CartItemModel;
 import org.example.final_project.repository.ICartItemRepository;
-import org.example.final_project.repository.ICartRepository;
+import org.example.final_project.repository.IProductRepository;
 import org.example.final_project.repository.ISKURepository;
 import org.example.final_project.service.ICartItemService;
 import org.springframework.data.jpa.domain.Specification;
@@ -22,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.example.final_project.util.specification.CartItemSpecification.*;
+import static org.example.final_project.util.specification.ProductSpecification.*;
 
 @Service
 @RequiredArgsConstructor
@@ -30,9 +30,14 @@ public class CartItemService implements ICartItemService {
     ICartItemRepository cartItemRepository;
     ISKURepository skuRepository;
     CartItemMapper cartItemMapper;
+    IProductRepository productRepository;
 
     @Override
     public int updateQuantity(Long cartId, Long productId, Integer quantity, boolean isAddingOne) {
+        if(!isProductValid(productId)){
+            throw new IllegalArgumentException("Product is invalid");
+        }
+
         CartItemEntity currentCartItem = cartItemRepository.findOne(Specification.where(
                 hasCartId(cartId).and(hasProductId(productId))
         )).orElse(null);
@@ -85,6 +90,10 @@ public class CartItemService implements ICartItemService {
 
     @Override
     public int save(CartItemModel cartItemModel) {
+        if (!isProductValid(cartItemModel.getSkuId())){
+            throw new IllegalArgumentException("Product is invalid");
+        }
+
         Optional<CartItemEntity> currentCartItem = cartItemRepository.findOne(hasCartId(cartItemModel.getCartId()).and(hasProductId(cartItemModel.getSkuId())));
         if (currentCartItem.isPresent()) {
             CartItemEntity cartItem = currentCartItem.get();
@@ -108,5 +117,13 @@ public class CartItemService implements ICartItemService {
     @Override
     public int delete(Long id) {
         return 0;
+    }
+
+    private boolean isProductValid(Long id){
+        SKUEntity sku = skuRepository.findById(id).orElseThrow(
+                () -> new IllegalArgumentException("Variant not found")
+        );
+        Specification<ProductEntity> spec = Specification.where(hasId(sku.getProduct().getId()).and(isValid()));
+        return productRepository.findOne(spec).isPresent();
     }
 }
