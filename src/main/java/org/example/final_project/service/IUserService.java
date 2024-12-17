@@ -54,5 +54,5 @@ public interface IUserService extends IBaseService<UserDto, UserModel, Long> {
 
     List<ChatUserDto> getChatUsers(Long senderId);
 
-    Page<UserDto> filterUser(Pageable pageable, String name);
+    Page<UserDto> filterUser(Pageable pageable, String name, Integer status);
 }

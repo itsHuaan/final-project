@@ -457,8 +457,11 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
-    public Page<UserDto> filterUser(Pageable pageable, String name) {
+    public Page<UserDto> filterUser(Pageable pageable, String name, Integer status) {
         Specification<UserEntity> spec = Specification.where(isNotDeleted().and(isNotSuperAdmin()));
+        if (status != null){
+            spec = spec.and(hasStatus(status));
+        }
         if (name != null) {
             spec = spec.and(containName(name));
         }

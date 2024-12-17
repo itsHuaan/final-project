@@ -71,11 +71,12 @@ public class UserController {
     @GetMapping("/filter")
     public ResponseEntity<?> filterUser(@RequestParam(defaultValue = "0") Integer pageIndex,
                                         @RequestParam(defaultValue = "10") Integer pageSize,
-                                        @RequestParam String name) {
+                                        @RequestParam(required = false) String name,
+                                        @RequestParam(required = false) Integer status) {
         Pageable pageable = PageableValidation.setDefault(pageIndex, pageSize) != null
                 ? PageRequest.of(pageIndex, pageSize)
                 : Pageable.unpaged();
-        Page<UserDto> result = userService.filterUser(pageable, name);
+        Page<UserDto> result = userService.filterUser(pageable, name, status);
         return result.hasContent()
                 ? ResponseEntity.status(HttpStatus.OK).body(
                 createResponse(
