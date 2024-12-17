@@ -181,7 +181,9 @@ public class SKUService implements ISKUService {
             List<SKUEntity> skuList = iskuRepository.findAllByProduct_Id(productId);
             for (SKUEntity sku : skuList) {
                 optionIdList.add(sku.getOption1().getId());
-                optionIdList.add(sku.getOption2().getId());
+                if (sku.getOption2() != null) {
+                    optionIdList.add(sku.getOption2().getId());
+                }
             }
             return optionIdList;
         } else {
@@ -215,10 +217,10 @@ public class SKUService implements ISKUService {
                                 for (OptionValueTemp oldTemp : temp2) {
                                     SKUModel skuModel = new SKUModel();
                                     skuModel.setProductId(productId);
-                                    skuModel.setOptionId1(newTemp.getOption().getId());
-                                    skuModel.setValueId1(newTemp.getValue().getValueId());
-                                    skuModel.setOptionId2(oldTemp.getOption().getId());
-                                    skuModel.setValueId2(oldTemp.getValue().getValueId());
+                                    skuModel.setOptionId1(oldTemp.getOption().getId());
+                                    skuModel.setValueId1(oldTemp.getValue().getValueId());
+                                    skuModel.setOptionId2(newTemp.getOption().getId());
+                                    skuModel.setValueId2(newTemp.getValue().getValueId());
                                     saveCustom(skuModel);
                                 }
                             }

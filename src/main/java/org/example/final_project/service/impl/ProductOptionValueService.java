@@ -102,20 +102,39 @@ public class ProductOptionValueService implements IProductOptionValueService {
             ProductOptionValuesEntity savedValue = valueRepository.save(entity);
             if (productRepository.findById(productId).isPresent()) {
                 Set<Long> optionList = iskuService.getAllOptionOfProduct(productId);
-                for (Long optionId : optionList) {
-                    if (optionId != valueModel.getOptionId()) {
-                        ProductOptionsEntity option = optionRepository.findById(optionId).get();
-                        for (ProductOptionValuesEntity value : option.getValuesEntities()) {
+                Long optionId1 = optionList.stream().collect(Collectors.toList()).get(0);
+                if (optionList.size() == 2) {
+                    Long optionId2 = optionList.stream().collect(Collectors.toList()).get(1);
+                    if (valueModel.getOptionId() == optionId1) {
+                        for (ProductOptionValuesEntity value : valueRepository.findAllByOption_Id(optionId2)) {
                             SKUModel skuModel = new SKUModel();
                             skuModel.setProductId(productId);
-                            skuModel.setOptionId1(valueModel.getOptionId());
+                            skuModel.setOptionId1(optionId1);
                             skuModel.setValueId1(savedValue.getId());
-                            skuModel.setOptionId2(optionId);
+                            skuModel.setOptionId2(optionId2);
                             skuModel.setValueId2(value.getId());
                             iskuService.saveCustom(skuModel);
                         }
+                    } else if (valueModel.getOptionId() == optionId2) {
+                        for (ProductOptionValuesEntity value : valueRepository.findAllByOption_Id(optionId1)) {
+                            SKUModel skuModel = new SKUModel();
+                            skuModel.setProductId(productId);
+                            skuModel.setOptionId1(optionId1);
+                            skuModel.setValueId1(value.getId());
+                            skuModel.setOptionId2(optionId2);
+                            skuModel.setValueId2(savedValue.getId());
+                            iskuService.saveCustom(skuModel);
+                        }
                     }
+                } else {
+                    SKUModel skuModel = new SKUModel();
+                    skuModel.setProductId(productId);
+                    skuModel.setOptionId1(valueModel.getOptionId());
+                    skuModel.setValueId1(savedValue.getId());
+                    iskuService.saveCustom(skuModel);
                 }
+            }else{
+                throw new IllegalArgumentException("Product not present");
             }
             return 1;
         } catch (Exception e) {
