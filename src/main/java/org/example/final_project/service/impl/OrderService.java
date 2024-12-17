@@ -16,6 +16,7 @@ import org.example.final_project.mapper.OrderDetailMapper;
 import org.example.final_project.mapper.OrderMapper;
 import org.example.final_project.mapper.OrderTrackingMapper;
 import org.example.final_project.model.CartItemRequest;
+import org.example.final_project.model.NotifyModel;
 import org.example.final_project.model.OrderModel;
 import org.example.final_project.model.enum_status.ActivateStatus;
 import org.example.final_project.model.enum_status.CheckoutStatus;
@@ -24,6 +25,7 @@ import org.example.final_project.repository.*;
 import org.example.final_project.service.IOrderService;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -44,6 +46,8 @@ public class OrderService implements IOrderService {
     private final ISKURepository skuRepository;;
     private final OrderDetailMapper orderDetailMapper;
     private final ICartItemRepository cartItemRepository;
+    SimpMessagingTemplate messagingTemplate;
+
 
 
 
@@ -158,6 +162,26 @@ public class OrderService implements IOrderService {
 
         }
         return createResponse(HttpStatus.NOT_FOUND, "Not Found User ", null);
+    }
+    @Override
+    public OrderModel sentNotify(HttpServletRequest request){
+        String status = request.getParameter("vnp_ResponseCode");
+        String vnp_TxnRef = request.getParameter("vnp_TxnRef");
+        long id = orderRepository.findIdByOrderCode(vnp_TxnRef);
+        Optional<OrderEntity> orderEntity = orderRepository.findById(id);
+        OrderEntity order;
+        if(status.equals("00")){
+            order = orderEntity.get();
+            OrderModel orderModel = new OrderModel();
+            orderModel.setUserId(order.getUser().getUserId());
+            orderModel.setAmount(String.valueOf(order.getTotalPrice()));
+            List<CartItemRequest> cartItemRequest = order.getOrderDetailEntities().stream().map(e->OrderDetailMapper.toDTO(e)).toList();
+            orderModel.setCartItems(cartItemRequest);
+            return orderModel;
+        }else {
+            return null;
+        }
+
     }
 
         @Override
