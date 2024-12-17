@@ -91,7 +91,7 @@ public class OrderService implements IOrderService {
                 orderDetailEntity.setShopId(cartItemRequest.getShopId());
                 orderDetailEntity.setNameProduct(cartItemRequest.getNameProduct());
                 orderDetailEntity.setCreateAt(LocalDateTime.now());
-                orderDetailEntity.setStatusShip(StatusShipping.Create.getStatus());
+//                orderDetailEntity.setStatusShip(StatusShipping.Create.getStatus());
                 orderDetailEntity.setCartDetailId(cartItemRequest.getCartDetailId());
                 SKUEntity skuEntity = new SKUEntity();
                 skuEntity.setId(cartItemRequest.getProductSkuId());

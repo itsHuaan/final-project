@@ -46,7 +46,7 @@ public class OrderDetailMapper
                 .productName(orderDetailEntity.getNameProduct())
                 .user(userService.getById(orderDetailEntity.getShopId()))
                 .orderId(orderDetailEntity.getOrderEntity().getId())
-                .shippingStatus(orderDetailEntity.getStatusShip())
+//                .shippingStatus(orderDetailEntity.getStatusShip())
                 .skuDto(skuDto)
                 .build();
     }
