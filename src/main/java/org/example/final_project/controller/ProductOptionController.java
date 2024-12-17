@@ -22,7 +22,7 @@ public class ProductOptionController {
     ISKUService iskuService;
 
     @PostMapping("/{product-id}")
-    ResponseEntity addNewOption(@PathVariable("product-id") Long productId,
+    ResponseEntity<?> addNewOption(@PathVariable("product-id") Long productId,
                                 @RequestBody ProductOptionsModel model) {
         try {
             if (optionService.getNumberOfOptionByProduct(productId) < 2) {
@@ -50,7 +50,7 @@ public class ProductOptionController {
     }
 
     @DeleteMapping("/{option-id}")
-    ResponseEntity deleteOption(@PathVariable("option-id") Long optionId,
+    ResponseEntity<?> deleteOption(@PathVariable("option-id") Long optionId,
                                 @RequestParam("productId") Long productId) {
         try {
             if (optionService.getNumberOfOptionByProduct(productId) > 1) {

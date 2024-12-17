@@ -113,10 +113,11 @@ public class ProductMapper {
                         .orElse(null))
                 .price(variants.stream()
                         .map(SKUEntity::getPrice)
-                        .filter(Objects::nonNull)
                         .min(Double::compareTo)
                         .orElse(0.0))
                 .shopDto(userMapper.toShopDto(productEntity.getUser()))
+                .status(productEntity.getIsActive())
+                .note(productEntity.getNote())
                 .build();
     }
 }

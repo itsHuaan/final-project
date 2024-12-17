@@ -33,7 +33,7 @@ public class OrderDetailMapper
                 .build();
     }
 
-    public   OrderDetailDto toOrderDto(OrderDetailEntity orderDetailEntity){
+    public OrderDetailDto toOrderDto(OrderDetailEntity orderDetailEntity){
         SKUDto skuDto = skuMapper.convertToDto(orderDetailEntity.getSkuEntity());
         return OrderDetailDto.builder()
                 .id(orderDetailEntity.getId())

@@ -22,7 +22,7 @@ public class PromotionController {
     IPromotionService promotionService;
 
     @GetMapping
-    ResponseEntity getAllPromotion(@RequestParam(required = false) Integer pageIndex,
+    ResponseEntity<?> getAllPromotion(@RequestParam(required = false) Integer pageIndex,
                                    @RequestParam(required = false) Integer pageSize) {
         if (setDefault(pageSize, pageIndex) != null) {
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
@@ -40,7 +40,7 @@ public class PromotionController {
     }
 
     @PostMapping
-    ResponseEntity addPromotion(PromotionModel model) {
+    ResponseEntity<?> addPromotion(PromotionModel model) {
         try {
             if (LocalDateTime.now().isBefore(model.getStartDate())) {
                 promotionService.save(model);
@@ -66,7 +66,7 @@ public class PromotionController {
     }
 
     @PutMapping("/{promotion-id}")
-    ResponseEntity updatePromotion(@PathVariable("promotion-id") Long promotionId, PromotionModel model) {
+    ResponseEntity<?> updatePromotion(@PathVariable("promotion-id") Long promotionId, PromotionModel model) {
         try {
             promotionService.update(promotionId, model);
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
@@ -83,7 +83,7 @@ public class PromotionController {
         }
     }
     @PutMapping("/activate/{promotion-id}")
-    ResponseEntity activatePromotion(@PathVariable("promotion-id") Long promotionId,
+    ResponseEntity<?> activatePromotion(@PathVariable("promotion-id") Long promotionId,
                                      Integer type) {
         try {
             promotionService.activate(promotionId, type);
@@ -102,7 +102,7 @@ public class PromotionController {
     }
 
     @PostMapping("/apply-promotion")
-    ResponseEntity applyPromotion(@RequestParam Long promotionId,
+    ResponseEntity<?> applyPromotion(@RequestParam Long promotionId,
                                   @RequestParam Long productId) {
         try {
             promotionService.applyPromotion(promotionId, productId);
