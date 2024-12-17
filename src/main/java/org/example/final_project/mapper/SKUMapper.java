@@ -29,7 +29,7 @@ public class SKUMapper {
                         : null)
                 .oldPrice(entity.getPrice())
                 .newPrice(promotionService.findAllPromotionByNow(entity.getProduct().getId()) != null
-                        ? entity.getPrice()*promotionService.findAllPromotionByNow(entity.getProduct().getId()).getDiscountPercentage()
+                        ? entity.getPrice() * promotionService.findAllPromotionByNow(entity.getProduct().getId()).getDiscountPercentage()
                         : entity.getPrice())
                 .quantity(entity.getQuantity())
                 .image(entity.getImage())
