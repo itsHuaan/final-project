@@ -18,6 +18,9 @@ public interface IOrderTrackingRepository extends JpaRepository<OrderTrackingEnt
 //    @Query("select t from OrderTrackingEntity  t where t.order.id = :orderId")
 //    long findOrderDetailsByOrderTrackingStatusZeroAndOrderId(long orderId);
 
+    @Query("select t.order.id from OrderTrackingEntity t where t.shopId = :shopId and t.status = :status")
+    List<Long> findOrderIdsByShopIdAndStatus( long shopId,  int status );
+
 
 
 
