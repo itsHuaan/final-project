@@ -23,7 +23,7 @@ public class OrderDetailEntity {
     private long option2;
     private String nameProduct;
     private LocalDateTime createAt;
-//    private int statusShip;
+    private int statusShip;
     private long cartDetailId;
     @ManyToOne
     @JoinColumn(name = "order_id" )

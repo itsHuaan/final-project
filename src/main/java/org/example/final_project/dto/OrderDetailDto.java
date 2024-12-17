@@ -21,7 +21,7 @@ public class OrderDetailDto {
     private String productName;
     private UserDto user;
     private LocalDateTime createdAt;
-//    private int shippingStatus;
+    private int shippingStatus;
     private SKUDto skuDto;
 
 }

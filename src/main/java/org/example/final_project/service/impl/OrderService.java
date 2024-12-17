@@ -91,7 +91,7 @@ public class OrderService implements IOrderService {
                 orderDetailEntity.setShopId(cartItemRequest.getShopId());
                 orderDetailEntity.setNameProduct(cartItemRequest.getNameProduct());
                 orderDetailEntity.setCreateAt(LocalDateTime.now());
-//                orderDetailEntity.setStatusShip(StatusShipping.Create.getStatus());
+                orderDetailEntity.setStatusShip(StatusShipping.Create.getStatus());
                 orderDetailEntity.setCartDetailId(cartItemRequest.getCartDetailId());
                 SKUEntity skuEntity = new SKUEntity();
                 skuEntity.setId(cartItemRequest.getProductSkuId());
@@ -269,6 +269,10 @@ public class OrderService implements IOrderService {
         }
         return createResponse(HttpStatus.NOT_FOUND, "Not Found Product ", null);
     }
+
+//    public ApiResponse<?> findByStatusShipping(long shopId , int statusShipping){
+//        List<Long> orderIds = orderTrackingRepository.
+//    }
 
 
 

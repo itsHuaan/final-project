@@ -4,7 +4,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.example.final_project.dto.StatusMessageDto;
 import org.example.final_project.service.IOrderDetailService;
+import org.example.final_project.service.IOrderTrackingService;
 import org.example.final_project.util.Const;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(value = Const.API_PREFIX + "/user-tracking")
 public class OrderTrackingController {
         IOrderDetailService orderDetailService;
+        IOrderTrackingService orderTrackingService;
 
         @GetMapping("/{userId}")
         public ResponseEntity<?> index(@PathVariable Long userId) {
@@ -44,6 +47,13 @@ public class OrderTrackingController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not Found Order");
         }
     }
+    @PostMapping("/test-change-status-ship")
+    public ResponseEntity<?> statusShip(@RequestBody StatusMessageDto statusMessageDto){
+            int result = orderTrackingService.updateStatusShipping(statusMessageDto);
+            return ResponseEntity.ok(result == 1 ? "thành công" : "thất bại");
+    }
+
+
 
 
 
