@@ -18,6 +18,7 @@ public class ProductSummaryDto {
     private double rating;
     private CategorySummaryDto category;
     private String image;
+    private ShopDto shopDto;
     private double price;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;

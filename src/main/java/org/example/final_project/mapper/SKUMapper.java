@@ -8,6 +8,7 @@ import org.example.final_project.dto.SKUDto;
 import org.example.final_project.entity.SKUEntity;
 import org.example.final_project.model.SKUModel;
 import org.example.final_project.service.IProductOptionValueService;
+import org.example.final_project.service.IPromotionService;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class SKUMapper {
     ProductOptionMapper optionMapper;
+    IPromotionService promotionService;
 
     public SKUDto convertToDto(SKUEntity entity) {
         return SKUDto.builder()
@@ -25,7 +27,8 @@ public class SKUMapper {
                 .option2(entity.getOption2() != null
                         ? optionMapper.convertToDtoWithValue(entity.getOption2(), entity.getValue2())
                         : null)
-                .price(entity.getPrice())
+                .oldPrice(entity.getPrice())
+                .newPrice(entity.getPrice()*promotionService.findAllPromotionByNow(entity.getProduct().getId()).getDiscountPercentage())
                 .quantity(entity.getQuantity())
                 .image(entity.getImage())
                 .build();

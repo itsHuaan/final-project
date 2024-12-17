@@ -116,6 +116,7 @@ public class ProductMapper {
                         .filter(Objects::nonNull)
                         .min(Double::compareTo)
                         .orElse(0.0))
+                .shopDto(userMapper.toShopDto(productEntity.getUser()))
                 .build();
     }
 }

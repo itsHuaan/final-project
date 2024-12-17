@@ -11,7 +11,8 @@ public class SKUDto {
     private long variantId;
     private ProductOptionDto option1;
     private ProductOptionDto option2;
-    private double price;
+    private double oldPrice;
+    private double newPrice;
     private long quantity;
     private String image;
 }
