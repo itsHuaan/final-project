@@ -117,6 +117,7 @@ public class ProductMapper {
                         .orElse(0.0))
                 .shopDto(userMapper.toShopDto(productEntity.getUser()))
                 .status(productEntity.getIsActive())
+                .note(productEntity.getNote())
                 .build();
     }
 }
