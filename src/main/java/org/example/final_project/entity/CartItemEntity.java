@@ -26,6 +26,6 @@ public class CartItemEntity {
     private SKUEntity product;
 
     private Integer quantity;
-    private LocalDateTime createdAt;
-    private LocalDateTime modifiedAt;
+    private LocalDateTime lastUpdated;
+    private LocalDateTime deletedAt;
 }

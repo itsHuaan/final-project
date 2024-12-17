@@ -13,13 +13,10 @@
       const socket = new SockJS('/ws');
       stompClient = Stomp.over(socket);
 
-      stompClient.connect({}, onConnected, onError);
+      stompClient.connect({}, onConnected, onError)
     }
 
     function onConnected() {
-      stompClient.subscribe('/topic/public', function (payload) {
-        displayStatusChange(JSON.parse(payload.body).content);
-      });
       console.log('Connected to WebSocket');
     }
 
@@ -32,12 +29,15 @@
       const orderId = document.getElementById('orderId').value;
       const shopId = document.getElementById('shopId').value;
       const status = document.getElementById('status').value;
+      const userId = document.getElementById('userId').value;
+
 
       if (orderId && shopId && status) {
         const message = {
           orderId: parseInt(orderId),
           shopId: parseInt(shopId),
-          status: parseInt(status)
+          status: parseInt(status),
+          userId:parseInt(userId)
         };
 
         stompClient.send("/app/changeStatusShipping", {}, JSON.stringify(message));
@@ -46,18 +46,6 @@
         alert('Please fill in all fields before sending the message.');
       }
     }
-
-    function displayStatusChange(message) {
-      console.log('Received message:', message);
-
-      const responseDiv = document.getElementById('response');
-
-      const messageElement = document.createElement('p');
-      messageElement.innerText = `Order ID: ${message.orderId}, Shop ID: ${message.shopId}, Status: ${message.status}, Content: ${message.content}`;
-
-      responseDiv.appendChild(messageElement);
-    }
-
 
     window.onload = connect;
   </script>
@@ -75,12 +63,11 @@
   <label for="shopId">Shop ID:</label>
   <input type="text" id="shopId" placeholder="Enter shop ID">
   <br>
+  <label for="userId">UserId ID:</label>
+  <input type="text" id="userId" placeholder="Enter user ID">
+  <br>
   <button onclick="sendMessage()">Send</button>
 </div>
 
-<div>
-  <h2>Response:</h2>
-  <div id="response"></div>
-</div>
 </body>
 </html>

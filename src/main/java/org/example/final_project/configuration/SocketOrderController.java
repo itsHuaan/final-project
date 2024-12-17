@@ -4,11 +4,16 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.StatusMessageDto;
+import org.example.final_project.service.IOrderDetailService;
 import org.example.final_project.service.IOrderTrackingService;
+import org.example.final_project.service.impl.ChatMessageService;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -16,24 +21,27 @@ import org.springframework.web.bind.annotation.RestController;
 public class SocketOrderController {
 
     IOrderTrackingService iOrderTrackingService;
-
+    SimpMessagingTemplate messagingTemplate;
+    IOrderDetailService iOrderDetailService;
     @MessageMapping("/changeStatusShipping")
-    @SendTo("/topic/public")
-    public StatusMessageDto changeStatus(@Payload StatusMessageDto statusMessageDto) {
-        int status = statusMessageDto.getStatus();
-        long shopId = statusMessageDto.getShopId();
-        long orderId = statusMessageDto.getOrderId();
-        int result =  iOrderTrackingService.updateStatusShipping(status, shopId, orderId);
+    public void changeStatus(@Payload StatusMessageDto statusMessageDto) {
 
-        if (result == 1) {
-            statusMessageDto.setContent("Status update success for Order ID: " + orderId);
-            statusMessageDto.setStatus(status);
-            statusMessageDto.setShopId(shopId);
-            statusMessageDto.setOrderId(orderId);
-            return statusMessageDto;
-        } else {
-            statusMessageDto.setContent("Status update failed for Order ID: " + orderId);
+        int result =  iOrderTrackingService.updateStatusShipping(statusMessageDto);
+        StatusMessageDto responseDto = new StatusMessageDto();
+
+        if(result == 1){
+             responseDto = StatusMessageDto.builder()
+                    .userId(statusMessageDto.getUserId())
+                    .status(statusMessageDto.getStatus())
+                    .shopId(statusMessageDto.getShopId())
+                    .orderId(statusMessageDto.getOrderId())
+                    .build();
         }
-        return statusMessageDto;
+        messagingTemplate.convertAndSend("/user/sent", responseDto);
     }
+
+
+
+
+
 }

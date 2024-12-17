@@ -15,7 +15,6 @@ import org.example.final_project.repository.ICategoryRepository;
 import org.example.final_project.repository.IImageProductRepository;
 import org.example.final_project.repository.IProductRepository;
 import org.example.final_project.service.ISKUService;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -23,8 +22,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
-import static org.example.final_project.util.specification.ProductSpecification.isNotDeleted;
 
 @Component
 @RequiredArgsConstructor

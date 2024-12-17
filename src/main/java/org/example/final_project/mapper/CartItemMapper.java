@@ -29,8 +29,7 @@ public class CartItemMapper {
                 .item(variantMapper.toDto(cartItemEntity.getProduct()))
                 .itemQuantity(cartItemEntity.getQuantity())
                 .totalPrice(cartItemEntity.getProduct().getPrice() * cartItemEntity.getQuantity())
-                .createdAt(cartItemEntity.getCreatedAt())
-                .modifiedAt(cartItemEntity.getModifiedAt())
+                .lastUpdated(cartItemEntity.getLastUpdated())
                 .build();
     }
 
@@ -45,7 +44,7 @@ public class CartItemMapper {
                 .cart(cartEntity)
                 .product(product)
                 .quantity(cartItemModel.getQuantity())
-                .createdAt(LocalDateTime.now())
+                .lastUpdated(LocalDateTime.now())
                 .build();
     }
 }

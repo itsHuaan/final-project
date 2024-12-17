@@ -53,4 +53,6 @@ public interface IUserService extends IBaseService<UserDto, UserModel, Long> {
     int updateShop(Long userId, ShopModel shopModel);
 
     List<ChatUserDto> getChatUsers(Long senderId);
+
+    Page<UserDto> filterUser(Pageable pageable, String name);
 }

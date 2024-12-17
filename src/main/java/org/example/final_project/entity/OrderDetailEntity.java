@@ -24,6 +24,7 @@ public class OrderDetailEntity {
     private String nameProduct;
     private LocalDateTime createAt;
     private int statusShip;
+    private long cartDetailId;
     @ManyToOne
     @JoinColumn(name = "order_id" )
     private OrderEntity orderEntity;

@@ -5,9 +5,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.example.final_project.dto.ApiResponse;
 import org.example.final_project.dto.CartDto;
 import org.example.final_project.model.AddToCartRequest;
 import org.example.final_project.model.CartItemModel;
+import org.example.final_project.repository.ICartItemRepository;
+import org.example.final_project.service.IOrderService;
 import org.example.final_project.service.ISKUService;
 import org.example.final_project.service.impl.CartItemService;
 import org.example.final_project.service.impl.CartService;
@@ -30,6 +33,8 @@ public class CartController {
     CartService cartService;
     CartItemService cartItemService;
     ISKUService skuService;
+    IOrderService orderService;
+
 
     @Operation(summary = "Get cart by userId")
     @GetMapping("/{userId}")
@@ -158,4 +163,18 @@ public class CartController {
     public ResponseEntity<?> checkout(@PathVariable Long cartId, @RequestParam(required = false) List<Long> cartItemId) {
         return ResponseEntity.status(HttpStatus.OK).body(cartService.getCheckOutDetail(cartId, cartItemId));
     }
+
+    @Operation(summary = "Check Quatity")
+    @GetMapping("/check-quantity")
+    public ResponseEntity<?> checkQuatity(@RequestParam long skuId , @RequestParam long currentQuatity) {
+        try {
+            ApiResponse<?> response = orderService.checkQuatityInStock(skuId,currentQuatity);
+            return ResponseEntity.status(response.getStatus()).body(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(orderService.checkQuatityInStock(skuId,currentQuatity));
+        }
+
+    }
+
+
 }

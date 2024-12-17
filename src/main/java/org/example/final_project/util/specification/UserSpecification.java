@@ -38,7 +38,6 @@ public class UserSpecification {
     }
 
 
-
     public static Specification<UserEntity> isDeleted() {
         return (Root<UserEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.isNotNull(root.get("deletedAt"));
@@ -57,5 +56,11 @@ public class UserSpecification {
     public static Specification<UserEntity> isShop() {
         return (Root<UserEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.notEqual(root.get("shop_status"), 0);
+    }
+
+
+    public static Specification<UserEntity> containName(String name) {
+        return (Root<UserEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
+                criteriaBuilder.like(root.get("name"), "%" + name + "%");
     }
 }

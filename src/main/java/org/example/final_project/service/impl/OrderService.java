@@ -43,6 +43,8 @@ public class OrderService implements IOrderService {
     private final OrderMapper orderMapper;
     private final ISKURepository skuRepository;;
     private final OrderDetailMapper orderDetailMapper;
+    private final ICartItemRepository cartItemRepository;
+
 
 
     @Override
@@ -86,6 +88,7 @@ public class OrderService implements IOrderService {
                 orderDetailEntity.setNameProduct(cartItemRequest.getNameProduct());
                 orderDetailEntity.setCreateAt(LocalDateTime.now());
                 orderDetailEntity.setStatusShip(StatusShipping.Create.getStatus());
+                orderDetailEntity.setCartDetailId(cartItemRequest.getCartDetailId());
                 SKUEntity skuEntity = new SKUEntity();
                 skuEntity.setId(cartItemRequest.getProductSkuId());
                 orderDetailEntity.setSkuEntity(skuEntity);
@@ -101,6 +104,7 @@ public class OrderService implements IOrderService {
                     if(skuEntity.isPresent()) {
                         SKUEntity skuEntity1 = skuEntity.get();
                         skuEntity1.setQuantity( skuEntity1.getQuantity() - cartItemRequest.getQuantity());
+                        cartItemRepository.deleteByCartId(cartItemRequest.getCartDetailId());
                         skuRepository.save(skuEntity1);
                     }
                 }
@@ -118,6 +122,12 @@ public class OrderService implements IOrderService {
         long id = orderRepository.findIdByOrderCode(vnp_TxnRef);
         Optional<OrderEntity> orderEntity = orderRepository.findById(id);
         OrderEntity order;
+
+        List<OrderDetailEntity> orderEntities = orderDetailRepository.findByOrderId(id);
+        for (OrderDetailEntity orderDetailEntity : orderEntities) {
+            cartItemRepository.deleteByCartId(orderDetailEntity.getCartDetailId());
+        }
+
         if(orderEntity.isPresent()) {
             if(status.equals("00")){
                 order = orderEntity.get();
@@ -220,6 +230,23 @@ public class OrderService implements IOrderService {
         OrderDto orderDto = orderMapper.toOrderDto(orderEntity1);
         return orderDto;
     }
+    @Override
+    public ApiResponse<?>  checkQuatityInStock(long skuId , long currentQuatity){
+        Optional<SKUEntity> skuEntity = skuRepository.findById(skuId);
+        if(skuEntity.isPresent()) {
+            SKUEntity skuEntity1 = skuEntity.get();
+            if(skuEntity1.getQuantity() < currentQuatity) {
+                return createResponse(HttpStatus.BAD_REQUEST, "The current quantity is greater than the quantity in the stock", null);
+            }else {
+                return createResponse(HttpStatus.OK, "The current quantity matches the quantity in stock", null);
+            }
+
+
+        }
+        return createResponse(HttpStatus.NOT_FOUND, "Not Found Product ", null);
+    }
+
+
 
 
 }

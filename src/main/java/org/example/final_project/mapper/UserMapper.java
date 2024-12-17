@@ -88,7 +88,7 @@ public class UserMapper {
                 .shopAddress(String.join(", ", addressService.findAddressNamesFromParentId(Long.parseLong(String.valueOf(userEntity.getAddress_id_shop())))))
                 .shopAddressDetail(userEntity.getShop_address_detail())
                 .feedbackCount((long) feedbacks.size())
-                .productCount((long) productRepository.findAll(Specification.where(hasUserId(userEntity.getUserId())))
+                .productCount((long) productRepository.findAll(Specification.where(hasUserId(userEntity.getUserId()).and(isValid())))
                         .size())
                 .joined(duration.toDays())
                 .build();
