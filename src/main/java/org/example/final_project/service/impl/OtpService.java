@@ -18,6 +18,7 @@ import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.example.final_project.specification.OtpSpecification.*;
 import static org.example.final_project.util.Const.OTP_LENGTH;
 import static org.example.final_project.util.Const.SALTCHARS;
 

@@ -49,6 +49,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static org.example.final_project.dto.ApiResponse.createResponse;
+import static org.example.final_project.specification.UserSpecification.*;
 
 @Slf4j
 @Service
