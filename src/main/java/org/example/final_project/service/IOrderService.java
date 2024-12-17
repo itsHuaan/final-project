@@ -16,4 +16,5 @@ public interface IOrderService {
     ApiResponse<?> getOrderTracking(Long orderId , Long shopId);
     OrderDto findByShopIdAndCodeOrder(long shopId , String orderCode);
     ApiResponse<?>  checkQuatityInStock(long skuId , long currentQuatity);
+    OrderModel sentNotify(HttpServletRequest request);
 }

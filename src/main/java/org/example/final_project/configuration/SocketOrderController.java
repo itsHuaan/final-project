@@ -36,8 +36,9 @@ public class SocketOrderController {
                     .shopId(statusMessageDto.getShopId())
                     .orderId(statusMessageDto.getOrderId())
                     .build();
+
         }
-        messagingTemplate.convertAndSend("/user/sent", responseDto);
+        messagingTemplate.convertAndSend("/user/sent", iOrderDetailService.findDetailIn4OfOrder(responseDto.getUserId(),responseDto.getOrderId(),responseDto.getShopId()));
     }
 
 

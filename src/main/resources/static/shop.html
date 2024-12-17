@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</head>
+
+<body>
+<h1>Shop số : </h1>
+<input type="text" id="shopId" placeholder="Enter shop ID">
+<div id="notify" ></div>
+<script>
+    let stompClient = null;
+    function connect() {
+        const socket = new SockJS('/ws');
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, onConnected, onError);
+    }
+    function onConnected() {
+        stompClient.subscribe('/note/notify', function (payload) {
+            const mess = JSON.parse(payload.body)
+            display(mess);
+        });
+        console.log('Connected to WebSocket');
+    }
+
+    function onError(error) {
+        console.error('WebSocket connection failed', error);
+    }
+
+    function display(message) {
+        const shopId1 = document.getElementById('shopId').value;
+
+        console.log('Received message:', message);
+        let shopId = parseInt(message.shopId);
+
+        let id = parseInt(shopId1);
+
+        if(shopId === id){
+            const responseBody = document.querySelector('#notify');
+            const row = `<p>${message.notifyTitle}</p>`;
+            responseBody.innerHTML += row;
+        }
+    }
+
+    window.onload = connect;
+</script>
+</body>
+</html>
