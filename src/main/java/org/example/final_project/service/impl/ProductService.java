@@ -136,9 +136,9 @@ public class ProductService implements IProductService {
 
 
     @Override
-    public Page<ProductDto> getAllProductByStatus(int status, Pageable pageable) {
+    public Page<ProductSummaryDto> getAllProductByStatus(int status, Pageable pageable) {
         if (ActivateStatus.Active.checkIfExist(status)) {
-            return iProductRepository.findAll(Specification.where(isStatus(status)).and(isValid()), Objects.requireNonNullElseGet(pageable, () -> PageRequest.of(0, iProductRepository.findAll().size()))).map(productMapper::convertToDto);
+            return iProductRepository.findAll(Specification.where(isStatus(status)).and(isValid()), Objects.requireNonNullElseGet(pageable, () -> PageRequest.of(0, iProductRepository.findAll().size()))).map(productMapper::toProductSummaryDto);
         } else {
             throw new IllegalArgumentException("Value not found");
         }
