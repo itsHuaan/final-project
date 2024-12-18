@@ -14,6 +14,7 @@ import org.example.final_project.repository.IProductOptionValueRepository;
 import org.example.final_project.repository.IProductRepository;
 import org.example.final_project.service.IProductOptionValueService;
 import org.example.final_project.service.ISKUService;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -29,6 +30,7 @@ public class ProductOptionValueService implements IProductOptionValueService {
     ProductOptionValueMapper mapper;
     IProductOptionRepository optionRepository;
     ProductOptionValueMapper valueMapper;
+    @Lazy
     ISKUService iskuService;
     IProductRepository productRepository;
 

@@ -15,6 +15,7 @@ import org.example.final_project.service.IProductOptionService;
 import org.example.final_project.service.IProductOptionValueService;
 import org.example.final_project.service.ISKUService;
 import org.example.final_project.util.ConvertJsonObject;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

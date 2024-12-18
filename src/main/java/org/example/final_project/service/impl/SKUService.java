@@ -6,14 +6,14 @@ import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.*;
 import org.example.final_project.entity.ProductOptionValuesEntity;
 import org.example.final_project.entity.SKUEntity;
+import org.example.final_project.mapper.ProductOptionMapper;
+import org.example.final_project.mapper.ProductOptionValueMapper;
 import org.example.final_project.mapper.SKUMapper;
 import org.example.final_project.model.SKUModel;
 import org.example.final_project.repository.IProductOptionRepository;
 import org.example.final_project.repository.IProductOptionValueRepository;
 import org.example.final_project.repository.IProductRepository;
 import org.example.final_project.repository.ISKURepository;
-import org.example.final_project.service.IProductOptionService;
-import org.example.final_project.service.IProductOptionValueService;
 import org.example.final_project.service.ISKUService;
 import org.springframework.stereotype.Service;
 
@@ -29,8 +29,8 @@ public class SKUService implements ISKUService {
     IProductRepository productRepository;
     IProductOptionRepository optionRepository;
     IProductOptionValueRepository valueRepository;
-    IProductOptionService optionService;
-    IProductOptionValueService valueService;
+    ProductOptionMapper productOptionMapper;
+    ProductOptionValueMapper productOptionValueMapper;
     SKUMapper skuMapper;
 
     @Override
@@ -109,14 +109,14 @@ public class SKUService implements ISKUService {
                     }
                 }
             }
-            for (int i = 0; i < temps1.size(); i++) {
-                for (int j = 0; j < temps2.size(); j++) {
+            for (OptionValueTemp optionValueTemp : temps1) {
+                for (OptionValueTemp valueTemp : temps2) {
                     SKUModel skuModel = new SKUModel();
                     skuModel.setProductId(productId);
-                    skuModel.setOptionId1(temps1.get(i).getOption().getId());
-                    skuModel.setValueId1(temps1.get(i).getValue().getValueId());
-                    skuModel.setOptionId2(temps2.get(j).getOption().getId());
-                    skuModel.setValueId2(temps2.get(j).getValue().getValueId());
+                    skuModel.setOptionId1(optionValueTemp.getOption().getId());
+                    skuModel.setValueId1(optionValueTemp.getValue().getValueId());
+                    skuModel.setOptionId2(valueTemp.getOption().getId());
+                    skuModel.setValueId2(valueTemp.getValue().getValueId());
                     stockList.add(saveCustom(skuModel));
                 }
             }
@@ -178,17 +178,18 @@ public class SKUService implements ISKUService {
                 optionIdList.add(skuDto.getOption1().getOptionId());
             }
             deleteAllSKUByOptionId(optionIdList.stream().toList().get(0));
-            // lấy ra tất cả các option cũ của sản phẩm
             if (optionId != null) {
                 for (Long oldOptionId : optionIdList) {
                     if (!Objects.equals(oldOptionId, optionId)) {
                         List<OptionValueTemp> temp1 = new ArrayList<>();//list option-value mới
                         for (ProductOptionValuesEntity value : valueRepository.findAllByOption_Id(optionId)) {
-                            temp1.add(new OptionValueTemp(optionService.getById(optionId), valueService.getById(value.getId())));
+                            temp1.add(new OptionValueTemp(productOptionMapper.convertToDto(optionRepository.getReferenceById(optionId)),
+                                    productOptionValueMapper.convertToDto(valueRepository.getReferenceById(value.getId()))));
                         }
                         List<OptionValueTemp> temp2 = new ArrayList<>();//list option-value cũ
                         for (ProductOptionValuesEntity value : valueRepository.findAllByOption_Id(oldOptionId)) {
-                            temp2.add(new OptionValueTemp(optionService.getById(oldOptionId), valueService.getById(value.getId())));
+                            temp2.add(new OptionValueTemp(productOptionMapper.convertToDto(optionRepository.getReferenceById(oldOptionId)),
+                                    productOptionValueMapper.convertToDto(valueRepository.getReferenceById(value.getId()))));
                         }
                         for (OptionValueTemp newTemp : temp1) {
                             for (OptionValueTemp oldTemp : temp2) {
@@ -212,44 +213,38 @@ public class SKUService implements ISKUService {
 
     @Override
     public int addListSKUAfterDeleteOption(Long productId, Long optionId) {
-        try {
-            if (productRepository.findById(productId).isPresent()) {
-                List<SKUDto> skuList = getAllByProduct(productId);
-                Set<Long> optionIdList = new HashSet<>();
-                for (SKUDto skuDto : skuList) {
-                    if (skuDto.getOption1() != null) {
-                        optionIdList.add(skuDto.getOption1().getOptionId());
-                    }
-                    if (skuDto.getOption2() != null) {
-                        optionIdList.add(skuDto.getOption2().getOptionId());
-                    }
+        if (productRepository.findById(productId).isPresent()) {
+            List<SKUDto> skuList = getAllByProduct(productId);
+            Set<Long> optionIdList = new HashSet<>();
+            for (SKUDto skuDto : skuList) {
+                if (skuDto.getOption1() != null) {
+                    optionIdList.add(skuDto.getOption1().getOptionId());
                 }
-                optionService.delete(optionId);
-                for (Long id : optionIdList) {
-                    if (!Objects.equals(id, optionId)) {
-                        for (ProductOptionValuesEntity value : valueRepository.findAllByOption_Id(id)) {
-                            SKUModel skuModel = new SKUModel();
-                            skuModel.setOptionId1(id);
-                            skuModel.setValueId1(value.getId());
-                            skuModel.setProductId(productId);
-                            saveCustom(skuModel);
-                        }
-                    }
+                if (skuDto.getOption2() != null) {
+                    optionIdList.add(skuDto.getOption2().getOptionId());
                 }
-                return 1;
-            } else {
-                throw new IndexOutOfBoundsException("Out of options size");
             }
-        } catch (
-                Exception e) {
-            throw e;
+            optionRepository.deleteById(optionId);
+            for (Long id : optionIdList) {
+                if (!Objects.equals(id, optionId)) {
+                    for (ProductOptionValuesEntity value : valueRepository.findAllByOption_Id(id)) {
+                        SKUModel skuModel = new SKUModel();
+                        skuModel.setOptionId1(id);
+                        skuModel.setValueId1(value.getId());
+                        skuModel.setProductId(productId);
+                        saveCustom(skuModel);
+                    }
+                }
+            }
+            return 1;
+        } else {
+            throw new IndexOutOfBoundsException("Out of options size");
         }
     }
 
 
-    public int deleteAllSKUByOptionId(Long optionId) {
+    private void deleteAllSKUByOptionId(Long optionId) {
         List<SKUEntity> skuEntities = iskuRepository.findAllByOption1_IdOrOption2_Id(optionId, optionId);
         iskuRepository.deleteAll(skuEntities);
-        return 1;
     }
 }
