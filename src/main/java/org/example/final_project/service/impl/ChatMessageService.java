@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
-import static org.example.final_project.util.specification.ChatMessageSpecification.*;
+import static org.example.final_project.specification.ChatMessageSpecification.*;
 
 @Slf4j
 @Service

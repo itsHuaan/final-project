@@ -28,8 +28,7 @@ import org.example.final_project.repository.IShippingAddressRepository;
 import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.IAddressService;
 import org.example.final_project.service.IUserService;
-import org.example.final_project.util.specification.ProductSpecification;
-import org.example.final_project.util.specification.UserSpecification;
+import org.example.final_project.specification.UserSpecification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -50,7 +49,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static org.example.final_project.dto.ApiResponse.createResponse;
-import static org.example.final_project.util.specification.UserSpecification.*;
+import static org.example.final_project.specification.UserSpecification.*;
 
 @Slf4j
 @Service
@@ -217,9 +216,15 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
-    public Page<UserDto> findAllUsers(Pageable pageable) {
-        Specification<UserEntity> specification = Specification.where(isNotDeleted().and(isNotSuperAdmin()));
-        return userRepository.findAll(specification, pageable).map(userMapper::toDto);
+    public Page<UserDto> findAllUsers(Pageable pageable, String name, Integer status) {
+        Specification<UserEntity> spec = Specification.where(isNotDeleted().and(isNotSuperAdmin()));
+        if (status != null){
+            spec = spec.and(hasStatus(status));
+        }
+        if (name != null) {
+            spec = spec.and(containName(name));
+        }
+        return userRepository.findAll(spec, pageable).map(userMapper::toDto);
     }
 
     @Override
@@ -295,7 +300,7 @@ public class UserService implements IUserService, UserDetailsService {
                 return createResponse(HttpStatus.OK, "Lock Shop", null);
             }
         }
-        throw new NotFound("Not found Userr");
+        throw new NotFound("Not found User");
     }
 
     @Override
@@ -459,32 +464,8 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
-    public Page<UserDto> filterUser(Pageable pageable, String name) {
-        Specification<UserEntity> spec = Specification.where(isNotDeleted().and(isNotSuperAdmin()));
-        if (name != null) {
-            spec = spec.and(containName(name));
-        }
-        return userRepository.findAll(spec, pageable).map(userMapper::toDto);
-    }
-
-    @Override
     public List<UserDto> findActiveUsers() {
         return userRepository.findAll(Specification.where(isActive().and(isNotSuperAdmin()))).stream().map(userMapper::toDto).toList();
-    }
-
-    @Scheduled(fixedRate = 1000)
-    void setAdmin() {
-        UserEntity adminUser = userRepository.findOne(hasEmail("admin@gmail.com").and(hasUsername("admin"))).orElse(null);
-        if (adminUser != null) {
-            if (adminUser.getRole().getRoleId() != 3) {
-                adminUser.setRole(RoleEntity.builder()
-                        .roleId(3L)
-                        .roleName("ROLE_ADMIN")
-                        .build());
-                userRepository.save(adminUser);
-                log.info("Admin role is set");
-            }
-        }
     }
 }
 

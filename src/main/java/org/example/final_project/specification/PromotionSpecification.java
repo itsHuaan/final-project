@@ -1,4 +1,4 @@
-package org.example.final_project.util.specification;
+package org.example.final_project.specification;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;

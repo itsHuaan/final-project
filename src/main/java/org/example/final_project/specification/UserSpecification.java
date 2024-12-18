@@ -1,4 +1,4 @@
-package org.example.final_project.util.specification;
+package org.example.final_project.specification;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -58,9 +58,13 @@ public class UserSpecification {
                 criteriaBuilder.notEqual(root.get("shop_status"), 0);
     }
 
-
     public static Specification<UserEntity> containName(String name) {
         return (Root<UserEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.like(root.get("name"), "%" + name + "%");
+    }
+
+    public static Specification<UserEntity> hasStatus(int status) {
+        return (Root<UserEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("isActive"), status);
     }
 }

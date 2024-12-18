@@ -6,7 +6,6 @@ import jakarta.servlet.annotation.MultipartConfig;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.example.final_project.configuration.UserDetailsImpl;
 import org.example.final_project.dto.*;
 import org.example.final_project.model.FavoriteProductModel;
 import org.example.final_project.model.ProductModel;
@@ -20,9 +19,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -166,20 +162,18 @@ public class ProductController {
     @Operation(summary = "Delete a product")
     @DeleteMapping("/{id}")
     ResponseEntity<?> deleteProduct(@PathVariable("id") long id) {
-        try {
-            productService.delete(id);
-            return ResponseEntity.ok(createResponse(
-                    HttpStatus.NO_CONTENT,
-                    "Delete Product Successfully",
-                    null
-            ));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
-                    HttpStatus.BAD_REQUEST,
-                    e.getMessage(),
-                    null
-            ));
-        }
+        int result = productService.delete(id);
+        return result != 0
+                ?ResponseEntity.ok(createResponse(
+                HttpStatus.NO_CONTENT,
+                "Delete Product Successfully",
+                null
+        ))
+                :ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+                HttpStatus.BAD_REQUEST,
+                "Product not found",
+                null
+        ));
     }
 
     @Operation(summary = "Change the product status")
