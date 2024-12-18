@@ -1,5 +1,8 @@
 package org.example.final_project.service.impl;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.ProductOptionDetailDto;
 import org.example.final_project.dto.ProductOptionDto;
 import org.example.final_project.dto.ProductOptionValueDto;
@@ -24,23 +27,19 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ProductOptionValueService implements IProductOptionValueService {
-    @Autowired
     IProductOptionValueRepository valueRepository;
-    @Autowired
     ProductOptionValueMapper mapper;
-    @Autowired
     IProductOptionRepository optionRepository;
-    @Autowired
     ProductOptionValueMapper valueMapper;
-    @Autowired
     ISKUService iskuService;
-    @Autowired
     IProductRepository productRepository;
 
     @Override
     public List<ProductOptionValueDto> getAll() {
-        return valueRepository.findAll().stream().map(x -> mapper.convertToDto(x)).collect(Collectors.toList());
+        return valueRepository.findAll().stream().map(mapper::convertToDto).collect(Collectors.toList());
     }
 
     @Override

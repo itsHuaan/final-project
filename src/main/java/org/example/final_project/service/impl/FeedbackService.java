@@ -13,15 +13,12 @@ import org.example.final_project.repository.IProductRepository;
 import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.IFeedbackService;
 import org.example.final_project.service.IImageFeedbackService;
-import org.example.final_project.service.IUserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import static org.example.final_project.util.specification.FeedbackSpecification.*;
@@ -33,8 +30,6 @@ public class FeedbackService implements IFeedbackService {
     IFeedbackRepository feedbackRepository;
     FeedbackMapper feedbackMapper;
     IImageFeedbackService iImageFeedbackService;
-    IUserRepository userRepository;
-    IProductRepository productRepository;
 
     @Override
     public List<FeedbackDto> getAll() {

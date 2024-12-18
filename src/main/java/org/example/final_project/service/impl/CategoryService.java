@@ -5,26 +5,25 @@ import com.cloudinary.utils.ObjectUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.example.final_project.dto.CategoryDto;
 import org.example.final_project.entity.CategoryEntity;
+import org.example.final_project.entity.UserEntity;
 import org.example.final_project.mapper.CategoryMapper;
 import org.example.final_project.model.CategoryModel;
 import org.example.final_project.model.enum_status.ActivateStatus;
 import org.example.final_project.repository.ICategoryRepository;
 import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.ICategoryService;
-import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.EnumSet;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static org.example.final_project.util.specification.CategorySpecification.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -56,12 +55,15 @@ public class CategoryService implements ICategoryService {
                 category.setImage(cloudinary.uploader().upload(model.getFile().getBytes(), ObjectUtils.emptyMap()).get("url").toString());
             }
             if (model.getUser_id() != 0L) {
-                category.setUser(iUserRepository.findById(model.getUser_id()).get());
+                UserEntity user = iUserRepository.findById(model.getUser_id()).isPresent()
+                        ? iUserRepository.findById(model.getUser_id()).get()
+                        : new UserEntity();
+                category.setUser(user);
             }
             iCategoryRepository.save(category);
             return 1;
         } catch (Exception e) {
-            System.out.println(e);
+            log.error(e.getMessage());
             return 0;
         }
     }
@@ -69,13 +71,10 @@ public class CategoryService implements ICategoryService {
     @Override
     public int update(Long aLong, CategoryModel model) {
         try {
-            if (iCategoryRepository.findById(aLong).get() != null) {
+            if (iCategoryRepository.findById(aLong).isPresent()) {
                 CategoryEntity categoryEntity = categoryMapper.convertToEntity(model);
                 if (model.getFile() != null && !model.getFile().isEmpty()) {
                     categoryEntity.setImage(cloudinary.uploader().upload(model.getFile().getBytes(), ObjectUtils.emptyMap()).get("url").toString());
-                }
-                if (Objects.isNull(model.getUser_id())) {
-                    categoryEntity.setUser(iUserRepository.findById(model.getUser_id()).get());
                 }
                 categoryEntity.setId(aLong);
                 iCategoryRepository.save(categoryEntity);
@@ -85,7 +84,7 @@ public class CategoryService implements ICategoryService {
             return 1;
         } catch (
                 Exception e) {
-            System.out.println(e);
+            log.error(e.getMessage());
             return 0;
         }
 
@@ -94,8 +93,8 @@ public class CategoryService implements ICategoryService {
     @Override
     public int delete(Long id) {
         try {
-            CategoryEntity categoryEntity = iCategoryRepository.findById(id).get();
-            if (categoryEntity != null) {
+            if (iCategoryRepository.findById(id).isPresent()) {
+                CategoryEntity categoryEntity = iCategoryRepository.findById(id).get();
                 categoryEntity.setDeletedAt(LocalDateTime.now());
                 iCategoryRepository.save(categoryEntity);
             } else {
@@ -103,7 +102,7 @@ public class CategoryService implements ICategoryService {
             }
             return 1;
         } catch (Exception e) {
-            System.out.println(e);
+            log.error(e.getMessage());
             return 0;
         }
 
@@ -112,8 +111,8 @@ public class CategoryService implements ICategoryService {
     @Override
     public int activateCategory(long id, int type) {
         try {
-            CategoryEntity categoryEntity = iCategoryRepository.findById(id).get();
-            if (categoryEntity != null) {
+            if (iCategoryRepository.findById(id).isPresent()) {
+                CategoryEntity categoryEntity = iCategoryRepository.findById(id).get();
                 if (ActivateStatus.Inactive.checkIfExist(type)) {
                     categoryEntity.setIsActive(type);
                     iCategoryRepository.save(categoryEntity);
@@ -123,7 +122,7 @@ public class CategoryService implements ICategoryService {
             }
             return 1;
         } catch (Exception e) {
-            System.out.println(e);
+            log.error(e.getMessage());
             return 0;
         }
     }

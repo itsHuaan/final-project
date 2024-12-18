@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.final_project.dto.ChatRoomDto;
 import org.example.final_project.dto.ChatUserDto;
 import org.example.final_project.entity.ChatRoomEntity;
-import org.example.final_project.entity.UserEntity;
 import org.example.final_project.mapper.ChatRoomMapper;
 import org.example.final_project.repository.IChatRoomRepository;
 import org.example.final_project.repository.IUserRepository;
