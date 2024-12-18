@@ -81,4 +81,14 @@ public class ProductSpecification {
         return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("id"), productId);
     }
+
+    public static Specification<ProductEntity> ofShop(long shopId) {
+        return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("user").get("id"), shopId);
+    }
+
+    public static Specification<ProductEntity> isNotDeleted() {
+        return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
+                criteriaBuilder.isNull(root.get("deletedAt"));
+    }
 }
