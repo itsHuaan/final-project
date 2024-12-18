@@ -108,7 +108,7 @@ public class PromotionService implements IPromotionService {
 
     @Override
     public PromotionEntity findAllPromotionByNow(Long productId) {
-        List<PromotionEntity> promotionList = iPromotionRepository.findAll(isActiveButNotActivatedAndHaveProduct(productId).and(isNotDeleted()));
+        List<PromotionEntity> promotionList = iPromotionRepository.findAll(isActiveForTheProduct(productId).and(isNotDeleted()));
         if (!promotionList.isEmpty()) {
             PromotionEntity maxPercentage = promotionList.stream().max(Comparator.comparing(PromotionEntity::getDiscountPercentage)).get();
             maxPercentage.setStatus(PromotionStatus.ACTIVE.getValue());
