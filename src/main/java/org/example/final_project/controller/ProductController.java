@@ -346,7 +346,8 @@ public class ProductController {
 
     @Operation(summary = "Filter product")
     @GetMapping("/filter")
-    ResponseEntity<?> getAllProductByFilter(@RequestParam(required = false) List<Long> categoryId,
+    ResponseEntity<?> getAllProductByFilter(@RequestParam(required = false) String name,
+                                            @RequestParam(required = false) List<Long> categoryId,
                                             @RequestParam(required = false) List<Long> addressId,
                                             @RequestParam(required = false) Double startPrice,
                                             @RequestParam(required = false) Double endPrice,
@@ -357,7 +358,7 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.OK,
                     "Successfully",
-                    productService.getAllProductByFilter(categoryId, addressId, startPrice, endPrice, rating, PageableValidation.setDefault(pageSize, pageIndex))
+                    productService.getAllProductByFilter(name,categoryId, addressId, startPrice, endPrice, rating, PageableValidation.setDefault(pageSize, pageIndex))
             ));
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
