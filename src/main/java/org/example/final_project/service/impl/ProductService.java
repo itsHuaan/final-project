@@ -25,7 +25,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.example.final_project.util.specification.ProductSpecification.*;
+import static org.example.final_project.specification.ProductSpecification.*;
 
 @Service
 @RequiredArgsConstructor

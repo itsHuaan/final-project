@@ -46,7 +46,6 @@ public class OrderService implements IOrderService {
     private final ISKURepository skuRepository;;
     private final OrderDetailMapper orderDetailMapper;
     private final ICartItemRepository cartItemRepository;
-    SimpMessagingTemplate messagingTemplate;
 
 
 
@@ -270,9 +269,15 @@ public class OrderService implements IOrderService {
         return createResponse(HttpStatus.NOT_FOUND, "Not Found Product ", null);
     }
 
-//    public ApiResponse<?> findByStatusShipping(long shopId , int statusShipping){
-//        List<Long> orderIds = orderTrackingRepository.
-//    }
+
+    @Override
+    public ApiResponse<?> findByStatusShipping(long shopId , int statusShipping){
+        List<Long> orderIds = orderTrackingRepository.findOrderIdsByShopIdAndStatus(shopId,statusShipping);
+        List<OrderEntity> list = orderRepository.findAllSortById(orderIds,Sort.by(Sort.Order.desc("createdAt")));
+        List<OrderDto> orderDtos = list.stream().map(orderMapper::toOrderDto).toList();
+        return createResponse(HttpStatus.OK, "Successfully Retrieved Order ", orderDtos);
+
+    }
 
 
 

@@ -55,30 +55,15 @@ public class UserController {
     @Operation(summary = "Get all user")
     @GetMapping
     public ResponseEntity<?> getAllUser(@RequestParam(defaultValue = "0") Integer pageIndex,
-                                        @RequestParam(defaultValue = "10") Integer pageSize) {
-        Page<UserDto> result = userService.findAllUsers(PageRequest.of(pageIndex, pageSize));
-        return result.hasContent()
-                ? ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
-                HttpStatus.OK.value(),
-                "Fetched",
-                result,
-                LocalDateTime.now()))
-                : ResponseEntity.noContent().build();
-    }
-
-
-    @Operation(summary = "Filter user")
-    @GetMapping("/filter")
-    public ResponseEntity<?> filterUser(@RequestParam(defaultValue = "0") Integer pageIndex,
                                         @RequestParam(defaultValue = "10") Integer pageSize,
-                                        @RequestParam String name) {
+                                        @RequestParam(required = false) String name,
+                                        @RequestParam(required = false) Integer status) {
         Pageable pageable = PageableValidation.setDefault(pageIndex, pageSize) != null
                 ? PageRequest.of(pageIndex, pageSize)
                 : Pageable.unpaged();
-        Page<UserDto> result = userService.filterUser(pageable, name);
+        Page<UserDto> result = userService.findAllUsers(pageable, name, status);
         return result.hasContent()
-                ? ResponseEntity.status(HttpStatus.OK).body(
-                createResponse(
+                ? ResponseEntity.status(HttpStatus.OK).body(createResponse(
                         HttpStatus.OK,
                         "Fetched",
                         result

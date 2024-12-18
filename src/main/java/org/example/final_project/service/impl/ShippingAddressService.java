@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.example.final_project.util.specification.ShippingAddressSpecification.ofUser;
+import static org.example.final_project.specification.ShippingAddressSpecification.ofUser;
 
 @Service
 @RequiredArgsConstructor

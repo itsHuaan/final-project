@@ -35,4 +35,8 @@ public class AdminShopController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not Found Order");
         }
     }
+    @GetMapping("/{shopId}/find-status-shipping")
+    public ResponseEntity<?> findStatusShipping(@PathVariable Long shopId , @RequestParam int statusShipping) {
+        return ResponseEntity.ok(orderService.findByStatusShipping(shopId,statusShipping));
+    }
 }

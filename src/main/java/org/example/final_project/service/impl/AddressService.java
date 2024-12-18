@@ -24,9 +24,9 @@ public class AddressService implements IAddressService {
 
     @Override
     public List<AddressDto> getAddressByParentId(long parentId) {
-        List<AddressEntity> list = addressRepository.findByParent_id(parentId);
-        List<AddressDto> addressDtoList = list.stream().map(addressMapper::toAddressDto).toList();
-        return addressDtoList;
+        return addressRepository.findByParent_id(parentId).stream()
+                .map(addressMapper::toAddressDto)
+                .toList();
     }
 
     @Override

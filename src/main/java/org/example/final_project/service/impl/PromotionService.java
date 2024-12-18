@@ -9,19 +9,15 @@ import org.example.final_project.model.enum_status.PromotionStatus;
 import org.example.final_project.repository.IProductRepository;
 import org.example.final_project.repository.IPromotionRepository;
 import org.example.final_project.service.IPromotionService;
-import org.example.final_project.util.specification.PromotionSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
 
-import static org.example.final_project.util.specification.PromotionSpecification.*;
+import static org.example.final_project.specification.PromotionSpecification.*;
 
 @Service
 public class PromotionService implements IPromotionService {
