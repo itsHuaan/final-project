@@ -24,7 +24,6 @@ public class PromotionEntity {
     private LocalDateTime startDate;
     @Column(name="end_date")
     private LocalDateTime endDate;
-    private int status;
     @ManyToMany(mappedBy = "promotions")
     private List<ProductEntity> products;
     private LocalDateTime deletedAt;

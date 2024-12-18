@@ -13,7 +13,6 @@ public class PromotionMapper {
                 .discountPercentage(promotionEntity.getDiscountPercentage())
                 .startDate(promotionEntity.getStartDate())
                 .endDate(promotionEntity.getEndDate())
-                .status(promotionEntity.getStatus())
                 .build();
     }
     public PromotionEntity convertToEntity(PromotionModel model){
@@ -21,7 +20,6 @@ public class PromotionMapper {
                 .discountPercentage(model.getDiscountPercentage())
                 .startDate(model.getStartDate())
                 .endDate(model.getEndDate())
-                .status(model.getStatus())
                 .build();
     }
 }
