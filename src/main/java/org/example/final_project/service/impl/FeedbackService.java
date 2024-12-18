@@ -30,8 +30,6 @@ public class FeedbackService implements IFeedbackService {
     IFeedbackRepository feedbackRepository;
     FeedbackMapper feedbackMapper;
     IImageFeedbackService iImageFeedbackService;
-    IUserRepository userRepository;
-    IProductRepository productRepository;
 
     @Override
     public List<FeedbackDto> getAll() {
