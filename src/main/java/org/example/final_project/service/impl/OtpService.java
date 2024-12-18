@@ -10,7 +10,7 @@ import org.example.final_project.model.OtpModel;
 import org.example.final_project.repository.IOtpRepository;
 import org.example.final_project.service.IEmailService;
 import org.example.final_project.service.IOtpService;
-import org.example.final_project.util.specification.OtpSpecification;
+import org.example.final_project.specification.OtpSpecification;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +20,7 @@ import java.util.List;
 
 import static org.example.final_project.util.Const.OTP_LENGTH;
 import static org.example.final_project.util.Const.SALTCHARS;
-import static org.example.final_project.util.specification.OtpSpecification.*;
+import static org.example.final_project.specification.OtpSpecification.*;
 
 @Service
 @RequiredArgsConstructor

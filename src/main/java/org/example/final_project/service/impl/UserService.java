@@ -218,9 +218,15 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
-    public Page<UserDto> findAllUsers(Pageable pageable) {
-        Specification<UserEntity> specification = Specification.where(isNotDeleted().and(isNotSuperAdmin()));
-        return userRepository.findAll(specification, pageable).map(userMapper::toDto);
+    public Page<UserDto> findAllUsers(Pageable pageable, String name, Integer status) {
+        Specification<UserEntity> spec = Specification.where(isNotDeleted().and(isNotSuperAdmin()));
+        if (status != null){
+            spec = spec.and(hasStatus(status));
+        }
+        if (name != null) {
+            spec = spec.and(containName(name));
+        }
+        return userRepository.findAll(spec, pageable).map(userMapper::toDto);
     }
 
     @Override
@@ -453,18 +459,6 @@ public class UserService implements IUserService, UserDetailsService {
     @Override
     public List<ChatUserDto> getChatUsers(Long senderId) {
         return null;
-    }
-
-    @Override
-    public Page<UserDto> filterUser(Pageable pageable, String name, Integer status) {
-        Specification<UserEntity> spec = Specification.where(isNotDeleted().and(isNotSuperAdmin()));
-        if (status != null){
-            spec = spec.and(hasStatus(status));
-        }
-        if (name != null) {
-            spec = spec.and(containName(name));
-        }
-        return userRepository.findAll(spec, pageable).map(userMapper::toDto);
     }
 
     @Override
