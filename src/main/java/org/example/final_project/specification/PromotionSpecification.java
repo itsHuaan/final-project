@@ -17,9 +17,9 @@ public class PromotionSpecification {
     public static Specification<PromotionEntity> isActiveForTheProduct(Long productId) {
         return (Root<PromotionEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.and(
-                        criteriaBuilder.or(
-                                criteriaBuilder.greaterThan(root.get("startDate"), LocalDateTime.now()),
-                                criteriaBuilder.lessThan(root.get("endDate"), LocalDateTime.now())
+                        criteriaBuilder.and(
+                                criteriaBuilder.lessThanOrEqualTo(root.get("startDate"), LocalDateTime.now()),
+                                criteriaBuilder.greaterThanOrEqualTo(root.get("endDate"), LocalDateTime.now())
                         ),
                         criteriaBuilder.equal(root.join("products").get("id"), productId)
                 );

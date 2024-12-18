@@ -40,7 +40,7 @@ public class PromotionController {
     }
 
     @PostMapping
-    ResponseEntity<?> addPromotion(PromotionModel model) {
+    ResponseEntity<?> addPromotion(@RequestBody PromotionModel model) {
         try {
             if (LocalDateTime.now().isBefore(model.getStartDate())) {
                 promotionService.save(model);
@@ -66,7 +66,7 @@ public class PromotionController {
     }
 
     @PutMapping("/{promotion-id}")
-    ResponseEntity<?> updatePromotion(@PathVariable("promotion-id") Long promotionId, PromotionModel model) {
+    ResponseEntity<?> updatePromotion(@PathVariable("promotion-id") Long promotionId,@RequestBody PromotionModel model) {
         try {
             promotionService.update(promotionId, model);
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(

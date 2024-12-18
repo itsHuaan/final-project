@@ -16,5 +16,4 @@ public class PromotionDto {
     private double discountPercentage;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
-    private int status;
 }

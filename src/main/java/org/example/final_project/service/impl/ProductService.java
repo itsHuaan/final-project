@@ -192,8 +192,11 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public Page<ProductSummaryDto> getAllProductByFilter(List<Long> categoryId, List<Long> addressId, Double startPrice, Double endPrice, Double rating, Pageable pageable) {
+    public Page<ProductSummaryDto> getAllProductByFilter(String name,List<Long> categoryId, List<Long> addressId, Double startPrice, Double endPrice, Double rating, Pageable pageable) {
         Specification<ProductEntity> filter = Specification.where(isValid()).and(isStatus(1));
+        if(name!=null){
+            filter=filter.and(hasName(name));
+        }
         if (categoryId != null) {
             filter = filter.and(hasCategory(categoryId));
         }

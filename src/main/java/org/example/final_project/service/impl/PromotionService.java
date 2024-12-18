@@ -8,7 +8,6 @@ import org.example.final_project.entity.ProductEntity;
 import org.example.final_project.entity.PromotionEntity;
 import org.example.final_project.mapper.PromotionMapper;
 import org.example.final_project.model.PromotionModel;
-import org.example.final_project.model.enum_status.PromotionStatus;
 import org.example.final_project.repository.IProductRepository;
 import org.example.final_project.repository.IPromotionRepository;
 import org.example.final_project.service.IPromotionService;
@@ -16,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 
@@ -47,7 +47,6 @@ public class PromotionService implements IPromotionService {
     public int save(PromotionModel model) {
         try {
             PromotionEntity promotion = promotionMapper.convertToEntity(model);
-            promotion.setStatus(PromotionStatus.COMING_SOON.getValue());
             iPromotionRepository.save(promotion);
             return 1;
         } catch (Exception e) {
@@ -81,7 +80,7 @@ public class PromotionService implements IPromotionService {
     public int activate(Long promotionId, Integer type) {
         if (iPromotionRepository.findById(promotionId).isPresent()) {
             PromotionEntity promotion = iPromotionRepository.findById(promotionId).get();
-            promotion.setStatus(type);
+            promotion.setDeletedAt(LocalDateTime.now());
             iPromotionRepository.save(promotion);
             return 1;
         } else {
@@ -111,7 +110,6 @@ public class PromotionService implements IPromotionService {
         List<PromotionEntity> promotionList = iPromotionRepository.findAll(isActiveForTheProduct(productId).and(isNotDeleted()));
         if (!promotionList.isEmpty()) {
             PromotionEntity maxPercentage = promotionList.stream().max(Comparator.comparing(PromotionEntity::getDiscountPercentage)).get();
-            maxPercentage.setStatus(PromotionStatus.ACTIVE.getValue());
             iPromotionRepository.save(maxPercentage);
             return maxPercentage;
         } else {
