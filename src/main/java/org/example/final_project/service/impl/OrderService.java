@@ -1,36 +1,24 @@
 package org.example.final_project.service.impl;
-
-import com.cloudinary.api.exceptions.NotFound;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.persistence.criteria.Order;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import org.example.final_project.configuration.VnPay.PaymentService;
-import org.example.final_project.configuration.VnPay.VnPayConfig;
-import org.example.final_project.configuration.VnPay.VnPayUtil;
 import org.example.final_project.dto.*;
 import org.example.final_project.entity.*;
 import org.example.final_project.mapper.OrderDetailMapper;
 import org.example.final_project.mapper.OrderMapper;
 import org.example.final_project.mapper.OrderTrackingMapper;
 import org.example.final_project.model.CartItemRequest;
-import org.example.final_project.model.NotifyModel;
 import org.example.final_project.model.OrderModel;
-import org.example.final_project.model.enum_status.ActivateStatus;
 import org.example.final_project.model.enum_status.CheckoutStatus;
 import org.example.final_project.model.enum_status.StatusShipping;
 import org.example.final_project.repository.*;
 import org.example.final_project.service.IOrderService;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.example.final_project.dto.ApiResponse.createResponse;
 
@@ -98,7 +86,7 @@ public class OrderService implements IOrderService {
                 orderDetailRepository.save(orderDetailEntity);
             }
         }
-        if(method.toLowerCase().equals("vnpay")){
+        if(method.equalsIgnoreCase("vnpay")){
             return paymentService.creatUrlPaymentForVnPay(request);
         }else {
             if (orderModel.getCartItems() != null){
@@ -268,6 +256,7 @@ public class OrderService implements IOrderService {
         }
         return createResponse(HttpStatus.NOT_FOUND, "Not Found Product ", null);
     }
+
 
 
     @Override
