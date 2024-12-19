@@ -73,15 +73,21 @@ public class CategoryService implements ICategoryService {
     @Override
     public int update(Long aLong, CategoryModel model) {
         try {
+            CategoryEntity category = categoryMapper.convertToEntity(model);
             if (iCategoryRepository.findById(aLong).isPresent()) {
-                CategoryEntity categoryEntity = categoryMapper.convertToEntity(model);
                 if (model.getFile() != null && !model.getFile().isEmpty()) {
-                    categoryEntity.setImage(cloudinary.uploader().upload(model.getFile().getBytes(), ObjectUtils.emptyMap()).get("url").toString());
+                    category.setImage(cloudinary.uploader().upload(model.getFile().getBytes(), ObjectUtils.emptyMap()).get("url").toString());
                 }
-                categoryEntity.setId(aLong);
-                iCategoryRepository.save(categoryEntity);
+                if (model.getParent_id() != 0L) {
+                    if (iCategoryRepository.findById(model.getParent_id()).isPresent()) {
+                        model.setParent_id(model.getParent_id());
+                    } else {
+                        throw new IllegalArgumentException("Parent Category is not present");
+                    }
+                }
+                iCategoryRepository.save(category);
             } else {
-                throw new IllegalArgumentException("Value Not Found");
+                throw new IllegalArgumentException("Category is not present");
             }
             return 1;
         } catch (
