@@ -4,15 +4,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.example.final_project.dto.ShopStatisticDto;
 import org.example.final_project.service.IOrderService;
 import org.example.final_project.service.IStatisticService;
 import org.example.final_project.util.Const;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import static org.example.final_project.dto.ApiResponse.createResponse;
 
 @Tag(name = "ADMIN SHOP")
 @RestController
@@ -23,6 +20,7 @@ public class AdminShopController {
     IOrderService orderService;
     IStatisticService statisticService;
 
+
     @GetMapping("/{shopId}/detail-order")
     public ResponseEntity<?> getShopDetail(@PathVariable Long shopId, @RequestParam Long orderId) {
         return ResponseEntity.ok(orderService.getOrderTracking(orderId, shopId));
@@ -30,8 +28,8 @@ public class AdminShopController {
 
     @GetMapping("/{shopId}/order")
     public ResponseEntity<?> getOrder(@PathVariable long shopId, @RequestParam(required = false) Integer page,
-                                      @RequestParam(required = false) Integer size) {
-        return ResponseEntity.ok(orderService.getAllOrderByShopId(shopId, page, size));
+                                      @RequestParam(required = false) Integer size, @RequestParam(required = false) Integer statusShip) {
+        return ResponseEntity.ok(orderService.getOrdersByShopId(shopId, page, size, statusShip));
     }
 
     @GetMapping("/{shopId}/find-order")
@@ -43,14 +41,14 @@ public class AdminShopController {
         }
     }
 
-    @GetMapping("/{shopId}/find-status-shipping")
-    public ResponseEntity<?> findStatusShipping(@PathVariable Long shopId, @RequestParam int statusShipping) {
-        return ResponseEntity.ok(orderService.findByStatusShipping(shopId, statusShipping));
-    }
+//    @GetMapping("/{shopId}/find-status-shipping")
+//    public ResponseEntity<?> findStatusShipping(@PathVariable Long shopId, @RequestParam int statusShipping) {
+//        return ResponseEntity.ok(orderService.findByStatusShipping(shopId, statusShipping));
+//    }
 
     @GetMapping("/{shopId}/statistics")
     public ResponseEntity<?> getStatistics(@PathVariable Long shopId) {
-        ShopStatisticDto statistics = statisticService.getStatistic(shopId);
+        /*ShopStatisticDto statistics = statisticService.getStatistic(shopId);
         return statistics != null
                 ? ResponseEntity.status(HttpStatus.OK).body(
                 createResponse(
@@ -65,6 +63,7 @@ public class AdminShopController {
                         "Statistic not found",
                         null
                 )
-        );
+        );*/
+        return null;
     }
 }
