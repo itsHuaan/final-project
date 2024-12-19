@@ -17,8 +17,6 @@ import org.example.final_project.service.IProductOptionService;
 import org.example.final_project.service.IProductService;
 import org.example.final_project.service.ISKUService;
 import org.example.final_project.util.Const;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -76,22 +74,10 @@ public class ProductController {
     ResponseEntity<?> getAllByPage(@RequestParam(required = false) Integer pageSize,
                                    @RequestParam(required = false) Integer pageIndex) {
         try {
-            Pageable pageable = Pageable.unpaged();
-            if (pageSize != null && pageIndex != null) {
-                if (pageSize > 0 && pageIndex >= 0) {
-                    pageable = PageRequest.of(pageIndex, pageSize);
-                } else {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
-                            HttpStatus.BAD_REQUEST,
-                            "Size Or Index Illegal",
-                            null
-                    ));
-                }
-            }
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.OK,
                     "Successfully",
-                    productService.findAllByPage(pageable)
+                    productService.findAllByPage(PageableValidation.setDefault(pageSize, pageIndex))
             ));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
