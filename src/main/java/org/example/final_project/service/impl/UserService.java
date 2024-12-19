@@ -64,10 +64,8 @@ public class UserService implements IUserService, UserDetailsService {
     MediaUploadService mediaUploadService;
     IAddressRepository addressRepository;
     IShippingAddressRepository shippingAddressRepository;
-
     Cloudinary cloudinary;
     IAddressService addressService;
-    private final EmailService emailService;
 
 
     @Override
@@ -234,8 +232,12 @@ public class UserService implements IUserService, UserDetailsService {
         Optional<UserEntity> optionalUserEntity = userRepository.findById(request.getUserId());
         long shopAddressId = request.getShop_address();
 
+
         if (optionalUserEntity.isPresent() || !addressRepository.existsById(shopAddressId)) {
             UserEntity userEntity = userRepository.findById(request.getUserId()).get();
+            if(userRepository.existsByShopName(request.getShop_name())) {
+                return createResponse(HttpStatus.CONFLICT , "Shop Name Existed" , null);
+            }
             if (userEntity.getShop_status() == 0) {
                 String id_back = mediaUploadService.uploadOneImage(request.getId_back());
                 userEntity.setId_back(id_back);

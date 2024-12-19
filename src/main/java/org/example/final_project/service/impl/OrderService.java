@@ -1,36 +1,30 @@
 package org.example.final_project.service.impl;
 
-import com.cloudinary.api.exceptions.NotFound;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.persistence.criteria.Order;
+
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import org.example.final_project.configuration.VnPay.PaymentService;
-import org.example.final_project.configuration.VnPay.VnPayConfig;
-import org.example.final_project.configuration.VnPay.VnPayUtil;
 import org.example.final_project.dto.*;
 import org.example.final_project.entity.*;
 import org.example.final_project.mapper.OrderDetailMapper;
 import org.example.final_project.mapper.OrderMapper;
 import org.example.final_project.mapper.OrderTrackingMapper;
 import org.example.final_project.model.CartItemRequest;
-import org.example.final_project.model.NotifyModel;
 import org.example.final_project.model.OrderModel;
-import org.example.final_project.model.enum_status.ActivateStatus;
 import org.example.final_project.model.enum_status.CheckoutStatus;
 import org.example.final_project.model.enum_status.StatusShipping;
 import org.example.final_project.repository.*;
 import org.example.final_project.service.IOrderService;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Optional;
 
 import static org.example.final_project.dto.ApiResponse.createResponse;
 
@@ -43,15 +37,14 @@ public class OrderService implements IOrderService {
     private final IOrderTrackingRepository orderTrackingRepository;
     private final EmailService emailService;
     private final OrderMapper orderMapper;
-    private final ISKURepository skuRepository;;
+    private final ISKURepository skuRepository;
+    ;
     private final OrderDetailMapper orderDetailMapper;
     private final ICartItemRepository cartItemRepository;
 
 
-
-
     @Override
-    public String submitCheckout(OrderModel orderModel , HttpServletRequest request) throws Exception {
+    public String submitCheckout(OrderModel orderModel, HttpServletRequest request) throws Exception {
         String vnp_TxnRef = (String) request.getAttribute("tex");
         String method = orderModel.getMethodCheckout();
         double totalPrice = Double.parseDouble(orderModel.getAmount());
@@ -66,13 +59,13 @@ public class OrderService implements IOrderService {
         orderEntity.setStatusCheckout(CheckoutStatus.Pending.getStatus());
         orderRepository.save(orderEntity);
 
-        if(orderModel.getCartItems() != null) {
+        if (orderModel.getCartItems() != null) {
             for (CartItemRequest cartItemRequest : orderModel.getCartItems()) {
                 Optional<OrderTrackingEntity> orderTrackingEntity = orderTrackingRepository.findByOrderIdAndShopId(orderEntity.getId(), cartItemRequest.getShopId());
-                if(orderTrackingEntity.isPresent()) {
+                if (orderTrackingEntity.isPresent()) {
                     OrderTrackingEntity orderTrackingEntity1 = orderTrackingEntity.get();
                     orderTrackingRepository.save(orderTrackingEntity1);
-                }else {
+                } else {
                     OrderTrackingEntity trackingEntity = new OrderTrackingEntity();
                     trackingEntity.setStatus(StatusShipping.Create.getStatus());
                     trackingEntity.setOrder(orderEntity);
@@ -98,21 +91,21 @@ public class OrderService implements IOrderService {
                 orderDetailRepository.save(orderDetailEntity);
             }
         }
-        if(method.toLowerCase().equals("vnpay")){
+        if (method.equalsIgnoreCase("vnpay")) {
             return paymentService.creatUrlPaymentForVnPay(request);
-        }else {
-            if (orderModel.getCartItems() != null){
+        } else {
+            if (orderModel.getCartItems() != null) {
                 for (CartItemRequest cartItemRequest : orderModel.getCartItems()) {
                     Optional<SKUEntity> skuEntity = skuRepository.findById(cartItemRequest.getProductSkuId());
-                    if(skuEntity.isPresent()) {
+                    if (skuEntity.isPresent()) {
                         SKUEntity skuEntity1 = skuEntity.get();
-                        skuEntity1.setQuantity( skuEntity1.getQuantity() - cartItemRequest.getQuantity());
+                        skuEntity1.setQuantity(skuEntity1.getQuantity() - cartItemRequest.getQuantity());
                         cartItemRepository.deleteByCartId(cartItemRequest.getCartDetailId());
                         skuRepository.save(skuEntity1);
                     }
                 }
             }
-            emailService.sendOrderToEmail(orderModel,request);
+            emailService.sendOrderToEmail(orderModel, request);
             return "đặt hàng thành công";
         }
     }
@@ -131,28 +124,28 @@ public class OrderService implements IOrderService {
             cartItemRepository.deleteByCartId(orderDetailEntity.getCartDetailId());
         }
 
-        if(orderEntity.isPresent()) {
-            if(status.equals("00")){
+        if (orderEntity.isPresent()) {
+            if (status.equals("00")) {
                 order = orderEntity.get();
                 order.setStatusCheckout(CheckoutStatus.Completed.getStatus());
                 OrderModel orderModel = new OrderModel();
                 orderModel.setUserId(order.getUser().getUserId());
                 orderModel.setAmount(String.valueOf(order.getTotalPrice()));
-                List<CartItemRequest> cartItemRequest = order.getOrderDetailEntities().stream().map(e->OrderDetailMapper.toDTO(e)).toList();
+                List<CartItemRequest> cartItemRequest = order.getOrderDetailEntities().stream().map(e -> OrderDetailMapper.toDTO(e)).toList();
                 orderModel.setCartItems(cartItemRequest);
                 for (CartItemRequest itemRequest : cartItemRequest) {
                     Optional<SKUEntity> skuEntity = skuRepository.findById(itemRequest.getProductSkuId());
-                    if(skuEntity.isPresent()) {
+                    if (skuEntity.isPresent()) {
                         SKUEntity skuEntity1 = skuEntity.get();
-                        skuEntity1.setQuantity( skuEntity1.getQuantity() - itemRequest.getQuantity());
+                        skuEntity1.setQuantity(skuEntity1.getQuantity() - itemRequest.getQuantity());
                         skuRepository.save(skuEntity1);
                     }
                 }
-                request.setAttribute("tex",order.getOrderCode());
-                emailService.sendOrderToEmail(orderModel,request);
+                request.setAttribute("tex", order.getOrderCode());
+                emailService.sendOrderToEmail(orderModel, request);
                 orderRepository.save(order);
                 return createResponse(HttpStatus.OK, "Successful Payment ", null);
-            }else {
+            } else {
                 order = orderEntity.get();
                 order.setStatusCheckout(CheckoutStatus.Failed.getStatus());
                 orderRepository.save(order);
@@ -162,105 +155,126 @@ public class OrderService implements IOrderService {
         }
         return createResponse(HttpStatus.NOT_FOUND, "Not Found User ", null);
     }
+
     @Override
-    public OrderModel sentNotify(HttpServletRequest request){
+    public OrderModel sentNotify(HttpServletRequest request) {
         String status = request.getParameter("vnp_ResponseCode");
         String vnp_TxnRef = request.getParameter("vnp_TxnRef");
         long id = orderRepository.findIdByOrderCode(vnp_TxnRef);
         Optional<OrderEntity> orderEntity = orderRepository.findById(id);
         OrderEntity order;
-        if(status.equals("00")){
+        if (status.equals("00")) {
             order = orderEntity.get();
             OrderModel orderModel = new OrderModel();
             orderModel.setUserId(order.getUser().getUserId());
             orderModel.setAmount(String.valueOf(order.getTotalPrice()));
-            List<CartItemRequest> cartItemRequest = order.getOrderDetailEntities().stream().map(e->OrderDetailMapper.toDTO(e)).toList();
+            List<CartItemRequest> cartItemRequest = order.getOrderDetailEntities().stream().map(e -> OrderDetailMapper.toDTO(e)).toList();
             orderModel.setCartItems(cartItemRequest);
             return orderModel;
-        }else {
+        } else {
             return null;
         }
 
     }
 
-        @Override
-        public Page<OrderDto> getAllOrderByShopId(long shopId , Integer pageIndex , Integer pageSize ) {
-            List<Long> orderIds = orderDetailRepository.findOrderIdsByShopId(shopId);
-            if (orderIds.isEmpty()) {
-                return Page.empty();
-            }
-            Pageable pageable;
-            if (pageIndex == null || pageSize == null) {
-                List<OrderEntity> orderEntities = orderRepository.findAllSortById(orderIds,Sort.by(Sort.Order.desc("createdAt")));
-                List<OrderDto> orderDtos = orderEntities.stream().map(orderMapper::toOrderDto).toList();
-                return new PageImpl<>(orderDtos);
-            }else {
-                pageable = PageRequest.of(pageIndex, pageSize , Sort.by(Sort.Order.desc("createdAt")));
+    @Override
+    public ApiResponse<?> getOrdersByShopId(long shopId, Integer pageIndex, Integer pageSize, Integer statusShipping) {
+        List<Long> orderIds;
 
-            }
-            Page<OrderEntity> orderEntities = orderRepository.findAllByIds(orderIds, pageable);
-            Page<OrderDto> orderDtos = orderEntities.map(orderMapper::toOrderDto);
-            return orderDtos;
+        // Lấy danh sách orderIds dựa trên statusShipping
+        if (statusShipping != null) {
+            orderIds = orderTrackingRepository.findOrderIdsByShopIdAndStatus(shopId, statusShipping);
+        } else {
+            orderIds = orderDetailRepository.findOrderIdsByShopId(shopId);
         }
 
-    @Override
-    public ApiResponse<?> getOrderTracking(Long orderId , Long shopId) {
-            List<OrderDetailEntity> orderDetailEntity = orderDetailRepository.shopOrder(shopId,orderId);
-            List<OrderDetailDto> orderDetailDtos = orderDetailEntity.stream().map(e->orderDetailMapper.toOrderDto(e)).toList();
-            Optional<OrderTrackingEntity> orderTrackingEntity = orderTrackingRepository.findById(orderId);
-            OrderTrackingEntity orderTrackingEntity1 = new OrderTrackingEntity();
-            if(orderTrackingEntity.isPresent()) {
-                orderTrackingEntity1 = orderTrackingEntity.get();
-            }else {
-                return createResponse(HttpStatus.NOT_FOUND, "Order Tracking not found", null);
-            }
-            OrderTrackingDto orderTrackingDto = OrderTrackingMapper.toOrderTrackingDto(orderTrackingEntity1);
+        // Nếu không có orderIds, trả về danh sách rỗng
+        if (orderIds.isEmpty()) {
+            return createResponse(HttpStatus.OK, "No orders found", Page.empty());
+        }
 
-            Optional<OrderEntity> orderEntity = orderRepository.findById(orderId);
-            OrderEntity orderEntity1 = new OrderEntity();
-            if(orderEntity.isPresent()) {
-                orderEntity1 = orderEntity.get();
-            }
-            OrderDto orderDto = orderMapper.toOrderDto(orderEntity1);
+        // Nếu pageIndex và pageSize không được cung cấp, trả về danh sách không phân trang
+        if (pageIndex == null || pageSize == null) {
+            List<OrderEntity> orderEntities = orderRepository.findAllSortById(orderIds, Sort.by(Sort.Order.desc("createdAt")));
+            List<OrderDto> orderDtos = orderEntities.stream().map(orderMapper::toOrderDto).toList();
+            return createResponse(HttpStatus.OK, "Successfully Retrieved Orders", orderDtos);
+        }
 
-            OrderTotalDto orderTotalDto = OrderTotalDto.builder()
-                    .orderTracking(orderTrackingDto)
-                    .order(orderDto)
-                    .orderDetails(orderDetailDtos)
-                    .build();
-
-            return createResponse(HttpStatus.OK, "Successfully Retrieved Order Details", orderTotalDto);
+        // Nếu có pageIndex và pageSize, thực hiện phân trang
+        Pageable pageable = PageRequest.of(pageIndex, pageSize, Sort.by(Sort.Order.desc("createdAt")));
+        Page<OrderEntity> orderEntities = orderRepository.findAllByIds(orderIds, pageable);
+        Page<OrderDto> orderDtos = orderEntities.map(orderMapper::toOrderDto);
+        return createResponse(HttpStatus.OK, "Successfully Retrieved Orders", orderDtos);
     }
 
 
+//    @Override
+//    public ApiResponse<?> findByStatusShipping(long shopId, int statusShipping) {
+//        List<Long> orderIds = orderTrackingRepository.findOrderIdsByShopIdAndStatus(shopId, statusShipping);
+//        List<OrderEntity> list = orderRepository.findAllSortById(orderIds, Sort.by(Sort.Order.desc("createdAt")));
+//        List<OrderDto> orderDtos = list.stream().map(orderMapper::toOrderDto).toList();
+//        return createResponse(HttpStatus.OK, "Successfully Retrieved Order ", orderDtos);
+//
+//    }
 
     @Override
-    public String getTotalPrice(String tex){
+    public ApiResponse<?> getOrderTracking(Long orderId, Long shopId) {
+        List<OrderDetailEntity> orderDetailEntity = orderDetailRepository.shopOrder(shopId, orderId);
+        List<OrderDetailDto> orderDetailDtos = orderDetailEntity.stream().map(e -> orderDetailMapper.toOrderDto(e)).toList();
+        Optional<OrderTrackingEntity> orderTrackingEntity = orderTrackingRepository.findById(orderId);
+        OrderTrackingEntity orderTrackingEntity1 = new OrderTrackingEntity();
+        if (orderTrackingEntity.isPresent()) {
+            orderTrackingEntity1 = orderTrackingEntity.get();
+        } else {
+            return createResponse(HttpStatus.NOT_FOUND, "Order Tracking not found", null);
+        }
+        OrderTrackingDto orderTrackingDto = OrderTrackingMapper.toOrderTrackingDto(orderTrackingEntity1);
+
+        Optional<OrderEntity> orderEntity = orderRepository.findById(orderId);
+        OrderEntity orderEntity1 = new OrderEntity();
+        if (orderEntity.isPresent()) {
+            orderEntity1 = orderEntity.get();
+        }
+        OrderDto orderDto = orderMapper.toOrderDto(orderEntity1);
+
+        OrderTotalDto orderTotalDto = OrderTotalDto.builder()
+                .orderTracking(orderTrackingDto)
+                .order(orderDto)
+                .orderDetails(orderDetailDtos)
+                .build();
+
+        return createResponse(HttpStatus.OK, "Successfully Retrieved Order Details", orderTotalDto);
+    }
+
+
+    @Override
+    public String getTotalPrice(String tex) {
         Double amount = orderRepository.findAmountByOrderCode(tex);
         return String.valueOf(amount);
 
     }
 
     @Override
-    public OrderDto findByShopIdAndCodeOrder(long shopId , String orderCode){
-        Optional<OrderEntity> orderEntity = orderRepository.findOrderIdByShopIdAndOrderCode(shopId,orderCode);
+    public OrderDto findByShopIdAndCodeOrder(long shopId, String orderCode) {
+        Optional<OrderEntity> orderEntity = orderRepository.findOrderIdByShopIdAndOrderCode(shopId, orderCode);
         OrderEntity orderEntity1 = new OrderEntity();
-        if (orderEntity.isPresent()){
+        if (orderEntity.isPresent()) {
             orderEntity1 = orderEntity.get();
-        }else {
+        } else {
             orderEntity1 = new OrderEntity();
         }
         OrderDto orderDto = orderMapper.toOrderDto(orderEntity1);
         return orderDto;
     }
+
     @Override
-    public ApiResponse<?>  checkQuatityInStock(long skuId , long currentQuatity){
+    public ApiResponse<?> checkQuatityInStock(long skuId, long currentQuatity) {
         Optional<SKUEntity> skuEntity = skuRepository.findById(skuId);
-        if(skuEntity.isPresent()) {
+        if (skuEntity.isPresent()) {
             SKUEntity skuEntity1 = skuEntity.get();
-            if(skuEntity1.getQuantity() < currentQuatity) {
+            if (skuEntity1.getQuantity() < currentQuatity) {
                 return createResponse(HttpStatus.BAD_REQUEST, "The current quantity is greater than the quantity in the stock", null);
-            }else {
+            } else {
                 return createResponse(HttpStatus.OK, "The current quantity matches the quantity in stock", null);
             }
 
@@ -268,18 +282,6 @@ public class OrderService implements IOrderService {
         }
         return createResponse(HttpStatus.NOT_FOUND, "Not Found Product ", null);
     }
-
-
-    @Override
-    public ApiResponse<?> findByStatusShipping(long shopId , int statusShipping){
-        List<Long> orderIds = orderTrackingRepository.findOrderIdsByShopIdAndStatus(shopId,statusShipping);
-        List<OrderEntity> list = orderRepository.findAllSortById(orderIds,Sort.by(Sort.Order.desc("createdAt")));
-        List<OrderDto> orderDtos = list.stream().map(orderMapper::toOrderDto).toList();
-        return createResponse(HttpStatus.OK, "Successfully Retrieved Order ", orderDtos);
-
-    }
-
-
 
 
 }

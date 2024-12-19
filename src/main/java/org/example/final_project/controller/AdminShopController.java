@@ -20,6 +20,7 @@ public class AdminShopController {
     IOrderService orderService;
     IStatisticService statisticService;
 
+
     @GetMapping("/{shopId}/detail-order")
     public ResponseEntity<?> getShopDetail(@PathVariable Long shopId, @RequestParam Long orderId) {
         return ResponseEntity.ok(orderService.getOrderTracking(orderId, shopId));
@@ -27,8 +28,8 @@ public class AdminShopController {
 
     @GetMapping("/{shopId}/order")
     public ResponseEntity<?> getOrder(@PathVariable long shopId, @RequestParam(required = false) Integer page,
-                                      @RequestParam(required = false) Integer size) {
-        return ResponseEntity.ok(orderService.getAllOrderByShopId(shopId, page, size));
+                                      @RequestParam(required = false) Integer size, @RequestParam(required = false) Integer statusShip) {
+        return ResponseEntity.ok(orderService.getOrdersByShopId(shopId, page, size, statusShip));
     }
 
     @GetMapping("/{shopId}/find-order")
@@ -40,10 +41,10 @@ public class AdminShopController {
         }
     }
 
-    @GetMapping("/{shopId}/find-status-shipping")
-    public ResponseEntity<?> findStatusShipping(@PathVariable Long shopId, @RequestParam int statusShipping) {
-        return ResponseEntity.ok(orderService.findByStatusShipping(shopId, statusShipping));
-    }
+//    @GetMapping("/{shopId}/find-status-shipping")
+//    public ResponseEntity<?> findStatusShipping(@PathVariable Long shopId, @RequestParam int statusShipping) {
+//        return ResponseEntity.ok(orderService.findByStatusShipping(shopId, statusShipping));
+//    }
 
     @GetMapping("/{shopId}/statistics")
     public ResponseEntity<?> getStatistics(@PathVariable Long shopId) {
