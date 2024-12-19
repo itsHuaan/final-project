@@ -3,18 +3,14 @@ package org.example.final_project.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.example.final_project.configuration.UserDetailsImpl;
-import org.example.final_project.dto.ShippingAddressDto;
-import org.example.final_project.dto.UserDto;
-import org.example.final_project.dto.ApiResponse;
-import org.example.final_project.model.*;
-import org.example.final_project.model.ChangeAccountStatusRequest;
-import org.example.final_project.model.ChangePasswordRequest;
-import org.example.final_project.model.ProfileUpdateRequest;
-import org.example.final_project.model.ShopRegisterRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.example.final_project.configuration.UserDetailsImpl;
+import org.example.final_project.dto.ApiResponse;
+import org.example.final_project.dto.ShippingAddressDto;
+import org.example.final_project.dto.UserDto;
+import org.example.final_project.model.*;
 import org.example.final_project.model.validation.PageableValidation;
 import org.example.final_project.service.IAddressService;
 import org.example.final_project.service.IAuthService;
@@ -22,7 +18,6 @@ import org.example.final_project.service.IShippingAddressService;
 import org.example.final_project.service.IUserService;
 import org.example.final_project.util.Const;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,11 +30,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 
-
-import static org.example.final_project.dto.ApiResponse.*;
-
 import java.time.LocalDateTime;
 import java.util.List;
+
+import static org.example.final_project.dto.ApiResponse.createResponse;
 
 @Tag(name = "User")
 @RestController
@@ -58,9 +52,7 @@ public class UserController {
                                         @RequestParam(defaultValue = "10") Integer pageSize,
                                         @RequestParam(required = false) String name,
                                         @RequestParam(required = false) Integer status) {
-        Pageable pageable = PageableValidation.setDefault(pageIndex, pageSize) != null
-                ? PageRequest.of(pageIndex, pageSize)
-                : Pageable.unpaged();
+        Pageable pageable = PageableValidation.setDefault(pageIndex, pageSize);
         Page<UserDto> result = userService.findAllUsers(pageable, name, status);
         return result.hasContent()
                 ? ResponseEntity.status(HttpStatus.OK).body(createResponse(
