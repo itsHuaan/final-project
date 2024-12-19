@@ -30,4 +30,5 @@ public interface IProductService extends IBaseService<ProductDto, ProductModel, 
 
     Page<ProductSummaryDto> getAllProductByFilter(String name, List<Long> categoryId, List<Long> addressId, Double startPrice, Double endPrice, Double rating, Pageable pageable);
 
+    Page<ProductSummaryDto> getAllProductByPromotion(Long promotionId, Pageable pageable);
 }

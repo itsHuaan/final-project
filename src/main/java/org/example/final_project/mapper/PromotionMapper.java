@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class PromotionMapper {
+
     public PromotionDto convertToDto(PromotionEntity promotionEntity) {
         return PromotionDto.builder()
                 .id(promotionEntity.getId())

@@ -1,9 +1,9 @@
 package org.example.final_project.dto;
 
-import jakarta.persistence.Column;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -16,4 +16,5 @@ public class PromotionDto {
     private double discountPercentage;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
+    private List<ProductSummaryDto> products;
 }
