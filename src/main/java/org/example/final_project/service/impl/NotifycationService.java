@@ -11,7 +11,7 @@ import org.example.final_project.mapper.NotificationMapper;
 import org.example.final_project.model.NotificationModel;
 import org.example.final_project.model.enum_status.StatusNotification;
 import org.example.final_project.repository.INotificationRepository;
-import org.example.final_project.repository.IOrderRepository;
+import org.example.final_project.repository.IOrderDetailRepository;
 import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.INotificationService;
 import org.springframework.http.HttpStatus;
@@ -27,26 +27,44 @@ import java.util.List;
 public class NotifycationService implements INotificationService {
     INotificationRepository notificationRepository;
     IUserRepository userRepository;
-    IOrderRepository orderRepository;
+    IOrderDetailRepository orderDetailRepository;
 
 
     @Override
     public int sentNotification(List<NotificationModel> notificationModels) throws IOException {
         for (NotificationModel notificationModel : notificationModels) {
-            if (notificationModel.getRecipientId() == 0) {
-                List<UserEntity> allUsers = userRepository.findAll();
-                for (UserEntity user : allUsers) {
+            if (notificationModel.getSenderId() == 1) {
+                if (notificationModel.getRecipientId() == 0) {
+                    List<UserEntity> allUsers = userRepository.findAll();
+                    for (UserEntity user : allUsers) {
+                        NotificationEntity notificationEntity = NotificationMapper.toEntity(notificationModel);
+                        notificationEntity.setRecipientId(user.getUserId());
+                        notificationEntity.setImage(notificationModel.getImage());
+                        notificationEntity.setCreatedAt(LocalDateTime.now());
+                        notificationRepository.save(notificationEntity);
+                    }
+                } else {
                     NotificationEntity notificationEntity = NotificationMapper.toEntity(notificationModel);
-                    notificationEntity.setRecipientId(user.getUserId());
                     notificationEntity.setImage(notificationModel.getImage());
                     notificationEntity.setCreatedAt(LocalDateTime.now());
                     notificationRepository.save(notificationEntity);
                 }
             } else {
-                NotificationEntity notificationEntity = NotificationMapper.toEntity(notificationModel);
-                notificationEntity.setImage(notificationModel.getImage());
-                notificationEntity.setCreatedAt(LocalDateTime.now());
-                notificationRepository.save(notificationEntity);
+                if (notificationModel.getRecipientId() == 0) {
+                    List<Long> recipientId = orderDetailRepository.findAllCustomerBoughtAtThisShop(notificationModel.getSenderId());
+                    for (Long id : recipientId) {
+                        NotificationEntity notificationEntity = NotificationMapper.toEntity(notificationModel);
+                        notificationEntity.setRecipientId(id);
+                        notificationEntity.setImage(notificationModel.getImage());
+                        notificationEntity.setCreatedAt(LocalDateTime.now());
+                        notificationRepository.save(notificationEntity);
+                    }
+                } else {
+                    NotificationEntity notificationEntity = NotificationMapper.toEntity(notificationModel);
+                    notificationEntity.setImage(notificationModel.getImage());
+                    notificationEntity.setCreatedAt(LocalDateTime.now());
+                    notificationRepository.save(notificationEntity);
+                }
             }
         }
         return 1;
