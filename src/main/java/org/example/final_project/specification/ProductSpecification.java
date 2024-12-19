@@ -16,6 +16,11 @@ public class ProductSpecification {
                 criteriaBuilder.equal(root.get("isActive"), status);
     }
 
+    public static Specification<ProductEntity> hasPromotion(Long promotionId) {
+        return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
+                criteriaBuilder.equal(root.join("promotions").get("id"), promotionId);
+    }
+
     public static Specification<ProductEntity> isValid() {
         return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.and(

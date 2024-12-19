@@ -20,7 +20,8 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 
-import static org.example.final_project.specification.PromotionSpecification.*;
+import static org.example.final_project.specification.PromotionSpecification.isActiveForTheProduct;
+import static org.example.final_project.specification.PromotionSpecification.isNotDeleted;
 
 @Service
 @RequiredArgsConstructor
@@ -115,10 +116,6 @@ public class PromotionService implements IPromotionService {
         }
     }
 
-    @Override
-    public Page<PromotionDto> findAllPromotionInAdminSeller(Pageable pageable) {
-        return iPromotionRepository.findAll(Specification.where(isNotDeleted()).and(isNotExpired()), pageable).map(promotionMapper::convertToDto);
-    }
 
     @Override
     public int cancelPromotionOfProduct(Long promotionId, Long productId) {
@@ -142,4 +139,6 @@ public class PromotionService implements IPromotionService {
             throw e;
         }
     }
+
+
 }

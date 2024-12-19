@@ -12,8 +12,10 @@ import org.example.final_project.model.ImageProductModel;
 import org.example.final_project.model.ProductModel;
 import org.example.final_project.model.enum_status.ActivateStatus;
 import org.example.final_project.repository.IProductRepository;
+import org.example.final_project.repository.IPromotionRepository;
 import org.example.final_project.repository.IUserRepository;
-import org.example.final_project.service.*;
+import org.example.final_project.service.IImageProductService;
+import org.example.final_project.service.IProductService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -36,6 +38,7 @@ public class ProductService implements IProductService {
     ProductMapper productMapper;
     IImageProductService imageService;
     IUserRepository iUserRepository;
+    IPromotionRepository promotionRepository;
 
 
     @Override
@@ -192,10 +195,10 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public Page<ProductSummaryDto> getAllProductByFilter(String name,List<Long> categoryId, List<Long> addressId, Double startPrice, Double endPrice, Double rating, Pageable pageable) {
+    public Page<ProductSummaryDto> getAllProductByFilter(String name, List<Long> categoryId, List<Long> addressId, Double startPrice, Double endPrice, Double rating, Pageable pageable) {
         Specification<ProductEntity> filter = Specification.where(isValid()).and(isStatus(1));
-        if(name!=null){
-            filter=filter.and(hasName(name));
+        if (name != null) {
+            filter = filter.and(hasName(name));
         }
         if (categoryId != null) {
             filter = filter.and(hasCategory(categoryId));
@@ -210,5 +213,14 @@ public class ProductService implements IProductService {
             filter = filter.and(hasAverageRatingGreaterThan(rating));
         }
         return iProductRepository.findAll(filter, pageable).map(productMapper::toProductSummaryDto);
+    }
+
+    @Override
+    public Page<ProductSummaryDto> getAllProductByPromotion(Long promotionId, Pageable pageable) {
+        if (promotionRepository.findById(promotionId).isPresent()) {
+            return iProductRepository.findAll(hasPromotion(promotionId), pageable).map(x -> productMapper.toProductSummaryDto(x));
+        } else {
+            throw new IllegalArgumentException("Promotion is not present");
+        }
     }
 }
