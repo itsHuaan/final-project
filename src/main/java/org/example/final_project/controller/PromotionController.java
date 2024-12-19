@@ -104,7 +104,7 @@ public class PromotionController {
 
     @PostMapping("/apply-promotion")
     ResponseEntity<?> applyPromotion(@RequestParam Long promotionId,
-                                     List<Long> productIds) {
+                                     @RequestBody List<Long> productIds) {
         try {
             promotionService.applyPromotion(promotionId, productIds);
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
@@ -139,4 +139,6 @@ public class PromotionController {
             ));
         }
     }
+
+
 }
