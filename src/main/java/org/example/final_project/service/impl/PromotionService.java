@@ -13,6 +13,7 @@ import org.example.final_project.repository.IPromotionRepository;
 import org.example.final_project.service.IPromotionService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -68,36 +69,33 @@ public class PromotionService implements IPromotionService {
 
     @Override
     public int delete(Long id) {
-        return 0;
-    }
-
-    @Override
-    public Page<PromotionDto> findAllByPage(Pageable pageable) {
-        return iPromotionRepository.findAll(pageable).map(promotionMapper::convertToDto);
-    }
-
-    @Override
-    public int activate(Long promotionId, Integer type) {
-        if (iPromotionRepository.findById(promotionId).isPresent()) {
-            PromotionEntity promotion = iPromotionRepository.findById(promotionId).get();
+        if (iPromotionRepository.findById(id).isPresent()) {
+            PromotionEntity promotion = iPromotionRepository.findById(id).get();
             promotion.setDeletedAt(LocalDateTime.now());
             iPromotionRepository.save(promotion);
             return 1;
         } else {
-            throw new IllegalArgumentException("Value not present");
+            throw new IllegalArgumentException("Promotion is not present");
         }
     }
 
     @Override
-    public int applyPromotion(Long promotionId, Long productId) {
+    public Page<PromotionDto> findAllByPage(Pageable pageable) {
+        return iPromotionRepository.findAll(Specification.where(isNotDeleted()), pageable).map(promotionMapper::convertToDto);
+    }
+
+    @Override
+    public int applyPromotion(Long promotionId, List<Long> productIds) {
         if (iPromotionRepository.findById(promotionId).isPresent()) {
             PromotionEntity promotion = iPromotionRepository.findById(promotionId).get();
-            if (productRepository.findById(productId).isPresent()) {
-                ProductEntity product = productRepository.findById(productId).get();
-                product.getPromotions().add(promotion);
-                productRepository.save(product);
-            } else {
-                throw new IllegalArgumentException("Product is not present");
+            for (Long productId : productIds) {
+                if (productRepository.findById(productId).isPresent()) {
+                    ProductEntity product = productRepository.findById(productId).get();
+                    product.getPromotions().add(promotion);
+                    productRepository.save(product);
+                } else {
+                    throw new IllegalArgumentException("Product is not present");
+                }
             }
         } else {
             throw new IllegalArgumentException("Promotion is not present");
@@ -114,6 +112,34 @@ public class PromotionService implements IPromotionService {
             return maxPercentage;
         } else {
             return null;
+        }
+    }
+
+    @Override
+    public Page<PromotionDto> findAllPromotionInAdminSeller(Pageable pageable) {
+        return iPromotionRepository.findAll(Specification.where(isNotDeleted()).and(isNotExpired()), pageable).map(promotionMapper::convertToDto);
+    }
+
+    @Override
+    public int cancelPromotionOfProduct(Long promotionId, Long productId) {
+        try {
+            if (iPromotionRepository.findById(promotionId).isPresent()) {
+                PromotionEntity promotion = iPromotionRepository.findById(promotionId).get();
+                if (productRepository.findById(productId).isPresent()) {
+                    if (promotion.getProducts().contains(productRepository.findById(productId).get())) {
+                        promotion.getProducts().remove(productRepository.findById(productId).get());
+                        return 1;
+                    } else {
+                        throw new IllegalArgumentException("Product is not in promotion");
+                    }
+                } else {
+                    throw new IllegalArgumentException("Product is not present");
+                }
+            } else {
+                throw new IllegalArgumentException("Promotion is not present");
+            }
+        } catch (Exception e) {
+            throw e;
         }
     }
 }

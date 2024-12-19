@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.example.final_project.dto.CategoryDto;
 import org.example.final_project.model.CategoryModel;
+import org.example.final_project.model.validation.PageableValidation;
 import org.example.final_project.service.impl.CategoryService;
 import org.example.final_project.util.Const;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -131,5 +132,17 @@ public class CategoryController {
                     null
             ));
         }
+    }
+
+    @Operation(summary = "Get all categories by name")
+    @GetMapping("/{category-name}")
+    ResponseEntity getAllByName(@PathVariable("category-name") String categoryName,
+                                @RequestParam(required = false) Integer pageIndex,
+                                @RequestParam(required = false) Integer pageSize) {
+        return ResponseEntity.status(HttpStatus.OK).body(createResponse(
+                HttpStatus.OK,
+                "Successfully",
+                categoryService.getAllByName(categoryName, PageableValidation.setDefault(pageSize, pageIndex))
+        ));
     }
 }
