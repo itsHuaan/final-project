@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.example.final_project.dto.ChatMessageDto;
-import org.example.final_project.dto.ChatRoomDto;
 import org.example.final_project.dto.ChatUserDto;
 import org.example.final_project.model.ChatMessageModel;
 import org.example.final_project.model.ChatNotificationModel;
@@ -24,8 +23,6 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.example.final_project.dto.ApiResponse.createResponse;

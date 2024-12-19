@@ -14,6 +14,11 @@ public class PromotionSpecification {
                 criteriaBuilder.isNull(root.get("deletedAt"));
     }
 
+    public static Specification<PromotionEntity> isNotExpired() {
+        return (Root<PromotionEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
+                criteriaBuilder.greaterThanOrEqualTo(root.get("endDate"), LocalDateTime.now());
+    }
+
     public static Specification<PromotionEntity> isActiveForTheProduct(Long productId) {
         return (Root<PromotionEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.and(
