@@ -9,7 +9,6 @@ import org.example.final_project.dto.ApiResponse;
 import org.example.final_project.dto.CartDto;
 import org.example.final_project.model.AddToCartRequest;
 import org.example.final_project.model.CartItemModel;
-import org.example.final_project.repository.ICartItemRepository;
 import org.example.final_project.service.IOrderService;
 import org.example.final_project.service.ISKUService;
 import org.example.final_project.service.impl.CartItemService;
@@ -166,17 +165,15 @@ public class CartController {
 
     @Operation(summary = "Check Quatity")
     @GetMapping("/check-quantity")
-    public ResponseEntity<?> checkQuatity(@RequestParam long skuId , @RequestParam long currentQuatity) {
+    public ResponseEntity<?> checkQuatity(@RequestParam long skuId, @RequestParam long currentQuatity) {
         try {
-            ApiResponse<?> response = orderService.checkQuatityInStock(skuId,currentQuatity);
+            ApiResponse<?> response = orderService.checkQuatityInStock(skuId, currentQuatity);
             return ResponseEntity.status(response.getStatus()).body(response);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(orderService.checkQuatityInStock(skuId,currentQuatity));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(orderService.checkQuatityInStock(skuId, currentQuatity));
         }
 
     }
-
-
 
 
 }
