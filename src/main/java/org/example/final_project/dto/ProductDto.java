@@ -18,6 +18,7 @@ public class ProductDto {
     private double rating;
     private String description;
     private int isActive;
+    private int totalQuantity;
     private String note;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
