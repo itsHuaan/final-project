@@ -8,12 +8,10 @@ import org.example.final_project.model.NotificationModel;
 import org.example.final_project.service.INotificationService;
 import org.example.final_project.util.Const;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.List;
 
 @Tag(name = "Notification")
 @RestController
@@ -24,10 +22,21 @@ public class NotificationController {
     INotificationService notificationService;
 
 
-    @PostMapping("/sent")
-    public ResponseEntity<?> sentNotification(@RequestBody NotificationModel notificationModel) throws IOException {
+    @PostMapping("")
+    public ResponseEntity<?> sentNotification(@RequestBody List<NotificationModel> notificationModel) throws IOException {
         int result = notificationService.sentNotification(notificationModel);
         return ResponseEntity.ok(result == 1 ? "Thông báo đã được  gửi " : "Thông báo chưa được gửi ");
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<?> getNotification(@PathVariable long userId) {
+        return ResponseEntity.ok(notificationService.getAllNotificationsByUserId(userId));
+    }
+
+    @PutMapping("/{userId}")
+    public ResponseEntity<?> changeStatusNotification(@PathVariable long userId) {
+        int result = notificationService.changeStatusNotification(userId);
+        return ResponseEntity.ok(result == 1 ? "Đã đọc " : "Chưa đọc");
     }
 
 

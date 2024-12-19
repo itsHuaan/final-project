@@ -1,10 +1,15 @@
 package org.example.final_project.service;
 
+import org.example.final_project.dto.ApiResponse;
 import org.example.final_project.model.NotificationModel;
 
 import java.io.IOException;
+import java.util.List;
 
 public interface INotificationService {
-    int sentNotification(NotificationModel notificationModel) throws IOException;
+    int sentNotification(List<NotificationModel> notificationModel) throws IOException;
 
+    ApiResponse<?> getAllNotificationsByUserId(long userId);
+
+    int changeStatusNotification(long userId);
 }

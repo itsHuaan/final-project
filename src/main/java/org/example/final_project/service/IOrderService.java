@@ -4,18 +4,22 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.example.final_project.dto.ApiResponse;
 import org.example.final_project.dto.OrderDto;
 import org.example.final_project.model.OrderModel;
-import org.springframework.data.domain.Page;
-
-import java.util.List;
 
 public interface IOrderService {
-    String submitCheckout(OrderModel orderModel , HttpServletRequest request) throws Exception;
+    String submitCheckout(OrderModel orderModel, HttpServletRequest request) throws Exception;
+
     ApiResponse<?> statusPayment(HttpServletRequest request) throws Exception;
-    Page<OrderDto> getAllOrderByShopId(long shopId , Integer pageIndex , Integer pageSize );
+
+    ApiResponse<?> getOrdersByShopId(long shopId, Integer pageIndex, Integer pageSize, Integer statusShipping);
+
     String getTotalPrice(String tex);
-    ApiResponse<?> getOrderTracking(Long orderId , Long shopId);
-    OrderDto findByShopIdAndCodeOrder(long shopId , String orderCode);
-    ApiResponse<?>  checkQuatityInStock(long skuId , long currentQuatity);
+
+    ApiResponse<?> getOrderTracking(Long orderId, Long shopId);
+
+    OrderDto findByShopIdAndCodeOrder(long shopId, String orderCode);
+
+    ApiResponse<?> checkQuatityInStock(long skuId, long currentQuatity);
+
     OrderModel sentNotify(HttpServletRequest request);
-    ApiResponse<?> findByStatusShipping(long shopId , int statusShipping);
+//    ApiResponse<?> findByStatusShipping(long shopId , int statusShipping);
 }

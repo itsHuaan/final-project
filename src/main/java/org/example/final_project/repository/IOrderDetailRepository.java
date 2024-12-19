@@ -1,8 +1,6 @@
 package org.example.final_project.repository;
 
 import org.example.final_project.entity.OrderDetailEntity;
-import org.example.final_project.entity.OrderEntity;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -10,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface IOrderDetailRepository extends JpaRepository<OrderDetailEntity,Long> {
+public interface IOrderDetailRepository extends JpaRepository<OrderDetailEntity, Long> {
     @Query("select t.orderEntity.id from OrderDetailEntity t where t.shopId = :shopId")
     List<Long> findOrderIdsByShopId(long shopId);
 
@@ -37,5 +35,9 @@ public interface IOrderDetailRepository extends JpaRepository<OrderDetailEntity,
 
     @Query("select o from OrderDetailEntity o where o.orderEntity.id = :orderIds")
     List<OrderDetailEntity> findByOrderId(long orderIds);
+
+
+//    @Query("select distinct o.user.userId from OrderEntity o join OrderDetailEntity od on o.id == od.orderEntity.id where od.shopId = :shopId")
+//    List<Long> findAllCustomerBoughtAtThísShop(long shopId);
 
 }
