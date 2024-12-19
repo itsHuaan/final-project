@@ -37,4 +37,3 @@ out/
 .vscode/
 
 src/main/resources/application-local.properties
-keystore.p12
