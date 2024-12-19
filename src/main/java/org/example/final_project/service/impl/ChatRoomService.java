@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.example.final_project.dto.ChatMessageDto;
 import org.example.final_project.dto.ChatRoomDto;
 import org.example.final_project.dto.ChatUserDto;
 import org.example.final_project.entity.ChatRoomEntity;
@@ -15,10 +16,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 import static org.example.final_project.specification.ChatRoomSpecification.*;
 
@@ -62,6 +60,12 @@ public class ChatRoomService implements IChatRoomService {
     public List<ChatUserDto> getChatUsers(Long senderId) {
         return chatRoomRepository.findBySenderId(senderId).stream()
                 .map(chatRoomMapper::toChatUserDto)
+                .sorted(Comparator.comparing((ChatUserDto chatUserDto) ->
+                                Optional.ofNullable(chatUserDto.getLastMessage())
+                                        .map(ChatMessageDto::getSentAt)
+                                        .orElse(LocalDateTime.MIN))
+                        .reversed())
+
                 .toList();
     }
 

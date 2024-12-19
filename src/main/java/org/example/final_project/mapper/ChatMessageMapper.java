@@ -5,18 +5,21 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.ChatHistoryDto;
 import org.example.final_project.dto.ChatMessageDto;
-import org.example.final_project.entity.*;
+import org.example.final_project.entity.ChatMessageEntity;
+import org.example.final_project.entity.ChatMessageMediaEntity;
 import org.example.final_project.model.ChatMessageModel;
 import org.example.final_project.repository.IUserRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Component
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ChatMessageMapper {
     IUserRepository userRepository;
+
     public ChatMessageEntity toEntity(ChatMessageModel chatMessageModel) {
         ChatMessageEntity chatMessageEntity = ChatMessageEntity.builder()
                 .chatId(chatMessageModel.getChatId())
@@ -52,8 +55,15 @@ public class ChatMessageMapper {
                         .map(ChatMessageMediaEntity::getMediaUrl)
                         .toList())
                 .sentAt(chatMessageEntity.getSentAt())
+                .senderName(userRepository.findById(chatMessageEntity.getSenderId()).orElseThrow(
+                        () -> new NoSuchElementException("Sender not found")
+                ).getName())
+                .recipientName(userRepository.findById(chatMessageEntity.getRecipientId()).orElseThrow(
+                        () -> new NoSuchElementException("Recipient not found")
+                ).getName())
                 .build();
     }
+
     public ChatHistoryDto toChatHistoryDto(ChatMessageEntity chatMessageEntity) {
         return ChatHistoryDto.builder()
                 .sender(userRepository.findById(chatMessageEntity.getSenderId()).orElseThrow(
