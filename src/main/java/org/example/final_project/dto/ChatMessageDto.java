@@ -14,9 +14,9 @@ public class ChatMessageDto {
     private Long messageId;
     private String chatId;
     private Long senderId;
-    private String senderUsername;
+    private String senderName;
     private Long recipientId;
-    private String recipientUsername;
+    private String recipientName;
     private String message;
     private List<String> mediaUrls;
     private LocalDateTime sentAt;
