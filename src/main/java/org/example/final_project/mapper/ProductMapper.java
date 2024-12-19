@@ -20,7 +20,6 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
@@ -60,6 +59,9 @@ public class ProductMapper {
                         .sorted(Comparator.comparing(FeedbackEntity::getCreatedAt).reversed())
                         .map(feedbackMapper::convertToDto)
                         .toList())
+                .totalQuantity(productEntity.getSkuEntities().stream()
+                        .mapToInt(variant -> Math.toIntExact(variant.getQuantity()))
+                        .sum())
                 .build();
     }
 
@@ -76,7 +78,7 @@ public class ProductMapper {
                 .build();
     }
 
-    public ProductFamilyDto toProductFamilyDto(ProductEntity productEntity){
+    public ProductFamilyDto toProductFamilyDto(ProductEntity productEntity) {
         return ProductFamilyDto.builder()
                 .productId(productEntity.getId())
                 .productName(productEntity.getName())
