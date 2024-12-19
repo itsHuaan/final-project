@@ -85,18 +85,6 @@ public class PromotionService implements IPromotionService {
     }
 
     @Override
-    public int activate(Long promotionId, Integer type) {
-        if (iPromotionRepository.findById(promotionId).isPresent()) {
-            PromotionEntity promotion = iPromotionRepository.findById(promotionId).get();
-            promotion.setDeletedAt(LocalDateTime.now());
-            iPromotionRepository.save(promotion);
-            return 1;
-        } else {
-            throw new IllegalArgumentException("Value not present");
-        }
-    }
-
-    @Override
     public int applyPromotion(Long promotionId, List<Long> productIds) {
         if (iPromotionRepository.findById(promotionId).isPresent()) {
             PromotionEntity promotion = iPromotionRepository.findById(promotionId).get();
@@ -130,5 +118,28 @@ public class PromotionService implements IPromotionService {
     @Override
     public Page<PromotionDto> findAllPromotionInAdminSeller(Pageable pageable) {
         return iPromotionRepository.findAll(Specification.where(isNotDeleted()).and(isNotExpired()), pageable).map(promotionMapper::convertToDto);
+    }
+
+    @Override
+    public int cancelPromotionOfProduct(Long promotionId, Long productId) {
+        try {
+            if (iPromotionRepository.findById(promotionId).isPresent()) {
+                PromotionEntity promotion = iPromotionRepository.findById(promotionId).get();
+                if (productRepository.findById(productId).isPresent()) {
+                    if (promotion.getProducts().contains(productRepository.findById(productId).get())) {
+                        promotion.getProducts().remove(productRepository.findById(productId).get());
+                        return 1;
+                    } else {
+                        throw new IllegalArgumentException("Product is not in promotion");
+                    }
+                } else {
+                    throw new IllegalArgumentException("Product is not present");
+                }
+            } else {
+                throw new IllegalArgumentException("Promotion is not present");
+            }
+        } catch (Exception e) {
+            throw e;
+        }
     }
 }

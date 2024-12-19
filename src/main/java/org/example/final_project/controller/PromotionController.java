@@ -121,22 +121,22 @@ public class PromotionController {
         }
     }
 
-    @GetMapping("/seller")
-    ResponseEntity getAllPromotionIsNotExpired(@RequestParam(required = false) Integer pageIndex,
-                                               @RequestParam(required = false) Integer pageSize) {
-        if (setDefault(pageSize, pageIndex) != null) {
+    @DeleteMapping("/cancel")
+    ResponseEntity cancelPromotionOfProduct(@RequestParam Long promotionId,
+                                            @RequestParam Long productId) {
+        try {
+            promotionService.cancelPromotionOfProduct(promotionId, productId);
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
-                    HttpStatus.OK,
+                    HttpStatus.NO_CONTENT,
                     "Successfully",
-                    promotionService.findAllPromotionInAdminSeller(setDefault(pageSize, pageIndex))
+                    null
             ));
-        } else {
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
                     HttpStatus.BAD_REQUEST,
-                    "Invalid index or size",
+                    e.getMessage(),
                     null
             ));
         }
     }
-//    @DeleteMapping("/")
 }

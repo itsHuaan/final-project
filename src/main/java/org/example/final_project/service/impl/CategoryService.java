@@ -15,12 +15,13 @@ import org.example.final_project.model.enum_status.ActivateStatus;
 import org.example.final_project.repository.ICategoryRepository;
 import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.ICategoryService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 import static org.example.final_project.specification.CategorySpecification.*;
 
@@ -133,5 +134,10 @@ public class CategoryService implements ICategoryService {
         return iCategoryRepository.findAll(Specification.where(isNotDeleted()).and(hasParentId(parent_id))).stream()
                 .map(categoryMapper::convertToDto)
                 .toList();
+    }
+
+    @Override
+    public Page<CategoryDto> getAllByName(String name, Pageable pageable) {
+        return iCategoryRepository.findAll(hasName(name).and(isNotDeleted()), pageable).map(x -> categoryMapper.convertToDto(x));
     }
 }
