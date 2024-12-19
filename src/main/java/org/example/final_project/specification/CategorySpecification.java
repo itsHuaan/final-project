@@ -11,12 +11,19 @@ public class CategorySpecification {
         return (Root<CategoryEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("isActive"), 1);
     }
+
+    public static Specification<CategoryEntity> hasName(String name) {
+        return (Root<CategoryEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
+                criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), "%" + name + "%");
+    }
+
     public static Specification<CategoryEntity> isNotDeleted() {
         return (Root<CategoryEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.isNull(root.get("deletedAt"));
     }
+
     public static Specification<CategoryEntity> hasParentId(long parentId) {
         return (Root<CategoryEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
-                criteriaBuilder.equal(root.get("parent_id"),parentId);
+                criteriaBuilder.equal(root.get("parent_id"), parentId);
     }
 }

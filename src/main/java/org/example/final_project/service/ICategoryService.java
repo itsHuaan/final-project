@@ -7,8 +7,11 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
-public interface ICategoryService extends IBaseService<CategoryDto, CategoryModel,Long> {
-    int activateCategory(long id,int type);
+public interface ICategoryService extends IBaseService<CategoryDto, CategoryModel, Long> {
+    int activateCategory(long id, int type);
+
     List<CategoryDto> getAllByParentId(long parent_id);
+
+    Page<CategoryDto> getAllByName(String name, Pageable pageable);
 
 }
