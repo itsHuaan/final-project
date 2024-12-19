@@ -6,7 +6,9 @@ import jakarta.servlet.annotation.MultipartConfig;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.example.final_project.dto.*;
+import org.example.final_project.dto.ProductDto;
+import org.example.final_project.dto.ProductOptionDetailDto;
+import org.example.final_project.dto.SKUDto;
 import org.example.final_project.model.FavoriteProductModel;
 import org.example.final_project.model.ProductModel;
 import org.example.final_project.model.validation.PageableValidation;
@@ -21,7 +23,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.example.final_project.dto.ApiResponse.createResponse;
@@ -164,12 +165,12 @@ public class ProductController {
     ResponseEntity<?> deleteProduct(@PathVariable("id") long id) {
         int result = productService.delete(id);
         return result != 0
-                ?ResponseEntity.ok(createResponse(
+                ? ResponseEntity.ok(createResponse(
                 HttpStatus.NO_CONTENT,
                 "Delete Product Successfully",
                 null
         ))
-                :ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+                : ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
                 HttpStatus.BAD_REQUEST,
                 "Product not found",
                 null
@@ -203,22 +204,13 @@ public class ProductController {
                                         @RequestParam(required = false) Integer pageSize,
                                         @RequestParam(required = false) Integer pageIndex) {
         try {
-            if (PageableValidation.setDefault(pageSize, pageIndex) != null) {
-                return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
-                        200,
-                        "Successfully",
-                        productService.findAllByNameAndPage(name, PageRequest.of(pageIndex, pageSize)),
-                        LocalDateTime.now()
-                ));
-            } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
-                        HttpStatus.BAD_REQUEST,
-                        "Size Or Index Illegal",
-                        null
-                ));
-            }
-        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
+                    HttpStatus.OK,
+                    "Successfully",
+                    productService.findAllByNameAndPage(name, PageableValidation.setDefault(pageSize, pageIndex))
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
                     HttpStatus.BAD_REQUEST,
                     e.getMessage(),
                     null
@@ -232,19 +224,11 @@ public class ProductController {
                                             @RequestParam(required = false) Integer pageSize,
                                             @RequestParam(required = false) Integer pageIndex) {
         try {
-            if (PageableValidation.setDefault(pageSize, pageIndex) != null) {
-                return ResponseEntity.status(HttpStatus.OK).body(createResponse(
-                        HttpStatus.OK,
-                        "Successfully",
-                        productService.getAllProductByStatus(type, PageableValidation.setDefault(pageSize, pageIndex))
-                ));
-            } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
-                        HttpStatus.BAD_REQUEST,
-                        "Size Or Index Illegal",
-                        null
-                ));
-            }
+            return ResponseEntity.status(HttpStatus.OK).body(createResponse(
+                    HttpStatus.OK,
+                    "Successfully",
+                    productService.getAllProductByStatus(type, PageableValidation.setDefault(pageSize, pageIndex))
+            ));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
                     HttpStatus.BAD_REQUEST,
@@ -260,19 +244,11 @@ public class ProductController {
                                             @RequestParam(required = false) Integer pageSize,
                                             @RequestParam(required = false) Integer pageIndex) {
         try {
-            if (PageableValidation.setDefault(pageSize, pageIndex) != null) {
-                return ResponseEntity.status(HttpStatus.OK).body(createResponse(
-                        HttpStatus.OK,
-                        "Successfully",
-                        productService.getAllProductRelative(id, PageableValidation.setDefault(pageSize, pageIndex))
-                ));
-            } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
-                        HttpStatus.BAD_REQUEST,
-                        "Size Or Index Illegal",
-                        null
-                ));
-            }
+            return ResponseEntity.status(HttpStatus.OK).body(createResponse(
+                    HttpStatus.OK,
+                    "Successfully",
+                    productService.getAllProductRelative(id, PageableValidation.setDefault(pageSize, pageIndex))
+            ));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
                     HttpStatus.BAD_REQUEST,
@@ -288,19 +264,11 @@ public class ProductController {
                                             @RequestParam(required = false) Integer pageSize,
                                             @RequestParam(required = false) Integer pageIndex) {
         try {
-            if (PageableValidation.setDefault(pageSize, pageIndex) != null) {
-                return ResponseEntity.status(HttpStatus.OK).body(createResponse(
-                        HttpStatus.OK,
-                        "Successfully",
-                        productService.getOtherProductOfShop(productId, PageableValidation.setDefault(pageSize, pageIndex))
-                ));
-            } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
-                        HttpStatus.BAD_REQUEST,
-                        "Size Or Index Illegal",
-                        null
-                ));
-            }
+            return ResponseEntity.status(HttpStatus.OK).body(createResponse(
+                    HttpStatus.OK,
+                    "Successfully",
+                    productService.getOtherProductOfShop(productId, PageableValidation.setDefault(pageSize, pageIndex))
+            ));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
                     HttpStatus.BAD_REQUEST,
@@ -316,19 +284,11 @@ public class ProductController {
                                           @RequestParam(required = false) Integer pageSize,
                                           @RequestParam(required = false) Integer pageIndex) {
         try {
-            if (PageableValidation.setDefault(pageSize, pageIndex) != null) {
-                return ResponseEntity.status(HttpStatus.OK).body(createResponse(
-                        HttpStatus.OK,
-                        "Successfully",
-                        productService.getAllProductOfShop(userId, PageableValidation.setDefault(pageSize, pageIndex))
-                ));
-            } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
-                        HttpStatus.BAD_REQUEST,
-                        "Size Or Index Illegal",
-                        null
-                ));
-            }
+            return ResponseEntity.status(HttpStatus.OK).body(createResponse(
+                    HttpStatus.OK,
+                    "Successfully",
+                    productService.getAllProductOfShop(userId, PageableValidation.setDefault(pageSize, pageIndex))
+            ));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
                     HttpStatus.BAD_REQUEST,
@@ -348,19 +308,11 @@ public class ProductController {
                                             @RequestParam(required = false) Double rating,
                                             @RequestParam(required = false) Integer pageSize,
                                             @RequestParam(required = false) Integer pageIndex) {
-        if (PageableValidation.setDefault(pageSize, pageIndex) != null) {
-            return ResponseEntity.status(HttpStatus.OK).body(createResponse(
-                    HttpStatus.OK,
-                    "Successfully",
-                    productService.getAllProductByFilter(name,categoryId, addressId, startPrice, endPrice, rating, PageableValidation.setDefault(pageSize, pageIndex))
-            ));
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
-                    HttpStatus.BAD_REQUEST,
-                    "Invalid Page size or index",
-                    null
-            ));
-        }
+        return ResponseEntity.status(HttpStatus.OK).body(createResponse(
+                HttpStatus.OK,
+                "Successfully",
+                productService.getAllProductByFilter(name, categoryId, addressId, startPrice, endPrice, rating, PageableValidation.setDefault(pageSize, pageIndex))
+        ));
     }
 
     @Operation(summary = "Add to favorite")
