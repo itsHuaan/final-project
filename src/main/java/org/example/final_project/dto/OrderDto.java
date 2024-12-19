@@ -1,7 +1,6 @@
 package org.example.final_project.dto;
 
 import lombok.*;
-import org.example.final_project.model.enum_status.CheckoutStatus;
 
 import java.time.LocalDateTime;
 
@@ -11,7 +10,7 @@ import java.time.LocalDateTime;
 @Setter
 @Builder
 public class OrderDto {
-    private long id ;
+    private long id;
     private Double totalPrice;
     private String phoneReception;
     private String shippingAddress;

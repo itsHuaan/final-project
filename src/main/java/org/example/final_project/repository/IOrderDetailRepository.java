@@ -37,9 +37,9 @@ public interface IOrderDetailRepository extends JpaRepository<OrderDetailEntity,
     @Query("select o from OrderDetailEntity o where o.orderEntity.id = :orderIds")
     List<OrderDetailEntity> findByOrderId(long orderIds);
 
+    @Query("select distinct o.user.userId from OrderDetailEntity od join od.orderEntity o where od.shopId = :shopId")
+    List<Long> findAllCustomerBoughtAtThisShop(@Param("shopId") long shopId);
 
-//    @Query("select distinct o.user.userId from OrderEntity o join OrderDetailEntity od on o.id == od.orderEntity.id where od.shopId = :shopId")
-//    List<Long> findAllCustomerBoughtAtThísShop(long shopId);
 
 }
 

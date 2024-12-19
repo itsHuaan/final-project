@@ -7,7 +7,6 @@ import org.example.final_project.dto.OrderDto;
 import org.example.final_project.dto.UserDto;
 import org.example.final_project.entity.OrderEntity;
 import org.example.final_project.model.OrderModel;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -22,8 +21,9 @@ public class OrderMapper {
                 .methodCheckout(order.getMethodCheckout())
                 .build();
     }
-    public  OrderDto toOrderDto(OrderEntity order) {
-        UserDto userDto =  userMapper.toDto(order.getUser());
+
+    public OrderDto toOrderDto(OrderEntity order) {
+        UserDto userDto = userMapper.toDto(order.getUser());
         return OrderDto.builder()
                 .shippingAddress(order.getShippingAddress())
                 .methodCheckout(order.getMethodCheckout())
