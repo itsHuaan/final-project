@@ -11,11 +11,11 @@ import java.util.List;
 public interface IPromotionService extends IBaseService<PromotionDto, PromotionModel, Long> {
     Page<PromotionDto> findAllByPage(Pageable pageable);
 
-    int activate(Long promotionId, Integer type);
-
     int applyPromotion(Long promotionId, List<Long> productId);
 
     PromotionEntity findAllPromotionByNow(Long productId);
 
     Page<PromotionDto> findAllPromotionInAdminSeller(Pageable pageable);
+
+    int cancelPromotionOfProduct(Long promotionId, Long productId);
 }
