@@ -1,16 +1,15 @@
 package org.example.final_project.repository;
 
 import org.example.final_project.entity.OrderDetailEntity;
-import org.example.final_project.entity.OrderEntity;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface IOrderDetailRepository extends JpaRepository<OrderDetailEntity,Long> {
+public interface IOrderDetailRepository extends JpaRepository<OrderDetailEntity, Long>, JpaSpecificationExecutor<OrderDetailEntity> {
     @Query("select t.orderEntity.id from OrderDetailEntity t where t.shopId = :shopId")
     List<Long> findOrderIdsByShopId(long shopId);
 

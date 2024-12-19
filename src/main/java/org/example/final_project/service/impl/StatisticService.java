@@ -6,6 +6,8 @@ import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.ShopStatisticDto;
 import org.example.final_project.entity.FeedbackEntity;
 import org.example.final_project.entity.ProductEntity;
+import org.example.final_project.repository.IOrderDetailRepository;
+import org.example.final_project.repository.IOrderRepository;
 import org.example.final_project.repository.IProductRepository;
 import org.example.final_project.service.IStatisticService;
 import org.springframework.data.jpa.domain.Specification;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static org.example.final_project.specification.OrderDetailSpecification.hasShop;
 import static org.example.final_project.specification.ProductSpecification.*;
 
 @Service
@@ -20,6 +23,8 @@ import static org.example.final_project.specification.ProductSpecification.*;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class StatisticService implements IStatisticService {
     IProductRepository productRepository;
+    IOrderRepository orderRepository;
+    IOrderDetailRepository orderDetailRepository;
 
     @Override
     public ShopStatisticDto getStatistic(long shopId) {
@@ -27,6 +32,7 @@ public class StatisticService implements IStatisticService {
                 .averageRating(getAverageOfRating(shopId))
                 .totalOfFeedbacks(getTotalOfFeedbacks(shopId))
                 .totalOfProducts(getTotalProducts(shopId))
+                .totalOfOrders(getTotalOfOrders(shopId))
                 .build();
     }
 
@@ -50,5 +56,9 @@ public class StatisticService implements IStatisticService {
 
     private int getTotalProducts(long shopId) {
         return productRepository.findAll(Specification.where(ofShop(shopId)).and(isNotDeleted())).size();
+    }
+
+    private int getTotalOfOrders(long shopId) {
+        return orderDetailRepository.findAll(hasShop(shopId)).size();
     }
 }
