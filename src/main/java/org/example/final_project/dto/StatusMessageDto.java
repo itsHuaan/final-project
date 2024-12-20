@@ -2,14 +2,13 @@ package org.example.final_project.dto;
 
 import lombok.*;
 
-import java.awt.*;
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class StatusMessageDto {
-    private TrayIcon.MessageType type;
+    private String note;
     private String content;
     private long userId;
     private int status;

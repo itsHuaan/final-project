@@ -47,11 +47,6 @@ public class AdminShopController {
         }
     }
 
-//    @GetMapping("/{shopId}/find-status-shipping")
-//    public ResponseEntity<?> findStatusShipping(@PathVariable Long shopId, @RequestParam int statusShipping) {
-//        return ResponseEntity.ok(orderService.findByStatusShipping(shopId, statusShipping));
-//    }
-
     @GetMapping("/{shopId}/periodic-statistics")
     public ResponseEntity<?> getPeriodicStatistics(@PathVariable Long shopId) {
         List<ShopStatisticDto> periodicStatistics = statisticService.getPeriodicStatistics(shopId);
@@ -72,7 +67,7 @@ public class AdminShopController {
         );
     }
 
-    @GetMapping("/{shopId}/statistic")
+    @GetMapping("/{shopId}/statistics")
     public ResponseEntity<?> getStatistic(@PathVariable Long shopId,
                                           @RequestParam LocalDateTime startTime,
                                           @RequestParam LocalDateTime endTime) {
@@ -94,4 +89,5 @@ public class AdminShopController {
         );*/
         return null;
     }
+
 }
