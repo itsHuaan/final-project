@@ -72,12 +72,15 @@ public class ChatMessageService implements IChatMessageService {
     public Page<ChatMessageDto> getChatMessages(Long senderId, Long recipientId, Pageable pageable) {
         return chatRoomService.getChatRoomId(senderId, recipientId, false)
                 .map(chatId -> {
-                    Page<ChatMessageEntity> messagesPage = chatRepository.findAll(Specification.where(hasChatId(chatId)), pageable);
-                    List<ChatMessageDto> reversedList = messagesPage.getContent().stream()
+                    List<ChatMessageEntity> allMessages = chatRepository.findAll(Specification.where(hasChatId(chatId)));
+                    List<ChatMessageDto> reversedList = allMessages.stream()
                             .map(chatMessageMapper::toDto)
                             .collect(Collectors.toList());
                     Collections.reverse(reversedList);
-                    return new PageImpl<>(reversedList, pageable, messagesPage.getTotalElements());
+                    int start = (int) pageable.getOffset();
+                    int end = Math.min((start + pageable.getPageSize()), reversedList.size());
+                    List<ChatMessageDto> pagedMessages = reversedList.subList(start, end);
+                    return new PageImpl<>(pagedMessages, pageable, reversedList.size());
                 })
                 .orElse(new PageImpl<>(Collections.emptyList(), pageable, 0));
     }
