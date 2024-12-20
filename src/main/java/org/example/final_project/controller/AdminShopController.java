@@ -108,4 +108,11 @@ public class AdminShopController {
         );
     }
 
+
+    @GetMapping("/{shopId}/top-user-bought")
+    public ResponseEntity<?> getTopUserBought(@PathVariable Long shopId, @RequestParam(required = false) Integer page, @RequestParam(required = false) Integer size) {
+        return ResponseEntity.ok(orderService.getAllUserBoughtOfThisShop(shopId, page, size));
+    }
+
+
 }

@@ -1,6 +1,8 @@
 package org.example.final_project.repository;
 
 import org.example.final_project.entity.UserEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -30,6 +32,9 @@ public interface IUserRepository extends JpaRepository<UserEntity, Long>, JpaSpe
 
     @Query("select u from UserEntity u where u.userId in :userId ")
     List<UserEntity> findByUserId(List<Long> userId);
+
+    @Query("select u from UserEntity u where u.userId in :userId")
+    Page<UserEntity> findByUserId(List<Long> userId, Pageable pageable);
 
 
 }

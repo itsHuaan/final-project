@@ -218,7 +218,7 @@ public class OrderService implements IOrderService {
     public ApiResponse<?> getOrderTracking(Long orderId, Long shopId) {
         List<OrderDetailEntity> orderDetailEntity = orderDetailRepository.shopOrder(shopId, orderId);
         List<OrderDetailDto> orderDetailDtos = orderDetailEntity.stream().map(e -> orderDetailMapper.toOrderDto(e)).toList();
-        Optional<OrderTrackingEntity> orderTrackingEntity = orderTrackingRepository.findById(orderId);
+        Optional<OrderTrackingEntity> orderTrackingEntity = orderTrackingRepository.findByOrderIdAndShopId(orderId, shopId);
         OrderTrackingEntity orderTrackingEntity1 = new OrderTrackingEntity();
         if (orderTrackingEntity.isPresent()) {
             orderTrackingEntity1 = orderTrackingEntity.get();
@@ -280,17 +280,22 @@ public class OrderService implements IOrderService {
         return createResponse(HttpStatus.NOT_FOUND, "Not Found Product ", null);
     }
 
-
+    @Override
     public ApiResponse<?> getAllUserBoughtOfThisShop(long shopId, Integer page, Integer size) {
-        List<Long> list = orderDetailRepository.findAllCustomerBoughtTheMostAtThisShop(shopId);
+        List<Long> listUserIds = orderDetailRepository.findAllCustomerBoughtTheMostAtThisShop(shopId);
         if (page == null || size == null) {
-            List<UserEntity> userEntityList = userRepository.findByUserId(list);
+            List<UserEntity> userEntityList = userRepository.findByUserId(listUserIds);
             List<UserDto> list1 = userEntityList.stream().map(userMapper::toDto).toList();
             return createResponse(HttpStatus.OK, "Successfully Retrieved Users", list1);
         }
-//        if (page < 0 || size)
-//            return createResponse(HttpStatus.OK, "Successfully Retrieved Users", listUserDto);
-        return null;
+        if (page < 0 || size <= 0) {
+            return createResponse(HttpStatus.OK, "Page must be >= 0 and size must be >= 1 ", null);
+        }
+        Pageable pageable = PageRequest.of(page, size);
+        Page<UserEntity> userEntities = userRepository.findByUserId(listUserIds, pageable);
+        Page<UserDto> pageDtos = userEntities.map(userMapper::toDto);
+        return createResponse(HttpStatus.OK, "Successfully Retrieved Users", pageDtos);
+
     }
 
 }
