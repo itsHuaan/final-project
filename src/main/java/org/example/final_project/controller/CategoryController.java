@@ -137,12 +137,13 @@ public class CategoryController {
     @Operation(summary = "Get all categories by name")
     @GetMapping("/{category-name}")
     ResponseEntity getAllByName(@PathVariable("category-name") String categoryName,
+                                @RequestParam(required = false) Long parentId,
                                 @RequestParam(required = false) Integer pageIndex,
                                 @RequestParam(required = false) Integer pageSize) {
         return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                 HttpStatus.OK,
                 "Successfully",
-                categoryService.getAllByName(categoryName, PageableValidation.setDefault(pageSize, pageIndex))
+                categoryService.getAllByName(categoryName, parentId, PageableValidation.setDefault(pageSize, pageIndex))
         ));
     }
 }
