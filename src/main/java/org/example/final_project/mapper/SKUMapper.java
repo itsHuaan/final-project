@@ -3,11 +3,9 @@ package org.example.final_project.mapper;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.example.final_project.dto.CartSkuDto;
 import org.example.final_project.dto.SKUDto;
 import org.example.final_project.entity.SKUEntity;
 import org.example.final_project.model.SKUModel;
-import org.example.final_project.service.IProductOptionValueService;
 import org.example.final_project.service.IPromotionService;
 import org.springframework.stereotype.Component;
 
@@ -29,7 +27,7 @@ public class SKUMapper {
                         : null)
                 .oldPrice(entity.getPrice())
                 .newPrice(promotionService.findAllPromotionByNow(entity.getProduct().getId()) != null
-                        ? entity.getPrice() * promotionService.findAllPromotionByNow(entity.getProduct().getId()).getDiscountPercentage()/100
+                        ? entity.getPrice() * promotionService.findAllPromotionByNow(entity.getProduct().getId()).getDiscountPercentage() / 100
                         : entity.getPrice())
                 .quantity(entity.getQuantity())
                 .image(entity.getImage())

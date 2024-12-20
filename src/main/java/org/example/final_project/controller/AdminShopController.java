@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.example.final_project.dto.ShopStatisticDto;
 import org.example.final_project.service.IOrderService;
 import org.example.final_project.service.IStatisticService;
@@ -20,6 +21,7 @@ import java.util.List;
 import static org.example.final_project.dto.ApiResponse.createResponse;
 import static org.example.final_project.util.Const.*;
 
+@Slf4j
 @Tag(name = "ADMIN SHOP")
 @RestController
 @RequestMapping(Const.API_PREFIX + "/shop")

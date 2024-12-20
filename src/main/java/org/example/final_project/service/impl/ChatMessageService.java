@@ -46,6 +46,9 @@ public class ChatMessageService implements IChatMessageService {
 
     @Override
     public int save(ChatMessageModel chatMessageModel) {
+        if (Objects.equals(chatMessageModel.getSenderId(), chatMessageModel.getRecipientId())) {
+            throw new IllegalArgumentException("You can't send messages to yourself");
+        }
         var chatRoomId = chatRoomService.getChatRoomId(chatMessageModel.getSenderId(),
                 chatMessageModel.getRecipientId(),
                 true).orElseThrow(() -> new IllegalArgumentException("Can't find chat room"));
