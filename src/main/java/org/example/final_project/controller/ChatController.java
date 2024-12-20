@@ -79,6 +79,26 @@ public class ChatController {
         );
     }
 
+    @Operation(summary = "Delete all message between 2 users")
+    @DeleteMapping("/{senderId}/{recipientId}")
+    public ResponseEntity<?> deleteChatMessages(@PathVariable long senderId,
+                                                @PathVariable long recipientId) {
+        int result = chatMessageService.deleteChat(senderId, recipientId);
+        return result != 0
+                ? ResponseEntity.status(HttpStatus.OK).body(
+                createResponse(
+                        HttpStatus.OK,
+                        "Deleted",
+                        null
+                ))
+                : ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                createResponse(
+                        HttpStatus.BAD_REQUEST,
+                        "Failed to delete",
+                        null
+                ));
+    }
+
     @Operation(summary = "Retrieve all recipients who have chatted with the sender")
     @GetMapping("/{senderId}")
     public ResponseEntity<?> findChatUsers(@PathVariable long senderId) {

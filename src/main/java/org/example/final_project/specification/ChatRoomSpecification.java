@@ -18,14 +18,14 @@ public class ChatRoomSpecification {
     }
 
     public static Specification<ChatRoomEntity> hasChatId(String chatId) {
-        return (root, query, criteriaBuilder) ->
+        return (Root<ChatRoomEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("chatId"), chatId);
     }
 
     public static Specification<ChatRoomEntity> hasNormalizedChat(Long firstId, Long secondId) {
-        return (root, query, cb) -> cb.and(
-                cb.equal(root.get("senderId"), firstId),
-                cb.equal(root.get("recipientId"), secondId)
+        return (Root<ChatRoomEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) -> criteriaBuilder.and(
+                criteriaBuilder.equal(root.get("senderId"), firstId),
+                criteriaBuilder.equal(root.get("recipientId"), secondId)
         );
     }
 }

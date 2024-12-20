@@ -91,5 +91,17 @@ public class OrderDetailService implements IOrderDetailService {
         return ApiResponse.createResponse(HttpStatus.OK, "get order by orderCode", orderDetailDtos);
     }
 
+    @Override
+    public int changeStatusRead(long orderDetailId) {
+        Optional<OrderDetailEntity> orderDetailEntity = orderDetailRepository.findById(orderDetailId);
+        if (orderDetailEntity.isPresent()) {
+            OrderDetailEntity orderDetailEntity1 = orderDetailEntity.get();
+            orderDetailEntity1.setHasFeedback(1);
+            orderDetailRepository.save(orderDetailEntity1);
+            return 1;
+        }
+        return 0;
+    }
+
 
 }
