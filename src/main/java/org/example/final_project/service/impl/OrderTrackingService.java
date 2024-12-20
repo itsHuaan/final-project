@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.StatusMessageDto;
-import org.example.final_project.entity.OrderDetailEntity;
 import org.example.final_project.entity.OrderEntity;
 import org.example.final_project.entity.OrderTrackingEntity;
 import org.example.final_project.model.enum_status.CheckoutStatus;
@@ -16,7 +15,6 @@ import org.example.final_project.service.IOrderTrackingService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -31,11 +29,7 @@ public class OrderTrackingService implements IOrderTrackingService {
     @Override
     public int updateStatusShipping(StatusMessageDto messageDto) {
         Optional<OrderTrackingEntity> orderTrackingEntity = orderTrackingRepository.findByOrderIdAndShopId(messageDto.getOrderId(), messageDto.getShopId());
-        List<OrderDetailEntity> orderDetailEntityList = orderDetailRepository.shopOrder(messageDto.getShopId(), messageDto.getOrderId());
-        for (OrderDetailEntity orderDetailEntity : orderDetailEntityList) {
-            orderDetailEntity.setStatusShip(messageDto.getStatus());
-            orderDetailRepository.save(orderDetailEntity);
-        }
+//        List<OrderDetailEntity> orderDetailEntityList = orderDetailRepository.shopOrder(messageDto.getShopId(), messageDto.getOrderId());
         if (orderTrackingEntity.isPresent()) {
 
             OrderTrackingEntity orderTrackingEntity1 = orderTrackingEntity.get();
