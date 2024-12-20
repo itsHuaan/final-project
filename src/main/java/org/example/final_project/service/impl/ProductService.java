@@ -216,9 +216,13 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public Page<ProductSummaryDto> getAllProductByPromotion(Long promotionId, Pageable pageable) {
+    public Page<ProductSummaryDto> getAllProductByPromotion(Long promotionId, Long shopId, Pageable pageable) {
+        Specification<ProductEntity> specification = Specification.where(hasPromotion(promotionId));
+        if (shopId != null) {
+            specification = specification.and(hasUserId(shopId));
+        }
         if (promotionRepository.findById(promotionId).isPresent()) {
-            return iProductRepository.findAll(hasPromotion(promotionId), pageable).map(x -> productMapper.toProductSummaryDto(x));
+            return iProductRepository.findAll(specification, pageable).map(x -> productMapper.toProductSummaryDto(x));
         } else {
             throw new IllegalArgumentException("Promotion is not present");
         }
