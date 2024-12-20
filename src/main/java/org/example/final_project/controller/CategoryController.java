@@ -135,15 +135,24 @@ public class CategoryController {
     }
 
     @Operation(summary = "Get all categories by name")
-    @GetMapping("/{category-name}")
-    ResponseEntity getAllByName(@PathVariable("category-name") String categoryName,
-                                @RequestParam(required = false) Long parentId,
+    @GetMapping("/filter/{parent-id}")
+    ResponseEntity getAllByName(@PathVariable("parent-id") Long parentId,
+                                @RequestParam(required = false) String categoryName,
                                 @RequestParam(required = false) Integer pageIndex,
                                 @RequestParam(required = false) Integer pageSize) {
-        return ResponseEntity.status(HttpStatus.OK).body(createResponse(
-                HttpStatus.OK,
-                "Successfully",
-                categoryService.getAllByName(categoryName, parentId, PageableValidation.setDefault(pageSize, pageIndex))
-        ));
+
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(createResponse(
+                    HttpStatus.OK,
+                    "Successfully",
+                    categoryService.getAllByName(categoryName, parentId, PageableValidation.setDefault(pageSize, pageIndex))
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+                    HttpStatus.BAD_REQUEST,
+                    e.getMessage(),
+                    null
+            ));
+        }
     }
 }
