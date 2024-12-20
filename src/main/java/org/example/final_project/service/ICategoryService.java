@@ -12,6 +12,6 @@ public interface ICategoryService extends IBaseService<CategoryDto, CategoryMode
 
     List<CategoryDto> getAllByParentId(long parent_id);
 
-    Page<CategoryDto> getAllByName(String name, Pageable pageable);
+    Page<CategoryDto> getAllByName(String name, Long parentId, Pageable pageable);
 
 }

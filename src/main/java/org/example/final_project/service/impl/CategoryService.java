@@ -143,7 +143,23 @@ public class CategoryService implements ICategoryService {
     }
 
     @Override
-    public Page<CategoryDto> getAllByName(String name, Pageable pageable) {
-        return iCategoryRepository.findAll(hasName(name).and(isNotDeleted()), pageable).map(x -> categoryMapper.convertToDto(x));
+    public Page<CategoryDto> getAllByName(String name, Long parentId, Pageable pageable) {
+        Specification<CategoryEntity> specification = Specification.where(isNotDeleted());
+        if (parentId != 0L) {
+            if (iCategoryRepository.findById(parentId).isPresent()) {
+                specification = specification.and(hasParentId(parentId));
+                if (name != null) {
+                    specification = specification.and(hasName(name));
+                }
+            } else {
+                throw new IllegalArgumentException("Parent is not present");
+            }
+        } else {
+            specification = specification.and(hasParentId(parentId));
+            if (name != null) {
+                specification = specification.and(hasName(name));
+            }
+        }
+        return iCategoryRepository.findAll(specification, pageable).map(x -> categoryMapper.convertToDto(x));
     }
 }

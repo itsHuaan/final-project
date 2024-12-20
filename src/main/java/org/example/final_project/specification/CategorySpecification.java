@@ -22,6 +22,11 @@ public class CategorySpecification {
                 criteriaBuilder.isNull(root.get("deletedAt"));
     }
 
+    public static Specification<CategoryEntity> isNotParent() {
+        return (Root<CategoryEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
+                criteriaBuilder.notEqual(root.get("parent_id"), 0L);
+    }
+
     public static Specification<CategoryEntity> hasParentId(long parentId) {
         return (Root<CategoryEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("parent_id"), parentId);
