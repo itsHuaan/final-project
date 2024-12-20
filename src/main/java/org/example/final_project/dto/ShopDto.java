@@ -10,6 +10,7 @@ import lombok.*;
 public class ShopDto {
     private Long shopId;
     private String shopName;
+    private String profilePicture;
     private String shopAddress;
     private String shopAddressDetail;
     private Long productCount;

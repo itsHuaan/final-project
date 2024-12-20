@@ -3,7 +3,6 @@ package org.example.final_project.dto;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -16,6 +15,7 @@ public class ProductSummaryDto {
     private long numberOfFeedBack;
     private long numberOfLike;
     private double rating;
+    private long totalQuantity;
     private CategorySummaryDto category;
     private String image;
     private ShopDto shopDto;

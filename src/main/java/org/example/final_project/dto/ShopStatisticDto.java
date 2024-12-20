@@ -3,6 +3,8 @@ package org.example.final_project.dto;
 
 import lombok.*;
 
+import java.util.List;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -14,7 +16,7 @@ public class ShopStatisticDto {
     private int totalOfFeedbacks;
     private double averageRating;
     private int lockedProducts;
-    private int outOfStockProducts;
+    private List<CartSkuDto> lowStockProducts;
     private int totalOfCustomers;
     private int totalOfOrders;
     private double revenue;
