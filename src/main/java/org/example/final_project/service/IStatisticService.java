@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface IStatisticService {
 
-    List<ShopStatisticDto> getStaticStatistic(long shopId);
+    List<ShopStatisticDto> getPeriodicStatistics(long shopId);
 
-    ShopStatisticDto getStatistic(long shopId, LocalDateTime startTime, LocalDateTime endTime);
+    ShopStatisticDto getStatistics(long shopId, LocalDateTime startTime, LocalDateTime endTime);
 }

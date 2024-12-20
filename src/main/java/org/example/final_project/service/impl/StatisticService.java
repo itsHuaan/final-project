@@ -41,7 +41,7 @@ public class StatisticService implements IStatisticService {
     }
 
     @Override
-    public List<ShopStatisticDto> getStaticStatistic(long shopId) {
+    public List<ShopStatisticDto> getPeriodicStatistics(long shopId) {
         LocalDateTime startOfDay = LocalDateTime.of(LocalDate.now(), LocalTime.of(0, 0, 0));
 
         return List.of(
@@ -53,7 +53,7 @@ public class StatisticService implements IStatisticService {
     }
 
     @Override
-    public ShopStatisticDto getStatistic(long shopId, LocalDateTime startTime, LocalDateTime endTime) {
+    public ShopStatisticDto getStatistics(long shopId, LocalDateTime startTime, LocalDateTime endTime) {
         return buildStatistic(shopId, startTime, endTime);
     }
 

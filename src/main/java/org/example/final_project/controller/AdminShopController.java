@@ -52,15 +52,15 @@ public class AdminShopController {
 //        return ResponseEntity.ok(orderService.findByStatusShipping(shopId, statusShipping));
 //    }
 
-    @GetMapping("/{shopId}/statistics")
-    public ResponseEntity<?> getStaticStatistics(@PathVariable Long shopId) {
-        List<ShopStatisticDto> staticStatistics = statisticService.getStaticStatistic(shopId);
-        return staticStatistics != null
+    @GetMapping("/{shopId}/periodic-statistics")
+    public ResponseEntity<?> getPeriodicStatistics(@PathVariable Long shopId) {
+        List<ShopStatisticDto> periodicStatistics = statisticService.getPeriodicStatistics(shopId);
+        return periodicStatistics != null
                 ? ResponseEntity.status(HttpStatus.OK).body(
                 createResponse(
                         HttpStatus.OK,
                         "Fetched",
-                        staticStatistics
+                        periodicStatistics
                 )
         )
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).body(
@@ -76,7 +76,7 @@ public class AdminShopController {
     public ResponseEntity<?> getStatistic(@PathVariable Long shopId,
                                           @RequestParam LocalDateTime startTime,
                                           @RequestParam LocalDateTime endTime) {
-        /*List<ShopStatisticDto> staticStatistics = statisticService.getStaticStatistic(shopId);
+        /*List<ShopStatisticDto> staticStatistics = statisticService.getPeriodicStatistics(shopId);
         return staticStatistics != null
                 ? ResponseEntity.status(HttpStatus.OK).body(
                 createResponse(
