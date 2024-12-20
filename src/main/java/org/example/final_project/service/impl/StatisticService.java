@@ -64,7 +64,7 @@ public class StatisticService implements IStatisticService {
 
     private double getAverageOfRating(long shopId, LocalDateTime startTime, LocalDateTime endTime) {
         List<ProductEntity> products = productRepository.findAll(Specification.where(
-                        ofShop(shopId))
+                        hasUserId(shopId))
                 .and(isValid())
                 .and(isBetween(startTime, endTime))).stream().toList();
         return products.stream()
@@ -78,7 +78,7 @@ public class StatisticService implements IStatisticService {
 
     private int getTotalOfFeedbacks(long shopId, LocalDateTime startTime, LocalDateTime endTime) {
         List<ProductEntity> products = productRepository.findAll(Specification.where(
-                        ofShop(shopId))
+                        hasUserId(shopId))
                 .and(isValid())
                 .and(isBetween(startTime, endTime))).stream().toList();
         return products.stream()
@@ -88,7 +88,7 @@ public class StatisticService implements IStatisticService {
 
     private int getTotalProducts(long shopId, LocalDateTime startTime, LocalDateTime endTime) {
         return productRepository.findAll(Specification.where(
-                        ofShop(shopId))
+                        hasUserId(shopId))
                 .and(isNotDeleted())
                 .and(isBetween(startTime, endTime))).size();
     }
@@ -118,7 +118,10 @@ public class StatisticService implements IStatisticService {
     }
 
     private int getLockedProducts(long shopId, LocalDateTime startTime, LocalDateTime endTime) {
-        return 0;
+        return productRepository.findAll(
+                hasUserId(shopId)
+                        .and(isStatus(1))
+                        .and(isBetween(startTime, endTime))).size();
     }
 
     private int getTotalCustomers(long shopId, LocalDateTime startTime, LocalDateTime endTime) {
