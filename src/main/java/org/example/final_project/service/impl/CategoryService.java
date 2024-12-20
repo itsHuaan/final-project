@@ -85,6 +85,7 @@ public class CategoryService implements ICategoryService {
                         throw new IllegalArgumentException("Parent Category is not present");
                     }
                 }
+                category.setId(aLong);
                 iCategoryRepository.save(category);
             } else {
                 throw new IllegalArgumentException("Category is not present");
