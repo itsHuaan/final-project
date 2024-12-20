@@ -35,7 +35,7 @@ public class SocketOrderController {
                     .build();
 
         }
-        messagingTemplate.convertAndSend("/user/sent", iOrderDetailService.findDetailIn4OfOrder(responseDto.getUserId(), responseDto.getOrderId(), responseDto.getShopId()));
+        messagingTemplate.convertAndSend("/user/sent", responseDto);
     }
 
 
