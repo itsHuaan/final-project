@@ -4,11 +4,18 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.example.final_project.dto.ShopStatisticDto;
 import org.example.final_project.service.IOrderService;
+import org.example.final_project.service.IStatisticService;
 import org.example.final_project.util.Const;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import static org.example.final_project.dto.ApiResponse.createResponse;
 
 @Tag(name = "ADMIN SHOP")
 @RestController
@@ -17,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AdminShopController {
     IOrderService orderService;
+    IStatisticService statisticService;
 
 
     @GetMapping("/{shopId}/detail-order")
@@ -39,9 +47,47 @@ public class AdminShopController {
         }
     }
 
-//    @GetMapping("/{shopId}/find-status-shipping")
-//    public ResponseEntity<?> findStatusShipping(@PathVariable Long shopId, @RequestParam int statusShipping) {
-//        return ResponseEntity.ok(orderService.findByStatusShipping(shopId, statusShipping));
-//    }
-    
+    @GetMapping("/{shopId}/periodic-statistics")
+    public ResponseEntity<?> getPeriodicStatistics(@PathVariable Long shopId) {
+        List<ShopStatisticDto> periodicStatistics = statisticService.getPeriodicStatistics(shopId);
+        return periodicStatistics != null
+                ? ResponseEntity.status(HttpStatus.OK).body(
+                createResponse(
+                        HttpStatus.OK,
+                        "Fetched",
+                        periodicStatistics
+                )
+        )
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                createResponse(
+                        HttpStatus.NOT_FOUND,
+                        "Statistic not found",
+                        null
+                )
+        );
+    }
+
+    @GetMapping("/{shopId}/statistics")
+    public ResponseEntity<?> getStatistic(@PathVariable Long shopId,
+                                          @RequestParam LocalDateTime startTime,
+                                          @RequestParam LocalDateTime endTime) {
+        /*List<ShopStatisticDto> staticStatistics = statisticService.getPeriodicStatistics(shopId);
+        return staticStatistics != null
+                ? ResponseEntity.status(HttpStatus.OK).body(
+                createResponse(
+                        HttpStatus.OK,
+                        "Fetched",
+                        staticStatistics
+                )
+        )
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                createResponse(
+                        HttpStatus.NOT_FOUND,
+                        "Statistic not found",
+                        null
+                )
+        );*/
+        return null;
+    }
+
 }

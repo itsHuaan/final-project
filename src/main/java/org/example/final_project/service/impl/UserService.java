@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.final_project.configuration.UserDetailsImpl;
 import org.example.final_project.configuration.cloudinary.MediaUploadService;
 import org.example.final_project.dto.ApiResponse;
-
 import org.example.final_project.dto.ChatUserDto;
 import org.example.final_project.dto.UserDto;
 import org.example.final_project.entity.AddressEntity;
@@ -35,7 +34,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -157,7 +155,7 @@ public class UserService implements IUserService, UserDetailsService {
 
     @Override
     public boolean isActivated(String email) {
-        return userRepository.findOne(Specification.where(hasEmail(email)).and(isActive())).isPresent();
+        return userRepository.findOne(Specification.where(hasEmail(email)).and(isActive()).and(isNotDeleted())).isPresent();
     }
 
     @Override
@@ -218,7 +216,7 @@ public class UserService implements IUserService, UserDetailsService {
     @Override
     public Page<UserDto> findAllUsers(Pageable pageable, String name, Integer status) {
         Specification<UserEntity> spec = Specification.where(isNotDeleted().and(isNotSuperAdmin()));
-        if (status != null){
+        if (status != null) {
             spec = spec.and(hasStatus(status));
         }
         if (name != null) {
@@ -235,8 +233,8 @@ public class UserService implements IUserService, UserDetailsService {
 
         if (optionalUserEntity.isPresent() || !addressRepository.existsById(shopAddressId)) {
             UserEntity userEntity = userRepository.findById(request.getUserId()).get();
-            if(userRepository.existsByShopName(request.getShop_name())) {
-                return createResponse(HttpStatus.CONFLICT , "Shop Name Existed" , null);
+            if (userRepository.existsByShopName(request.getShop_name())) {
+                return createResponse(HttpStatus.CONFLICT, "Shop Name Existed", null);
             }
             if (userEntity.getShop_status() == 0) {
                 String id_back = mediaUploadService.uploadOneImage(request.getId_back());
