@@ -17,5 +17,5 @@ public class ShopStatisticDto {
     private int outOfStockProducts;
     private int totalOfCustomers;
     private int totalOfOrders;
-    private long revenue;
+    private double revenue;
 }

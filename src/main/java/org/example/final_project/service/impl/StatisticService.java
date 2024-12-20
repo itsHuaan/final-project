@@ -35,6 +35,7 @@ public class StatisticService implements IStatisticService {
                 .totalOfFeedbacks(getTotalOfFeedbacks(shopId, start, end))
                 .totalOfProducts(getTotalProducts(shopId, start, end))
                 .totalOfOrders(getTotalOfOrders(shopId, start, end))
+                .revenue(getRevenue(shopId, start, end))
                 .build();
     }
 
@@ -91,9 +92,11 @@ public class StatisticService implements IStatisticService {
         )).size();
     }
 
-    private long getRevenue(long shopId, LocalDateTime startTime, LocalDateTime endTime) {
+    private double getRevenue(long shopId, LocalDateTime startTime, LocalDateTime endTime) {
         return orderDetailRepository.findAll(Specification.where(
-                hasShop(shopId).and(OrderDetailSpecification.isBetween(startTime, endTime))
-        )).size();
+                        hasShop(shopId).and(OrderDetailSpecification.isBetween(startTime, endTime))
+                )).stream()
+                .mapToDouble(orderDetail -> orderDetail.getQuantity() * orderDetail.getPrice())
+                .sum();
     }
 }
