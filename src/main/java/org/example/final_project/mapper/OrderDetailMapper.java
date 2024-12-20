@@ -7,22 +7,19 @@ import org.example.final_project.dto.OrderDetailDto;
 import org.example.final_project.dto.SKUDto;
 import org.example.final_project.entity.OrderDetailEntity;
 import org.example.final_project.model.CartItemRequest;
-import org.example.final_project.repository.IOrderDetailRepository;
 import org.example.final_project.repository.IOrderTrackingRepository;
-import org.example.final_project.service.impl.OrderDetailService;
 import org.example.final_project.service.impl.UserService;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class OrderDetailMapper
-{
+public class OrderDetailMapper {
     private UserService userService;
     private SKUMapper skuMapper;
+    IOrderTrackingRepository orderTrackingRepository;
 
-
-    public static CartItemRequest toDTO(OrderDetailEntity entity){
+    public static CartItemRequest toDTO(OrderDetailEntity entity) {
         return CartItemRequest.builder()
                 .price(entity.getPrice())
                 .quantity(entity.getQuantity())
@@ -33,7 +30,7 @@ public class OrderDetailMapper
                 .build();
     }
 
-    public OrderDetailDto toOrderDto(OrderDetailEntity orderDetailEntity){
+    public OrderDetailDto toOrderDto(OrderDetailEntity orderDetailEntity) {
         SKUDto skuDto = skuMapper.convertToDto(orderDetailEntity.getSkuEntity());
         return OrderDetailDto.builder()
                 .id(orderDetailEntity.getId())
@@ -46,7 +43,7 @@ public class OrderDetailMapper
                 .productName(orderDetailEntity.getNameProduct())
                 .user(userService.getById(orderDetailEntity.getShopId()))
                 .orderId(orderDetailEntity.getOrderEntity().getId())
-                .shippingStatus(orderDetailEntity.getStatusShip())
+                .shippingStatus(orderTrackingRepository.findOrderIdByShopIdAndOrderId(orderDetailEntity.getShopId(), orderDetailEntity.getOrderEntity().getId()))
                 .skuDto(skuDto)
                 .build();
     }

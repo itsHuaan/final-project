@@ -2,6 +2,8 @@ package org.example.final_project.util;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.regex.Pattern;
 
@@ -13,9 +15,10 @@ public class Const {
     public static final Pattern EMAIL_PATTERN = Pattern.compile(regex);
     public static final String GOOGLE = "GOOGLE";
     public static final String FACEBOOK = "FACEBOOK";
-
-    public static final LocalDate CURRENT_DATE = LocalDate.now();
-    public static final LocalDate START_OF_WEEK = CURRENT_DATE.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-    public static final LocalDate START_OF_MONTH = CURRENT_DATE.with(TemporalAdjusters.firstDayOfMonth());
-    public static final LocalDate START_OF_YEAR = CURRENT_DATE.with(TemporalAdjusters.firstDayOfYear());
+    private static final LocalDate now = LocalDate.now();
+    private static final LocalTime startHour = LocalTime.of(0, 0, 0);
+    public static final LocalDateTime CURRENT_DATE = LocalDateTime.of(now, LocalTime.of(23, 59, 59));
+    public static final LocalDateTime START_OF_WEEK = LocalDateTime.of(now, startHour).with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+    public static final LocalDateTime START_OF_MONTH = LocalDateTime.of(now, startHour).with(TemporalAdjusters.firstDayOfMonth());
+    public static final LocalDateTime START_OF_YEAR = LocalDateTime.of(now, startHour).with(TemporalAdjusters.firstDayOfYear());
 }

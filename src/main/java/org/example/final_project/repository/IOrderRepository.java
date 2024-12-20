@@ -1,6 +1,5 @@
 package org.example.final_project.repository;
 
-import org.aspectj.weaver.ast.Or;
 import org.example.final_project.entity.OrderEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,7 +35,4 @@ public interface IOrderRepository extends JpaRepository<OrderEntity, Long> {
 
     @Query("select o.id from OrderEntity o where o.user.userId = :userId and o.orderCode = :orderCode")
     long findOrderIdByUserIdAndOrderCode(long userId, String orderCode);
-
-
-
 }

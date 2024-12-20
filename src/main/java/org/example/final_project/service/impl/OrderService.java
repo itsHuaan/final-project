@@ -9,6 +9,7 @@ import org.example.final_project.entity.*;
 import org.example.final_project.mapper.OrderDetailMapper;
 import org.example.final_project.mapper.OrderMapper;
 import org.example.final_project.mapper.OrderTrackingMapper;
+import org.example.final_project.mapper.UserMapper;
 import org.example.final_project.model.CartItemRequest;
 import org.example.final_project.model.OrderModel;
 import org.example.final_project.model.enum_status.CheckoutStatus;
@@ -38,9 +39,10 @@ public class OrderService implements IOrderService {
     private final EmailService emailService;
     private final OrderMapper orderMapper;
     private final ISKURepository skuRepository;
-    ;
     private final OrderDetailMapper orderDetailMapper;
     private final ICartItemRepository cartItemRepository;
+    private final IUserRepository userRepository;
+    private final UserMapper userMapper;
 
 
     @Override
@@ -83,7 +85,6 @@ public class OrderService implements IOrderService {
                 orderDetailEntity.setShopId(cartItemRequest.getShopId());
                 orderDetailEntity.setNameProduct(cartItemRequest.getNameProduct());
                 orderDetailEntity.setCreateAt(LocalDateTime.now());
-                orderDetailEntity.setStatusShip(StatusShipping.Create.getStatus());
                 orderDetailEntity.setCartDetailId(cartItemRequest.getCartDetailId());
                 SKUEntity skuEntity = new SKUEntity();
                 skuEntity.setId(cartItemRequest.getProductSkuId());
@@ -181,26 +182,22 @@ public class OrderService implements IOrderService {
     public ApiResponse<?> getOrdersByShopId(long shopId, Integer pageIndex, Integer pageSize, Integer statusShipping) {
         List<Long> orderIds;
 
-        // Lấy danh sách orderIds dựa trên statusShipping
         if (statusShipping != null) {
             orderIds = orderTrackingRepository.findOrderIdsByShopIdAndStatus(shopId, statusShipping);
         } else {
             orderIds = orderDetailRepository.findOrderIdsByShopId(shopId);
         }
 
-        // Nếu không có orderIds, trả về danh sách rỗng
         if (orderIds.isEmpty()) {
             return createResponse(HttpStatus.OK, "No orders found", Page.empty());
         }
 
-        // Nếu pageIndex và pageSize không được cung cấp, trả về danh sách không phân trang
         if (pageIndex == null || pageSize == null) {
             List<OrderEntity> orderEntities = orderRepository.findAllSortById(orderIds, Sort.by(Sort.Order.desc("createdAt")));
             List<OrderDto> orderDtos = orderEntities.stream().map(orderMapper::toOrderDto).toList();
             return createResponse(HttpStatus.OK, "Successfully Retrieved Orders", orderDtos);
         }
 
-        // Nếu có pageIndex và pageSize, thực hiện phân trang
         Pageable pageable = PageRequest.of(pageIndex, pageSize, Sort.by(Sort.Order.desc("createdAt")));
         Page<OrderEntity> orderEntities = orderRepository.findAllByIds(orderIds, pageable);
         Page<OrderDto> orderDtos = orderEntities.map(orderMapper::toOrderDto);
@@ -283,5 +280,13 @@ public class OrderService implements IOrderService {
         return createResponse(HttpStatus.NOT_FOUND, "Not Found Product ", null);
     }
 
+    public ApiResponse<?> getAllUserBoughtOfThisShop(long shopId, Integer page, Integer size) {
+        List<Long> userId = orderDetailRepository.findAllCustomerBoughtAtThisShop(shopId);
+        List<UserEntity> userEntityList = userRepository.findByUserId(userId);
+        List<UserDto> listUserDto = userEntityList.stream().map(userMapper::toDto).toList();
+        Pageable pageable = PageRequest.of(page, size);
+
+        return createResponse(HttpStatus.OK, "Successfully Retrieved Users", listUserDto);
+    }
 
 }

@@ -8,6 +8,7 @@ import org.example.final_project.entity.FeedbackEntity;
 import org.example.final_project.entity.ProductEntity;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class ProductSpecification {
@@ -95,5 +96,10 @@ public class ProductSpecification {
     public static Specification<ProductEntity> isNotDeleted() {
         return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.isNull(root.get("deletedAt"));
+    }
+
+    public static Specification<ProductEntity> isBetween(LocalDateTime startDate, LocalDateTime endDate) {
+        return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
+                criteriaBuilder.between(root.get("createdAt"), startDate, endDate);
     }
 }
