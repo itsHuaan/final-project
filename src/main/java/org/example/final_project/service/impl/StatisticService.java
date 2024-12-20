@@ -90,4 +90,10 @@ public class StatisticService implements IStatisticService {
                         .and(OrderDetailSpecification.isBetween(startTime, endTime))
         )).size();
     }
+
+    private long getRevenue(long shopId, LocalDateTime startTime, LocalDateTime endTime) {
+        return orderDetailRepository.findAll(Specification.where(
+                hasShop(shopId).and(OrderDetailSpecification.isBetween(startTime, endTime))
+        )).size();
+    }
 }
