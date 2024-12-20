@@ -10,11 +10,11 @@ import org.example.final_project.dto.ChatMessageDto;
 import org.example.final_project.dto.ChatUserDto;
 import org.example.final_project.model.ChatMessageModel;
 import org.example.final_project.model.ChatNotificationModel;
+import org.example.final_project.model.validation.PageableValidation;
 import org.example.final_project.service.impl.ChatMessageService;
 import org.example.final_project.service.impl.ChatRoomService;
 import org.example.final_project.util.Const;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -66,9 +66,7 @@ public class ChatController {
                                              @PathVariable long recipientId,
                                              @RequestParam(defaultValue = "0") int page,
                                              @RequestParam(defaultValue = "20") int size) {
-        Pageable pageable = page >= 0 && size > 0
-                ? PageRequest.of(page, size)
-                : Pageable.unpaged();
+        Pageable pageable = PageableValidation.setDefault(size, page);
         Page<ChatMessageDto> chatMessages = chatMessageService.getChatMessages(senderId, recipientId, pageable);
         String apiMessage = !chatMessages.isEmpty() ? "Messages fetched" : "No messages fetched";
         HttpStatus status = !chatMessages.isEmpty() ? HttpStatus.OK : HttpStatus.NO_CONTENT;
