@@ -18,6 +18,7 @@ public class SKUMapper {
 
     public SKUDto convertToDto(SKUEntity entity) {
         return SKUDto.builder()
+                .productId(entity.getProduct().getId())
                 .variantId(entity.getId())
                 .option1(entity.getOption1() != null
                         ? optionMapper.convertToDtoWithValue(entity.getOption1(), entity.getValue1())

@@ -8,6 +8,7 @@ import lombok.*;
 @Setter
 @Builder
 public class SKUDto {
+    private long productId;
     private long variantId;
     private ProductOptionDto option1;
     private ProductOptionDto option2;
