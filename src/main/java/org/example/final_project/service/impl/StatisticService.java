@@ -14,9 +14,7 @@ import org.example.final_project.specification.OrderDetailSpecification;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 
 import static org.example.final_project.specification.OrderDetailSpecification.hasShop;
@@ -42,13 +40,11 @@ public class StatisticService implements IStatisticService {
 
     @Override
     public List<ShopStatisticDto> getPeriodicStatistics(long shopId) {
-        LocalDateTime startOfDay = LocalDateTime.of(LocalDate.now(), LocalTime.of(0, 0, 0));
-
         return List.of(
-                buildStatistic(shopId, startOfDay, CURRENT_DATE),
-                buildStatistic(shopId, START_OF_WEEK, CURRENT_DATE),
-                buildStatistic(shopId, START_OF_MONTH, CURRENT_DATE),
-                buildStatistic(shopId, START_OF_YEAR, CURRENT_DATE)
+                buildStatistic(shopId, START_OF_DAY, END_OF_DAY),
+                buildStatistic(shopId, START_OF_WEEK, END_OF_DAY),
+                buildStatistic(shopId, START_OF_MONTH, END_OF_DAY),
+                buildStatistic(shopId, START_OF_YEAR, END_OF_DAY)
         );
     }
 

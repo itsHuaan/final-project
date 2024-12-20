@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.example.final_project.dto.ApiResponse.createResponse;
+import static org.example.final_project.util.Const.*;
 
 @Tag(name = "ADMIN SHOP")
 @RestController
@@ -69,25 +70,42 @@ public class AdminShopController {
 
     @GetMapping("/{shopId}/statistics")
     public ResponseEntity<?> getStatistic(@PathVariable Long shopId,
-                                          @RequestParam LocalDateTime startTime,
-                                          @RequestParam LocalDateTime endTime) {
-        /*List<ShopStatisticDto> staticStatistics = statisticService.getPeriodicStatistics(shopId);
-        return staticStatistics != null
-                ? ResponseEntity.status(HttpStatus.OK).body(
+                                          @RequestParam String period,
+                                          @RequestParam(required = false) LocalDateTime startTime,
+                                          @RequestParam(required = false) LocalDateTime endTime) {
+        ShopStatisticDto statistics = new ShopStatisticDto();
+        HttpStatus httpStatus = HttpStatus.OK;
+        String message = "Fetched";
+        switch (period.toLowerCase()) {
+            case "today":
+                statistics = statisticService.getStatistics(shopId, START_OF_DAY, END_OF_DAY);
+                break;
+            case "this_week":
+                statistics = statisticService.getStatistics(shopId, START_OF_WEEK, END_OF_DAY);
+                break;
+            case "this_month":
+                statistics = statisticService.getStatistics(shopId, START_OF_MONTH, END_OF_DAY);
+                break;
+            case "this_year":
+                statistics = statisticService.getStatistics(shopId, START_OF_YEAR, END_OF_DAY);
+                break;
+            case "custom":
+                if (startTime == null || endTime == null) {
+                    httpStatus = HttpStatus.BAD_REQUEST;
+                    message = "Start time and end time are null";
+                    statistics = null;
+                    break;
+                }
+                statistics = statisticService.getStatistics(shopId, startTime, endTime);
+                break;
+        }
+        return ResponseEntity.status(httpStatus).body(
                 createResponse(
-                        HttpStatus.OK,
-                        "Fetched",
-                        staticStatistics
+                        httpStatus,
+                        message,
+                        statistics
                 )
-        )
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                createResponse(
-                        HttpStatus.NOT_FOUND,
-                        "Statistic not found",
-                        null
-                )
-        );*/
-        return null;
+        );
     }
 
 }
