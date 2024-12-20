@@ -280,13 +280,17 @@ public class OrderService implements IOrderService {
         return createResponse(HttpStatus.NOT_FOUND, "Not Found Product ", null);
     }
 
-    public ApiResponse<?> getAllUserBoughtOfThisShop(long shopId, Integer page, Integer size) {
-        List<Long> userId = orderDetailRepository.findAllCustomerBoughtAtThisShop(shopId);
-        List<UserEntity> userEntityList = userRepository.findByUserId(userId);
-        List<UserDto> listUserDto = userEntityList.stream().map(userMapper::toDto).toList();
-        Pageable pageable = PageRequest.of(page, size);
 
-        return createResponse(HttpStatus.OK, "Successfully Retrieved Users", listUserDto);
+    public ApiResponse<?> getAllUserBoughtOfThisShop(long shopId, Integer page, Integer size) {
+        List<Long> list = orderDetailRepository.findAllCustomerBoughtTheMostAtThisShop(shopId);
+        if (page == null || size == null) {
+            List<UserEntity> userEntityList = userRepository.findByUserId(list);
+            List<UserDto> list1 = userEntityList.stream().map(userMapper::toDto).toList();
+            return createResponse(HttpStatus.OK, "Successfully Retrieved Users", list1);
+        }
+//        if (page < 0 || size)
+//            return createResponse(HttpStatus.OK, "Successfully Retrieved Users", listUserDto);
+        return null;
     }
 
 }
