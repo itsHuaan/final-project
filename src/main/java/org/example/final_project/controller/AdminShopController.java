@@ -1,5 +1,6 @@
 package org.example.final_project.controller;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -97,7 +98,7 @@ public class AdminShopController {
 
     @GetMapping("/{shopId}/statistics")
     public ResponseEntity<?> getStatistic(@PathVariable Long shopId,
-                                          @RequestParam String period,
+                                          @Parameter(description = "today/week/month/year") @RequestParam String period,
                                           @RequestParam(required = false) LocalDate startDate,
                                           @RequestParam(required = false) LocalDate endDate) {
         ShopStatisticDto statistics = new ShopStatisticDto();
@@ -107,13 +108,13 @@ public class AdminShopController {
             case "today":
                 statistics = statisticService.getStatistics(shopId, START_OF_DAY, END_OF_DAY);
                 break;
-            case "this_week":
+            case "week":
                 statistics = statisticService.getStatistics(shopId, START_OF_WEEK, END_OF_DAY);
                 break;
-            case "this_month":
+            case "month":
                 statistics = statisticService.getStatistics(shopId, START_OF_MONTH, END_OF_DAY);
                 break;
-            case "this_year":
+            case "year":
                 statistics = statisticService.getStatistics(shopId, START_OF_YEAR, END_OF_DAY);
                 break;
             case "custom":
