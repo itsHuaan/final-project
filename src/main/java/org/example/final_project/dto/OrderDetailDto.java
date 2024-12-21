@@ -23,5 +23,5 @@ public class OrderDetailDto {
     private LocalDateTime createdAt;
     private int shippingStatus;
     private SKUDto skuDto;
-
+    private Integer hasFeedback;
 }
