@@ -5,6 +5,7 @@ import org.example.final_project.entity.UserEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -37,5 +38,4 @@ public interface IOrderRepository extends JpaRepository<OrderEntity, Long> {
 
     @Query("select o.id from OrderEntity o where o.user.userId = :userId and o.orderCode = :orderCode")
     long findOrderIdByUserIdAndOrderCode(long userId, String orderCode);
-
 }

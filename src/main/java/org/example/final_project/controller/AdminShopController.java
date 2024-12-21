@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.example.final_project.dto.PeriodicStatisticDto;
 import org.example.final_project.dto.ShopStatisticDto;
 import org.example.final_project.service.IOrderService;
 import org.example.final_project.service.IStatisticService;
@@ -54,7 +55,7 @@ public class AdminShopController {
 
     @GetMapping("/{shopId}/periodic-statistics")
     public ResponseEntity<?> getPeriodicStatistics(@PathVariable Long shopId) {
-        List<ShopStatisticDto> periodicStatistics = statisticService.getPeriodicStatistics(shopId);
+        List<PeriodicStatisticDto> periodicStatistics = statisticService.getPeriodicStatistics(shopId);
         return periodicStatistics != null
                 ? ResponseEntity.status(HttpStatus.OK).body(
                 createResponse(

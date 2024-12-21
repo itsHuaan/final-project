@@ -4,11 +4,13 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.CartSkuDto;
+import org.example.final_project.dto.PeriodicStatisticDto;
 import org.example.final_project.dto.ShopStatisticDto;
 import org.example.final_project.entity.FeedbackEntity;
 import org.example.final_project.entity.ProductEntity;
 import org.example.final_project.mapper.VariantMapper;
 import org.example.final_project.repository.IOrderDetailRepository;
+import org.example.final_project.repository.IOrderRepository;
 import org.example.final_project.repository.IProductRepository;
 import org.example.final_project.repository.ISKURepository;
 import org.example.final_project.service.IStatisticService;
@@ -32,8 +34,34 @@ public class StatisticService implements IStatisticService {
     ISKURepository skuRepository;
     IOrderDetailRepository orderDetailRepository;
     VariantMapper variantMapper;
+    IOrderRepository orderRepository;
 
-    private ShopStatisticDto buildStatistic(long shopId, LocalDateTime startTime, LocalDateTime endTime) {
+    private PeriodicStatisticDto buildStatistic(long shopId, String period, LocalDateTime startTime) {
+        return PeriodicStatisticDto.builder()
+                .period(period)
+                .averageRating(getAverageOfRating(shopId, startTime, END_OF_DAY))
+                .totalOfFeedbacks(getTotalOfFeedbacks(shopId, startTime, END_OF_DAY))
+                .totalOfProducts(getTotalProducts(shopId, startTime, END_OF_DAY))
+                .totalOfOrders(getTotalOfOrders(shopId, startTime, END_OF_DAY))
+                .revenue(getRevenue(shopId, startTime, END_OF_DAY))
+                .lockedProducts(getLockedProducts(shopId, startTime, END_OF_DAY))
+                .totalOfCustomers(getTotalCustomers(shopId, startTime, END_OF_DAY))
+                .soldProducts(getSoldProducts(shopId, startTime, END_OF_DAY))
+                .build();
+    }
+
+    @Override
+    public List<PeriodicStatisticDto> getPeriodicStatistics(long shopId) {
+        return List.of(
+                buildStatistic(shopId, "Today", START_OF_DAY),
+                buildStatistic(shopId, "This week", START_OF_WEEK),
+                buildStatistic(shopId, "This month", START_OF_MONTH),
+                buildStatistic(shopId, "This year", START_OF_YEAR)
+        );
+    }
+
+    @Override
+    public ShopStatisticDto getStatistics(long shopId, LocalDateTime startTime, LocalDateTime endTime) {
         return ShopStatisticDto.builder()
                 .averageRating(getAverageOfRating(shopId, startTime, endTime))
                 .totalOfFeedbacks(getTotalOfFeedbacks(shopId, startTime, endTime))
@@ -45,21 +73,6 @@ public class StatisticService implements IStatisticService {
                 .totalOfCustomers(getTotalCustomers(shopId, startTime, endTime))
                 .soldProducts(getSoldProducts(shopId, startTime, endTime))
                 .build();
-    }
-
-    @Override
-    public List<ShopStatisticDto> getPeriodicStatistics(long shopId) {
-        return List.of(
-                buildStatistic(shopId, START_OF_DAY, END_OF_DAY),
-                buildStatistic(shopId, START_OF_WEEK, END_OF_DAY),
-                buildStatistic(shopId, START_OF_MONTH, END_OF_DAY),
-                buildStatistic(shopId, START_OF_YEAR, END_OF_DAY)
-        );
-    }
-
-    @Override
-    public ShopStatisticDto getStatistics(long shopId, LocalDateTime startTime, LocalDateTime endTime) {
-        return buildStatistic(shopId, startTime, endTime);
     }
 
     private double getAverageOfRating(long shopId, LocalDateTime startTime, LocalDateTime endTime) {
@@ -111,6 +124,7 @@ public class StatisticService implements IStatisticService {
     private List<CartSkuDto> getLowStockProducts(long shopId) {
         return skuRepository.findAll(Specification.where(
                         SKUSpecification.hasShop(shopId)
+                                .and(SKUSpecification.hasRatingAbove(3.0))
                                 .and(SKUSpecification.isLowStock())
                 )).stream()
                 .map(variantMapper::toDto)
@@ -120,12 +134,15 @@ public class StatisticService implements IStatisticService {
     private int getLockedProducts(long shopId, LocalDateTime startTime, LocalDateTime endTime) {
         return productRepository.findAll(
                 hasUserId(shopId)
-                        .and(isStatus(1))
+                        .and(isNotStatus(1))
                         .and(isBetween(startTime, endTime))).size();
     }
 
-    private int getTotalCustomers(long shopId, LocalDateTime startTime, LocalDateTime endTime) {
-        return 0;
+    private long getTotalCustomers(long shopId, LocalDateTime startTime, LocalDateTime endTime) {
+        return orderDetailRepository.findAll(OrderDetailSpecification.distinctUsersByShopIdAndDateRange(shopId, startTime, endTime)).stream()
+                .map(orderDetail -> orderDetail.getOrderEntity().getUser().getUserId())
+                .distinct()
+                .count();
     }
 
     private int getSoldProducts(long shopId, LocalDateTime startTime, LocalDateTime endTime) {

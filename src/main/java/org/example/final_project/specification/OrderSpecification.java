@@ -1,9 +1,7 @@
 package org.example.final_project.specification;
 
 import jakarta.persistence.criteria.*;
-import org.example.final_project.entity.OrderDetailEntity;
 import org.example.final_project.entity.OrderEntity;
-import org.example.final_project.entity.UserEntity;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDateTime;

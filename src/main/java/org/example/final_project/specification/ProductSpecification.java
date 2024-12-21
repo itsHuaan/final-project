@@ -12,6 +12,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class ProductSpecification {
+    public static Specification<ProductEntity> isNotStatus(int status) {
+        return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
+                criteriaBuilder.notEqual(root.get("isActive"), status);
+    }
+
     public static Specification<ProductEntity> isStatus(int status) {
         return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("isActive"), status);
