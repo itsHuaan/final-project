@@ -92,7 +92,7 @@ public class OrderDetailService implements IOrderDetailService {
     }
 
     @Override
-    public int changeStatusRead(long orderDetailId) {
+    public int updateFeedbackStatus(long orderDetailId) {
         Optional<OrderDetailEntity> orderDetailEntity = orderDetailRepository.findById(orderDetailId);
         if (orderDetailEntity.isPresent()) {
             OrderDetailEntity orderDetailEntity1 = orderDetailEntity.get();

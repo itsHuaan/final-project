@@ -11,5 +11,5 @@ public interface IOrderDetailService {
 
     ApiResponse<?> findOrderInforByOrderCode(long userId, String orderCode);
 
-    int changeStatusRead(long orderDetailId);
+    int updateFeedbackStatus(long orderDetailId);
 }

@@ -198,9 +198,5 @@ public class UserController {
         return ResponseEntity.ok(userService.findActiveUsers());
     }
 
-    @PostMapping("/{orderDetailId}")
-    public ResponseEntity<?> addOrder(@PathVariable Long orderDetailId) {
-        return ResponseEntity.status(HttpStatus.OK).body(orderDetailService.changeStatusRead(orderDetailId) == 1 ? "đã thay đổi" : "chưa thay đổi");
-    }
 }
 
