@@ -5,11 +5,15 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.example.final_project.dto.CartSkuDto;
 import org.example.final_project.dto.PeriodicStatisticDto;
 import org.example.final_project.dto.ShopStatisticDto;
+import org.example.final_project.model.validation.PageableValidation;
 import org.example.final_project.service.IOrderService;
 import org.example.final_project.service.IStatisticService;
 import org.example.final_project.util.Const;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -69,6 +73,24 @@ public class AdminShopController {
                         HttpStatus.NOT_FOUND,
                         "Statistic not found",
                         null
+                )
+        );
+    }
+
+    @GetMapping("/{shopId}/low-stock")
+    public ResponseEntity<?> getLowStock(@PathVariable Long shopId,
+                                         @RequestParam(required = false) Integer quantity,
+                                         @RequestParam(required = false) Integer pageSize,
+                                         @RequestParam(required = false) Integer pageIndex) {
+        Pageable pageable = PageableValidation.setDefault(pageSize, pageIndex);
+        Page<CartSkuDto> lowStockProducts = statisticService.getLowStockProducts(shopId, quantity == null || quantity <= 0 ? 100 : quantity, pageable);
+        HttpStatus status = !lowStockProducts.isEmpty() ? HttpStatus.OK : HttpStatus.NO_CONTENT;
+        String message = !lowStockProducts.isEmpty() ? "Fetched" : "No products fetched";
+        return ResponseEntity.status(HttpStatus.OK).body(
+                createResponse(
+                        status,
+                        message,
+                        lowStockProducts
                 )
         );
     }
