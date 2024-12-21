@@ -12,6 +12,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class ProductSpecification {
+    public static Specification<ProductEntity> isNotStatus(int status) {
+        return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
+                criteriaBuilder.notEqual(root.get("isActive"), status);
+    }
+
     public static Specification<ProductEntity> isStatus(int status) {
         return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("isActive"), status);
@@ -86,11 +91,6 @@ public class ProductSpecification {
     public static Specification<ProductEntity> hasId(long productId) {
         return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("id"), productId);
-    }
-
-    public static Specification<ProductEntity> ofShop(long shopId) {
-        return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
-                criteriaBuilder.equal(root.get("user").get("id"), shopId);
     }
 
     public static Specification<ProductEntity> isNotDeleted() {

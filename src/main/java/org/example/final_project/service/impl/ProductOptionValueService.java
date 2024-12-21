@@ -27,7 +27,6 @@ import java.util.stream.Collectors;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ProductOptionValueService implements IProductOptionValueService {
     IProductOptionValueRepository valueRepository;
-    ProductOptionValueMapper mapper;
     IProductOptionRepository optionRepository;
     ProductOptionValueMapper valueMapper;
     @Lazy
@@ -36,13 +35,13 @@ public class ProductOptionValueService implements IProductOptionValueService {
 
     @Override
     public List<ProductOptionValueDto> getAll() {
-        return valueRepository.findAll().stream().map(mapper::convertToDto).collect(Collectors.toList());
+        return valueRepository.findAll().stream().map(valueMapper::convertToDto).collect(Collectors.toList());
     }
 
     @Override
     public ProductOptionValueDto getById(Long id) {
         if (valueRepository.findById(id).isPresent()) {
-            return mapper.convertToDto(valueRepository.findById(id).get());
+            return valueMapper.convertToDto(valueRepository.findById(id).get());
         } else {
             throw new IllegalArgumentException("Value not found");
         }
@@ -61,7 +60,7 @@ public class ProductOptionValueService implements IProductOptionValueService {
     @Override
     public int update(Long aLong, ProductOptionValueModel productOptionValueModel) {
         if (valueRepository.findById(aLong).isPresent()) {
-            ProductOptionValuesEntity values = mapper.convertToEntity(productOptionValueModel);
+            ProductOptionValuesEntity values = valueMapper.convertToEntity(productOptionValueModel);
             values.setId(aLong);
             valueRepository.save(values);
             return 1;
@@ -82,7 +81,7 @@ public class ProductOptionValueService implements IProductOptionValueService {
 
     @Override
     public int saveCustom(Long productId, ProductOptionValueModel valueModel) throws IOException {
-        ProductOptionValuesEntity entity = mapper.convertToEntity(valueModel);
+        ProductOptionValuesEntity entity = valueMapper.convertToEntity(valueModel);
         entity.setOption(optionRepository.findById(valueModel.getOptionId()).get());
         ProductOptionValuesEntity savedValue = valueRepository.save(entity);
         if (productRepository.findById(productId).isPresent()) {
@@ -118,7 +117,7 @@ public class ProductOptionValueService implements IProductOptionValueService {
                 skuModel.setValueId1(savedValue.getId());
                 iskuService.saveCustom(skuModel);
             }
-        }else{
+        } else {
             throw new IllegalArgumentException("Product not present");
         }
         return 1;

@@ -12,57 +12,61 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import static org.example.final_project.dto.ApiResponse.createResponse;
+
 @Tag(name = "Order Tracking")
 @RestController
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequestMapping(value = Const.API_PREFIX + "/user-tracking")
 public class OrderTrackingController {
-        IOrderDetailService orderDetailService;
-        IOrderTrackingService orderTrackingService;
+    IOrderDetailService orderDetailService;
+    IOrderTrackingService orderTrackingService;
 
-        @GetMapping("/{userId}")
-        public ResponseEntity<?> index(@PathVariable Long userId) {
-            return ResponseEntity.ok(orderDetailService.getOrderDetail(userId));
-        }
+    @GetMapping("/{userId}")
+    public ResponseEntity<?> index(@PathVariable Long userId) {
+        return ResponseEntity.ok(orderDetailService.getOrderDetail(userId));
+    }
 
     @GetMapping("/{userId}/ship-status")
     public ResponseEntity<?> findByStatusShipping(@PathVariable Long userId,
                                                   @RequestParam Long shippingStatus) {
         return ResponseEntity.ok(orderDetailService.getOrderDetailFlowShippingStatus(userId, shippingStatus));
     }
-        @GetMapping("/{userId}/detail-order")
-        public ResponseEntity<?> detailOrderUser(@PathVariable long userId , @RequestParam long orderId,@RequestParam long shopId) {
-            try{
-                return ResponseEntity.ok(orderDetailService.findDetailIn4OfOrder(userId,orderId,shopId));
-            }catch (Exception e){
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not Found Order Item");
-            }
-        }
-    @GetMapping("/{userId}/find-order")
-    public ResponseEntity<?> findOrder(@PathVariable long userId , @RequestParam String orderCode) {
+
+    @GetMapping("/{userId}/detail-order")
+    public ResponseEntity<?> detailOrderUser(@PathVariable long userId, @RequestParam long orderId, @RequestParam long shopId) {
         try {
-            return ResponseEntity.ok(orderDetailService.findOrderInforByOrderCode(userId,orderCode));
-        }catch (Exception e){
+            return ResponseEntity.ok(orderDetailService.findDetailIn4OfOrder(userId, orderId, shopId));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not Found Order Item");
+        }
+    }
+
+    @GetMapping("/{userId}/find-order")
+    public ResponseEntity<?> findOrder(@PathVariable long userId, @RequestParam String orderCode) {
+        try {
+            return ResponseEntity.ok(orderDetailService.findOrderInforByOrderCode(userId, orderCode));
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not Found Order");
         }
     }
+
     @PostMapping("/test-change-status-ship")
-    public ResponseEntity<?> statusShip(@RequestBody StatusMessageDto statusMessageDto){
-            int result = orderTrackingService.updateStatusShipping(statusMessageDto);
-            return ResponseEntity.ok(result == 1 ? "thành công" : "thất bại");
+    public ResponseEntity<?> statusShip(@RequestBody StatusMessageDto statusMessageDto) {
+        int result = orderTrackingService.updateStatusShipping(statusMessageDto);
+        return ResponseEntity.ok(result == 1 ? "thành công" : "thất bại");
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
+    @PutMapping("/{orderDetailId}")
+    public ResponseEntity<?> updateFeedbackStatus(@PathVariable Long orderDetailId) {
+        int result = orderDetailService.updateFeedbackStatus(orderDetailId);
+        HttpStatus status = result == 1 ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
+        String message = result == 1 ? "Successfully" : "Failed";
+        return ResponseEntity.status(status).body(createResponse(
+                status,
+                message,
+                null
+        ));
+    }
 }

@@ -329,13 +329,14 @@ public class ProductController {
     @Operation(summary = "Get All Product In Promotion")
     @GetMapping("/promotion/{promotion-id}")
     ResponseEntity getAllProductByPromotion(@PathVariable("promotion-id") Long promotionId,
+                                            @RequestParam(required = false) Long shopId,
                                             @RequestParam(required = false) Integer pageIndex,
                                             @RequestParam(required = false) Integer pageSize) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.OK,
                     "Successfully",
-                    productService.getAllProductByPromotion(promotionId, PageableValidation.setDefault(pageSize, pageIndex))
+                    productService.getAllProductByPromotion(promotionId, shopId, PageableValidation.setDefault(pageSize, pageIndex))
             ));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(

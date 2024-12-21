@@ -14,6 +14,7 @@ import org.example.final_project.model.ProductModel;
 import org.example.final_project.repository.ICategoryRepository;
 import org.example.final_project.repository.IImageProductRepository;
 import org.example.final_project.repository.IProductRepository;
+import org.example.final_project.repository.ISKURepository;
 import org.example.final_project.service.ISKUService;
 import org.springframework.stereotype.Component;
 
@@ -34,6 +35,7 @@ public class ProductMapper {
     UserMapper userMapper;
     FeedbackMapper feedbackMapper;
     IProductRepository productRepository;
+    ISKURepository iskuRepository;
 
     public ProductDto convertToDto(ProductEntity productEntity) {
         return ProductDto.builder()
@@ -120,6 +122,9 @@ public class ProductMapper {
                 .shopDto(userMapper.toShopDto(productEntity.getUser()))
                 .status(productEntity.getIsActive())
                 .note(productEntity.getNote())
+                .totalQuantity(productEntity.getSkuEntities().stream()
+                        .mapToInt(variant -> Math.toIntExact(variant.getQuantity()))
+                        .sum())
                 .build();
     }
 }

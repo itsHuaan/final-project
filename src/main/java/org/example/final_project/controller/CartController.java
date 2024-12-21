@@ -54,6 +54,23 @@ public class CartController {
         }
     }
 
+    @Operation(summary = "Get cart quantity")
+    @GetMapping("/{userId}/quantity")
+    public ResponseEntity<?> getCartQuantity(@PathVariable Long userId) {
+        try {
+            CartDto cart = cartService.getUserCart(userId);
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    createResponse(HttpStatus.OK,
+                            "Fetched",
+                            cart.getCartQuantity())
+            );
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createResponse(HttpStatus.NOT_FOUND,
+                    e.getMessage(),
+                    null));
+        }
+    }
+
     @Operation(summary = "Remove single or multiple items or clear all from cart",
             description = "Add product IDs to the list to remove them. To remove a single item, add a single product ID to the list. Leave the list blank or add all product IDs to clear the cart.")
     @DeleteMapping("/{userId}")

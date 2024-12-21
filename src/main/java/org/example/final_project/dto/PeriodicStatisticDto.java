@@ -1,6 +1,5 @@
 package org.example.final_project.dto;
 
-
 import lombok.*;
 
 import java.util.List;
@@ -10,13 +9,13 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-public class ShopStatisticDto {
+public class PeriodicStatisticDto {
+    private String period;
     private int totalOfProducts;
     private int soldProducts;
     private int totalOfFeedbacks;
     private double averageRating;
     private int lockedProducts;
-    private List<CartSkuDto> lowStockProducts;
     private long totalOfCustomers;
     private int totalOfOrders;
     private double revenue;
