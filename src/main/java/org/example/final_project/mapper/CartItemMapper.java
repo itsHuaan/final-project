@@ -4,9 +4,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.CartItemDto;
-import org.example.final_project.dto.CartSkuDto;
 import org.example.final_project.entity.CartEntity;
 import org.example.final_project.entity.CartItemEntity;
+import org.example.final_project.entity.ProductEntity;
 import org.example.final_project.entity.SKUEntity;
 import org.example.final_project.model.CartItemModel;
 import org.example.final_project.repository.ICartRepository;
@@ -24,6 +24,10 @@ public class CartItemMapper {
     ISKURepository skuRepository;
 
     public CartItemDto toDto(CartItemEntity cartItemEntity) {
+        ProductEntity product = cartItemEntity.getProduct().getProduct();
+        if (product.getIsActive() != 1) {
+            return null;
+        }
         return CartItemDto.builder()
                 .cartDetailId(cartItemEntity.getCartDetailId())
                 .item(variantMapper.toDto(cartItemEntity.getProduct()))

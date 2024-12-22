@@ -2,12 +2,14 @@ package org.example.final_project.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.CategoryDto;
 import org.example.final_project.model.CategoryModel;
 import org.example.final_project.model.validation.PageableValidation;
-import org.example.final_project.service.impl.CategoryService;
+import org.example.final_project.service.ICategoryService;
 import org.example.final_project.util.Const;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,10 +20,11 @@ import static org.example.final_project.dto.ApiResponse.createResponse;
 
 @RestController
 @RequestMapping(Const.API_PREFIX + "/category")
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Tag(name = "Category")
 public class CategoryController {
-    @Autowired
-    CategoryService categoryService;
+    ICategoryService categoryService;
 
     @Operation(summary = "Get all categories")
     @GetMapping

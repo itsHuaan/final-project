@@ -23,6 +23,7 @@ public class OrderDetailEntity {
     private long option2;
     private String nameProduct;
     private LocalDateTime createAt;
+    private Integer hasFeedback;
     private long cartDetailId;
     @ManyToOne
     @JoinColumn(name = "order_id")
