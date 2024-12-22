@@ -15,10 +15,11 @@ public class Const {
     public static final Pattern EMAIL_PATTERN = Pattern.compile(regex);
     public static final String GOOGLE = "GOOGLE";
     public static final String FACEBOOK = "FACEBOOK";
-    private static final LocalDate now = LocalDate.now();
+    private static final LocalDate today = LocalDate.now();
     private static final LocalTime startHour = LocalTime.of(0, 0, 0);
-    public static final LocalDateTime CURRENT_DATE = LocalDateTime.of(now, LocalTime.of(23, 59, 59));
-    public static final LocalDateTime START_OF_WEEK = LocalDateTime.of(now, startHour).with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-    public static final LocalDateTime START_OF_MONTH = LocalDateTime.of(now, startHour).with(TemporalAdjusters.firstDayOfMonth());
-    public static final LocalDateTime START_OF_YEAR = LocalDateTime.of(now, startHour).with(TemporalAdjusters.firstDayOfYear());
+    public static final LocalDateTime START_OF_DAY = LocalDateTime.of(today, startHour);
+    public static final LocalDateTime END_OF_DAY = LocalDateTime.of(today, LocalTime.of(23, 59, 59));
+    public static final LocalDateTime START_OF_WEEK = START_OF_DAY.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+    public static final LocalDateTime START_OF_MONTH = START_OF_DAY.with(TemporalAdjusters.firstDayOfMonth());
+    public static final LocalDateTime START_OF_YEAR = START_OF_DAY.with(TemporalAdjusters.firstDayOfYear());
 }

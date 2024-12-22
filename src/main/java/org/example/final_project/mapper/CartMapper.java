@@ -26,8 +26,11 @@ public class CartMapper {
         return CartDto.builder()
                 .cartId(cartEntity.getCartId())
                 .user(userMapper.toCartUserDto(cartEntity.getUser()))
-                .cartQuantity(cartEntity.getCartItems().size())
+                .cartQuantity((int) cartEntity.getCartItems().stream()
+                        .filter(cartItem -> cartItem.getProduct().getProduct().getIsActive() == 1)
+                        .count())
                 .cartItems(cartEntity.getCartItems().stream()
+                        .filter(cartItem -> cartItem.getProduct().getProduct().getIsActive() == 1)
                         .sorted(Comparator.comparing(CartItemEntity::getLastUpdated).reversed())
                         .map(cartItemMapper::toDto)
                         .toList())
@@ -35,6 +38,7 @@ public class CartMapper {
                 .modifiedAt(cartEntity.getModifiedAt())
                 .build();
     }
+
 
     public CartEntity toEntity(CartModel cartModel) {
         UserEntity userEntity = userRepository.findById(cartModel.getUserId()).orElseThrow(

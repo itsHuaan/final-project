@@ -6,7 +6,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "tbl_orderdetail")
+@Table(name = "tbl_orderDetail")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -23,6 +23,7 @@ public class OrderDetailEntity {
     private long option2;
     private String nameProduct;
     private LocalDateTime createAt;
+    private Integer hasFeedback;
     private long cartDetailId;
     @ManyToOne
     @JoinColumn(name = "order_id")

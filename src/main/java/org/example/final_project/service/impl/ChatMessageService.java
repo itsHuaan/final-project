@@ -6,21 +6,27 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.example.final_project.dto.ChatMessageDto;
 import org.example.final_project.entity.ChatMessageEntity;
+import org.example.final_project.entity.ChatRoomEntity;
 import org.example.final_project.mapper.ChatMessageMapper;
 import org.example.final_project.model.ChatMessageModel;
 import org.example.final_project.repository.IChatRepository;
-import org.example.final_project.service.IChatRoomService;
+import org.example.final_project.repository.IChatRoomRepository;
 import org.example.final_project.service.IChatMessageService;
+import org.example.final_project.service.IChatRoomService;
+import org.example.final_project.specification.ChatRoomSpecification;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
-import static org.example.final_project.specification.ChatMessageSpecification.*;
+import static org.example.final_project.specification.ChatMessageSpecification.hasChatId;
 
 @Slf4j
 @Service
@@ -30,6 +36,7 @@ public class ChatMessageService implements IChatMessageService {
     IChatRepository chatRepository;
     IChatRoomService chatRoomService;
     ChatMessageMapper chatMessageMapper;
+    IChatRoomRepository chatRoomRepository;
 
     @Override
     public List<ChatMessageDto> getAll() {
@@ -43,6 +50,9 @@ public class ChatMessageService implements IChatMessageService {
 
     @Override
     public int save(ChatMessageModel chatMessageModel) {
+        if (Objects.equals(chatMessageModel.getSenderId(), chatMessageModel.getRecipientId())) {
+            throw new IllegalArgumentException("You can't send messages to yourself");
+        }
         var chatRoomId = chatRoomService.getChatRoomId(chatMessageModel.getSenderId(),
                 chatMessageModel.getRecipientId(),
                 true).orElseThrow(() -> new IllegalArgumentException("Can't find chat room"));
@@ -68,8 +78,31 @@ public class ChatMessageService implements IChatMessageService {
     @Override
     public Page<ChatMessageDto> getChatMessages(Long senderId, Long recipientId, Pageable pageable) {
         return chatRoomService.getChatRoomId(senderId, recipientId, false)
-                .map(chatId -> chatRepository.findAll(Specification.where(hasChatId(chatId)), pageable)
-                        .map(chatMessageMapper::toDto))
-                .orElse(Page.empty(pageable));
+                .map(chatId -> {
+                    List<ChatMessageEntity> allMessages = chatRepository.findAll(Specification.where(hasChatId(chatId)));
+                    List<ChatMessageDto> reversedList = allMessages.stream()
+                            .map(chatMessageMapper::toDto)
+                            .collect(Collectors.toList());
+                    Collections.reverse(reversedList);
+                    int start = (int) pageable.getOffset();
+                    int end = Math.min((start + pageable.getPageSize()), reversedList.size());
+                    List<ChatMessageDto> pagedMessages = reversedList.subList(start, end);
+                    return new PageImpl<>(pagedMessages, pageable, reversedList.size());
+                })
+                .orElse(new PageImpl<>(Collections.emptyList(), pageable, 0));
+    }
+
+    @Override
+    public int deleteChat(Long senderId, Long recipientId) {
+        try {
+            var chatRoomId = chatRoomService.getChatRoomId(senderId, recipientId, true).orElseThrow(() -> new IllegalArgumentException("Can't find chat room"));
+            List<ChatRoomEntity> chatRooms = chatRoomRepository.findAll(ChatRoomSpecification.hasChatId(chatRoomId));
+            chatRoomRepository.deleteAll(chatRooms);
+            List<ChatMessageEntity> chatMessages = chatRepository.findAll(hasChatId(chatRoomId));
+            chatRepository.deleteAll(chatMessages);
+            return 1;
+        } catch (IllegalArgumentException e) {
+            return 0;
+        }
     }
 }

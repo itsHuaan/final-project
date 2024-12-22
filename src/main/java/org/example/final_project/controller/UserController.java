@@ -12,10 +12,7 @@ import org.example.final_project.dto.ShippingAddressDto;
 import org.example.final_project.dto.UserDto;
 import org.example.final_project.model.*;
 import org.example.final_project.model.validation.PageableValidation;
-import org.example.final_project.service.IAddressService;
-import org.example.final_project.service.IAuthService;
-import org.example.final_project.service.IShippingAddressService;
-import org.example.final_project.service.IUserService;
+import org.example.final_project.service.*;
 import org.example.final_project.util.Const;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -45,6 +42,7 @@ public class UserController {
     IAuthService authService;
     IAddressService addressService;
     IShippingAddressService shippingAddressService;
+    IOrderDetailService orderDetailService;
 
     @Operation(summary = "Get all user")
     @GetMapping
@@ -199,5 +197,6 @@ public class UserController {
     public ResponseEntity<?> findConnectedUsers() {
         return ResponseEntity.ok(userService.findActiveUsers());
     }
+
 }
 

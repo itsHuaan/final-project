@@ -45,6 +45,7 @@ public class OrderDetailMapper {
                 .orderId(orderDetailEntity.getOrderEntity().getId())
                 .shippingStatus(orderTrackingRepository.findOrderIdByShopIdAndOrderId(orderDetailEntity.getShopId(), orderDetailEntity.getOrderEntity().getId()))
                 .skuDto(skuDto)
+                .hasFeedback(orderDetailEntity.getHasFeedback())
                 .build();
     }
 }

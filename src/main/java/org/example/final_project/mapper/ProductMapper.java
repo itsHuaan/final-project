@@ -14,6 +14,7 @@ import org.example.final_project.model.ProductModel;
 import org.example.final_project.repository.ICategoryRepository;
 import org.example.final_project.repository.IImageProductRepository;
 import org.example.final_project.repository.IProductRepository;
+import org.example.final_project.repository.ISKURepository;
 import org.example.final_project.service.ISKUService;
 import org.springframework.stereotype.Component;
 
@@ -34,6 +35,7 @@ public class ProductMapper {
     UserMapper userMapper;
     FeedbackMapper feedbackMapper;
     IProductRepository productRepository;
+    ISKURepository iskuRepository;
 
     public ProductDto convertToDto(ProductEntity productEntity) {
         return ProductDto.builder()
@@ -99,10 +101,10 @@ public class ProductMapper {
                 .productName(productEntity.getName())
                 .numberOfLike(productEntity.getFavorites().size())
                 .numberOfFeedBack(productEntity.getFeedbacks().size())
-                .rating(productEntity.getFeedbacks().stream()
+                .rating(Math.round(productEntity.getFeedbacks().stream()
                         .mapToDouble(FeedbackEntity::getRate)
                         .average()
-                        .orElse(0.0))
+                        .orElse(0.0) * 100.0) / 100.0)
                 .createdAt(productEntity.getCreatedAt())
                 .modifiedAt(productEntity.getModifiedAt())
                 .deletedAt(productEntity.getDeletedAt())
@@ -120,6 +122,9 @@ public class ProductMapper {
                 .shopDto(userMapper.toShopDto(productEntity.getUser()))
                 .status(productEntity.getIsActive())
                 .note(productEntity.getNote())
+                .totalQuantity(productEntity.getSkuEntities().stream()
+                        .mapToInt(variant -> Math.toIntExact(variant.getQuantity()))
+                        .sum())
                 .build();
     }
 }

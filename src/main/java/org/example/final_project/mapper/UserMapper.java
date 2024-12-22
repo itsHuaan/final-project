@@ -2,7 +2,10 @@ package org.example.final_project.mapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.example.final_project.dto.*;
+import org.example.final_project.dto.CartUserDto;
+import org.example.final_project.dto.ShopDto;
+import org.example.final_project.dto.UserDto;
+import org.example.final_project.dto.UserFeedBackDto;
 import org.example.final_project.entity.FeedbackEntity;
 import org.example.final_project.entity.RoleEntity;
 import org.example.final_project.entity.UserEntity;
@@ -17,7 +20,8 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.example.final_project.specification.ProductSpecification.*;
+import static org.example.final_project.specification.ProductSpecification.hasUserId;
+import static org.example.final_project.specification.ProductSpecification.isValid;
 
 @Component
 @RequiredArgsConstructor
@@ -91,6 +95,7 @@ public class UserMapper {
                 .productCount((long) productRepository.findAll(Specification.where(hasUserId(userEntity.getUserId()).and(isValid())))
                         .size())
                 .joined(duration.toDays())
+                .profilePicture(userEntity.getProfilePicture())
                 .build();
     }
 
@@ -102,6 +107,7 @@ public class UserMapper {
                 .profilePicture(userEntity.getProfilePicture())
                 .build();
     }
+
     public CartUserDto toCartUserDto(UserEntity userEntity) {
         return CartUserDto.builder()
                 .userId(userEntity.getUserId())
