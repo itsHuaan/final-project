@@ -2,6 +2,7 @@ package org.example.final_project.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.example.final_project.model.PromotionModel;
+import org.example.final_project.model.validation.PageableValidation;
 import org.example.final_project.service.IPromotionService;
 import org.example.final_project.util.Const;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -140,5 +141,22 @@ public class PromotionController {
         }
     }
 
-
+    @GetMapping("/{shop-id}")
+    ResponseEntity getAllPromotionByShop(@PathVariable("shop-id") Long shopId,
+                                         @RequestParam(required = false) Integer pageIndex,
+                                         @RequestParam(required = false) Integer pageSize) {
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(createResponse(
+                    HttpStatus.OK,
+                    "Successfully",
+                    promotionService.getAllByShop(shopId, PageableValidation.setDefault(pageSize, pageIndex))
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+                    HttpStatus.BAD_REQUEST,
+                    e.getMessage(),
+                    null
+            ));
+        }
+    }
 }

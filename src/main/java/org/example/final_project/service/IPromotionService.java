@@ -17,5 +17,5 @@ public interface IPromotionService extends IBaseService<PromotionDto, PromotionM
 
     int cancelPromotionOfProduct(Long promotionId, Long productId);
 
-
+    Page<PromotionDto> getAllByShop(Long shopId, Pageable pageable);
 }

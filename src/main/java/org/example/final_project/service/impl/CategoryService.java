@@ -77,6 +77,8 @@ public class CategoryService implements ICategoryService {
             if (iCategoryRepository.findById(aLong).isPresent()) {
                 if (model.getFile() != null && !model.getFile().isEmpty()) {
                     category.setImage(cloudinary.uploader().upload(model.getFile().getBytes(), ObjectUtils.emptyMap()).get("url").toString());
+                } else {
+                    category.setImage(iCategoryRepository.findById(aLong).get().getImage());
                 }
                 if (model.getParent_id() != 0L) {
                     if (iCategoryRepository.findById(model.getParent_id()).isPresent()) {
@@ -84,6 +86,8 @@ public class CategoryService implements ICategoryService {
                     } else {
                         throw new IllegalArgumentException("Parent Category is not present");
                     }
+                } else {
+                    model.setParent_id(iCategoryRepository.findById(aLong).get().getParent_id());
                 }
                 category.setId(aLong);
                 iCategoryRepository.save(category);
