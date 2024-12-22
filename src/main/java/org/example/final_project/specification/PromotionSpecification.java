@@ -30,4 +30,18 @@ public class PromotionSpecification {
                         criteriaBuilder.equal(root.join("products").get("id"), productId)
                 );
     }
+
+    public static Specification<PromotionEntity> isActiveOrComingForTheShop(Long shopId) {
+        return (Root<PromotionEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
+                criteriaBuilder.or(
+                        criteriaBuilder.and(
+                                criteriaBuilder.and(
+                                        criteriaBuilder.lessThanOrEqualTo(root.get("startDate"), LocalDateTime.now()),
+                                        criteriaBuilder.greaterThanOrEqualTo(root.get("endDate"), LocalDateTime.now())
+                                ),
+                                criteriaBuilder.equal(root.join("products").get("user").get("userId"), shopId)
+                        ),
+                        criteriaBuilder.greaterThanOrEqualTo(root.get("startDate"), LocalDateTime.now())
+                );
+    }
 }

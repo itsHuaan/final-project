@@ -60,7 +60,7 @@ public class CategoryController {
     @Operation(summary = "Edit a category")
     @PutMapping("/{id}")
     ResponseEntity<?> updateCategory(@PathVariable("id") long id,
-                                     @RequestBody CategoryModel model) {
+                                     CategoryModel model) {
         try {
             categoryService.update(id, model);
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
