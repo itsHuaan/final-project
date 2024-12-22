@@ -98,10 +98,10 @@ public class AdminShopController {
 
     @GetMapping("/{shopId}/statistics")
     public ResponseEntity<?> getStatistic(@PathVariable Long shopId,
-                                          @Parameter(description = "today/week/month/year") @RequestParam String period,
+                                          @Parameter(description = "today/week/month/year/custom") @RequestParam String period,
                                           @RequestParam(required = false) LocalDate startDate,
                                           @RequestParam(required = false) LocalDate endDate) {
-        ShopStatisticDto statistics = new ShopStatisticDto();
+        ShopStatisticDto statistics;
         HttpStatus httpStatus = HttpStatus.OK;
         String message = "Fetched";
         switch (period.toLowerCase()) {
@@ -128,6 +128,12 @@ public class AdminShopController {
                 LocalDateTime endTime = LocalDateTime.of(endDate, LocalTime.of(23, 59, 59));
                 statistics = statisticService.getStatistics(shopId, startTime, endTime);
                 break;
+            default:
+                httpStatus = HttpStatus.BAD_REQUEST;
+                message = "Invalid period";
+                statistics = null;
+                break;
+
         }
         return ResponseEntity.status(httpStatus).body(
                 createResponse(
