@@ -37,6 +37,17 @@ public class ProductSpecification {
                 );
     }
 
+
+    public static Specification<ProductEntity> isNotValid() {
+        return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
+                criteriaBuilder.or(
+                        criteriaBuilder.isNotNull(root.get("user").get("deletedAt")),
+                        criteriaBuilder.notEqual(root.get("user").get("shop_status"), 1),
+                        criteriaBuilder.isNotNull(root.get("deletedAt")),
+                        criteriaBuilder.isNotNull(root.get("categoryEntity").get("deletedAt"))
+                );
+    }
+
     public static Specification<ProductEntity> hasName(String name) {
         return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.like(root.get("name"), name);

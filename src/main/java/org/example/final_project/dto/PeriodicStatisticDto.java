@@ -11,12 +11,5 @@ import java.util.List;
 @Builder
 public class PeriodicStatisticDto {
     private String period;
-    private int totalOfProducts;
-    private int soldProducts;
-    private int totalOfFeedbacks;
-    private double averageRating;
-    private int lockedProducts;
-    private long totalOfCustomers;
-    private int totalOfOrders;
-    private double revenue;
+    private ShopStatisticDto statistics;
 }

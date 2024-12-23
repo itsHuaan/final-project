@@ -1,15 +1,20 @@
 package org.example.final_project.controller;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.example.final_project.dto.CartSkuDto;
 import org.example.final_project.dto.PeriodicStatisticDto;
 import org.example.final_project.dto.ShopStatisticDto;
+import org.example.final_project.model.validation.PageableValidation;
 import org.example.final_project.service.IOrderService;
 import org.example.final_project.service.IStatisticService;
 import org.example.final_project.util.Const;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -73,25 +78,43 @@ public class AdminShopController {
         );
     }
 
+    @GetMapping("/{shopId}/low-stock")
+    public ResponseEntity<?> getLowStock(@PathVariable Long shopId,
+                                         @RequestParam(required = false) Integer quantity,
+                                         @RequestParam(required = false) Integer pageSize,
+                                         @RequestParam(required = false) Integer pageIndex) {
+        Pageable pageable = PageableValidation.setDefault(pageSize, pageIndex);
+        Page<CartSkuDto> lowStockProducts = statisticService.getLowStockProducts(shopId, quantity == null || quantity <= 0 ? 100 : quantity, pageable);
+        HttpStatus status = !lowStockProducts.isEmpty() ? HttpStatus.OK : HttpStatus.NO_CONTENT;
+        String message = !lowStockProducts.isEmpty() ? "Fetched" : "No products fetched";
+        return ResponseEntity.status(HttpStatus.OK).body(
+                createResponse(
+                        status,
+                        message,
+                        lowStockProducts
+                )
+        );
+    }
+
     @GetMapping("/{shopId}/statistics")
     public ResponseEntity<?> getStatistic(@PathVariable Long shopId,
-                                          @RequestParam String period,
+                                          @Parameter(description = "today/week/month/year/custom") @RequestParam String period,
                                           @RequestParam(required = false) LocalDate startDate,
                                           @RequestParam(required = false) LocalDate endDate) {
-        ShopStatisticDto statistics = new ShopStatisticDto();
+        ShopStatisticDto statistics;
         HttpStatus httpStatus = HttpStatus.OK;
         String message = "Fetched";
         switch (period.toLowerCase()) {
             case "today":
                 statistics = statisticService.getStatistics(shopId, START_OF_DAY, END_OF_DAY);
                 break;
-            case "this_week":
+            case "week":
                 statistics = statisticService.getStatistics(shopId, START_OF_WEEK, END_OF_DAY);
                 break;
-            case "this_month":
+            case "month":
                 statistics = statisticService.getStatistics(shopId, START_OF_MONTH, END_OF_DAY);
                 break;
-            case "this_year":
+            case "year":
                 statistics = statisticService.getStatistics(shopId, START_OF_YEAR, END_OF_DAY);
                 break;
             case "custom":
@@ -105,6 +128,12 @@ public class AdminShopController {
                 LocalDateTime endTime = LocalDateTime.of(endDate, LocalTime.of(23, 59, 59));
                 statistics = statisticService.getStatistics(shopId, startTime, endTime);
                 break;
+            default:
+                httpStatus = HttpStatus.BAD_REQUEST;
+                message = "Invalid period";
+                statistics = null;
+                break;
+
         }
         return ResponseEntity.status(httpStatus).body(
                 createResponse(

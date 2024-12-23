@@ -10,6 +10,7 @@ import org.example.final_project.mapper.PromotionMapper;
 import org.example.final_project.model.PromotionModel;
 import org.example.final_project.repository.IProductRepository;
 import org.example.final_project.repository.IPromotionRepository;
+import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.IPromotionService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,8 +21,7 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 
-import static org.example.final_project.specification.PromotionSpecification.isActiveForTheProduct;
-import static org.example.final_project.specification.PromotionSpecification.isNotDeleted;
+import static org.example.final_project.specification.PromotionSpecification.*;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +30,7 @@ public class PromotionService implements IPromotionService {
     IPromotionRepository iPromotionRepository;
     PromotionMapper promotionMapper;
     IProductRepository productRepository;
+    IUserRepository iUserRepository;
 
     @Override
     public List<PromotionDto> getAll() {
@@ -137,6 +138,15 @@ public class PromotionService implements IPromotionService {
             }
         } catch (Exception e) {
             throw e;
+        }
+    }
+
+    @Override
+    public Page<PromotionDto> getAllByShop(Long shopId, Pageable pageable) {
+        if (iUserRepository.findById(shopId).isPresent()) {
+            return iPromotionRepository.findAll(isActiveOrComingForTheShop(shopId), pageable).map(x -> promotionMapper.convertToDto(x));
+        } else {
+            throw new IllegalArgumentException("Shop is not present");
         }
     }
 

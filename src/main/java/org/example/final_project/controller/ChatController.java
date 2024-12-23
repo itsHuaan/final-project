@@ -84,17 +84,12 @@ public class ChatController {
     public ResponseEntity<?> deleteChatMessages(@PathVariable long senderId,
                                                 @PathVariable long recipientId) {
         int result = chatMessageService.deleteChat(senderId, recipientId);
-        return result != 0
-                ? ResponseEntity.status(HttpStatus.OK).body(
+        HttpStatus status = result != 0 ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
+        String message = result != 0 ? "Deleted" : "Failed to delete";
+        return ResponseEntity.status(status).body(
                 createResponse(
-                        HttpStatus.OK,
-                        "Deleted",
-                        null
-                ))
-                : ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                createResponse(
-                        HttpStatus.BAD_REQUEST,
-                        "Failed to delete",
+                        status,
+                        message,
                         null
                 ));
     }
@@ -103,18 +98,12 @@ public class ChatController {
     @GetMapping("/{senderId}")
     public ResponseEntity<?> findChatUsers(@PathVariable long senderId) {
         List<ChatUserDto> chatUsers = chatRoomService.getChatUsers(senderId);
-        return !chatUsers.isEmpty()
-                ? ResponseEntity.status(HttpStatus.OK).body(
+        HttpStatus status = !chatUsers.isEmpty() ? HttpStatus.OK : HttpStatus.NO_CONTENT;
+        String message = !chatUsers.isEmpty() ? "Fetched" : "No users fetched";
+        return ResponseEntity.status(HttpStatus.OK).body(
                 createResponse(
-                        HttpStatus.OK,
-                        "Fetched",
-                        chatUsers
-                )
-        )
-                : ResponseEntity.status(HttpStatus.OK).body(
-                createResponse(
-                        HttpStatus.NO_CONTENT,
-                        "No users fetched",
+                        status,
+                        message,
                         chatUsers
                 )
         );

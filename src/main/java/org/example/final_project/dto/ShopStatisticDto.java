@@ -12,12 +12,13 @@ import java.util.List;
 @Builder
 public class ShopStatisticDto {
     private int totalOfProducts;
-    private int soldProducts;
+    private long soldProducts;
     private int totalOfFeedbacks;
     private double averageRating;
     private int lockedProducts;
-    private List<CartSkuDto> lowStockProducts;
     private long totalOfCustomers;
+    private List<UserFeedBackDto> topPurchasedUsers;
     private int totalOfOrders;
+    private List<ProductSummaryDto> topPurchasedProducts;
     private double revenue;
 }
