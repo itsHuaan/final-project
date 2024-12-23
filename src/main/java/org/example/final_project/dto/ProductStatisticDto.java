@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Builder
-public class ProductSummaryDto {
+public class ProductStatisticDto {
     private long productId;
     private String productName;
     private long numberOfFeedBack;
@@ -17,12 +17,8 @@ public class ProductSummaryDto {
     private double rating;
     private long sold;
     private long totalQuantity;
-    private CategorySummaryDto category;
     private String image;
-    private ShopDto shopDto;
     private double price;
-    private Integer status;
-    private String note;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;

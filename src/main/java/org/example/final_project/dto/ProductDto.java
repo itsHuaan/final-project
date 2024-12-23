@@ -16,6 +16,7 @@ public class ProductDto {
     private long numberOfFeedBack;
     private long numberOfLike;
     private double rating;
+    private long sold;
     private String description;
     private int isActive;
     private long totalQuantity;
