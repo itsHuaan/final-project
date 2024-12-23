@@ -28,6 +28,7 @@ public class ChatMessageMapper {
                 .recipientId(chatMessageModel.getRecipientId())
                 .message(chatMessageModel.getMessage())
                 .sentAt(chatMessageModel.getSentAt())
+                .isSeen(0)
                 .build();
 
         if (chatMessageModel.getMediaUrls() != null) {

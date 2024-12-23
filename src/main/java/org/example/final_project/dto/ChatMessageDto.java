@@ -20,4 +20,5 @@ public class ChatMessageDto {
     private String message;
     private List<String> mediaUrls;
     private LocalDateTime sentAt;
+    private Integer isSeen;
 }

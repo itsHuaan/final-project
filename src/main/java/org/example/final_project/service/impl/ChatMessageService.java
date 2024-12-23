@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static org.example.final_project.specification.ChatMessageSpecification.hasChatId;
+import static org.example.final_project.specification.ChatMessageSpecification.*;
 
 @Slf4j
 @Service
@@ -77,6 +77,13 @@ public class ChatMessageService implements IChatMessageService {
 
     @Override
     public Page<ChatMessageDto> getChatMessages(Long senderId, Long recipientId, Pageable pageable) {
+        List<ChatMessageEntity> newMessages = chatRepository.findAll(
+                Specification.where((hasSenderId(senderId).or(hasRecipientId(recipientId))).and(hasSeen(0)))
+        );
+        for (ChatMessageEntity chatMessageEntity : newMessages) {
+            chatMessageEntity.setIsSeen(1);
+        }
+        chatRepository.saveAll(newMessages);
         return chatRoomService.getChatRoomId(senderId, recipientId, false)
                 .map(chatId -> {
                     List<ChatMessageEntity> allMessages = chatRepository.findAll(Specification.where(hasChatId(chatId)));
