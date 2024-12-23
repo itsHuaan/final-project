@@ -9,7 +9,6 @@ import lombok.experimental.FieldDefaults;
 import org.example.final_project.configuration.cloudinary.MediaUploadService;
 import org.example.final_project.service.IImageProductService;
 import org.example.final_project.util.Const;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -45,7 +44,7 @@ public class ImageController {
             if (files.length == 0) {
                 return ResponseEntity.badRequest().body(List.of("No files provided"));
             }
-            List<String> mediaUrls = mediaUploadService.uploadMedia(files);
+            List<String> mediaUrls = mediaUploadService.uploadMediaFiles(files);
             return ResponseEntity.ok(mediaUrls);
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

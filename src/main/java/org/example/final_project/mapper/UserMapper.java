@@ -7,6 +7,7 @@ import org.example.final_project.dto.ShopDto;
 import org.example.final_project.dto.UserDto;
 import org.example.final_project.dto.UserFeedBackDto;
 import org.example.final_project.entity.FeedbackEntity;
+import org.example.final_project.entity.ProductEntity;
 import org.example.final_project.entity.RoleEntity;
 import org.example.final_project.entity.UserEntity;
 import org.example.final_project.model.UserModel;
@@ -20,8 +21,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.example.final_project.specification.ProductSpecification.hasUserId;
-import static org.example.final_project.specification.ProductSpecification.isValid;
+import static org.example.final_project.specification.ProductSpecification.*;
 
 @Component
 @RequiredArgsConstructor
@@ -82,6 +82,16 @@ public class UserMapper {
                 .stream()
                 .flatMap(product -> product.getFeedbacks().stream())
                 .toList();
+        List<ProductEntity> products = productRepository.findAll(Specification.where(
+                        hasUserId(userEntity.getUserId()))
+                .and(isValid())).stream().toList();
+        double averageRating = products.stream()
+                .mapToDouble(product -> product.getFeedbacks().stream()
+                        .mapToDouble(FeedbackEntity::getRate)
+                        .average()
+                        .orElse(0.0))
+                .average()
+                .orElse(0.0);
         LocalDateTime createdTime = userEntity.getTime_created_shop();
         Duration duration = createdTime != null
                 ? Duration.between(createdTime, LocalDateTime.now())
@@ -92,10 +102,10 @@ public class UserMapper {
                 .shopAddress(String.join(", ", addressService.findAddressNamesFromParentId(Long.parseLong(String.valueOf(userEntity.getAddress_id_shop())))))
                 .shopAddressDetail(userEntity.getShop_address_detail())
                 .feedbackCount((long) feedbacks.size())
-                .productCount((long) productRepository.findAll(Specification.where(hasUserId(userEntity.getUserId()).and(isValid())))
-                        .size())
+                .productCount((long) products.size())
                 .joined(duration.toDays())
                 .profilePicture(userEntity.getProfilePicture())
+                .rating(Math.round(averageRating * 100.0) / 100.0)
                 .build();
     }
 
