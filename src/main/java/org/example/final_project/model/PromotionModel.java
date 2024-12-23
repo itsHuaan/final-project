@@ -1,6 +1,5 @@
 package org.example.final_project.model;
 
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

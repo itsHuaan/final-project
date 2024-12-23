@@ -20,7 +20,9 @@ public class ProductSummaryDto {
     private CategorySummaryDto category;
     private String image;
     private ShopDto shopDto;
-    private double price;
+    private double oldPrice;
+    private double newPrice;
+    private double discountPercentage;
     private Integer status;
     private String note;
     private LocalDateTime createdAt;
