@@ -6,10 +6,12 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.configuration.VnPay.VnPayUtil;
+import org.example.final_project.dto.UserDto;
 import org.example.final_project.model.CartItemRequest;
 import org.example.final_project.model.NotifyModel;
 import org.example.final_project.model.OrderModel;
 import org.example.final_project.service.IOrderService;
+import org.example.final_project.service.IUserService;
 import org.example.final_project.util.Const;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +32,27 @@ public class PaymentController {
 
     SimpMessagingTemplate messagingTemplate;
 
+    IUserService userService;
+
+
+    private void notifyShops(OrderModel order) {
+        Set<Long> sentShopIds = new HashSet<>();
+        List<CartItemRequest> cartItemRequest = order.getCartItems();
+        for (CartItemRequest cartItem : cartItemRequest) {
+            if (!sentShopIds.contains(cartItem.getShopId())) {
+                long shopId = cartItem.getShopId();
+                long userId = order.getUserId();
+                UserDto userDto = userService.getById(userId);
+                NotifyModel notifyModel1 = NotifyModel.builder()
+                        .userId(userId)
+                        .shopId(shopId)
+                        .notifyTitle("Người dùng" + " " + userDto.getName() + " " + "vừa đặt hàng")
+                        .build();
+                sentShopIds.add(cartItem.getShopId());
+                messagingTemplate.convertAndSend("/note/notify", notifyModel1);
+            }
+        }
+    }
 
     @PostMapping("/create-payment")
     public ResponseEntity<?> submitOrder(@RequestBody OrderModel order,
@@ -41,21 +64,7 @@ public class PaymentController {
             String vnpayUrl = orderService.submitCheckout(order, request);
             return ResponseEntity.ok().body(vnpayUrl);
         } else {
-            Set<Long> sentShopIds = new HashSet<>();
-            List<CartItemRequest> cartItemRequest = order.getCartItems();
-            for (CartItemRequest cartItem : cartItemRequest) {
-                if (!sentShopIds.contains(cartItem.getShopId())) {
-                    long shopId = cartItem.getShopId();
-                    long userId = order.getUserId();
-                    NotifyModel notifyModel1 = NotifyModel.builder()
-                            .userId(userId)
-                            .shopId(shopId)
-                            .notifyTitle("có đơn hàng được đặt của " + userId + shopId)
-                            .build();
-                    sentShopIds.add(cartItem.getShopId());
-                    messagingTemplate.convertAndSend("/note/notify", notifyModel1);
-                }
-            }
+            notifyShops(order);
             return ResponseEntity.ok().body(orderService.submitCheckout(order, request));
         }
 
@@ -68,21 +77,7 @@ public class PaymentController {
             String vnp_TxnRef = (String) request.getAttribute("tex");
             String amount = orderService.getTotalPrice(vnp_TxnRef);
             OrderModel order = orderService.sentNotify(request);
-            Set<Long> sentShopIds = new HashSet<>();
-            List<CartItemRequest> cartItemRequest = order.getCartItems();
-            for (CartItemRequest cartItem : cartItemRequest) {
-                if (!sentShopIds.contains(cartItem.getShopId())) {
-                    long shopId = cartItem.getShopId();
-                    long userId = order.getUserId();
-                    NotifyModel notifyModel1 = NotifyModel.builder()
-                            .userId(userId)
-                            .shopId(shopId)
-                            .notifyTitle("có đơn hàng được đặt của " + userId)
-                            .build();
-                    sentShopIds.add(cartItem.getShopId());
-                    messagingTemplate.convertAndSend("/note/notify", notifyModel1);
-                }
-            }
+            notifyShops(order);
             String redirectUrl = String.format(
                     "https://team03.cyvietnam.id.vn/en/checkoutsuccess?tex=%s&amount=%s",
                     vnp_TxnRef, amount
