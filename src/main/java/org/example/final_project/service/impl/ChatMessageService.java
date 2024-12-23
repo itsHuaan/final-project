@@ -77,8 +77,10 @@ public class ChatMessageService implements IChatMessageService {
 
     @Override
     public Page<ChatMessageDto> getChatMessages(Long senderId, Long recipientId, Pageable pageable) {
+        var chatRoomId = chatRoomService.getChatRoomId(senderId, recipientId, false).orElseThrow(() -> new IllegalArgumentException("Can't find chat room"));
+
         List<ChatMessageEntity> newMessages = chatRepository.findAll(
-                Specification.where((hasSenderId(senderId).or(hasRecipientId(recipientId))).and(hasSeen(0)))
+                Specification.where((hasChatId(chatRoomId).and(hasRecipientId(recipientId))).and(hasSeen(0)))
         );
         for (ChatMessageEntity chatMessageEntity : newMessages) {
             chatMessageEntity.setIsSeen(1);
@@ -107,7 +109,7 @@ public class ChatMessageService implements IChatMessageService {
     @Override
     public int deleteChat(Long senderId, Long recipientId) {
         try {
-            var chatRoomId = chatRoomService.getChatRoomId(senderId, recipientId, true).orElseThrow(() -> new IllegalArgumentException("Can't find chat room"));
+            var chatRoomId = chatRoomService.getChatRoomId(senderId, recipientId, false).orElseThrow(() -> new IllegalArgumentException("Can't find chat room"));
             List<ChatRoomEntity> chatRooms = chatRoomRepository.findAll(ChatRoomSpecification.hasChatId(chatRoomId));
             chatRoomRepository.deleteAll(chatRooms);
             List<ChatMessageEntity> chatMessages = chatRepository.findAll(hasChatId(chatRoomId));

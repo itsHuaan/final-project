@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IChatRoomService {
-    Optional<String> getChatRoomId(Long senderId, Long recipientId, boolean isExist);
+    Optional<String> getChatRoomId(Long senderId, Long recipientId, boolean createIfNotExist);
 
     ChatRoomDto getChatRoom(Long senderId, Long recipientId);
 
