@@ -149,6 +149,4 @@ public class PromotionService implements IPromotionService {
             throw new IllegalArgumentException("Shop is not present");
         }
     }
-
-
 }
