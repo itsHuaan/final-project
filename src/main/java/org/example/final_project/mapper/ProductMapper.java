@@ -13,6 +13,7 @@ import org.example.final_project.repository.ICategoryRepository;
 import org.example.final_project.repository.IImageProductRepository;
 import org.example.final_project.repository.IProductRepository;
 import org.example.final_project.repository.ISKURepository;
+import org.example.final_project.service.IPromotionService;
 import org.example.final_project.service.ISKUService;
 import org.springframework.stereotype.Component;
 
@@ -33,6 +34,7 @@ public class ProductMapper {
     FeedbackMapper feedbackMapper;
     IProductRepository productRepository;
     ISKURepository iskuRepository;
+    IPromotionService promotionService;
 
     public ProductDto convertToDto(ProductEntity productEntity) {
         return ProductDto.builder()
@@ -114,10 +116,14 @@ public class ProductMapper {
                         .findFirst()
                         .map(ImageProductDto::getImageLink)
                         .orElse(null))
-                .price(variants.stream()
+                .oldPrice(variants.stream()
                         .map(SKUEntity::getPrice)
                         .min(Double::compareTo)
                         .orElse(0.0))
+                .discountPercentage(promotionService.findAllPromotionByNow(productEntity.getId()).getDiscountPercentage())
+                .newPrice(variants.stream().map(SKUEntity::getPrice)
+                        .min(Double::compareTo)
+                        .orElse(0.0) * promotionService.findAllPromotionByNow(productEntity.getId()).getDiscountPercentage() / 100)
                 .shopDto(userMapper.toShopDto(productEntity.getUser()))
                 .status(productEntity.getIsActive())
                 .note(productEntity.getNote())
