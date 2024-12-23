@@ -108,4 +108,24 @@ public class NotifycationService implements INotificationService {
         }
         return 1;
     }
+
+    @Override
+    public ApiResponse<?> getAllNotificationsByShopId(long shopId, Integer page, Integer size) {
+        if (page == null || size == null) {
+            List<NotificationEntity> notificationEntityList = notificationRepository.findListByShopId(shopId);
+            List<NotificationDto> list1 = notificationEntityList.stream().map(NotificationMapper::toNotificationDto).toList();
+            return createResponse(HttpStatus.OK, "Successfully Retrieved Users", list1);
+        }
+        if (page < 0 || size <= 0) {
+            return createResponse(HttpStatus.OK, "Page must be >= 0 and size must be >= 1 ", null);
+        }
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("createdAt")));
+
+        Page<NotificationEntity> notificationEntityList = notificationRepository.findByShopId(shopId, pageable);
+        Page<NotificationDto> notificationDtoPage = notificationEntityList.map(NotificationMapper::toNotificationDto);
+
+        return ApiResponse.createResponse(HttpStatus.OK, "get all notifications", notificationDtoPage);
+
+    }
 }

@@ -13,9 +13,10 @@ public class NotificationDto {
     private long id;
     private String title;
     private String content;
-    private long userId;
-    private long adminId;
+    private Long userId;
+    private Long adminId;
     private int isRead;
     private String image;
+    private Long shopId;
     private LocalDateTime createdAt;
 }

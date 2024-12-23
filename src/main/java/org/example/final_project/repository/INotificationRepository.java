@@ -15,8 +15,15 @@ public interface INotificationRepository extends JpaRepository<NotificationEntit
     @Query("select n from NotificationEntity n where n.userId = :userId")
     Page<NotificationEntity> findByUserId(@Param("userId") Long userId, Pageable pageable);
 
-
     @Query("select n from NotificationEntity n where n.userId = :userId")
     List<NotificationEntity> findListByUserId(@Param("userId") Long userId);
+
+    @Query("select n from NotificationEntity n where n.shopId = :shopId")
+    Page<NotificationEntity> findByShopId(@Param("shopId") Long shopId, Pageable pageable);
+
+
+    @Query("select n from NotificationEntity n where n.shopId = :shopId")
+    List<NotificationEntity> findListByShopId(@Param("shopId") Long shopId);
+
 
 }

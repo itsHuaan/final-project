@@ -29,7 +29,7 @@ public class AdminController {
 
     @Operation(summary = "Admin approves store status ")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PostMapping("/{userId}/switching-status-for-shop")
+    @PutMapping("/{userId}/switching-status-for-shop")
     public ResponseEntity<ApiResponse<?>> statusOfShop(@PathVariable long userId, @RequestParam("status") int status) {
         try {
             ApiResponse<?> response = userService.acceptFromAdmin(status, userId);
@@ -61,18 +61,19 @@ public class AdminController {
                     .body(createResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error occurred", null));
         }
     }
+
     @Operation(summary = "find shop by Name or status")
     @GetMapping("/find-shop-name")
-    public ResponseEntity<?> getShopByName(@RequestParam(required = false) String shop_name , @RequestParam(required = false) Integer shop_status ) {
-        List<UserDto> userDtoList = userService.findByShopName(shop_name,shop_status);
+    public ResponseEntity<?> getShopByName(@RequestParam(required = false) String shop_name, @RequestParam(required = false) Integer shop_status) {
+        List<UserDto> userDtoList = userService.findByShopName(shop_name, shop_status);
         return ResponseEntity.ok(userDtoList);
     }
+
     @Operation(summary = "update shop")
     @PutMapping("/{id}/update-shop")
     public ResponseEntity<String> updateShop(@PathVariable long id, @RequestBody ShopModel shopModel) {
-        return ResponseEntity.ok(userService.updateShop(id,shopModel) ==1 ? "đã update thành công" : "chưa update thành công ");
+        return ResponseEntity.ok(userService.updateShop(id, shopModel) == 1 ? "đã update thành công" : "chưa update thành công ");
     }
-
 
 
 }

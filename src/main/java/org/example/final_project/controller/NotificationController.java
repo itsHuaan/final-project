@@ -19,7 +19,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequestMapping(value = Const.API_PREFIX + "/notification")
 public class NotificationController {
-    
+
     INotificationService notificationService;
 
 
@@ -39,6 +39,12 @@ public class NotificationController {
     public ResponseEntity<?> changeStatusNotification(@PathVariable long userId) {
         int result = notificationService.changeStatusNotification(userId);
         return ResponseEntity.ok(result == 1 ? "Đã đọc" : "Chưa đọc");
+    }
+
+    @GetMapping("/{shopId}/shop")
+    public ResponseEntity<?> getNotificationByShopId(@PathVariable long shopId, @RequestParam(required = false) Integer page,
+                                                     @RequestParam(required = false) Integer size) {
+        return ResponseEntity.ok(notificationService.getAllNotificationsByShopId(shopId, page, size));
     }
 
 

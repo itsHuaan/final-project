@@ -12,6 +12,7 @@ public class NotificationMapper {
                 .adminId(notifiModel.getAdminId())
                 .userId(notifiModel.getUserId())
                 .image(notifiModel.getImage())
+                .shopId(notifiModel.getShopId())
                 .build();
     }
 
@@ -25,6 +26,7 @@ public class NotificationMapper {
                 .userId(notifiEntity.getUserId())
                 .isRead(notifiEntity.getIsRead())
                 .image(notifiEntity.getImage())
+                .shopId(notifiEntity.getShopId())
                 .build();
     }
 }

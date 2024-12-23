@@ -19,8 +19,10 @@ public class NotificationEntity {
     private String title;
     private String image;
     private String content;
-    private long userId;
+    private Long userId;
     private int isRead;
-    private long adminId;
+    @Column(name = "adminId", nullable = true)
+    private Long adminId;
+    private Long shopId;
     private LocalDateTime createdAt;
 }
