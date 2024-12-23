@@ -1,9 +1,5 @@
 package org.example.final_project.util;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.example.final_project.model.OrderModel;
-import org.springframework.beans.factory.annotation.Autowired;
-
 public class EmailTemplate {
 
     public static String otpEmailContent(String otp) {
