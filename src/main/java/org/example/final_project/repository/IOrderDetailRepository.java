@@ -1,11 +1,16 @@
 package org.example.final_project.repository;
 
 import org.example.final_project.entity.OrderDetailEntity;
+import org.example.final_project.entity.ProductEntity;
+import org.example.final_project.entity.UserEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,6 +55,27 @@ public interface IOrderDetailRepository extends JpaRepository<OrderDetailEntity,
             """)
     List<Long> findAllCustomerBoughtTheMostAtThisShop(@Param("shopId") long shopId);
 
+    @Query("SELECT DISTINCT o.user FROM OrderDetailEntity od " +
+            "JOIN od.orderEntity o " +
+            "WHERE od.shopId = :shopId " +
+            "AND o.createdAt BETWEEN :startDate AND :endDate")
+    Page<UserEntity> findDistinctUsersByShopAndDateRange(@Param("shopId") Long shopId,
+                                                         @Param("startDate") LocalDateTime startDate,
+                                                         @Param("endDate") LocalDateTime endDate,
+                                                         Pageable pageable);
+
+    @Query("""
+                SELECT DISTINCT od.skuEntity.product
+                FROM OrderDetailEntity od 
+                WHERE od.skuEntity.product.user.userId = :shopId
+                  AND od.orderEntity.createdAt BETWEEN :startTime AND :endTime
+                GROUP BY od.skuEntity.product
+                ORDER BY SUM(od.quantity) DESC
+            """)
+    Page<ProductEntity> findTopPurchasedProductsByShop(@Param("shopId") Long shopId,
+                                                       @Param("startTime") LocalDateTime startTime,
+                                                       @Param("endTime") LocalDateTime endTime,
+                                                       Pageable pageable);
 
 }
 

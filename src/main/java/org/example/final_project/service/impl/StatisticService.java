@@ -7,6 +7,7 @@ import org.example.final_project.dto.*;
 import org.example.final_project.entity.FeedbackEntity;
 import org.example.final_project.entity.OrderDetailEntity;
 import org.example.final_project.entity.ProductEntity;
+import org.example.final_project.mapper.ProductMapper;
 import org.example.final_project.mapper.UserMapper;
 import org.example.final_project.mapper.VariantMapper;
 import org.example.final_project.repository.IOrderDetailRepository;
@@ -16,6 +17,7 @@ import org.example.final_project.service.IStatisticService;
 import org.example.final_project.specification.OrderDetailSpecification;
 import org.example.final_project.specification.SKUSpecification;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -36,6 +38,7 @@ public class StatisticService implements IStatisticService {
     IOrderDetailRepository orderDetailRepository;
     VariantMapper variantMapper;
     UserMapper userMapper;
+    ProductMapper productMapper;
 
     private ShopStatisticDto buildStatistic(long shopId, LocalDateTime startTime, LocalDateTime endTime) {
         return ShopStatisticDto.builder()
@@ -151,10 +154,15 @@ public class StatisticService implements IStatisticService {
 
 
     private List<UserFeedBackDto> getTopPurchasedUsers(long shopId, LocalDateTime startTime, LocalDateTime endTime) {
-        return null;
+        return orderDetailRepository.findDistinctUsersByShopAndDateRange(shopId, startTime, endTime, PageRequest.of(0, 10)).getContent().stream()
+                .map(userMapper::toUserFeedBackDto)
+                .toList();
     }
 
-    private List<ProductSummaryDto> getTopPurchasedProducts(long shopId, LocalDateTime startTime, LocalDateTime endTime) {
-        return null;
+    private List<ProductStatisticDto> getTopPurchasedProducts(long shopId, LocalDateTime startTime, LocalDateTime endTime) {
+        return orderDetailRepository.findTopPurchasedProductsByShop(shopId, startTime, endTime,
+                        PageRequest.of(0, 10)).getContent().stream()
+                .map(productMapper::toProductStatisticDto)
+                .toList();
     }
 }

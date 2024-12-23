@@ -19,6 +19,6 @@ public class ShopStatisticDto {
     private long totalOfCustomers;
     private List<UserFeedBackDto> topPurchasedUsers;
     private int totalOfOrders;
-    private List<ProductSummaryDto> topPurchasedProducts;
+    private List<ProductStatisticDto> topPurchasedProducts;
     private double revenue;
 }
