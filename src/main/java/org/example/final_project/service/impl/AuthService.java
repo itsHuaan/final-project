@@ -8,6 +8,7 @@ import org.example.final_project.configuration.jwt.JwtProvider;
 import org.example.final_project.dto.ApiResponse;
 import org.example.final_project.dto.SignInResponse;
 import org.example.final_project.model.*;
+import org.example.final_project.model.validation.AuthValidation;
 import org.example.final_project.service.*;
 import org.example.final_project.util.EmailTemplate;
 import org.springframework.http.HttpStatus;
@@ -15,14 +16,15 @@ import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.example.final_project.model.validation.AuthValidation;
-
-import static org.example.final_project.dto.ApiResponse.*;
-import static org.example.final_project.util.Const.EMAIL_PATTERN;
-import static org.example.final_project.util.RandomMethods.generateUsername;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+
+import static org.example.final_project.dto.ApiResponse.createResponse;
+import static org.example.final_project.util.Const.EMAIL_PATTERN;
+import static org.example.final_project.util.RandomMethods.generateUsername;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +36,7 @@ public class AuthService implements IAuthService {
     IOtpService otpService;
     AuthenticationManager authenticationManager;
     ITokenBlacklistService tokenBlacklistService;
+    TemplateEngine templateEngine;
 
     @Override
     public ApiResponse<?> forgotPassword(String email) {
@@ -42,13 +45,26 @@ public class AuthService implements IAuthService {
         }
         try {
             String jwt = jwtProvider.generateForgetPasswordToken(email);
-            EmailModel emailModel = new EmailModel(email, "Psst... we heard you need a password rescue!", EmailTemplate.forgotPasswordEmailContent(jwt));
+
+            Context context = new Context();
+            context.setVariable("host", "team03.cyvietnam.id.vn/en");
+            context.setVariable("token", jwt);
+
+            String content = templateEngine.process("forgot-password", context);
+
+            EmailModel emailModel = new EmailModel(
+                    email,
+                    "Psst... we heard you need a password rescue!",
+                    content
+            );
+
             emailService.sendEmail(emailModel);
             return createResponse(HttpStatus.OK, "Email sent to " + email, jwt);
         } catch (Exception e) {
             throw new RuntimeException("An unexpected error occurred while sending the email");
         }
     }
+
 
     @Override
     public ApiResponse<?> verifyUser(String otp, String email) {
