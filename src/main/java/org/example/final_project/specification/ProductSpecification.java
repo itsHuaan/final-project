@@ -50,7 +50,7 @@ public class ProductSpecification {
 
     public static Specification<ProductEntity> hasName(String name) {
         return (Root<ProductEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
-                criteriaBuilder.like(root.get("name"), name);
+                criteriaBuilder.like(root.get("name"), "%" + name + "%");
     }
 
     public static Specification<ProductEntity> hasCategoryId(long categoryId) {
