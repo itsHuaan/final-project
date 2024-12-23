@@ -63,6 +63,9 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
                     .username(userCustom.getName())
                     .isActive(1)
                     .build();
+        } else {
+            user.setDeletedAt(null);
+            user.setIsActive(1);
         }
         userRepository.save(user);
         return oAuth2User;
