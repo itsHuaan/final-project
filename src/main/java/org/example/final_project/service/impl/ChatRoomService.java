@@ -31,7 +31,7 @@ public class ChatRoomService implements IChatRoomService {
     IUserRepository userRepository;
 
     @Override
-    public Optional<String> getChatRoomId(Long senderId, Long recipientId, boolean isExist) {
+    public Optional<String> getChatRoomId(Long senderId, Long recipientId, boolean createIfNotExist) {
         Long firstId = Math.min(senderId, recipientId);
         Long secondId = Math.max(senderId, recipientId);
         return chatRoomRepository.findOne(Specification.where(
@@ -39,7 +39,7 @@ public class ChatRoomService implements IChatRoomService {
                 ))
                 .map(ChatRoomEntity::getChatId)
                 .or(() -> {
-                    if (isExist) {
+                    if (createIfNotExist) {
                         try {
                             var chatId = createChatId(firstId, secondId);
                             return Optional.of(chatId);

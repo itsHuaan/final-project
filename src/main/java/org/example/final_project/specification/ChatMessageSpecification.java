@@ -21,4 +21,9 @@ public class ChatMessageSpecification {
         return (Root<ChatMessageEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("chatId"), chatId);
     }
+
+    public static Specification<ChatMessageEntity> hasSeen(int status) {
+        return (Root<ChatMessageEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("isSeen"), status);
+    }
 }

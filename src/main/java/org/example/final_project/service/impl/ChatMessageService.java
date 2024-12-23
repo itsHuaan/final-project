@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static org.example.final_project.specification.ChatMessageSpecification.hasChatId;
+import static org.example.final_project.specification.ChatMessageSpecification.*;
 
 @Slf4j
 @Service
@@ -77,6 +77,16 @@ public class ChatMessageService implements IChatMessageService {
 
     @Override
     public Page<ChatMessageDto> getChatMessages(Long senderId, Long recipientId, Pageable pageable) {
+        var chatRoomId = chatRoomService.getChatRoomId(senderId, recipientId, false).orElseThrow(() -> new IllegalArgumentException("Can't find chat room"));
+
+        List<ChatMessageEntity> newMessages = chatRepository.findAll(
+                Specification.where((hasChatId(chatRoomId).and(hasRecipientId(recipientId))).and(hasSeen(0)))
+        );
+        for (ChatMessageEntity chatMessageEntity : newMessages) {
+            chatMessageEntity.setIsSeen(1);
+        }
+        chatRepository.saveAll(newMessages);
+
         return chatRoomService.getChatRoomId(senderId, recipientId, false)
                 .map(chatId -> {
                     List<ChatMessageEntity> allMessages = chatRepository.findAll(Specification.where(hasChatId(chatId)));
@@ -85,17 +95,21 @@ public class ChatMessageService implements IChatMessageService {
                             .collect(Collectors.toList());
                     Collections.reverse(reversedList);
                     int start = (int) pageable.getOffset();
-                    int end = Math.min((start + pageable.getPageSize()), reversedList.size());
+                    int end = Math.min(start + pageable.getPageSize(), reversedList.size());
+                    if (start >= reversedList.size()) {
+                        return new PageImpl<ChatMessageDto>(Collections.emptyList(), pageable, reversedList.size());
+                    }
                     List<ChatMessageDto> pagedMessages = reversedList.subList(start, end);
                     return new PageImpl<>(pagedMessages, pageable, reversedList.size());
                 })
                 .orElse(new PageImpl<>(Collections.emptyList(), pageable, 0));
     }
 
+
     @Override
     public int deleteChat(Long senderId, Long recipientId) {
         try {
-            var chatRoomId = chatRoomService.getChatRoomId(senderId, recipientId, true).orElseThrow(() -> new IllegalArgumentException("Can't find chat room"));
+            var chatRoomId = chatRoomService.getChatRoomId(senderId, recipientId, false).orElseThrow(() -> new IllegalArgumentException("Can't find chat room"));
             List<ChatRoomEntity> chatRooms = chatRoomRepository.findAll(ChatRoomSpecification.hasChatId(chatRoomId));
             chatRoomRepository.deleteAll(chatRooms);
             List<ChatMessageEntity> chatMessages = chatRepository.findAll(hasChatId(chatRoomId));

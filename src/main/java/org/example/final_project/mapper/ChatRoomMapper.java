@@ -12,7 +12,7 @@ import org.example.final_project.repository.IUserRepository;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
-import static org.example.final_project.specification.ChatMessageSpecification.hasChatId;
+import static org.example.final_project.specification.ChatMessageSpecification.*;
 
 @Component
 @RequiredArgsConstructor
@@ -49,6 +49,11 @@ public class ChatRoomMapper {
                 .profilePicture(recipient.getProfilePicture())
                 .name(recipient.getName())
                 .username(recipient.getUsername())
+                .newMessageCount(chatRepository.findAll(Specification.where(
+                        hasChatId(chatRoom.getChatId())
+                                .and(hasRecipientId(recipient.getUserId()))
+                                .and(hasSeen(0))
+                )).size())
                 .lastMessage(chatMessageMapper.toDto(chatRepository.findTopByChatIdOrderBySentAtDesc(chatRoom.getChatId())))
                 .build();
     }

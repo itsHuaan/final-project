@@ -4,11 +4,10 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name="tbl_chatmessage")
+@Table(name = "tbl_chatmessage")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -25,6 +24,7 @@ public class ChatMessageEntity {
     private Long recipientId;
     private String message;
     private LocalDateTime sentAt;
+    private Integer isSeen;
     @OneToMany(mappedBy = "chatMessage", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<ChatMessageMediaEntity> chatMedias;
 }
