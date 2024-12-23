@@ -24,9 +24,11 @@ public interface IProductService extends IBaseService<ProductDto, ProductModel, 
 
     Page<ProductSummaryDto> getOtherProductOfShop(long productId, Pageable pageable);
 
-    Page<ProductSummaryDto> getAllProductOfShop(long userId, Pageable pageable);
+    Page<ProductSummaryDto> getAllProductOfShop(long userId, Integer type, Pageable pageable);
 
     Page<ProductSummaryDto> getAllProductByCategory(long categoryId, Pageable pageable);
+
+    ProductDto getByIdCustom(Long productId, Integer type);
 
     Page<ProductSummaryDto> getAllProductByFilter(String name, List<Long> categoryId, List<Long> addressId, Double startPrice, Double endPrice, Double rating, Pageable pageable);
 

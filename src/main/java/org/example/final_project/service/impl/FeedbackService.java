@@ -9,8 +9,6 @@ import org.example.final_project.mapper.FeedbackMapper;
 import org.example.final_project.model.FeedbackImageModel;
 import org.example.final_project.model.FeedbackModel;
 import org.example.final_project.repository.IFeedbackRepository;
-import org.example.final_project.repository.IProductRepository;
-import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.IFeedbackService;
 import org.example.final_project.service.IImageFeedbackService;
 import org.springframework.data.domain.Sort;

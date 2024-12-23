@@ -18,7 +18,6 @@ import org.example.final_project.repository.ISKURepository;
 import org.example.final_project.service.ISKUService;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -72,8 +71,6 @@ public class ProductMapper {
                 .name(model.getName())
                 .description(model.getDescription())
                 .note(model.getNote())
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
                 .categoryEntity(iCategoryRepository.findById(model.getCategoryId()).isPresent()
                         ? iCategoryRepository.findById(model.getCategoryId()).get()
                         : null)

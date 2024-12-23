@@ -62,6 +62,7 @@ public class CategoryService implements ICategoryService {
                         : new UserEntity();
                 category.setUser(user);
             }
+            category.setCreatedAt(LocalDateTime.now());
             iCategoryRepository.save(category);
             return 1;
         } catch (Exception e) {
@@ -89,6 +90,7 @@ public class CategoryService implements ICategoryService {
                 } else {
                     model.setParent_id(iCategoryRepository.findById(aLong).get().getParent_id());
                 }
+                category.setModifiedAt(LocalDateTime.now());
                 category.setId(aLong);
                 iCategoryRepository.save(category);
             } else {
