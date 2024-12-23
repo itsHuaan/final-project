@@ -7,6 +7,7 @@ import org.example.final_project.dto.ChatHistoryDto;
 import org.example.final_project.dto.ChatMessageDto;
 import org.example.final_project.entity.ChatMessageEntity;
 import org.example.final_project.entity.ChatMessageMediaEntity;
+import org.example.final_project.entity.UserEntity;
 import org.example.final_project.model.ChatMessageModel;
 import org.example.final_project.repository.IUserRepository;
 import org.springframework.stereotype.Component;
@@ -45,6 +46,13 @@ public class ChatMessageMapper {
     }
 
     public ChatMessageDto toDto(ChatMessageEntity chatMessageEntity) {
+        UserEntity sender = userRepository.findById(chatMessageEntity.getSenderId()).orElseThrow(
+                () -> new NoSuchElementException("Sender not found")
+        );
+        UserEntity recipient = userRepository.findById(chatMessageEntity.getRecipientId()).orElseThrow(
+                () -> new NoSuchElementException("Recipient not found")
+        );
+
         return ChatMessageDto.builder()
                 .messageId(chatMessageEntity.getId())
                 .chatId(chatMessageEntity.getChatId())
@@ -55,23 +63,18 @@ public class ChatMessageMapper {
                         .map(ChatMessageMediaEntity::getMediaUrl)
                         .toList())
                 .sentAt(chatMessageEntity.getSentAt())
-                .senderName(userRepository.findById(chatMessageEntity.getSenderId()).orElseThrow(
-                        () -> new NoSuchElementException("Sender not found")
-                ).getName())
-                .recipientName(userRepository.findById(chatMessageEntity.getRecipientId()).orElseThrow(
-                        () -> new NoSuchElementException("Recipient not found")
-                ).getName())
+                .senderName(sender.getShop_status() == 1 ? sender.getShop_name() : sender.getName())
+                .recipientName(recipient.getShop_status() == 1 ? recipient.getShop_name() : recipient.getName())
                 .build();
     }
 
     public ChatHistoryDto toChatHistoryDto(ChatMessageEntity chatMessageEntity) {
+        UserEntity sender = userRepository.findById(chatMessageEntity.getSenderId()).orElseThrow(
+                () -> new RuntimeException("Sender does not exist")
+        );
         return ChatHistoryDto.builder()
-                .sender(userRepository.findById(chatMessageEntity.getSenderId()).orElseThrow(
-                        () -> new RuntimeException("Sender does not exist")
-                ).getUsername())
-                .profilePicture(userRepository.findById(chatMessageEntity.getSenderId()).orElseThrow(
-                        () -> new RuntimeException("Sender does not exist")
-                ).getProfilePicture())
+                .sender(sender.getShop_status() == 1 ? sender.getShop_name() : sender.getName())
+                .profilePicture(sender.getProfilePicture())
                 .message(chatMessageEntity.getMessage())
                 .sentAt(chatMessageEntity.getSentAt())
                 .build();
