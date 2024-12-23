@@ -84,6 +84,7 @@ public class ChatMessageService implements IChatMessageService {
             chatMessageEntity.setIsSeen(1);
         }
         chatRepository.saveAll(newMessages);
+
         return chatRoomService.getChatRoomId(senderId, recipientId, false)
                 .map(chatId -> {
                     List<ChatMessageEntity> allMessages = chatRepository.findAll(Specification.where(hasChatId(chatId)));
@@ -92,12 +93,16 @@ public class ChatMessageService implements IChatMessageService {
                             .collect(Collectors.toList());
                     Collections.reverse(reversedList);
                     int start = (int) pageable.getOffset();
-                    int end = Math.min((start + pageable.getPageSize()), reversedList.size());
+                    int end = Math.min(start + pageable.getPageSize(), reversedList.size());
+                    if (start >= reversedList.size()) {
+                        return new PageImpl<ChatMessageDto>(Collections.emptyList(), pageable, reversedList.size());
+                    }
                     List<ChatMessageDto> pagedMessages = reversedList.subList(start, end);
                     return new PageImpl<>(pagedMessages, pageable, reversedList.size());
                 })
                 .orElse(new PageImpl<>(Collections.emptyList(), pageable, 0));
     }
+
 
     @Override
     public int deleteChat(Long senderId, Long recipientId) {
