@@ -1,10 +1,8 @@
 package org.example.final_project.model.enum_status;
 
-import java.util.List;
-
 public enum ActivateStatus {
-    Active(2),
-    Inactive(1),
+    Active(1),
+    Inactive(2),
 
     NotConfirmed(0);
 
