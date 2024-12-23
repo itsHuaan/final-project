@@ -77,5 +77,7 @@ public interface IOrderDetailRepository extends JpaRepository<OrderDetailEntity,
                                                        @Param("endTime") LocalDateTime endTime,
                                                        Pageable pageable);
 
+    @Query("select distinct o.orderEntity.id from OrderDetailEntity o where o.shopId = :shopId")
+    List<Long> findAllOrderIdsByShopId(long shopId);
 }
 
