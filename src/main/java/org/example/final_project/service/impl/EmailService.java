@@ -20,11 +20,9 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.Context;
 
 import java.text.NumberFormat;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -38,28 +36,6 @@ public class EmailService implements IEmailService {
     private final IUserRepository userRepository;
     private final IProductOptionValueRepository productOptionValueRepository;
     private final ISKURepository iskuRepository;
-
-    @Override
-    public boolean sendEmail(EmailModel email, Map<String, Object> templateVariables) {
-        try {
-            Context context = new Context();
-            context.setVariables(templateVariables);
-
-            String content = templateEngine.process("forgot-password", context);
-
-            MimeMessage message = emailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-            helper.setTo(email.getRecipient());
-            helper.setSubject(email.getSubject());
-            helper.setText(content, true);
-
-            emailSender.send(message);
-            return true;
-        } catch (MessagingException e) {
-            log.error(e.getMessage(), e);
-            return false;
-        }
-    }
 
     @Override
     public boolean sendEmail(EmailModel email) {
