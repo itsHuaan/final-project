@@ -242,7 +242,7 @@ public class ProductService implements IProductService {
             if (shopId != null) {
                 specification = specification.and(hasUserId(shopId));
             }
-            return iProductRepository.findAll(hasPromotion(promotionId), pageable).map(x -> productMapper.toProductSummaryDto(x));
+            return iProductRepository.findAll(specification, pageable).map(x -> productMapper.toProductSummaryDto((ProductEntity) x));
         } else {
             throw new IllegalArgumentException("Promotion is not present");
         }
