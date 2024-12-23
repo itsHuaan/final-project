@@ -75,17 +75,19 @@ public class OrderService implements IOrderService {
                     trackingEntity.setCreatedAt(LocalDateTime.now());
                     orderTrackingRepository.save(trackingEntity);
                 }
+                OrderDetailEntity orderDetailEntity = OrderDetailMapper.toEntity(cartItemRequest);
 
-                OrderDetailEntity orderDetailEntity = new OrderDetailEntity();
+//                OrderDetailEntity orderDetailEntity = new OrderDetailEntity();
+//                orderDetailEntity.setOrderEntity(orderEntity);
+//                orderDetailEntity.setPrice(cartItemRequest.getPrice());
+//                orderDetailEntity.setQuantity(cartItemRequest.getQuantity());
+//                orderDetailEntity.setOption1(cartItemRequest.getOption1());
+//                orderDetailEntity.setOption2(cartItemRequest.getOption2());
+//                orderDetailEntity.setShopId(cartItemRequest.getShopId());
+//                orderDetailEntity.setNameProduct(cartItemRequest.getNameProduct());
+//                orderDetailEntity.setCreateAt(LocalDateTime.now());
+//                orderDetailEntity.setCartDetailId(cartItemRequest.getCartDetailId());
                 orderDetailEntity.setOrderEntity(orderEntity);
-                orderDetailEntity.setPrice(cartItemRequest.getPrice());
-                orderDetailEntity.setQuantity(cartItemRequest.getQuantity());
-                orderDetailEntity.setOption1(cartItemRequest.getOption1());
-                orderDetailEntity.setOption2(cartItemRequest.getOption2());
-                orderDetailEntity.setShopId(cartItemRequest.getShopId());
-                orderDetailEntity.setNameProduct(cartItemRequest.getNameProduct());
-                orderDetailEntity.setCreateAt(LocalDateTime.now());
-                orderDetailEntity.setCartDetailId(cartItemRequest.getCartDetailId());
                 SKUEntity skuEntity = new SKUEntity();
                 skuEntity.setId(cartItemRequest.getProductSkuId());
                 orderDetailEntity.setSkuEntity(skuEntity);
@@ -204,16 +206,6 @@ public class OrderService implements IOrderService {
         return createResponse(HttpStatus.OK, "Successfully Retrieved Orders", orderDtos);
     }
 
-
-//    @Override
-//    public ApiResponse<?> findByStatusShipping(long shopId, int statusShipping) {
-//        List<Long> orderIds = orderTrackingRepository.findOrderIdsByShopIdAndStatus(shopId, statusShipping);
-//        List<OrderEntity> list = orderRepository.findAllSortById(orderIds, Sort.by(Sort.Order.desc("createdAt")));
-//        List<OrderDto> orderDtos = list.stream().map(orderMapper::toOrderDto).toList();
-//        return createResponse(HttpStatus.OK, "Successfully Retrieved Order ", orderDtos);
-//
-//    }
-
     @Override
     public ApiResponse<?> getOrderTracking(Long orderId, Long shopId) {
         List<OrderDetailEntity> orderDetailEntity = orderDetailRepository.shopOrder(shopId, orderId);
@@ -274,8 +266,6 @@ public class OrderService implements IOrderService {
             } else {
                 return createResponse(HttpStatus.OK, "The current quantity matches the quantity in stock", null);
             }
-
-
         }
         return createResponse(HttpStatus.NOT_FOUND, "Not Found Product ", null);
     }
@@ -297,5 +287,4 @@ public class OrderService implements IOrderService {
         return createResponse(HttpStatus.OK, "Successfully Retrieved Users", pageDtos);
 
     }
-
 }

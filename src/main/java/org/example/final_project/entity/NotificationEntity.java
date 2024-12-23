@@ -6,7 +6,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name="tbl_notification")
+@Table(name = "tbl_notification_")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -19,8 +19,8 @@ public class NotificationEntity {
     private String title;
     private String image;
     private String content;
-    private long recipientId;
+    private long userId;
     private int isRead;
-    private long senderId;
+    private long adminId;
     private LocalDateTime createdAt;
 }
