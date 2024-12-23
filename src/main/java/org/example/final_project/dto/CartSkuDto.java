@@ -13,6 +13,7 @@ public class CartSkuDto {
     private ProductOptionValueDto value1;
     private ProductOptionValueDto value2;
     private double price;
+    private double discountedPrice;
     private long quantity;
     private String image;
 }

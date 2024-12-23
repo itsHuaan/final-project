@@ -8,6 +8,7 @@ import org.example.final_project.entity.FeedbackEntity;
 import org.example.final_project.entity.OrderDetailEntity;
 import org.example.final_project.entity.ProductEntity;
 import org.example.final_project.mapper.ProductMapper;
+import org.example.final_project.mapper.SKUMapper;
 import org.example.final_project.mapper.UserMapper;
 import org.example.final_project.mapper.VariantMapper;
 import org.example.final_project.repository.IOrderDetailRepository;
@@ -36,9 +37,10 @@ public class StatisticService implements IStatisticService {
     IProductRepository productRepository;
     ISKURepository skuRepository;
     IOrderDetailRepository orderDetailRepository;
-    VariantMapper variantMapper;
+    SKUMapper skuMapper;
     UserMapper userMapper;
     ProductMapper productMapper;
+    VariantMapper variantMapper;
 
     private ShopStatisticDto buildStatistic(long shopId, LocalDateTime startTime, LocalDateTime endTime) {
         return ShopStatisticDto.builder()

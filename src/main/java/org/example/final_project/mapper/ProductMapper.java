@@ -124,10 +124,13 @@ public class ProductMapper {
                 .discountPercentage(promotionService.findAllPromotionByNow(productEntity.getId()) != null ?
                         promotionService.findAllPromotionByNow(productEntity.getId()).getDiscountPercentage()
                         : 0.0)
-                .newPrice(promotionService.findAllPromotionByNow(productEntity.getId()) != null ?
-                        variants.stream().map(SKUEntity::getPrice)
-                                .min(Double::compareTo)
-                                .orElse(0.0) * (100 - promotionService.findAllPromotionByNow(productEntity.getId()).getDiscountPercentage()) / 100 : 0.0)
+                .newPrice(promotionService.findAllPromotionByNow(productEntity.getId()) != null
+                        ? variants.stream().map(SKUEntity::getPrice)
+                        .min(Double::compareTo)
+                        .orElse(0.0) * (100 - promotionService.findAllPromotionByNow(productEntity.getId()).getDiscountPercentage()) / 100
+                        : variants.stream().map(SKUEntity::getPrice)
+                        .min(Double::compareTo)
+                        .orElse(0.0))
                 .shopDto(userMapper.toShopDto(productEntity.getUser()))
                 .status(productEntity.getIsActive())
                 .note(productEntity.getNote())

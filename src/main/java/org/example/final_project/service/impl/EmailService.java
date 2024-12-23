@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.example.final_project.entity.SKUEntity;
 import org.example.final_project.entity.UserEntity;
 import org.example.final_project.model.EmailModel;
@@ -19,21 +20,23 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.TemplateEngine;
 
 import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class EmailService implements IEmailService {
     JavaMailSender emailSender;
+    TemplateEngine templateEngine;
     private final IProductRepository productRepository;
     private final IUserRepository userRepository;
     private final IProductOptionValueRepository productOptionValueRepository;
     private final ISKURepository iskuRepository;
-
 
     @Override
     public boolean sendEmail(EmailModel email) {
