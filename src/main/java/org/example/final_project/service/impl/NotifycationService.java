@@ -14,12 +14,18 @@ import org.example.final_project.repository.INotificationRepository;
 import org.example.final_project.repository.IOrderDetailRepository;
 import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.INotificationService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import static org.example.final_project.dto.ApiResponse.createResponse;
 
 @Service
 @RequiredArgsConstructor
@@ -33,12 +39,12 @@ public class NotifycationService implements INotificationService {
     @Override
     public int sentNotification(List<NotificationModel> notificationModels) throws IOException {
         for (NotificationModel notificationModel : notificationModels) {
-            if (notificationModel.getSenderId() == 1) {
-                if (notificationModel.getRecipientId() == 0) {
+            if (notificationModel.getAdminId() == 1) {
+                if (notificationModel.getUserId() == 0) {
                     List<UserEntity> allUsers = userRepository.findAll();
                     for (UserEntity user : allUsers) {
                         NotificationEntity notificationEntity = NotificationMapper.toEntity(notificationModel);
-                        notificationEntity.setRecipientId(user.getUserId());
+                        notificationEntity.setUserId(user.getUserId());
                         notificationEntity.setImage(notificationModel.getImage());
                         notificationEntity.setCreatedAt(LocalDateTime.now());
                         notificationRepository.save(notificationEntity);
@@ -50,11 +56,11 @@ public class NotifycationService implements INotificationService {
                     notificationRepository.save(notificationEntity);
                 }
             } else {
-                if (notificationModel.getRecipientId() == 0) {
-                    List<Long> recipientId = orderDetailRepository.findAllCustomerBoughtAtThisShop(notificationModel.getSenderId());
-                    for (Long id : recipientId) {
+                if (notificationModel.getUserId() == 0) {
+                    List<Long> userId = orderDetailRepository.findAllCustomerBoughtAtThisShop(notificationModel.getAdminId());
+                    for (Long id : userId) {
                         NotificationEntity notificationEntity = NotificationMapper.toEntity(notificationModel);
-                        notificationEntity.setRecipientId(id);
+                        notificationEntity.setUserId(id);
                         notificationEntity.setImage(notificationModel.getImage());
                         notificationEntity.setCreatedAt(LocalDateTime.now());
                         notificationRepository.save(notificationEntity);
@@ -72,16 +78,28 @@ public class NotifycationService implements INotificationService {
 
 
     @Override
-    public ApiResponse<?> getAllNotificationsByUserId(long userId) {
-        List<NotificationEntity> notificationEntityList = notificationRepository.findByRecipientId(userId);
-        List<NotificationDto> notificationDtos = notificationEntityList.stream().map(NotificationMapper::toNotificationDto).toList();
-        return ApiResponse.createResponse(HttpStatus.OK, "get all notifications", notificationDtos);
+    public ApiResponse<?> getAllNotificationsByUserId(long userId, Integer page, Integer size) {
+        if (page == null || size == null) {
+            List<NotificationEntity> notificationEntityList = notificationRepository.findListByUserId(userId);
+            List<NotificationDto> list1 = notificationEntityList.stream().map(NotificationMapper::toNotificationDto).toList();
+            return createResponse(HttpStatus.OK, "Successfully Retrieved Users", list1);
+        }
+        if (page < 0 || size <= 0) {
+            return createResponse(HttpStatus.OK, "Page must be >= 0 and size must be >= 1 ", null);
+        }
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("createdAt")));
+
+        Page<NotificationEntity> notificationEntityList = notificationRepository.findByUserId(userId, pageable);
+        Page<NotificationDto> notificationDtoPage = notificationEntityList.map(NotificationMapper::toNotificationDto);
+
+        return ApiResponse.createResponse(HttpStatus.OK, "get all notifications", notificationDtoPage);
 
     }
 
     @Override
     public int changeStatusNotification(long userId) {
-        List<NotificationEntity> notificationEntityList = notificationRepository.findByRecipientId(userId);
+        List<NotificationEntity> notificationEntityList = notificationRepository.findListByUserId(userId);
         for (NotificationEntity notificationEntity : notificationEntityList) {
             if (notificationEntity.getIsRead() == 0) {
                 notificationEntity.setIsRead(StatusNotification.Read.ordinal());
@@ -90,6 +108,4 @@ public class NotifycationService implements INotificationService {
         }
         return 1;
     }
-
-
 }

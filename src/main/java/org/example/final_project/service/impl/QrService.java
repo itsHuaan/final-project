@@ -6,6 +6,7 @@ import com.google.zxing.qrcode.QRCodeReader;
 import org.example.final_project.configuration.BufferedImageLuminanceSource;
 import org.example.final_project.dto.ApiResponse;
 import org.example.final_project.dto.UserInfoDto;
+import org.example.final_project.service.IQrService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,7 +16,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 @Service
-public class QrService {
+public class QrService implements IQrService {
 
 
     public ApiResponse<?> getUserInfo(MultipartFile file) throws IOException, ChecksumException, NotFoundException, FormatException {

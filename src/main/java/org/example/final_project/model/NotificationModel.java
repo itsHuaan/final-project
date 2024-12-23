@@ -10,9 +10,8 @@ import lombok.*;
 public class NotificationModel {
     private String title;
     private String content;
-    private long recipientId;
-    private long senderId;
+    private long userId;
+    private long adminId;
     private String image;
-
 
 }

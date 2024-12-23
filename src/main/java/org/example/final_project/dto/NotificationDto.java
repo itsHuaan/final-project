@@ -13,8 +13,8 @@ public class NotificationDto {
     private long id;
     private String title;
     private String content;
-    private long recipientId;
-    private long senderId;
+    private long userId;
+    private long adminId;
     private int isRead;
     private String image;
     private LocalDateTime createdAt;

@@ -11,6 +11,8 @@ import org.example.final_project.repository.IOrderTrackingRepository;
 import org.example.final_project.service.impl.UserService;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+
 @Component
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -47,5 +49,19 @@ public class OrderDetailMapper {
                 .skuDto(skuDto)
                 .hasFeedback(orderDetailEntity.getHasFeedback())
                 .build();
+    }
+
+    public static OrderDetailEntity toEntity(CartItemRequest cartItemRequest) {
+        return OrderDetailEntity.builder()
+                .price(cartItemRequest.getPrice())
+                .quantity(cartItemRequest.getQuantity())
+                .option1(cartItemRequest.getOption1())
+                .option2(cartItemRequest.getOption2())
+                .shopId(cartItemRequest.getShopId())
+                .nameProduct(cartItemRequest.getNameProduct())
+                .cartDetailId(cartItemRequest.getCartDetailId())
+                .createAt(LocalDateTime.now())
+                .build();
+
     }
 }
