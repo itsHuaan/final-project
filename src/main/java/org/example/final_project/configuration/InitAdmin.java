@@ -52,7 +52,7 @@ public class InitAdmin {
                         .isActive(1)
                         .build());
             } else {
-                UserEntity user =userRepository.findOne(Specification.where(hasUsername(ADMIN_USERNAME))).get();
+                UserEntity user = userRepository.findOne(Specification.where(hasUsername(ADMIN_USERNAME))).get();
                 user.setPassword(passwordEncoder.encode(ADMIN_PASSWORD));
                 userRepository.save(user);
             }

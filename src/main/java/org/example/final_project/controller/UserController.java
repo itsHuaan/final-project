@@ -27,7 +27,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.example.final_project.dto.ApiResponse.createResponse;
@@ -84,16 +83,13 @@ public class UserController {
     @Operation(summary = "Create Shop")
     @PreAuthorize("hasRole('ROLE_BUYER') or hasRole('ROLE_SELLER')")
     @PostMapping("/register-shop")
-    public ResponseEntity<ApiResponse<?>> registerForBeingShop(@ModelAttribute ShopRegisterRequest request) {
+    public ResponseEntity<?> registerForBeingShop(@ModelAttribute ShopRegisterRequest request) {
         try {
-            ApiResponse<?> response = userService.registerForBeingShop(request);
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return ResponseEntity.status(HttpStatus.OK).body(userService.registerForBeingShop(request));
         } catch (HttpClientErrorException.Conflict e) {
-            ApiResponse<?> errorResponse = new ApiResponse<>(HttpStatus.CONFLICT.value(), e.getMessage(), null, LocalDateTime.now());
-            return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(createResponse(HttpStatus.CONFLICT, e.getMessage(), null));
         } catch (Exception e) {
-            ApiResponse<?> errorResponse = new ApiResponse<>(HttpStatus.NOT_FOUND.value(), e.getMessage(), null, LocalDateTime.now());
-            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createResponse(HttpStatus.NOT_FOUND, e.getMessage(), null));
         }
     }
 

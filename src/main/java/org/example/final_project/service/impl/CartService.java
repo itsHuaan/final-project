@@ -32,13 +32,12 @@ import static org.example.final_project.specification.CartSpecification.*;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CartService implements ICartService {
+    private final UserMapper userMapper;
     ICartRepository cartRepository;
     IUserRepository userRepository;
     CartMapper cartMapper;
     ICartItemRepository cartItemRepository;
     CartItemMapper cartItemMapper;
-    private final UserMapper userMapper;
-
 
     @Override
     public CartDto getUserCart(Long userId) {
@@ -80,31 +79,31 @@ public class CartService implements ICartService {
     }
 
     @Override
-    public CheckoutDto getCheckOutDetail(Long cartId  , List<Long> selectedCartItemIds){
+    public CheckoutDto getCheckOutDetail(Long cartId, List<Long> selectedCartItemIds) {
         Optional<CartEntity> cartEntity = cartRepository.findById(cartId);
         List<CartItemEntity> selectedCartItems = new ArrayList<>();
         double totalAmount;
-        if(cartEntity.isPresent()){
+        if (cartEntity.isPresent()) {
             CartEntity cart = cartEntity.get();
             List<CartItemEntity> cartItemEntities = cartItemRepository.findByCartId(cart.getCartId());
 
-             if(selectedCartItemIds != null){
-                 selectedCartItems = cartItemEntities.stream()
-                         .filter(item -> selectedCartItemIds.contains(item.getCartDetailId()))
-                         .toList();
-                 totalAmount = selectedCartItems.stream()
-                         .mapToDouble(cartItem -> cartItem.getQuantity()*cartItem.getProduct().getPrice())
-                         .sum();
-             }else {
-                 selectedCartItems = new ArrayList<>();
-                 totalAmount = 0;
-             }
+            if (selectedCartItemIds != null) {
+                selectedCartItems = cartItemEntities.stream()
+                        .filter(item -> selectedCartItemIds.contains(item.getCartDetailId()))
+                        .toList();
+                totalAmount = selectedCartItems.stream()
+                        .mapToDouble(cartItem -> cartItem.getQuantity() * cartItem.getProduct().getPrice())
+                        .sum();
+            } else {
+                selectedCartItems = new ArrayList<>();
+                totalAmount = 0;
+            }
 
             UserEntity userEntity = userRepository.findById(cart.getUser().getUserId())
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
             List<CartItemDto> list = selectedCartItems.stream()
-                     .map(cartItemMapper::toDto)
+                    .map(cartItemMapper::toDto)
                     .toList();
 
             UserDto userDto = userMapper.toDto(userEntity);

@@ -38,11 +38,12 @@ public class ProductController {
     IFavoriteProductService favoriteProductService;
 
 
-    @Operation(summary = "Get product by id")
+    @Operation(summary = "Get product by id, type = 0: admin, type = 1:user ")
     @GetMapping("/{product-id}")
-    public ResponseEntity<?> getProductById(@PathVariable("product-id") Long productId) {
+    public ResponseEntity<?> getProductById(@PathVariable("product-id") Long productId,
+                                            @RequestParam Integer type) {
         try {
-            ProductDto result = productService.getById(productId);
+            ProductDto result = productService.getByIdCustom(productId, type);
             return result != null
                     ? ResponseEntity.status(HttpStatus.OK).body(
                     createResponse(
@@ -267,13 +268,14 @@ public class ProductController {
     @Operation(summary = "Get all product by shop")
     @GetMapping("/shop/{shop-id}")
     ResponseEntity<?> getAllProductByShop(@PathVariable("shop-id") long userId,
+                                          @RequestParam Integer type,
                                           @RequestParam(required = false) Integer pageSize,
                                           @RequestParam(required = false) Integer pageIndex) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.OK,
                     "Successfully",
-                    productService.getAllProductOfShop(userId, PageableValidation.setDefault(pageSize, pageIndex))
+                    productService.getAllProductOfShop(userId, type, PageableValidation.setDefault(pageSize, pageIndex))
             ));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(

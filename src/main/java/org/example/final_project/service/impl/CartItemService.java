@@ -34,7 +34,7 @@ public class CartItemService implements ICartItemService {
 
     @Override
     public int updateQuantity(Long cartId, Long productId, Integer quantity, boolean isAddingOne) {
-        if(!isProductValid(productId)){
+        if (!isProductValid(productId)) {
             throw new IllegalArgumentException("Product is invalid");
         }
 
@@ -90,7 +90,7 @@ public class CartItemService implements ICartItemService {
 
     @Override
     public int save(CartItemModel cartItemModel) {
-        if (!isProductValid(cartItemModel.getSkuId())){
+        if (!isProductValid(cartItemModel.getSkuId())) {
             throw new IllegalArgumentException("Product is invalid");
         }
 
@@ -119,7 +119,7 @@ public class CartItemService implements ICartItemService {
         return 0;
     }
 
-    private boolean isProductValid(Long id){
+    private boolean isProductValid(Long id) {
         SKUEntity sku = skuRepository.findById(id).orElseThrow(
                 () -> new IllegalArgumentException("Variant not found")
         );

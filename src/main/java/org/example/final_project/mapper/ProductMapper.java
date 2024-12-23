@@ -3,11 +3,9 @@ package org.example.final_project.mapper;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.example.final_project.dto.ImageProductDto;
-import org.example.final_project.dto.ProductDto;
-import org.example.final_project.dto.ProductFamilyDto;
-import org.example.final_project.dto.ProductSummaryDto;
+import org.example.final_project.dto.*;
 import org.example.final_project.entity.FeedbackEntity;
+import org.example.final_project.entity.OrderDetailEntity;
 import org.example.final_project.entity.ProductEntity;
 import org.example.final_project.entity.SKUEntity;
 import org.example.final_project.model.ProductModel;
@@ -18,7 +16,6 @@ import org.example.final_project.repository.ISKURepository;
 import org.example.final_project.service.ISKUService;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -64,6 +61,10 @@ public class ProductMapper {
                 .totalQuantity(productEntity.getSkuEntities().stream()
                         .mapToInt(variant -> Math.toIntExact(variant.getQuantity()))
                         .sum())
+                .sold(productEntity.getSkuEntities().stream()
+                        .flatMap(sku -> sku.getOrderDetails().stream())
+                        .mapToLong(OrderDetailEntity::getQuantity)
+                        .sum())
                 .build();
     }
 
@@ -72,8 +73,6 @@ public class ProductMapper {
                 .name(model.getName())
                 .description(model.getDescription())
                 .note(model.getNote())
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
                 .categoryEntity(iCategoryRepository.findById(model.getCategoryId()).isPresent()
                         ? iCategoryRepository.findById(model.getCategoryId()).get()
                         : null)
@@ -124,6 +123,44 @@ public class ProductMapper {
                 .note(productEntity.getNote())
                 .totalQuantity(productEntity.getSkuEntities().stream()
                         .mapToInt(variant -> Math.toIntExact(variant.getQuantity()))
+                        .sum())
+                .sold(variants.stream()
+                        .flatMap(sku -> sku.getOrderDetails().stream())
+                        .mapToLong(OrderDetailEntity::getQuantity)
+                        .sum())
+                .build();
+    }
+
+    public ProductStatisticDto toProductStatisticDto(ProductEntity productEntity) {
+        List<SKUEntity> variants = productEntity.getSkuEntities();
+        return ProductStatisticDto.builder()
+                .productId(productEntity.getId())
+                .productName(productEntity.getName())
+                .numberOfLike(productEntity.getFavorites().size())
+                .numberOfFeedBack(productEntity.getFeedbacks().size())
+                .rating(Math.round(productEntity.getFeedbacks().stream()
+                        .mapToDouble(FeedbackEntity::getRate)
+                        .average()
+                        .orElse(0.0) * 100.0) / 100.0)
+                .createdAt(productEntity.getCreatedAt())
+                .modifiedAt(productEntity.getModifiedAt())
+                .deletedAt(productEntity.getDeletedAt())
+                .image(imageProductRepository.findAllByProductEntity_Id(productEntity.getId())
+                        .stream()
+                        .map(imageMapper::convertToDto)
+                        .findFirst()
+                        .map(ImageProductDto::getImageLink)
+                        .orElse(null))
+                .price(variants.stream()
+                        .map(SKUEntity::getPrice)
+                        .min(Double::compareTo)
+                        .orElse(0.0))
+                .totalQuantity(productEntity.getSkuEntities().stream()
+                        .mapToInt(variant -> Math.toIntExact(variant.getQuantity()))
+                        .sum())
+                .sold(variants.stream()
+                        .flatMap(sku -> sku.getOrderDetails().stream())
+                        .mapToLong(OrderDetailEntity::getQuantity)
                         .sum())
                 .build();
     }
