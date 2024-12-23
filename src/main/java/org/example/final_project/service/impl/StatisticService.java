@@ -3,15 +3,13 @@ package org.example.final_project.service.impl;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.example.final_project.dto.CartSkuDto;
-import org.example.final_project.dto.PeriodicStatisticDto;
-import org.example.final_project.dto.ShopStatisticDto;
+import org.example.final_project.dto.*;
 import org.example.final_project.entity.FeedbackEntity;
 import org.example.final_project.entity.OrderDetailEntity;
 import org.example.final_project.entity.ProductEntity;
+import org.example.final_project.mapper.UserMapper;
 import org.example.final_project.mapper.VariantMapper;
 import org.example.final_project.repository.IOrderDetailRepository;
-import org.example.final_project.repository.IOrderRepository;
 import org.example.final_project.repository.IProductRepository;
 import org.example.final_project.repository.ISKURepository;
 import org.example.final_project.service.IStatisticService;
@@ -37,6 +35,7 @@ public class StatisticService implements IStatisticService {
     ISKURepository skuRepository;
     IOrderDetailRepository orderDetailRepository;
     VariantMapper variantMapper;
+    UserMapper userMapper;
 
     private ShopStatisticDto buildStatistic(long shopId, LocalDateTime startTime, LocalDateTime endTime) {
         return ShopStatisticDto.builder()
@@ -48,6 +47,8 @@ public class StatisticService implements IStatisticService {
                 .lockedProducts(getLockedProducts(shopId, startTime, endTime))
                 .totalOfCustomers(getTotalCustomers(shopId, startTime, endTime))
                 .soldProducts(getSoldProducts(shopId, startTime, endTime))
+                .topPurchasedUsers(getTopPurchasedUsers(shopId, startTime, endTime))
+                .topPurchasedProducts(getTopPurchasedProducts(shopId, startTime, endTime))
                 .build();
     }
 
@@ -141,11 +142,19 @@ public class StatisticService implements IStatisticService {
 
     private long getSoldProducts(long shopId, LocalDateTime startTime, LocalDateTime endTime) {
         return orderDetailRepository.findAll(Specification.where(
-                OrderDetailSpecification.hasShop(shopId)
-                        .and(OrderDetailSpecification.isBetween(startTime, endTime))
-        )).stream()
+                        OrderDetailSpecification.hasShop(shopId)
+                                .and(OrderDetailSpecification.isBetween(startTime, endTime))
+                )).stream()
                 .mapToLong(OrderDetailEntity::getQuantity)
                 .sum();
     }
 
+
+    private List<UserFeedBackDto> getTopPurchasedUsers(long shopId, LocalDateTime startTime, LocalDateTime endTime) {
+        return null;
+    }
+
+    private List<ProductSummaryDto> getTopPurchasedProducts(long shopId, LocalDateTime startTime, LocalDateTime endTime) {
+        return null;
+    }
 }

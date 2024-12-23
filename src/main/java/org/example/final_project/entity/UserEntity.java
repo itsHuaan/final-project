@@ -66,5 +66,7 @@ public class UserEntity {
     private List<OrderEntity> orderEntities;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FavoriteProductEntity> favorites = new ArrayList<>();
+
+    
 }
 

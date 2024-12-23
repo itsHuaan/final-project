@@ -1,9 +1,9 @@
 package org.example.final_project.specification;
 
-import jakarta.persistence.criteria.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import org.example.final_project.entity.OrderDetailEntity;
-import org.example.final_project.entity.OrderEntity;
-import org.example.final_project.entity.SKUEntity;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDateTime;
@@ -27,6 +27,13 @@ public class OrderDetailSpecification {
                     criteriaBuilder.between(root.join("orderEntity").get("createdAt"), startDate, endDate)
             );
         };
+    }
+
+    public static Specification<OrderDetailEntity> filterByShopAndDateRange(Long shopId, LocalDateTime startDate, LocalDateTime endDate) {
+        return (Root<OrderDetailEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) -> criteriaBuilder.and(
+                criteriaBuilder.equal(root.get("shopId"), shopId),
+                criteriaBuilder.between(root.join("orderEntity").get("createdAt"), startDate, endDate)
+        );
     }
 
     public static Specification<OrderDetailEntity> soldSkuQuantityByShopIdAndDateRange(Long shopId, LocalDateTime startDate, LocalDateTime endDate) {
