@@ -42,7 +42,31 @@ public class StatisticService implements IStatisticService {
     ProductMapper productMapper;
     VariantMapper variantMapper;
 
-    private ShopStatisticDto buildStatistic(long shopId, LocalDateTime startTime, LocalDateTime endTime) {
+    private StatisticDto buildStatistic(long shopId, LocalDateTime startTime) {
+        return StatisticDto.builder()
+                .averageRating(getAverageOfRating(shopId, startTime, END_OF_DAY))
+                .totalOfFeedbacks(getTotalOfFeedbacks(shopId, startTime, END_OF_DAY))
+                .totalOfProducts(getTotalProducts(shopId, startTime, END_OF_DAY))
+                .totalOfOrders(getTotalOfOrders(shopId, startTime, END_OF_DAY))
+                .revenue(getRevenue(shopId, startTime, END_OF_DAY))
+                .lockedProducts(getLockedProducts(shopId, startTime, END_OF_DAY))
+                .totalOfCustomers(getTotalCustomers(shopId, startTime, END_OF_DAY))
+                .soldProducts(getSoldProducts(shopId, startTime, END_OF_DAY))
+                .build();
+    }
+
+    @Override
+    public List<PeriodicStatisticDto> getPeriodicStatistics(long shopId) {
+        return List.of(
+                new PeriodicStatisticDto("Today", buildStatistic(shopId, START_OF_DAY)),
+                new PeriodicStatisticDto("This week", buildStatistic(shopId, START_OF_WEEK)),
+                new PeriodicStatisticDto("This month", buildStatistic(shopId, START_OF_MONTH)),
+                new PeriodicStatisticDto("This year", buildStatistic(shopId, START_OF_YEAR))
+        );
+    }
+
+    @Override
+    public ShopStatisticDto getStatistics(long shopId, LocalDateTime startTime, LocalDateTime endTime) {
         return ShopStatisticDto.builder()
                 .averageRating(getAverageOfRating(shopId, startTime, endTime))
                 .totalOfFeedbacks(getTotalOfFeedbacks(shopId, startTime, endTime))
@@ -55,21 +79,6 @@ public class StatisticService implements IStatisticService {
                 .topPurchasedUsers(getTopPurchasedUsers(shopId, startTime, endTime))
                 .topPurchasedProducts(getTopPurchasedProducts(shopId, startTime, endTime))
                 .build();
-    }
-
-    @Override
-    public List<PeriodicStatisticDto> getPeriodicStatistics(long shopId) {
-        return List.of(
-                new PeriodicStatisticDto("Today", buildStatistic(shopId, START_OF_DAY, END_OF_DAY)),
-                new PeriodicStatisticDto("This week", buildStatistic(shopId, START_OF_WEEK, END_OF_DAY)),
-                new PeriodicStatisticDto("This month", buildStatistic(shopId, START_OF_MONTH, END_OF_DAY)),
-                new PeriodicStatisticDto("This year", buildStatistic(shopId, START_OF_YEAR, END_OF_DAY))
-        );
-    }
-
-    @Override
-    public ShopStatisticDto getStatistics(long shopId, LocalDateTime startTime, LocalDateTime endTime) {
-        return buildStatistic(shopId, startTime, endTime);
     }
 
     private double getAverageOfRating(long shopId, LocalDateTime startTime, LocalDateTime endTime) {
