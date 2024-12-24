@@ -3,8 +3,10 @@ package org.example.final_project.service.impl;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.example.final_project.dto.SKUDto;
 import org.example.final_project.dto.StatusMessageDto;
 import org.example.final_project.entity.*;
+import org.example.final_project.mapper.SKUMapper;
 import org.example.final_project.model.enum_status.CheckoutStatus;
 import org.example.final_project.model.enum_status.StatusShipping;
 import org.example.final_project.repository.*;
@@ -24,6 +26,7 @@ public class OrderTrackingService implements IOrderTrackingService {
     IOrderRepository orderRepository;
     IUserRepository userRepository;
     INotificationRepository notificationRepository;
+    SKUMapper skuMapper;
 
 
     @Override
@@ -58,13 +61,18 @@ public class OrderTrackingService implements IOrderTrackingService {
         String OrderCode = orderEntity.getOrderCode();
 
         UserEntity user = userRepository.findById(statusMessageDto.getShopId()).orElse(null);
+
+        SKUEntity skuEntity = orderDetailEntity.get(0).getSkuEntity();
+        SKUDto skuDto = skuMapper.convertToDto(skuEntity);
+
+
         String shopName = user.getShop_name();
         String title = "";
         String content = "";
         String shipping = "SPX Express";
         String image;
-        if (orderDetailEntity.get(1).getSkuEntity().getImage() != null) {
-            image = orderDetailEntity.get(1).getSkuEntity().getImage();
+        if (skuDto.getImage() != null) {
+            image = skuDto.getImage();
         } else {
             image = null;
         }
