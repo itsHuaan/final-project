@@ -62,7 +62,12 @@ public class OrderTrackingService implements IOrderTrackingService {
         String title = "";
         String content = "";
         String shipping = "SPX Express";
-        String image = orderDetailEntity.get(0).getSkuEntity().getImage();
+        String image;
+        if (orderDetailEntity.get(1).getSkuEntity().getImage() != null) {
+            image = orderDetailEntity.get(1).getSkuEntity().getImage();
+        } else {
+            image = null;
+        }
         if (statusMessageDto.getStatus() == StatusShipping.Confirmed.getStatus()) {
             title = "Xác nhận đơn hàng ";
             content = "Đơn hàng " + OrderCode + "đã được Người bán " + shopName + " xác nhận ";

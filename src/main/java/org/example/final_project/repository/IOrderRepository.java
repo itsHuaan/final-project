@@ -38,4 +38,8 @@ public interface IOrderRepository extends JpaRepository<OrderEntity, Long> {
 
     @Query("select o from OrderEntity o where o.id in :id")
     List<OrderEntity> findByIds(List<Long> id);
+
+    boolean existsByOrderCode(String orderCode);
+
+
 }

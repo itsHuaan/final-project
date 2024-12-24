@@ -29,7 +29,7 @@ public class OrderDetailEntity {
     @JoinColumn(name = "order_id")
     private OrderEntity orderEntity;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "sku_id", nullable = false)
     private SKUEntity skuEntity;
 
