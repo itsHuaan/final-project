@@ -47,7 +47,9 @@ public class ChatRoomMapper {
         return ChatUserDto.builder()
                 .userId(recipient.getUserId())
                 .profilePicture(recipient.getProfilePicture())
-                .name(recipient.getName())
+                .name(recipient.getShop_status() == 1
+                        ? recipient.getShop_name()
+                        : recipient.getName())
                 .username(recipient.getUsername())
                 .newMessageCount(chatRepository.findAll(Specification.where(
                         hasChatId(chatRoom.getChatId())

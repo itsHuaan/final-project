@@ -28,7 +28,7 @@ public class SKUMapper {
                         : null)
                 .oldPrice(entity.getPrice())
                 .newPrice(promotionService.findAllPromotionByNow(entity.getProduct().getId()) != null
-                        ? entity.getPrice() * promotionService.findAllPromotionByNow(entity.getProduct().getId()).getDiscountPercentage() / 100
+                        ? entity.getPrice() * ((100 - promotionService.findAllPromotionByNow(entity.getProduct().getId()).getDiscountPercentage()) / 100)
                         : entity.getPrice())
                 .quantity(entity.getQuantity())
                 .image(entity.getImage())
@@ -42,5 +42,4 @@ public class SKUMapper {
                 .quantity(model.getQuantity())
                 .build();
     }
-
 }

@@ -124,9 +124,9 @@ public class PromotionController {
 
     @DeleteMapping("/cancel")
     ResponseEntity cancelPromotionOfProduct(@RequestParam Long promotionId,
-                                            @RequestParam Long productId) {
+                                            @RequestBody List<Long> productIds) {
         try {
-            promotionService.cancelPromotionOfProduct(promotionId, productId);
+            promotionService.cancelPromotionOfProduct(promotionId, productIds);
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.NO_CONTENT,
                     "Successfully",

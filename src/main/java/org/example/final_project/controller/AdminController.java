@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.example.final_project.dto.ApiResponse;
 import org.example.final_project.dto.UserDto;
+import org.example.final_project.model.LockShopRequest;
 import org.example.final_project.model.ShopModel;
 import org.example.final_project.service.impl.UserService;
 import org.example.final_project.util.Const;
@@ -29,10 +30,11 @@ public class AdminController {
 
     @Operation(summary = "Admin approves store status ")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PostMapping("/{userId}/switching-status-for-shop")
-    public ResponseEntity<ApiResponse<?>> statusOfShop(@PathVariable long userId, @RequestParam("status") int status) {
+    @PutMapping("/{userId}/switching-status-for-shop")
+    public ResponseEntity<ApiResponse<?>> statusOfShop(@PathVariable long userId,
+                                                       @RequestBody LockShopRequest request) {
         try {
-            ApiResponse<?> response = userService.acceptFromAdmin(status, userId);
+            ApiResponse<?> response = userService.acceptFromAdmin(userId, request);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             ApiResponse<?> errorResponse = new ApiResponse<>(HttpStatus.NOT_FOUND.value(), e.getMessage(), null, LocalDateTime.now());

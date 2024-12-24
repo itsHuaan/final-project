@@ -28,6 +28,7 @@ import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.IAddressService;
 import org.example.final_project.service.IUserService;
 import org.example.final_project.specification.UserSpecification;
+import org.example.final_project.util.EmailTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -64,6 +65,7 @@ public class UserService implements IUserService, UserDetailsService {
     IShippingAddressRepository shippingAddressRepository;
     Cloudinary cloudinary;
     IAddressService addressService;
+    EmailService emailService;
 
 
     @Override
@@ -264,22 +266,21 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
-    public ApiResponse<?> acceptFromAdmin(int status, long userId) throws Exception {
+    public ApiResponse<?> acceptFromAdmin(long userId, LockShopRequest request) throws Exception {
         Optional<UserEntity> optionalUserEntity = userRepository.findById(userId);
         if (optionalUserEntity.isPresent()) {
-            // status = 1 cho phép shop hoạt động
-            if (status == 1) {
+            if (request.getStatus() == 1) {
                 UserEntity userEntity = userRepository.findById(userId).get();
-                userEntity.setShop_status(status);
+                userEntity.setShop_status(request.getStatus());
                 RoleEntity role = new RoleEntity();
                 role.setRoleId(1L);
                 userEntity.setRole(role);
                 userRepository.save(userEntity);
                 return createResponse(HttpStatus.OK, "Created Shop", null);
                 // status = 3 không cho phép hoạt động
-            } else if (status == 3) {
+            } else if (request.getStatus() == 3) {
                 UserEntity userEntity = userRepository.findById(userId).get();
-                userEntity.setShop_status(status);
+                userEntity.setShop_status(request.getStatus());
                 RoleEntity role = new RoleEntity();
                 role.setRoleId(2L);
                 userEntity.setRole(role);
@@ -288,14 +289,18 @@ public class UserService implements IUserService, UserDetailsService {
 
             }
             // status = 4 Shop bị khóa
-            else if (status == 4) {
+            else if (request.getStatus() == 4) {
                 UserEntity userEntity = userRepository.findById(userId).get();
-                userEntity.setShop_status(status);
+                userEntity.setShop_status(request.getStatus());
                 RoleEntity role = new RoleEntity();
                 role.setRoleId(2L);
                 userEntity.setRole(role);
                 userRepository.save(userEntity);
-                return createResponse(HttpStatus.OK, "Lock Shop", null);
+                EmailModel lockShop = new EmailModel(userEntity.getEmail(), "Your shop has been locked", EmailTemplate.shopLockedEmailContent(request.getReason()));
+                boolean result = emailService.sendEmail(lockShop);
+                return result
+                        ? createResponse(HttpStatus.OK, "Lock Shop", null)
+                        : createResponse(HttpStatus.BAD_REQUEST, "Failed to lock shop", null);
             }
         }
         throw new NotFound("Not found User");

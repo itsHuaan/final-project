@@ -10,7 +10,6 @@ import org.example.final_project.dto.CartDto;
 import org.example.final_project.model.AddToCartRequest;
 import org.example.final_project.model.CartItemModel;
 import org.example.final_project.service.IOrderService;
-import org.example.final_project.service.ISKUService;
 import org.example.final_project.service.impl.CartItemService;
 import org.example.final_project.service.impl.CartService;
 import org.example.final_project.util.Const;
@@ -31,7 +30,6 @@ import static org.example.final_project.dto.ApiResponse.createResponse;
 public class CartController {
     CartService cartService;
     CartItemService cartItemService;
-    ISKUService skuService;
     IOrderService orderService;
 
 

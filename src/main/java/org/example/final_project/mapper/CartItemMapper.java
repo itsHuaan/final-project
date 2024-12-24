@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.CartItemDto;
+import org.example.final_project.dto.CartSkuDto;
 import org.example.final_project.entity.CartEntity;
 import org.example.final_project.entity.CartItemEntity;
 import org.example.final_project.entity.ProductEntity;
@@ -25,6 +26,7 @@ public class CartItemMapper {
 
     public CartItemDto toDto(CartItemEntity cartItemEntity) {
         ProductEntity product = cartItemEntity.getProduct().getProduct();
+        CartSkuDto item = variantMapper.toDto(cartItemEntity.getProduct());
         if (product.getIsActive() != 1) {
             return null;
         }
@@ -32,7 +34,7 @@ public class CartItemMapper {
                 .cartDetailId(cartItemEntity.getCartDetailId())
                 .item(variantMapper.toDto(cartItemEntity.getProduct()))
                 .itemQuantity(cartItemEntity.getQuantity())
-                .totalPrice(cartItemEntity.getProduct().getPrice() * cartItemEntity.getQuantity())
+                .totalPrice(item.getDiscountedPrice() * cartItemEntity.getQuantity())
                 .lastUpdated(cartItemEntity.getLastUpdated())
                 .build();
     }

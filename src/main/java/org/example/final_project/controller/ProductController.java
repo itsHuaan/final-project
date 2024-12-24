@@ -52,18 +52,18 @@ public class ProductController {
                             result
                     )
             )
-                    : ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    : ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                     createResponse(
-                            HttpStatus.NOT_FOUND,
+                            HttpStatus.BAD_REQUEST,
                             "No product found",
                             null
                     )
             );
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                     createResponse(
-                            HttpStatus.NOT_FOUND,
-                            "No product found",
+                            HttpStatus.BAD_REQUEST,
+                            e.getMessage(),
                             null
                     )
             );
@@ -73,12 +73,13 @@ public class ProductController {
     @Operation(summary = "Get all product")
     @GetMapping
     ResponseEntity<?> getAllByPage(@RequestParam(required = false) Integer pageSize,
-                                   @RequestParam(required = false) Integer pageIndex) {
+                                   @RequestParam(required = false) Integer pageIndex,
+                                   @RequestParam Integer type) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.OK,
                     "Successfully",
-                    productService.findAllByPage(PageableValidation.setDefault(pageSize, pageIndex))
+                    productService.findAllByPage(type, PageableValidation.setDefault(pageSize, pageIndex))
             ));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
@@ -110,7 +111,6 @@ public class ProductController {
         }
     }
 
-    //    @PreAuthorize("isAuthenticated() and hasRole('ROLE_SELLER')")
     @Operation(summary = "Update a product")
     @PutMapping("/{id}")
     ResponseEntity<?> updateProduct(@PathVariable("id") long id,
@@ -188,13 +188,14 @@ public class ProductController {
     @Operation(summary = "Search product by its name")
     @GetMapping("/name/{name}")
     ResponseEntity<?> findProductByName(@PathVariable("name") String name,
+                                        @RequestParam Integer type,
                                         @RequestParam(required = false) Integer pageSize,
                                         @RequestParam(required = false) Integer pageIndex) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.OK,
                     "Successfully",
-                    productService.findAllByNameAndPage(name, PageableValidation.setDefault(pageSize, pageIndex))
+                    productService.findAllByNameAndPage(type, name, PageableValidation.setDefault(pageSize, pageIndex))
             ));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
@@ -288,7 +289,8 @@ public class ProductController {
 
     @Operation(summary = "Filter product")
     @GetMapping("/filter")
-    ResponseEntity<?> getAllProductByFilter(@RequestParam(required = false) String name,
+    ResponseEntity<?> getAllProductByFilter(@RequestParam Integer type,
+                                            @RequestParam(required = false) String name,
                                             @RequestParam(required = false) List<Long> categoryId,
                                             @RequestParam(required = false) List<Long> addressId,
                                             @RequestParam(required = false) Double startPrice,
@@ -299,7 +301,7 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                 HttpStatus.OK,
                 "Successfully",
-                productService.getAllProductByFilter(name, categoryId, addressId, startPrice, endPrice, rating, PageableValidation.setDefault(pageSize, pageIndex))
+                productService.getAllProductByFilter(type, name, categoryId, addressId, startPrice, endPrice, rating, PageableValidation.setDefault(pageSize, pageIndex))
         ));
     }
 
@@ -330,7 +332,8 @@ public class ProductController {
 
     @Operation(summary = "Get All Product In Promotion")
     @GetMapping("/promotion/{promotion-id}")
-    ResponseEntity getAllProductByPromotion(@PathVariable("promotion-id") Long promotionId,
+    ResponseEntity getAllProductByPromotion(@RequestParam Integer type,
+                                            @PathVariable("promotion-id") Long promotionId,
                                             @RequestParam(required = false) Long shopId,
                                             @RequestParam(required = false) Integer pageIndex,
                                             @RequestParam(required = false) Integer pageSize) {
@@ -338,7 +341,7 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.OK,
                     "Successfully",
-                    productService.getAllProductByPromotion(promotionId, shopId, PageableValidation.setDefault(pageSize, pageIndex))
+                    productService.getAllProductByPromotion(type, promotionId, shopId, PageableValidation.setDefault(pageSize, pageIndex))
             ));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(

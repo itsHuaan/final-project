@@ -15,7 +15,7 @@ public interface IPromotionService extends IBaseService<PromotionDto, PromotionM
 
     PromotionEntity findAllPromotionByNow(Long productId);
 
-    int cancelPromotionOfProduct(Long promotionId, Long productId);
+    int cancelPromotionOfProduct(Long promotionId, List<Long> productIds);
 
     Page<PromotionDto> getAllByShop(Long shopId, Pageable pageable);
 }

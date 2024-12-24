@@ -43,6 +43,7 @@ public class OrderService implements IOrderService {
     private final ICartItemRepository cartItemRepository;
     private final IUserRepository userRepository;
     private final UserMapper userMapper;
+    private final INotificationRepository iNotificationRepository;
 
 
     @Override
@@ -75,6 +76,7 @@ public class OrderService implements IOrderService {
                     trackingEntity.setCreatedAt(LocalDateTime.now());
                     orderTrackingRepository.save(trackingEntity);
                 }
+//                OrderDetailEntity orderDetailEntity = OrderDetailMapper.toEntity(cartItemRequest);
 
                 OrderDetailEntity orderDetailEntity = new OrderDetailEntity();
                 orderDetailEntity.setOrderEntity(orderEntity);
@@ -86,6 +88,7 @@ public class OrderService implements IOrderService {
                 orderDetailEntity.setNameProduct(cartItemRequest.getNameProduct());
                 orderDetailEntity.setCreateAt(LocalDateTime.now());
                 orderDetailEntity.setCartDetailId(cartItemRequest.getCartDetailId());
+                orderDetailEntity.setOrderEntity(orderEntity);
                 SKUEntity skuEntity = new SKUEntity();
                 skuEntity.setId(cartItemRequest.getProductSkuId());
                 orderDetailEntity.setSkuEntity(skuEntity);
@@ -95,6 +98,7 @@ public class OrderService implements IOrderService {
         if (method.equalsIgnoreCase("vnpay")) {
             return paymentService.creatUrlPaymentForVnPay(request);
         } else {
+
             if (orderModel.getCartItems() != null) {
                 for (CartItemRequest cartItemRequest : orderModel.getCartItems()) {
                     Optional<SKUEntity> skuEntity = skuRepository.findById(cartItemRequest.getProductSkuId());
@@ -107,6 +111,9 @@ public class OrderService implements IOrderService {
                 }
             }
             emailService.sendOrderToEmail(orderModel, request);
+            long id = orderRepository.findIdByOrderCode(vnp_TxnRef);
+            List<OrderDetailEntity> orderDetailEntity = orderDetailRepository.findByOrderId(id);
+            sentNotificationfoShop(orderEntity, orderDetailEntity);
             return "đặt hàng thành công";
         }
     }
@@ -128,6 +135,8 @@ public class OrderService implements IOrderService {
         if (orderEntity.isPresent()) {
             if (status.equals("00")) {
                 order = orderEntity.get();
+                List<OrderDetailEntity> orderDetailEntity = orderDetailRepository.findByOrderId(id);
+                sentNotificationfoShop(order, orderDetailEntity);
                 order.setStatusCheckout(CheckoutStatus.Completed.getStatus());
                 OrderModel orderModel = new OrderModel();
                 orderModel.setUserId(order.getUser().getUserId());
@@ -156,6 +165,25 @@ public class OrderService implements IOrderService {
         }
         return createResponse(HttpStatus.NOT_FOUND, "Not Found User ", null);
     }
+
+
+    public void sentNotificationfoShop(OrderEntity orderEntity, List<OrderDetailEntity> orderDetailEntity) {
+        for (OrderDetailEntity cartItemRequest1 : orderDetailEntity) {
+            SKUEntity skuEntity = skuRepository.findById(cartItemRequest1.getSkuEntity().getId()).orElse(null);
+            double total = cartItemRequest1.getQuantity() * cartItemRequest1.getPrice();
+            NotificationEntity notificationEntity = new NotificationEntity();
+            notificationEntity.setImage(skuEntity.getImage());
+            notificationEntity.setTitle("Đơn hàng mới vừa được tạo ");
+            notificationEntity.setContent("Mã đơn : " + orderEntity.getOrderCode() + "\n Số tiền là :" + total);
+            notificationEntity.setShopId(cartItemRequest1.getShopId());
+            notificationEntity.setIsRead(0);
+//            notificationEntity.setAdminId(0L);
+            notificationEntity.setUserId(orderEntity.getUser().getUserId());
+            notificationEntity.setCreatedAt(LocalDateTime.now());
+            iNotificationRepository.save(notificationEntity);
+        }
+    }
+
 
     @Override
     public OrderModel sentNotify(HttpServletRequest request) {
@@ -203,16 +231,6 @@ public class OrderService implements IOrderService {
         Page<OrderDto> orderDtos = orderEntities.map(orderMapper::toOrderDto);
         return createResponse(HttpStatus.OK, "Successfully Retrieved Orders", orderDtos);
     }
-
-
-//    @Override
-//    public ApiResponse<?> findByStatusShipping(long shopId, int statusShipping) {
-//        List<Long> orderIds = orderTrackingRepository.findOrderIdsByShopIdAndStatus(shopId, statusShipping);
-//        List<OrderEntity> list = orderRepository.findAllSortById(orderIds, Sort.by(Sort.Order.desc("createdAt")));
-//        List<OrderDto> orderDtos = list.stream().map(orderMapper::toOrderDto).toList();
-//        return createResponse(HttpStatus.OK, "Successfully Retrieved Order ", orderDtos);
-//
-//    }
 
     @Override
     public ApiResponse<?> getOrderTracking(Long orderId, Long shopId) {
@@ -274,8 +292,6 @@ public class OrderService implements IOrderService {
             } else {
                 return createResponse(HttpStatus.OK, "The current quantity matches the quantity in stock", null);
             }
-
-
         }
         return createResponse(HttpStatus.NOT_FOUND, "Not Found Product ", null);
     }
@@ -297,5 +313,4 @@ public class OrderService implements IOrderService {
         return createResponse(HttpStatus.OK, "Successfully Retrieved Users", pageDtos);
 
     }
-
 }

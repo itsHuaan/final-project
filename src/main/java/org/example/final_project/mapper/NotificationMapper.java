@@ -9,9 +9,10 @@ public class NotificationMapper {
         return NotificationEntity.builder()
                 .title(notifiModel.getTitle())
                 .content(notifiModel.getContent())
-                .senderId(notifiModel.getSenderId())
-                .recipientId(notifiModel.getRecipientId())
+                .adminId(notifiModel.getAdminId())
+                .userId(notifiModel.getUserId())
                 .image(notifiModel.getImage())
+                .shopId(notifiModel.getShopId())
                 .build();
     }
 
@@ -21,10 +22,11 @@ public class NotificationMapper {
                 .title(notifiEntity.getTitle())
                 .content(notifiEntity.getContent())
                 .createdAt(notifiEntity.getCreatedAt())
-                .senderId(notifiEntity.getSenderId())
-                .recipientId(notifiEntity.getRecipientId())
+                .adminId(notifiEntity.getAdminId())
+                .userId(notifiEntity.getUserId())
                 .isRead(notifiEntity.getIsRead())
                 .image(notifiEntity.getImage())
+                .shopId(notifiEntity.getShopId())
                 .build();
     }
 }

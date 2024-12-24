@@ -13,6 +13,7 @@ public class ShopDto {
     private String profilePicture;
     private String shopAddress;
     private String shopAddressDetail;
+    private Double rating;
     private Long productCount;
     private Long joined;
     private Long feedbackCount;
