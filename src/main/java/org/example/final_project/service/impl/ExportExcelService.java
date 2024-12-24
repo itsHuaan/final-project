@@ -17,12 +17,9 @@ import org.example.final_project.mapper.OrderMapper;
 import org.example.final_project.repository.IOrderDetailRepository;
 import org.example.final_project.repository.IOrderRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -109,14 +106,14 @@ public class ExportExcelService {
         return style;
     }
 
-    public void importExcel(long ShopId, MultipartFile file) throws IOException {
-        List<OrderDetailEntity> orderDetailEntities = new ArrayList<>();
-        InputStream inputStream = file.getInputStream();
-        Workbook workbook = new XSSFWorkbook(inputStream);
-        Sheet sheet = workbook.getSheetAt(0);
-        for (Row row : sheet) {
-            
-        }
-
-    }
+//    public void importExcel(long ShopId, MultipartFile file) throws IOException {
+//        List<OrderDetailEntity> orderDetailEntities = new ArrayList<>();
+//        InputStream inputStream = file.getInputStream();
+//        Workbook workbook = new XSSFWorkbook(inputStream);
+//        Sheet sheet = workbook.getSheetAt(0);
+//        for (Row row : sheet) {
+//
+//        }
+//
+//    }
 }

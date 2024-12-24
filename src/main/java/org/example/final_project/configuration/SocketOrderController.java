@@ -32,7 +32,6 @@ public class SocketOrderController {
                     .status(statusMessageDto.getStatus())
                     .shopId(statusMessageDto.getShopId())
                     .orderId(statusMessageDto.getOrderId())
-                    .note(statusMessageDto.getNote())
                     .build();
 
         }
