@@ -68,7 +68,9 @@ public class ProductService implements IProductService {
             if (iUserRepository.findById(productModel.getUser_id()).isPresent()) {
                 productEntity.setUser(iUserRepository.findById(productModel.getUser_id()).get());
             }
-            productEntity.setCreatedAt(LocalDateTime.now());
+            productEntity.setIsActive(iProductRepository.findById(aLong).get().getIsActive());
+            productEntity.setCreatedAt(iProductRepository.findById(aLong).get().getCreatedAt());
+            productEntity.setModifiedAt(LocalDateTime.now());
             productEntity.setId(aLong);
             iProductRepository.save(productEntity);
         }
@@ -181,8 +183,6 @@ public class ProductService implements IProductService {
             Specification<ProductEntity> specification = Specification.where(isValid()).and(hasUserId(userId));
             if (type == 1) {
                 specification = specification.and(isStatus(ActivateStatus.Active.getValue()));
-            } else {
-                specification = specification.and(isStatus(ActivateStatus.Active.getValue()).or(isStatus(ActivateStatus.Inactive.getValue())));
             }
             return pageable != null
                     ? iProductRepository.findAll(specification, pageable).map(productMapper::toProductSummaryDto)
