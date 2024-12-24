@@ -9,7 +9,10 @@ import java.util.List;
 public interface INotificationService {
     int sentNotification(List<NotificationModel> notificationModel) throws IOException;
 
-    ApiResponse<?> getAllNotificationsByUserId(long userId);
+    ApiResponse<?> getAllNotificationsByUserId(long userId, Integer page, Integer size);
+
 
     int changeStatusNotification(long userId);
+
+    ApiResponse<?> getAllNotificationsByShopId(long shopId, Integer page, Integer size);
 }

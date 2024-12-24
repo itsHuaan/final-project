@@ -9,6 +9,7 @@ import org.example.final_project.dto.CheckoutDto;
 import org.example.final_project.dto.UserDto;
 import org.example.final_project.entity.CartEntity;
 import org.example.final_project.entity.CartItemEntity;
+import org.example.final_project.entity.SKUEntity;
 import org.example.final_project.entity.UserEntity;
 import org.example.final_project.mapper.CartItemMapper;
 import org.example.final_project.mapper.CartMapper;
@@ -16,6 +17,7 @@ import org.example.final_project.mapper.UserMapper;
 import org.example.final_project.model.CartModel;
 import org.example.final_project.repository.ICartItemRepository;
 import org.example.final_project.repository.ICartRepository;
+import org.example.final_project.repository.ISKURepository;
 import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.ICartService;
 import org.springframework.data.jpa.domain.Specification;
@@ -26,31 +28,42 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.example.final_project.specification.CartSpecification.*;
+import static org.example.final_project.specification.CartSpecification.hasUserId;
 
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CartService implements ICartService {
-    private final UserMapper userMapper;
+    UserMapper userMapper;
     ICartRepository cartRepository;
     IUserRepository userRepository;
     CartMapper cartMapper;
     ICartItemRepository cartItemRepository;
     CartItemMapper cartItemMapper;
+    ISKURepository skuRepository;
 
     @Override
     public CartDto getUserCart(Long userId) {
-        return cartMapper.toDto(cartRepository.findOne(Specification.where(hasUserId(userId))).orElseGet(
-                () -> {
-                    CartEntity newCart = new CartEntity();
-                    newCart.setUser(userRepository.findById(userId).orElseThrow(
-                            () -> new IllegalArgumentException("User not found")
-                    ));
-                    newCart.setCreatedAt(LocalDateTime.now());
-                    return cartRepository.save(newCart);
-                }
-        ));
+        CartEntity cart = cartRepository.findOne(Specification.where(hasUserId(userId))).orElseGet(() -> {
+            CartEntity newCart = new CartEntity();
+            newCart.setUser(userRepository.findById(userId).orElseThrow(
+                    () -> new IllegalArgumentException("User not found")
+            ));
+            newCart.setCreatedAt(LocalDateTime.now());
+            return cartRepository.save(newCart);
+        });
+
+        for (CartItemEntity cartItem : cart.getCartItems()) {
+            SKUEntity sku = skuRepository.findById(cartItem.getProduct().getId())
+                    .orElseThrow(() -> new IllegalArgumentException("SKU not found"));
+
+            if (cartItem.getQuantity() > sku.getQuantity()) {
+                cartItem.setQuantity((int) sku.getQuantity());
+                cartItemRepository.save(cartItem);
+            }
+        }
+
+        return cartMapper.toDto(cart);
     }
 
     @Override

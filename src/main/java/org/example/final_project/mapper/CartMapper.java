@@ -5,14 +5,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.CartDto;
 import org.example.final_project.entity.CartEntity;
-import org.example.final_project.entity.CartItemEntity;
 import org.example.final_project.entity.UserEntity;
 import org.example.final_project.model.CartModel;
 import org.example.final_project.repository.IUserRepository;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
 
 @Component
 @RequiredArgsConstructor
@@ -31,7 +29,7 @@ public class CartMapper {
                         .count())
                 .cartItems(cartEntity.getCartItems().stream()
                         .filter(cartItem -> cartItem.getProduct().getProduct().getIsActive() == 1)
-                        .sorted(Comparator.comparing(CartItemEntity::getLastUpdated).reversed())
+//                        .sorted(Comparator.comparing(CartItemEntity::getLastUpdated).reversed())
                         .map(cartItemMapper::toDto)
                         .toList())
                 .createdAt(cartEntity.getCreatedAt())

@@ -2,15 +2,17 @@ package org.example.final_project.controller;
 
 
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.extern.slf4j.Slf4j;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.example.final_project.configuration.VnPay.VnPayUtil;
-import org.example.final_project.entity.OrderEntity;
+import org.example.final_project.dto.UserDto;
 import org.example.final_project.model.CartItemRequest;
 import org.example.final_project.model.NotifyModel;
 import org.example.final_project.model.OrderModel;
 import org.example.final_project.service.IOrderService;
+import org.example.final_project.service.IUserService;
 import org.example.final_project.util.Const;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -20,46 +22,49 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.example.final_project.dto.ApiResponse.createResponse;
-
 @RestController
 @RequestMapping(Const.API_PREFIX + "/payment")
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class PaymentController {
 
-    @Autowired
-    private HttpServletRequest request;
-    @Autowired
-    private IOrderService orderService;
-    @Autowired
+    IOrderService orderService;
+
     SimpMessagingTemplate messagingTemplate;
 
+    IUserService userService;
 
+
+    private void notifyShops(OrderModel order) {
+        Set<Long> sentShopIds = new HashSet<>();
+        List<CartItemRequest> cartItemRequest = order.getCartItems();
+        for (CartItemRequest cartItem : cartItemRequest) {
+            if (!sentShopIds.contains(cartItem.getShopId())) {
+                long shopId = cartItem.getShopId();
+                long userId = order.getUserId();
+                UserDto userDto = userService.getById(userId);
+                NotifyModel notifyModel1 = NotifyModel.builder()
+                        .userId(userId)
+                        .shopId(shopId)
+                        .notifyTitle("Người dùng" + " " + userDto.getName() + " " + "vừa đặt hàng")
+                        .build();
+                sentShopIds.add(cartItem.getShopId());
+                messagingTemplate.convertAndSend("/note/notify", notifyModel1);
+            }
+        }
+    }
 
     @PostMapping("/create-payment")
     public ResponseEntity<?> submitOrder(@RequestBody OrderModel order,
                                          HttpServletRequest request) throws Exception {
-        request.setAttribute("amount",order.getAmount());
+        request.setAttribute("amount", order.getAmount());
         String tex = VnPayUtil.getRandomNumber(8);
-        request.setAttribute("tex",tex);
-        if(order.getMethodCheckout().toLowerCase().equals("vnpay")){
+        request.setAttribute("tex", tex);
+        if (order.getMethodCheckout().equalsIgnoreCase("vnpay")) {
             String vnpayUrl = orderService.submitCheckout(order, request);
             return ResponseEntity.ok().body(vnpayUrl);
-        }else {
-            Set<Long> sentShopIds = new HashSet<>();
-            List<CartItemRequest> cartItemRequest = order.getCartItems();
-            for (CartItemRequest cartItem : cartItemRequest) {
-                if(!sentShopIds.contains(cartItem.getShopId())) {
-                    long shopId = cartItem.getShopId();
-                    long userId = order.getUserId();
-                    NotifyModel notifyModel1 = NotifyModel.builder()
-                            .userId(userId)
-                            .shopId(shopId)
-                            .notifyTitle("có đơn hàng được đặt của " + userId + shopId)
-                            .build();
-                    sentShopIds.add(cartItem.getShopId());
-                    messagingTemplate.convertAndSend("/note/notify", notifyModel1);
-                }
-            }
+        } else {
+            notifyShops(order);
             return ResponseEntity.ok().body(orderService.submitCheckout(order, request));
         }
 
@@ -72,28 +77,13 @@ public class PaymentController {
             String vnp_TxnRef = (String) request.getAttribute("tex");
             String amount = orderService.getTotalPrice(vnp_TxnRef);
             OrderModel order = orderService.sentNotify(request);
-            Set<Long> sentShopIds = new HashSet<>();
-            List<CartItemRequest> cartItemRequest = order.getCartItems();
-            for (CartItemRequest cartItem : cartItemRequest) {
-                if(!sentShopIds.contains(cartItem.getShopId())) {
-                    long shopId = cartItem.getShopId();
-                    long userId = order.getUserId();
-                    NotifyModel notifyModel1 = NotifyModel.builder()
-                            .userId(userId)
-                            .shopId(shopId)
-                            .notifyTitle("có đơn hàng được đặt của " + userId)
-                            .build();
-                    sentShopIds.add(cartItem.getShopId());
-                    messagingTemplate.convertAndSend("/note/notify", notifyModel1);
-                }
-            }
+            notifyShops(order);
             String redirectUrl = String.format(
                     "https://team03.cyvietnam.id.vn/en/checkoutsuccess?tex=%s&amount=%s",
                     vnp_TxnRef, amount
                     ,
                     "success"
             );
-
 
 
             return ResponseEntity.status(HttpStatus.FOUND)
@@ -113,8 +103,6 @@ public class PaymentController {
                     .build();
         }
     }
-
-
 
 
 }

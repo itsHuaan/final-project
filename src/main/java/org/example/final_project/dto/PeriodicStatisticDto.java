@@ -2,8 +2,6 @@ package org.example.final_project.dto;
 
 import lombok.*;
 
-import java.util.List;
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -11,5 +9,5 @@ import java.util.List;
 @Builder
 public class PeriodicStatisticDto {
     private String period;
-    private ShopStatisticDto statistics;
+    private StatisticDto statistics;
 }

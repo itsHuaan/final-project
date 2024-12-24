@@ -5,7 +5,6 @@ import com.cloudinary.utils.ObjectUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,7 +25,7 @@ public class MediaUploadService {
         return (String) uploadResult.get("url");
     }
 
-    public List<String> uploadMedia(MultipartFile[] files) throws IOException {
+    public List<String> uploadMediaFiles(MultipartFile[] files) throws IOException {
         List<String> mediaUrls = new ArrayList<>();
         for (MultipartFile file : files) {
             Map<String, Object> uploadResult;
@@ -43,4 +42,15 @@ public class MediaUploadService {
         return mediaUrls;
     }
 
+    public String uploadMediaFile(MultipartFile file) throws IOException {
+        Map<String, Object> uploadResult;
+        String fileType = file.getContentType();
+        if (fileType.startsWith("video")) {
+            uploadResult = cloudinary.uploader().upload(file.getBytes(),
+                    ObjectUtils.asMap("resource_type", "video"));
+        } else {
+            uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+        }
+        return (String) uploadResult.get("url");
+    }
 }

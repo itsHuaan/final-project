@@ -6,6 +6,7 @@ import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.CartSkuDto;
 import org.example.final_project.entity.SKUEntity;
 import org.example.final_project.repository.IProductOptionValueRepository;
+import org.example.final_project.service.IPromotionService;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
@@ -17,8 +18,12 @@ public class VariantMapper {
     IProductOptionValueRepository valueRepository;
     ProductOptionValueMapper valueMapper;
     ProductMapper productMapper;
+    IPromotionService promotionService;
 
     public CartSkuDto toDto(SKUEntity entity) {
+        double discountedPrice = promotionService.findAllPromotionByNow(entity.getProduct().getId()) != null
+                ? entity.getPrice() * ((100 - promotionService.findAllPromotionByNow(entity.getProduct().getId()).getDiscountPercentage()) / 100)
+                : entity.getPrice();
         return CartSkuDto.builder()
                 .itemId(entity.getId())
                 .value1(entity.getOption1() != null
@@ -29,6 +34,7 @@ public class VariantMapper {
                         : null)
                 .productFamily(productMapper.toProductFamilyDto(entity.getProduct()))
                 .price(entity.getPrice())
+                .discountedPrice(discountedPrice)
                 .quantity(entity.getQuantity())
                 .image(entity.getImage())
                 .build();

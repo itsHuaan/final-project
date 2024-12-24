@@ -16,11 +16,9 @@
 //    SimpMessagingTemplate messagingTemplate;
 //
 //    @MessageMapping("/notify-shop")
-//    public void notifyForShop(@Payload NotifyModel notifyModel){
+//    public void notifyForShop(@Payload NotifyModel notifyModel) {
 //        long userId = notifyModel.getUserId();
 //        long shopId = notifyModel.getShopId();
-//
-//
 //
 //
 //        NotifyModel notifyModel1 = NotifyModel.builder()
