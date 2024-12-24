@@ -174,11 +174,11 @@ public class OrderService implements IOrderService {
             NotificationEntity notificationEntity = new NotificationEntity();
             notificationEntity.setImage(skuEntity.getImage());
             notificationEntity.setTitle("Đơn hàng mới vừa được tạo ");
-            notificationEntity.setContent("Mã đơn : " + orderEntity.getOrderCode() + "\n Số tiền là :" + total);
+            notificationEntity.setContent("Mã đơn : " + orderEntity.getOrderCode() + "vừa được đặt với số tiền là :" + total);
             notificationEntity.setShopId(cartItemRequest1.getShopId());
             notificationEntity.setIsRead(0);
 //            notificationEntity.setAdminId(0L);
-            notificationEntity.setUserId(orderEntity.getUser().getUserId());
+//            notificationEntity.setUserId(orderEntity.getUser().getUserId());
             notificationEntity.setCreatedAt(LocalDateTime.now());
             iNotificationRepository.save(notificationEntity);
         }
