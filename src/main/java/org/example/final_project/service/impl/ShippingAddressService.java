@@ -13,7 +13,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.example.final_project.specification.ShippingAddressSpecification.ofUser;
 
@@ -31,7 +30,7 @@ public class ShippingAddressService implements IShippingAddressService {
                         .addressLine1(buildAddressLine1(entity.getAddress()))
                         .addressLine2(entity.getAddressLine2())
                         .build())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

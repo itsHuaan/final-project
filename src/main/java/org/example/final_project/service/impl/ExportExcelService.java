@@ -12,15 +12,22 @@ import org.example.final_project.dto.OrderDto;
 import org.example.final_project.dto.UserDto;
 import org.example.final_project.entity.OrderDetailEntity;
 import org.example.final_project.entity.OrderEntity;
+import org.example.final_project.entity.UserEntity;
 import org.example.final_project.mapper.OrderDetailMapper;
 import org.example.final_project.mapper.OrderMapper;
 import org.example.final_project.repository.IOrderDetailRepository;
 import org.example.final_project.repository.IOrderRepository;
+import org.example.final_project.repository.IUserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.text.Normalizer;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +37,7 @@ public class ExportExcelService {
     IOrderRepository orderRepository;
     OrderMapper orderMapper;
     OrderDetailMapper orderDetailMapper;
+    IUserRepository userRepository;
 
     public List<OrderDto> getAllOrders(Long shopId) {
         List<Long> orderIds = orderDetailRepository.findAllOrderIdsByShopId(shopId);
@@ -106,14 +114,49 @@ public class ExportExcelService {
         return style;
     }
 
-//    public void importExcel(long ShopId, MultipartFile file) throws IOException {
-//        List<OrderDetailEntity> orderDetailEntities = new ArrayList<>();
-//        InputStream inputStream = file.getInputStream();
-//        Workbook workbook = new XSSFWorkbook(inputStream);
-//        Sheet sheet = workbook.getSheetAt(0);
-//        for (Row row : sheet) {
-//
-//        }
-//
-//    }
+    public String importExcel(MultipartFile file) throws IOException {
+        InputStream inputStream = file.getInputStream();
+        Workbook workbook = new XSSFWorkbook(inputStream);
+        Sheet sheet = workbook.getSheetAt(0);
+        for (Row row : sheet) {
+            String code = row.getCell(3).getStringCellValue();
+            if (orderRepository.existsByOrderCode(code)) {
+                return "code đã tồn tại";
+            } else {
+                if (row.getRowNum() == 0) continue;
+                OrderEntity orderEntity = new OrderEntity();
+                orderEntity.setCreatedAt(LocalDateTime.now());
+                orderEntity.setMethodCheckout(row.getCell(4).getStringCellValue());
+                orderEntity.setOrderCode(row.getCell(3).getStringCellValue());
+                orderEntity.setShippingAddress(row.getCell(6).getStringCellValue());
+                orderEntity.setPhoneReception(row.getCell(5).getStringCellValue());
+                Map<String, Integer> statusMapping = Map.of(
+                        "chothanhtoan", 1,
+                        "thanhtoanthanhcong", 2,
+                        "thanhtoanthatbai", 3
+                );
+                String cellValue = row.getCell(8).getStringCellValue();
+                String normalizedValue = normalizeString(cellValue);
+                Integer status = statusMapping.get(normalizedValue);
+                if (status != null) {
+                    orderEntity.setStatusCheckout(status);
+                }
+                orderEntity.setTotalPrice(row.getCell(8).getNumericCellValue());
+                UserEntity user = userRepository.findByEmail(row.getCell(2).getStringCellValue()).orElse(null);
+                orderEntity.setUser(user);
+                orderRepository.save(orderEntity);
+                return "đã thay đổi thành công";
+            }
+        }
+        return null;
+    }
+
+    private static String normalizeString(String input) {
+        if (input == null) {
+            return "";
+        }
+        String normalized = Normalizer.normalize(input, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "");
+        return normalized.toLowerCase().replaceAll("\\s+", "");
+    }
 }
