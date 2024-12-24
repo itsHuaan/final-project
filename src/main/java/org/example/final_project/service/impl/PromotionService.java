@@ -92,9 +92,11 @@ public class PromotionService implements IPromotionService {
             PromotionEntity promotion = iPromotionRepository.findById(promotionId).get();
             for (Long productId : productIds) {
                 if (productRepository.findById(productId).isPresent()) {
-                    ProductEntity product = productRepository.findById(productId).get();
-                    product.getPromotions().add(promotion);
-                    productRepository.save(product);
+                    if (!promotion.getProducts().contains(productRepository.findById(productId).get())) {
+                        ProductEntity product = productRepository.findById(productId).get();
+                        product.getPromotions().add(promotion);
+                        productRepository.save(product);
+                    }
                 } else {
                     throw new IllegalArgumentException("Product is not present");
                 }
@@ -119,20 +121,26 @@ public class PromotionService implements IPromotionService {
 
 
     @Override
-    public int cancelPromotionOfProduct(Long promotionId, Long productId) {
+    public int cancelPromotionOfProduct(Long promotionId, List<Long> productIds) {
         try {
             if (iPromotionRepository.findById(promotionId).isPresent()) {
                 PromotionEntity promotion = iPromotionRepository.findById(promotionId).get();
-                if (productRepository.findById(productId).isPresent()) {
-                    if (promotion.getProducts().contains(productRepository.findById(productId).get())) {
-                        promotion.getProducts().remove(productRepository.findById(productId).get());
-                        return 1;
+                for (Long productId : productIds) {
+                    if (productRepository.findById(productId).isPresent()) {
+                        if (promotion.getProducts().contains(productRepository.findById(productId).get())) {
+                            promotion.getProducts().remove(productRepository.findById(productId).get());
+                            ProductEntity product = productRepository.findById(productId).get();
+                            product.getPromotions().remove(promotion);
+                            iPromotionRepository.save(promotion);
+                            productRepository.save(product);
+                        } else {
+                            throw new IllegalArgumentException("Product is not in promotion");
+                        }
                     } else {
-                        throw new IllegalArgumentException("Product is not in promotion");
+                        throw new IllegalArgumentException("Product is not present");
                     }
-                } else {
-                    throw new IllegalArgumentException("Product is not present");
                 }
+                return 1;
             } else {
                 throw new IllegalArgumentException("Promotion is not present");
             }
@@ -144,7 +152,7 @@ public class PromotionService implements IPromotionService {
     @Override
     public Page<PromotionDto> getAllByShop(Long shopId, Pageable pageable) {
         if (iUserRepository.findById(shopId).isPresent()) {
-            return iPromotionRepository.findAll(isActiveOrComingForTheShop(shopId), pageable).map(x -> promotionMapper.convertToDto(x));
+            return iPromotionRepository.findAll(isActiveOrComingForTheShop(shopId).and(isNotDeleted()), pageable).map(x -> promotionMapper.convertToDto(x));
         } else {
             throw new IllegalArgumentException("Shop is not present");
         }
