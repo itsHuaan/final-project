@@ -79,5 +79,7 @@ public interface IOrderDetailRepository extends JpaRepository<OrderDetailEntity,
 
     @Query("select distinct o.orderEntity.id from OrderDetailEntity o where o.shopId = :shopId")
     List<Long> findAllOrderIdsByShopId(long shopId);
+
+    
 }
 
