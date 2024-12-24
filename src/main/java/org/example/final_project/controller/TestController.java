@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
 
+import static org.example.final_project.dto.ApiResponse.createResponse;
+
 @Tag(name = "Test")
 @RestController
 @RequestMapping(value = Const.API_PREFIX + "/test")
@@ -47,5 +49,17 @@ public class TestController {
         } else {
             return new ResponseEntity<>("Unable to retrieve user information.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @Operation(summary = "Response Test")
+    @GetMapping("/response-test")
+    public ResponseEntity<?> responseTest() {
+        return ResponseEntity.status(HttpStatus.OK).body(
+                createResponse(
+                        HttpStatus.NO_CONTENT,
+                        "No content",
+                        null
+                )
+        );
     }
 }

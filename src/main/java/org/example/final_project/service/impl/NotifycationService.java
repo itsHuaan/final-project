@@ -94,7 +94,6 @@ public class NotifycationService implements INotificationService {
         Page<NotificationDto> notificationDtoPage = notificationEntityList.map(NotificationMapper::toNotificationDto);
 
         return ApiResponse.createResponse(HttpStatus.OK, "get all notifications", notificationDtoPage);
-
     }
 
     @Override
@@ -108,6 +107,7 @@ public class NotifycationService implements INotificationService {
         }
         return 1;
     }
+
 
     @Override
     public ApiResponse<?> getAllNotificationsByShopId(long shopId, Integer page, Integer size) {
@@ -128,4 +128,6 @@ public class NotifycationService implements INotificationService {
         return ApiResponse.createResponse(HttpStatus.OK, "get all notifications", notificationDtoPage);
 
     }
+
+
 }
