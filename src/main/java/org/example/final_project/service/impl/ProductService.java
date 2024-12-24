@@ -16,6 +16,7 @@ import org.example.final_project.repository.IPromotionRepository;
 import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.IImageProductService;
 import org.example.final_project.service.IProductService;
+import org.example.final_project.specification.ProductSpecification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -204,8 +205,10 @@ public class ProductService implements IProductService {
             }
         } else {
             Specification<ProductEntity> specification = Specification.where(
-                    hasId(productId).and(isValid()).and(isStatus(ActivateStatus.Active.getValue()).or(isStatus(ActivateStatus.Inactive.getValue())))
-            );
+                            hasId(productId))
+                    .and(isValid())
+                    .and(ProductSpecification.isStatus(ActivateStatus.Active.getValue())
+                            .or(ProductSpecification.isStatus(ActivateStatus.Inactive.getValue())));
             if (iProductRepository.findOne(specification).isPresent()) {
                 return productMapper.convertToDto(iProductRepository.findOne(specification).get());
             } else {
