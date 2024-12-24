@@ -14,9 +14,9 @@ public interface IProductService extends IBaseService<ProductDto, ProductModel, 
 
     int deactivateProduct(long id, int type, String note);
 
-    Page<ProductSummaryDto> findAllByPage(Pageable pageable);
+    Page<ProductSummaryDto> findAllByPage(Integer type, Pageable pageable);
 
-    Page<ProductSummaryDto> findAllByNameAndPage(String name, Pageable pageable);
+    Page<ProductSummaryDto> findAllByNameAndPage(Integer type, String name, Pageable pageable);
 
     Page<ProductSummaryDto> getAllProductByStatus(int status, Pageable pageable);
 
@@ -30,8 +30,8 @@ public interface IProductService extends IBaseService<ProductDto, ProductModel, 
 
     ProductDto getByIdCustom(Long productId, Integer type);
 
-    Page<ProductSummaryDto> getAllProductByFilter(String name, List<Long> categoryId, List<Long> addressId, Double startPrice, Double endPrice, Double rating, Pageable pageable);
+    Page<ProductSummaryDto> getAllProductByFilter(Integer type, String name, List<Long> categoryId, List<Long> addressId, Double startPrice, Double endPrice, Double rating, Pageable pageable);
 
-    Page<ProductSummaryDto> getAllProductByPromotion(Long promotionId, Long shopId, Pageable pageable);
+    Page<ProductSummaryDto> getAllProductByPromotion(Integer type, Long promotionId, Long shopId, Pageable pageable);
 
 }
