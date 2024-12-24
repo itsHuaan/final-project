@@ -58,7 +58,7 @@ public class ExportExcelService {
         Sheet sheet = workbook.createSheet();
 
         Row headerRow = sheet.createRow(0);
-        String[] header = {"STT", "Tên Người Mua", "Email", "Phương Thức Thanh Toán", "Code", "Số điện thoại", "Địa chỉ", "Trạng Thái Thanh Toán", "Tổng số tiền"};
+        String[] header = {"STT", "Tên Người Mua", "Email", "Code", "Phương Thức Thanh Toán", "Số điện thoại", "Địa chỉ", "Trạng Thái Thanh Toán", "Tổng số tiền"};
         for (int i = 0; i < header.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(header[i]);
@@ -114,16 +114,16 @@ public class ExportExcelService {
         return style;
     }
 
-    public String importExcel(MultipartFile file) throws IOException {
+    public void importExcel(MultipartFile file) throws IOException {
         InputStream inputStream = file.getInputStream();
         Workbook workbook = new XSSFWorkbook(inputStream);
         Sheet sheet = workbook.getSheetAt(0);
         for (Row row : sheet) {
+            if (row.getRowNum() == 0) continue;
             String code = row.getCell(3).getStringCellValue();
             if (orderRepository.existsByOrderCode(code)) {
-                return "code đã tồn tại";
+
             } else {
-                if (row.getRowNum() == 0) continue;
                 OrderEntity orderEntity = new OrderEntity();
                 orderEntity.setCreatedAt(LocalDateTime.now());
                 orderEntity.setMethodCheckout(row.getCell(4).getStringCellValue());
@@ -135,7 +135,7 @@ public class ExportExcelService {
                         "thanhtoanthanhcong", 2,
                         "thanhtoanthatbai", 3
                 );
-                String cellValue = row.getCell(8).getStringCellValue();
+                String cellValue = row.getCell(7).getStringCellValue();
                 String normalizedValue = normalizeString(cellValue);
                 Integer status = statusMapping.get(normalizedValue);
                 if (status != null) {
@@ -145,10 +145,8 @@ public class ExportExcelService {
                 UserEntity user = userRepository.findByEmail(row.getCell(2).getStringCellValue()).orElse(null);
                 orderEntity.setUser(user);
                 orderRepository.save(orderEntity);
-                return "đã thay đổi thành công";
             }
         }
-        return null;
     }
 
     private static String normalizeString(String input) {
