@@ -3,11 +3,15 @@ package org.example.final_project.controller;
 import com.cloudinary.api.exceptions.BadRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.example.final_project.dto.AdminStatisticDto;
 import org.example.final_project.dto.ApiResponse;
 import org.example.final_project.dto.UserDto;
 import org.example.final_project.model.LockShopRequest;
 import org.example.final_project.model.ShopModel;
+import org.example.final_project.service.impl.StatisticService;
 import org.example.final_project.service.impl.UserService;
 import org.example.final_project.util.Const;
 import org.springframework.data.domain.Page;
@@ -25,8 +29,10 @@ import static org.example.final_project.dto.ApiResponse.createResponse;
 @RestController
 @RequestMapping(Const.API_PREFIX + "/admin")
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AdminController {
-    private final UserService userService;
+    UserService userService;
+    StatisticService statisticService;
 
     @Operation(summary = "Admin approves store status ")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -63,18 +69,30 @@ public class AdminController {
                     .body(createResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error occurred", null));
         }
     }
+
     @Operation(summary = "find shop by Name or status")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/find-shop-name")
-    public ResponseEntity<?> getShopByName(@RequestParam(required = false) String shop_name , @RequestParam(required = false) Integer shop_status ) {
-        List<UserDto> userDtoList = userService.findByShopName(shop_name,shop_status);
+    public ResponseEntity<?> getShopByName(@RequestParam(required = false) String shop_name, @RequestParam(required = false) Integer shop_status) {
+        List<UserDto> userDtoList = userService.findByShopName(shop_name, shop_status);
         return ResponseEntity.ok(userDtoList);
     }
+
     @Operation(summary = "update shop")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/{id}/update-shop")
     public ResponseEntity<String> updateShop(@PathVariable long id, @RequestBody ShopModel shopModel) {
-        return ResponseEntity.ok(userService.updateShop(id,shopModel) ==1 ? "đã update thành công" : "chưa update thành công ");
+        return ResponseEntity.ok(userService.updateShop(id, shopModel) == 1 ? "đã update thành công" : "chưa update thành công ");
     }
 
-
+    @Operation(summary = "Get statistics")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/statistics")
+    public ResponseEntity<?> getStatistics() {
+        AdminStatisticDto statisticDto = statisticService.getAdminStatisticDto();
+        HttpStatus status = statisticDto != null ? HttpStatus.OK : HttpStatus.NOT_FOUND;
+        String message = statisticDto != null ? "Fetched" : "No statistics found";
+        return ResponseEntity.status(status).body(createResponse(status, message, statisticDto));
+    }
 
 }

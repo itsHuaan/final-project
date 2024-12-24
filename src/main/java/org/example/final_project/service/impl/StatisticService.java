@@ -8,15 +8,19 @@ import org.example.final_project.entity.FeedbackEntity;
 import org.example.final_project.entity.OrderDetailEntity;
 import org.example.final_project.entity.ProductEntity;
 import org.example.final_project.mapper.ProductMapper;
-import org.example.final_project.mapper.SKUMapper;
 import org.example.final_project.mapper.UserMapper;
 import org.example.final_project.mapper.VariantMapper;
+import org.example.final_project.model.enum_status.ActivateStatus;
+import org.example.final_project.model.enum_status.STATUS;
 import org.example.final_project.repository.IOrderDetailRepository;
 import org.example.final_project.repository.IProductRepository;
 import org.example.final_project.repository.ISKURepository;
+import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.IStatisticService;
 import org.example.final_project.specification.OrderDetailSpecification;
+import org.example.final_project.specification.ProductSpecification;
 import org.example.final_project.specification.SKUSpecification;
+import org.example.final_project.specification.UserSpecification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -37,10 +41,26 @@ public class StatisticService implements IStatisticService {
     IProductRepository productRepository;
     ISKURepository skuRepository;
     IOrderDetailRepository orderDetailRepository;
-    SKUMapper skuMapper;
+    IUserRepository userRepository;
     UserMapper userMapper;
     ProductMapper productMapper;
     VariantMapper variantMapper;
+
+
+    @Override
+    public AdminStatisticDto getAdminStatisticDto() {
+        return AdminStatisticDto.builder()
+                .totalUsers(getTotalUsers())
+                .totalLockedUsers(getTotalLockedUsers())
+                .totalShops(getTotalShops())
+                .totalLockedShops(getTotalLockedShops())
+                .totalPendingShop(getTotalPendingShop())
+                .totalRejectedShops(getTotalRejectedShop())
+                .totalLockedProducts(getTotalLockedProduct())
+                .totalRejectedProducts(getTotalRejectedProduct())
+                .topSellerShops(getTopSellerShops())
+                .build();
+    }
 
     private StatisticDto buildStatistic(long shopId, LocalDateTime startTime) {
         return StatisticDto.builder()
@@ -175,5 +195,66 @@ public class StatisticService implements IStatisticService {
                         PageRequest.of(0, 10)).getContent().stream()
                 .map(productMapper::toProductStatisticDto)
                 .toList();
+    }
+
+    private List<ShopDto> getTopSellerShops(){
+        return List.of();
+    }
+
+    private long getTotalRejectedProduct(){
+        return productRepository.findAll(Specification.where(
+                ProductSpecification.isNotDeleted()
+                        .and(ProductSpecification.isStatus(ActivateStatus.NotConfirmed.ordinal()))
+        )).size();
+    }
+
+    private long getTotalLockedProduct(){
+        return productRepository.findAll(Specification.where(
+                ProductSpecification.isNotDeleted()
+                        .and(ProductSpecification.isStatus(ActivateStatus.Inactive.ordinal()))
+        )).size();
+    }
+
+    private long getTotalRejectedShop() {
+        return userRepository.findAll(Specification.where(
+                UserSpecification.isNotDeleted()
+                        .and(UserSpecification.isShop()
+                                .and(UserSpecification.hasShopStatus(STATUS.REFUSE.ordinal())))
+        )).size();
+    }
+
+    private long getTotalPendingShop() {
+        return userRepository.findAll(Specification.where(
+                UserSpecification.isNotDeleted()
+                        .and(UserSpecification.isShop()
+                                .and(UserSpecification.hasShopStatus(STATUS.WAIT.ordinal())))
+        )).size();
+    }
+
+    private long getTotalLockedShops() {
+        return userRepository.findAll(Specification.where(
+                UserSpecification.isNotDeleted()
+                        .and(UserSpecification.isShop()
+                                .and(UserSpecification.hasShopStatus(STATUS.LOCKED.ordinal())))
+        )).size();
+    }
+
+    private long getTotalShops() {
+        return userRepository.findAll(Specification.where(
+                UserSpecification.isNotDeleted()
+                        .and(UserSpecification.isShop())
+        )).size();
+    }
+
+    private long getTotalLockedUsers() {
+        return userRepository.findAll(Specification.where(
+                UserSpecification.hasStatus(2)
+        )).size();
+    }
+
+    private long getTotalUsers() {
+        return userRepository.findAll(Specification.where(
+                UserSpecification.isNotDeleted()
+        )).size();
     }
 }
