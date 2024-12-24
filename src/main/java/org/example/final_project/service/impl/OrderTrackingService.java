@@ -54,10 +54,11 @@ public class OrderTrackingService implements IOrderTrackingService {
     }
 
     public void notificatioForUser(StatusMessageDto statusMessageDto) {
-        NotificationEntity notificationEntity = new NotificationEntity();
+
         OrderEntity orderEntity = orderRepository.findById(statusMessageDto.getOrderId()).orElse(null);
         List<OrderDetailEntity> orderDetailEntity = orderDetailRepository.findByOrderId(statusMessageDto.getOrderId());
 
+        assert orderEntity != null;
         String OrderCode = orderEntity.getOrderCode();
 
         UserEntity user = userRepository.findById(statusMessageDto.getShopId()).orElse(null);
@@ -66,6 +67,7 @@ public class OrderTrackingService implements IOrderTrackingService {
         SKUDto skuDto = skuMapper.convertToDto(skuEntity);
 
 
+        assert user != null;
         String shopName = user.getShop_name();
         String title = "";
         String content = "";
@@ -93,13 +95,14 @@ public class OrderTrackingService implements IOrderTrackingService {
             title = "Xác nhận đã nhận hàng";
             content = "Vui lòng chỉ ấn 'Đã nhận được hàng' khi đơn hàng" + OrderCode + "đã được giao đến bạn và sản phẩm không có vấn đề nào";
         }
-
-        notificationEntity.setUserId(statusMessageDto.getUserId());
-        notificationEntity.setTitle(title);
-        notificationEntity.setContent(content);
-        notificationEntity.setIsRead(0);
-        notificationEntity.setCreatedAt(LocalDateTime.now());
-        notificationEntity.setImage(image);
+        NotificationEntity notificationEntity = NotificationEntity.builder()
+                .userId(statusMessageDto.getUserId())
+                .title(title)
+                .content(content)
+                .isRead(0)
+                .createdAt(LocalDateTime.now())
+                .image(image)
+                .build();
         notificationRepository.save(notificationEntity);
 
     }

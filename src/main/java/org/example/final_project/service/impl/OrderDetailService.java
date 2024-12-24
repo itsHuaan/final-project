@@ -1,5 +1,6 @@
 package org.example.final_project.service.impl;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -66,7 +67,9 @@ public class OrderDetailService implements IOrderDetailService {
         List<OrderDetailEntity> orderDetailEntity = orderDetailRepository.shopOrder(shopId, orderId);
         List<OrderDetailDto> orderDetailDtos = orderDetailEntity.stream().map(orderDetailMapper::toOrderDto).toList();
 
-        OrderTrackingEntity orderTrackingEntity = orderTrackingRepository.findByOrderIdAndShopId(orderId, shopId).get();
+        OrderTrackingEntity orderTrackingEntity = orderTrackingRepository.findByOrderIdAndShopId(orderId, shopId)
+                .orElseThrow(() -> new EntityNotFoundException("OrderTracking not found for orderId: " + orderId + " and shopId: " + shopId));
+
 
         OrderTrackingDto orderTrackingDto = OrderTrackingMapper.toOrderTrackingDto(orderTrackingEntity);
         Optional<OrderEntity> orderEntity = orderRepository.findById(orderId);
