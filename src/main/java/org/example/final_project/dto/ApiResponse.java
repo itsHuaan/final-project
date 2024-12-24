@@ -1,7 +1,10 @@
 package org.example.final_project.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;

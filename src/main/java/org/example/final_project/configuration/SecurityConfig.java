@@ -1,8 +1,9 @@
 package org.example.final_project.configuration;
 
 import org.example.final_project.configuration.Oauth2.OAuth2UserService;
-import org.example.final_project.configuration.exception.*;
-import org.example.final_project.configuration.jwt.*;
+import org.example.final_project.configuration.exception.Forbidden;
+import org.example.final_project.configuration.exception.Unauthorized;
+import org.example.final_project.configuration.jwt.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,11 +20,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
 
 import java.util.Arrays;
 import java.util.Collections;
