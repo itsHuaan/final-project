@@ -68,7 +68,9 @@ public class ProductService implements IProductService {
             if (iUserRepository.findById(productModel.getUser_id()).isPresent()) {
                 productEntity.setUser(iUserRepository.findById(productModel.getUser_id()).get());
             }
-            productEntity.setCreatedAt(LocalDateTime.now());
+            productEntity.setIsActive(iProductRepository.findById(aLong).get().getIsActive());
+            productEntity.setCreatedAt(iProductRepository.findById(aLong).get().getCreatedAt());
+            productEntity.setModifiedAt(LocalDateTime.now());
             productEntity.setId(aLong);
             iProductRepository.save(productEntity);
         }
