@@ -36,8 +36,14 @@ public class NotificationController {
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<?> changeStatusNotification(@PathVariable long userId) {
-        int result = notificationService.changeStatusNotification(userId);
+    public ResponseEntity<?> changeStatusNotificationForUser(@PathVariable long userId) {
+        int result = notificationService.changeStatusNotificationForUser(userId);
+        return ResponseEntity.ok(result == 1 ? "Đã đọc" : "Chưa đọc");
+    }
+
+    @PutMapping("/{shopId}")
+    public ResponseEntity<?> changeStatusNotificationForShop(@PathVariable long shopId) {
+        int result = notificationService.changeStatusNotificationForShop(shopId);
         return ResponseEntity.ok(result == 1 ? "Đã đọc" : "Chưa đọc");
     }
 
