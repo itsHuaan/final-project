@@ -11,7 +11,7 @@ import org.example.final_project.entity.CategoryEntity;
 import org.example.final_project.entity.UserEntity;
 import org.example.final_project.mapper.CategoryMapper;
 import org.example.final_project.model.CategoryModel;
-import org.example.final_project.model.enum_status.ActivateStatus;
+import org.example.final_project.enumeration.ProductStatus;
 import org.example.final_project.repository.ICategoryRepository;
 import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.ICategoryService;
@@ -128,7 +128,7 @@ public class CategoryService implements ICategoryService {
         try {
             if (iCategoryRepository.findById(id).isPresent()) {
                 CategoryEntity categoryEntity = iCategoryRepository.findById(id).get();
-                if (ActivateStatus.Inactive.checkIfExist(type)) {
+                if (ProductStatus.INACTIVE.checkIfExist(type)) {
                     categoryEntity.setIsActive(type);
                     iCategoryRepository.save(categoryEntity);
                 } else {
@@ -167,6 +167,6 @@ public class CategoryService implements ICategoryService {
                 specification = specification.and(hasName(name));
             }
         }
-        return iCategoryRepository.findAll(specification, pageable).map(x -> categoryMapper.convertToDto(x));
+        return iCategoryRepository.findAll(specification, pageable).map(categoryMapper::convertToDto);
     }
 }

@@ -10,10 +10,10 @@ import org.example.final_project.dto.ChatMessageDto;
 import org.example.final_project.dto.ChatUserDto;
 import org.example.final_project.model.ChatMessageModel;
 import org.example.final_project.model.ChatNotificationModel;
-import org.example.final_project.model.validation.PageableValidation;
 import org.example.final_project.service.impl.ChatMessageService;
 import org.example.final_project.service.impl.ChatRoomService;
 import org.example.final_project.util.Const;
+import org.example.final_project.validation.PageableValidation;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -97,9 +97,18 @@ public class ChatController {
     @Operation(summary = "Retrieve all recipients who have chatted with the sender")
     @GetMapping("/{senderId}")
     public ResponseEntity<?> findChatUsers(@PathVariable long senderId) {
-        List<ChatUserDto> chatUsers = chatRoomService.getChatUsers(senderId);
-        HttpStatus status = !chatUsers.isEmpty() ? HttpStatus.OK : HttpStatus.NO_CONTENT;
-        String message = !chatUsers.isEmpty() ? "Fetched" : "No users fetched";
+        List<ChatUserDto> chatUsers;
+        HttpStatus status;
+        String message;
+        try {
+            chatUsers = chatRoomService.getChatUsers(senderId);
+            status = !chatUsers.isEmpty() ? HttpStatus.OK : HttpStatus.NO_CONTENT;
+            message = !chatUsers.isEmpty() ? "Fetched" : "No users fetched";
+        } catch (Exception e) {
+            chatUsers = null;
+            status = HttpStatus.BAD_REQUEST;
+            message = e.getMessage();
+        }
         return ResponseEntity.status(HttpStatus.OK).body(
                 createResponse(
                         status,

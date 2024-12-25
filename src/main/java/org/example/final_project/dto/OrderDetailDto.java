@@ -1,7 +1,6 @@
 package org.example.final_project.dto;
 
 import lombok.*;
-import org.example.final_project.model.enum_status.StatusShipping;
 
 import java.time.LocalDateTime;
 

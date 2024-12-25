@@ -33,7 +33,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class ExportExcelService {
+public class ExcelService {
     IOrderDetailRepository orderDetailRepository;
     IOrderRepository orderRepository;
     OrderMapper orderMapper;
@@ -68,8 +68,8 @@ public class ExportExcelService {
         List<OrderDto> list1 = getAllOrders(shopId);
 
         List<OrderDto> list = list1.stream()
-                .filter(t -> t.getCreatedAt().toLocalDate().isAfter(startDate.minusDays(1)) &&
-                        t.getCreatedAt().toLocalDate().isBefore(endDate.plusDays(1)))
+                .filter(t -> t.getCreatedAt().toLocalDate().isAfter(startDate) &&
+                        t.getCreatedAt().toLocalDate().isBefore(endDate))
                 .toList();
         for (int i = 0; i < list.size(); i++) {
             StringBuilder statusCheckout = new StringBuilder();

@@ -2,7 +2,7 @@ package org.example.final_project.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.example.final_project.model.PromotionModel;
-import org.example.final_project.model.validation.PageableValidation;
+import org.example.final_project.validation.PageableValidation;
 import org.example.final_project.service.IPromotionService;
 import org.example.final_project.util.Const;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.example.final_project.dto.ApiResponse.createResponse;
-import static org.example.final_project.model.validation.PageableValidation.setDefault;
+import static org.example.final_project.validation.PageableValidation.setDefault;
 
 @RestController
 @Tag(name = "Promotion")

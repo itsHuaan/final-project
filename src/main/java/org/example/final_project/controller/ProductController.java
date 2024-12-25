@@ -11,7 +11,7 @@ import org.example.final_project.dto.ProductOptionDetailDto;
 import org.example.final_project.dto.SKUDto;
 import org.example.final_project.model.FavoriteProductModel;
 import org.example.final_project.model.ProductModel;
-import org.example.final_project.model.validation.PageableValidation;
+import org.example.final_project.validation.PageableValidation;
 import org.example.final_project.service.IFavoriteProductService;
 import org.example.final_project.service.IProductOptionService;
 import org.example.final_project.service.IProductService;

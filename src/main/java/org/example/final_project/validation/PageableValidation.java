@@ -1,4 +1,4 @@
-package org.example.final_project.model.validation;
+package org.example.final_project.validation;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

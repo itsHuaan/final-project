@@ -11,7 +11,7 @@ import org.example.final_project.dto.ApiResponse;
 import org.example.final_project.dto.ShippingAddressDto;
 import org.example.final_project.dto.UserDto;
 import org.example.final_project.model.*;
-import org.example.final_project.model.validation.PageableValidation;
+import org.example.final_project.validation.PageableValidation;
 import org.example.final_project.service.*;
 import org.example.final_project.util.Const;
 import org.springframework.data.domain.Page;

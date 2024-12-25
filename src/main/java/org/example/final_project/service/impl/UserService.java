@@ -20,7 +20,7 @@ import org.example.final_project.entity.UserEntity;
 import org.example.final_project.entity.UserShippingAddressEntity;
 import org.example.final_project.mapper.UserMapper;
 import org.example.final_project.model.*;
-import org.example.final_project.model.enum_status.STATUS;
+import org.example.final_project.enumeration.ShopStatus;
 import org.example.final_project.repository.IAddressRepository;
 import org.example.final_project.repository.IRoleRepository;
 import org.example.final_project.repository.IShippingAddressRepository;
@@ -249,7 +249,7 @@ public class UserService implements IUserService, UserDetailsService {
                 userEntity.setShop_address_detail(request.getShop_address_detail());
                 userEntity.setPhone(request.getPhone());
                 userEntity.setTime_created_shop(LocalDateTime.now());
-                userEntity.setShop_status(STATUS.WAIT.getStatus());
+                userEntity.setShop_status(ShopStatus.PENDING.getValue());
                 userRepository.save(userEntity);
                 return createResponse(HttpStatus.OK, "Wait for confirm ", null);
             } else if (userEntity.getShop_status() == 1) {
@@ -322,10 +322,10 @@ public class UserService implements IUserService, UserDetailsService {
         }
 
         if (userEntity != null) {
-            userEntity.setName(request.getName() != null ? request.getName() : null);
-            userEntity.setPhone(request.getPhone());
-            userEntity.setEmail(request.getEmail());
-            userEntity.setGender(request.getGender());
+            userEntity.setName(request.getName() != null ? request.getName() : userEntity.getName());
+            userEntity.setPhone(request.getPhone() != null ? request.getPhone() : userEntity.getPhone());
+            userEntity.setEmail(request.getEmail() != null ? request.getEmail() : userEntity.getEmail());
+            userEntity.setGender(request.getGender() != null ? request.getGender() : userEntity.getGender());
 
             if (request.getProfilePicture() != null) {
                 try {
@@ -335,7 +335,9 @@ public class UserService implements IUserService, UserDetailsService {
                     ).get("url").toString();
                     userEntity.setProfilePicture(uploadedUrl);
                 } catch (IOException e) {
-                    userEntity.setProfilePicture(null);
+                    userEntity.setProfilePicture(userEntity.getProfilePicture() != null
+                            ? userEntity.getProfilePicture()
+                            : null);
                 }
             }
 
@@ -380,7 +382,6 @@ public class UserService implements IUserService, UserDetailsService {
             ));
         }
     }
-
 
     @Override
     public Page<UserDto> getAllShop(Integer status, Integer pageIndex, Integer pageSize) throws Exception {

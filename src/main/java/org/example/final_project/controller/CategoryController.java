@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.CategoryDto;
 import org.example.final_project.model.CategoryModel;
-import org.example.final_project.model.validation.PageableValidation;
+import org.example.final_project.validation.PageableValidation;
 import org.example.final_project.service.ICategoryService;
 import org.example.final_project.util.Const;
 import org.springframework.http.HttpStatus;

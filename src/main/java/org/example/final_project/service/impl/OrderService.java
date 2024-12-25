@@ -7,14 +7,14 @@ import lombok.RequiredArgsConstructor;
 import org.example.final_project.configuration.VnPay.PaymentService;
 import org.example.final_project.dto.*;
 import org.example.final_project.entity.*;
+import org.example.final_project.enumeration.CheckoutStatus;
+import org.example.final_project.enumeration.ShippingStatus;
 import org.example.final_project.mapper.OrderDetailMapper;
 import org.example.final_project.mapper.OrderMapper;
 import org.example.final_project.mapper.OrderTrackingMapper;
 import org.example.final_project.mapper.UserMapper;
 import org.example.final_project.model.CartItemRequest;
 import org.example.final_project.model.OrderModel;
-import org.example.final_project.model.enum_status.CheckoutStatus;
-import org.example.final_project.model.enum_status.StatusShipping;
 import org.example.final_project.repository.*;
 import org.example.final_project.service.IOrderService;
 import org.springframework.data.domain.Page;
@@ -54,6 +54,10 @@ public class OrderService implements IOrderService {
         String method = orderModel.getMethodCheckout();
         double totalPrice = Double.parseDouble(orderModel.getAmount());
         OrderEntity orderEntity = OrderMapper.toOrderEntity(orderModel);
+        UserEntity user = userRepository.findById(orderModel.getUserId()).orElse(null);
+        if (user == null) {
+            throw new IllegalArgumentException("User with ID " + orderModel.getUserId() + " not found");
+        }
         orderEntity.setUser(UserEntity.builder()
                 .userId(orderModel.getUserId())
                 .build());
@@ -61,7 +65,8 @@ public class OrderService implements IOrderService {
         orderEntity.setOrderCode(vnp_TxnRef);
         orderEntity.setPhoneReception(orderModel.getPhoneReception());
         orderEntity.setCreatedAt(LocalDateTime.now());
-        orderEntity.setStatusCheckout(CheckoutStatus.Pending.getStatus());
+        orderEntity.setCustomerName(user.getName());
+        orderEntity.setStatusCheckout(CheckoutStatus.PENDING.getValue());
         orderRepository.save(orderEntity);
         saveDataOrderTrackingAndDetail(orderModel, orderEntity);
         if (method.equalsIgnoreCase("vnpay")) {
@@ -71,7 +76,7 @@ public class OrderService implements IOrderService {
             emailService.sendOrderToEmail(orderModel, request);
             long id = orderRepository.findIdByOrderCode(vnp_TxnRef);
             List<OrderDetailEntity> orderDetailEntity = orderDetailRepository.findByOrderId(id);
-            sentNotificationfoShop(orderEntity, orderDetailEntity);
+            sentNotificationForShop(orderEntity, orderDetailEntity);
             return "đặt hàng thành công";
         }
     }
@@ -99,7 +104,7 @@ public class OrderService implements IOrderService {
                     orderTrackingRepository.save(orderTrackingEntity1);
                 } else {
                     OrderTrackingEntity trackingEntity = OrderTrackingEntity.builder()
-                            .status(StatusShipping.Create.getStatus())
+                            .status(ShippingStatus.CREATED.getValue())
                             .order(orderEntity)
                             .shopId(cartItemRequest.getShopId())
                             .createdAt(LocalDateTime.now())
@@ -131,8 +136,8 @@ public class OrderService implements IOrderService {
             orderDetails.forEach(orderDetail -> cartItemRepository.deleteByCartId(orderDetail.getCartDetailId()));
 
             if (status.equals("00")) {
-                order.setStatusCheckout(CheckoutStatus.Completed.getStatus());
-                sentNotificationfoShop(order, orderDetails);
+                order.setStatusCheckout(CheckoutStatus.COMPLETED.getValue());
+                sentNotificationForShop(order, orderDetails);
 
                 orderDetails.forEach(orderDetail -> {
                     Optional<SKUEntity> skuEntityOpt = skuRepository.findById(orderDetail.getSkuEntity().getId());
@@ -155,7 +160,7 @@ public class OrderService implements IOrderService {
                 orderRepository.save(order);
                 return createResponse(HttpStatus.OK, "Successful Payment ", null);
             } else {
-                order.setStatusCheckout(CheckoutStatus.Failed.getStatus());
+                order.setStatusCheckout(CheckoutStatus.FAILED.getValue());
                 orderRepository.save(order);
                 return createResponse(HttpStatus.OK, "Failed Payment ", null);
             }
@@ -165,7 +170,7 @@ public class OrderService implements IOrderService {
     }
 
 
-    public void sentNotificationfoShop(OrderEntity orderEntity, List<OrderDetailEntity> orderDetailEntity) {
+    public void sentNotificationForShop(OrderEntity orderEntity, List<OrderDetailEntity> orderDetailEntity) {
         for (OrderDetailEntity cartItemRequest1 : orderDetailEntity) {
             SKUEntity skuEntity = skuRepository.findById(cartItemRequest1.getSkuEntity().getId()).orElse(null);
             double total = cartItemRequest1.getQuantity() * cartItemRequest1.getPrice();
@@ -173,7 +178,7 @@ public class OrderService implements IOrderService {
             NotificationEntity notificationEntity = NotificationEntity.builder()
                     .image(skuEntity.getImage())
                     .title("Đơn hàng mới vừa được tạo ")
-                    .content("Mã đơn : " + orderEntity.getOrderCode() + " vừa được đặt với số tiền là : " + total)
+                    .content("Đơn hàng " + orderEntity.getOrderCode() + " vừa được tạo đặt với số tiền" + total)
                     .shopId(cartItemRequest1.getShopId())
                     .isRead(0)
                     .userId(orderEntity.getUser().getUserId())

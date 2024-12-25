@@ -1,5 +1,6 @@
 package org.example.final_project.service;
 
+import org.example.final_project.dto.AdminStatisticDto;
 import org.example.final_project.dto.CartSkuDto;
 import org.example.final_project.dto.PeriodicStatisticDto;
 import org.example.final_project.dto.ShopStatisticDto;
@@ -16,4 +17,6 @@ public interface IStatisticService {
     ShopStatisticDto getStatistics(long shopId, LocalDateTime startTime, LocalDateTime endTime);
 
     Page<CartSkuDto> getLowStockProducts(long shopId, int quantity, Pageable pageable);
+
+    AdminStatisticDto getAdminStatisticDto();
 }
