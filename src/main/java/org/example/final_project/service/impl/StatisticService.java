@@ -7,6 +7,7 @@ import org.example.final_project.dto.*;
 import org.example.final_project.entity.FeedbackEntity;
 import org.example.final_project.entity.OrderDetailEntity;
 import org.example.final_project.entity.ProductEntity;
+import org.example.final_project.enumeration.CheckoutStatus;
 import org.example.final_project.enumeration.ProductStatus;
 import org.example.final_project.enumeration.ShopStatus;
 import org.example.final_project.mapper.ProductMapper;
@@ -97,10 +98,7 @@ public class StatisticService implements IStatisticService {
                                 ProductSpecification.isNotDeleted())
                         .and(ProductSpecification.isStatus(ProductStatus.REJECTED.getValue())
                         )).size())
-                .topSellerShops(topSellerShops.stream()
-                        .filter(statisticShopDto -> statisticShopDto.getSold() > 0
-                        && statisticShopDto.getRating() > 0)
-                        .toList())
+                .topSellerShops(topSellerShops)
                 .build();
     }
 
@@ -112,6 +110,24 @@ public class StatisticService implements IStatisticService {
             LocalDateTime startTime = LocalDateTime.of(year, month, 1, 0, 0, 0, 0);
             LocalDateTime endTime = startTime.withDayOfMonth(startTime.toLocalDate().lengthOfMonth()).withHour(23).withMinute(59).withSecond(59);
             double currentRevenue = getRevenue(shopId, startTime, endTime);
+            double growthRate = 0;
+            if (previousRevenue != 0) {
+                growthRate = ((currentRevenue - previousRevenue) / previousRevenue) * 100;
+            }
+            statistics.add(new RevenueStatistic(month.getValue(), currentRevenue, (Math.round(growthRate * 100.0) / 100.0)));
+            previousRevenue = currentRevenue;
+        }
+        return statistics;
+    }
+
+    @Override
+    public List<RevenueStatistic> getRevenueStatistics(int year) {
+        List<RevenueStatistic> statistics = new ArrayList<>();
+        double previousRevenue = 0;
+        for (Month month : Month.values()) {
+            LocalDateTime startTime = LocalDateTime.of(year, month, 1, 0, 0, 0, 0);
+            LocalDateTime endTime = startTime.withDayOfMonth(startTime.toLocalDate().lengthOfMonth()).withHour(23).withMinute(59).withSecond(59);
+            double currentRevenue = getRevenue(startTime, endTime) * 0.1;
             double growthRate = 0;
             if (previousRevenue != 0) {
                 growthRate = ((currentRevenue - previousRevenue) / previousRevenue) * 100;
@@ -205,7 +221,16 @@ public class StatisticService implements IStatisticService {
         return orderDetailRepository.findAll(Specification.where(
                         hasShop(shopId)
                                 .and(OrderDetailSpecification.isBetween(startTime, endTime))
-                                .and(OrderDetailSpecification.hasStatus(2))
+                                .and(OrderDetailSpecification.hasStatus(CheckoutStatus.COMPLETED.getValue()))
+                )).stream()
+                .mapToDouble(orderDetail -> orderDetail.getQuantity() * orderDetail.getPrice())
+                .sum();
+    }
+
+    private double getRevenue(LocalDateTime startTime, LocalDateTime endTime) {
+        return orderDetailRepository.findAll(Specification.where(
+                        OrderDetailSpecification.isBetween(startTime, endTime)
+                                .and(OrderDetailSpecification.hasStatus(CheckoutStatus.COMPLETED.getValue()))
                 )).stream()
                 .mapToDouble(orderDetail -> orderDetail.getQuantity() * orderDetail.getPrice())
                 .sum();

@@ -10,6 +10,7 @@ import org.example.final_project.entity.OrderDetailEntity;
 import org.example.final_project.entity.ProductEntity;
 import org.example.final_project.entity.RoleEntity;
 import org.example.final_project.entity.UserEntity;
+import org.example.final_project.entity.FeedbackEntity;
 import org.example.final_project.model.UserModel;
 import org.example.final_project.repository.IOrderDetailRepository;
 import org.example.final_project.repository.IProductRepository;
@@ -82,22 +83,29 @@ public class UserMapper {
 
     public ShopDto toShopDto(UserEntity userEntity) {
         List<ProductEntity> products = productRepository.findAll(Specification.where(
-                                hasUserId(userEntity.getUserId()))
-                        .and(isValid()))
-                .stream()
-                .toList();
+                        hasUserId(userEntity.getUserId()))
+                .and(isValid()));
         List<OrderDetailEntity> orderDetails = orderDetailRepository.findAll(Specification.where(
                 OrderDetailSpecification.hasShop(userEntity.getUserId())));
         Map<ProductEntity, Long> productQuantities = orderDetails.stream()
-                .collect(Collectors.groupingBy(orderDetailEntity -> orderDetailEntity.getSkuEntity().getProduct(), Collectors.summingLong(OrderDetailEntity::getQuantity)));
-        double totalWeightedRating = products.stream()
-                .flatMap(product -> product.getFeedbacks().stream()
-                        .map(feedback -> feedback.getRate() * productQuantities.getOrDefault(product, 0L)))
-                .mapToDouble(Double::doubleValue)
-                .sum();
-        long totalSoldQuantity = productQuantities.values().stream()
-                .mapToLong(Long::longValue)
-                .sum();
+                .collect(Collectors.groupingBy(
+                        orderDetail -> orderDetail.getSkuEntity().getProduct(),
+                        Collectors.summingLong(OrderDetailEntity::getQuantity)
+                ));
+        double totalWeightedRating = 0.0;
+        long totalSoldQuantity = 0;
+
+        for (ProductEntity product : products) {
+            long productSoldQuantity = productQuantities.getOrDefault(product, 0L);
+            if (productSoldQuantity > 0) {
+                double productWeightedRating = product.getFeedbacks().stream()
+                        .mapToDouble(FeedbackEntity::getRate)
+                        .average()
+                        .orElse(0.0) * productSoldQuantity;
+                totalWeightedRating += productWeightedRating;
+                totalSoldQuantity += productSoldQuantity;
+            }
+        }
         double averageRating = totalSoldQuantity > 0
                 ? totalWeightedRating / totalSoldQuantity
                 : 0.0;
@@ -108,7 +116,8 @@ public class UserMapper {
         return ShopDto.builder()
                 .shopId(userEntity.getUserId())
                 .shopName(userEntity.getShop_name())
-                .shopAddress(String.join(", ", addressService.findAddressNamesFromParentId(Long.parseLong(String.valueOf(userEntity.getAddress_id_shop())))))
+                .shopAddress(String.join(", ", addressService.findAddressNamesFromParentId(
+                        Long.parseLong(String.valueOf(userEntity.getAddress_id_shop())))))
                 .shopAddressDetail(userEntity.getShop_address_detail())
                 .feedbackCount(products.stream()
                         .mapToLong(product -> product.getFeedbacks().size())
@@ -120,7 +129,6 @@ public class UserMapper {
                 .sold(totalSoldQuantity)
                 .build();
     }
-
 
     public UserFeedBackDto toUserFeedBackDto(UserEntity userEntity) {
         return UserFeedBackDto.builder()

@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.AdminStatisticDto;
 import org.example.final_project.dto.ApiResponse;
+import org.example.final_project.dto.RevenueStatistic;
 import org.example.final_project.dto.UserDto;
 import org.example.final_project.model.LockShopRequest;
 import org.example.final_project.model.ShopModel;
@@ -93,6 +94,20 @@ public class AdminController {
         HttpStatus status = statisticDto != null ? HttpStatus.OK : HttpStatus.NOT_FOUND;
         String message = statisticDto != null ? "Fetched" : "No statistics found";
         return ResponseEntity.status(status).body(createResponse(status, message, statisticDto));
+    }
+
+    @GetMapping("/revenue-statistic")
+    public ResponseEntity<?> getLowStock(@RequestParam int year) {
+        List<RevenueStatistic> revenueStatistics = statisticService.getRevenueStatistics(year);
+        HttpStatus status = !revenueStatistics.isEmpty() ? HttpStatus.OK : HttpStatus.NO_CONTENT;
+        String message = !revenueStatistics.isEmpty() ? "Fetched" : "No revenue data";
+        return ResponseEntity.status(HttpStatus.OK).body(
+                createResponse(
+                        status,
+                        message,
+                        revenueStatistics
+                )
+        );
     }
 
 }

@@ -74,32 +74,41 @@ public class UserSpecification {
     }
 
     public static Specification<UserEntity> sortedBySoldProductRatingRatio() {
-        return (Root<UserEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) -> {
-            Join<UserEntity, OrderEntity> orders = root.join("orderEntities", JoinType.LEFT);
-            Join<OrderEntity, OrderDetailEntity> orderDetails = orders.join("orderDetailEntities", JoinType.LEFT);
-            Join<UserEntity, FeedbackEntity> feedbacks = root.join("feedbacks", JoinType.LEFT);
+        return (Root<UserEntity> root, CriteriaQuery<?> query, CriteriaBuilder cb) -> {
+            // Join tables
+            Join<UserEntity, ProductEntity> products = root.join("products", JoinType.LEFT);
+            Join<ProductEntity, SKUEntity> skus = products.join("skuEntities", JoinType.LEFT);
+            Join<SKUEntity, OrderDetailEntity> orderDetails = skus.join("orderDetails", JoinType.LEFT);
+            Join<ProductEntity, FeedbackEntity> feedbacks = products.join("feedbacks", JoinType.LEFT);
 
-            Subquery<Long> productExists = criteriaQuery.subquery(Long.class);
-            Root<ProductEntity> productRoot = productExists.from(ProductEntity.class);
-            productExists.select(criteriaBuilder.literal(1L))
-                    .where(criteriaBuilder.equal(productRoot.get("user"), root));
+            // Calculate total quantity sold for the shop
+            Expression<Long> totalQuantitySold = cb.sum(orderDetails.get("quantity"));
 
-            Predicate shopActive = criteriaBuilder.equal(root.get("shop_status"), 1);
-            Predicate hasProducts = criteriaBuilder.exists(productExists);
-
-            Expression<Long> sumOfQuantity = criteriaBuilder.sum(orderDetails.get("quantity"));
-            Expression<Double> weightedRatingSum = criteriaBuilder.sum(
-                    criteriaBuilder.prod(feedbacks.get("rate"), orderDetails.get("quantity"))
+            // Calculate weighted rating sum (rating * quantity sold for each product)
+            Expression<Double> weightedRatingSum = cb.sum(
+                    cb.prod(feedbacks.get("rate"), orderDetails.get("quantity"))
             );
 
-            Expression<Object> ratingRatio = criteriaBuilder.selectCase()
-                    .when(criteriaBuilder.equal(sumOfQuantity, 0), 0.0)
-                    .otherwise(criteriaBuilder.quot(weightedRatingSum, sumOfQuantity));
+            // Weighted average rating for the shop
+            Expression<Object> weightedAverageRating = cb.selectCase()
+                    .when(cb.equal(totalQuantitySold, 0L), 0.0)
+                    .otherwise(cb.quot(weightedRatingSum, totalQuantitySold));
 
-            criteriaQuery.groupBy(root.get("userId"));
-            criteriaQuery.orderBy(criteriaBuilder.desc(ratingRatio));
+            // Ensure shop is active and has products
+            Subquery<Long> productExists = query.subquery(Long.class);
+            Root<ProductEntity> productRoot = productExists.from(ProductEntity.class);
+            productExists.select(cb.literal(1L))
+                    .where(cb.equal(productRoot.get("user"), root));
 
-            return criteriaBuilder.and(shopActive, hasProducts);
+            Predicate shopActive = cb.equal(root.get("shop_status"), 1);
+            Predicate hasProducts = cb.exists(productExists);
+
+            // Group by user and sort by weighted average rating
+            query.groupBy(root.get("userId"));
+            query.orderBy(cb.desc(weightedAverageRating));
+
+            return cb.and(shopActive, hasProducts);
         };
     }
+
 }
