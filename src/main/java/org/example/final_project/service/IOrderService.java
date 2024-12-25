@@ -8,7 +8,7 @@ import org.example.final_project.model.OrderModel;
 public interface IOrderService {
     String submitCheckout(OrderModel orderModel, HttpServletRequest request) throws Exception;
 
-    ApiResponse<?> statusPayment(HttpServletRequest request) throws Exception;
+    ApiResponse<?> getPaymentStatus(HttpServletRequest request) throws Exception;
 
     ApiResponse<?> getOrdersByShopId(long shopId, Integer pageIndex, Integer pageSize, Integer statusShipping);
 
