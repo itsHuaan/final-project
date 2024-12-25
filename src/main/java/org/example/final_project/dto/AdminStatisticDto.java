@@ -11,6 +11,7 @@ import java.util.List;
 @Builder
 public class AdminStatisticDto {
     private long totalUsers;
+    private long totalNewUsers;
     private long totalLockedUsers;
     private long totalShops;
     private long totalLockedShops;
@@ -18,5 +19,5 @@ public class AdminStatisticDto {
     private long totalRejectedShops;
     private long totalLockedProducts;
     private long totalRejectedProducts;
-    private List<ShopDto> topSellerShops;
+    private List<StatisticShopDto> topSellerShops;
 }

@@ -8,6 +8,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.example.final_project.dto.CartSkuDto;
 import org.example.final_project.dto.PeriodicStatisticDto;
+import org.example.final_project.dto.RevenueStatistic;
 import org.example.final_project.dto.ShopStatisticDto;
 import org.example.final_project.validation.PageableValidation;
 import org.example.final_project.service.IOrderService;
@@ -92,6 +93,21 @@ public class AdminShopController {
                         status,
                         message,
                         lowStockProducts
+                )
+        );
+    }
+
+    @GetMapping("/{shopId}/revenue-statistic")
+    public ResponseEntity<?> getLowStock(@PathVariable Long shopId,
+                                         @RequestParam int year) {
+        List<RevenueStatistic> revenueStatistics = statisticService.getRevenueStatistics(shopId, year);
+        HttpStatus status = !revenueStatistics.isEmpty() ? HttpStatus.OK : HttpStatus.NO_CONTENT;
+        String message = !revenueStatistics.isEmpty() ? "Fetched" : "No revenue data";
+        return ResponseEntity.status(HttpStatus.OK).body(
+                createResponse(
+                        status,
+                        message,
+                        revenueStatistics
                 )
         );
     }
