@@ -3,8 +3,10 @@ package org.example.final_project.service.impl;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.example.final_project.dto.SKUDto;
 import org.example.final_project.dto.StatusMessageDto;
 import org.example.final_project.entity.*;
+import org.example.final_project.mapper.SKUMapper;
 import org.example.final_project.model.enum_status.CheckoutStatus;
 import org.example.final_project.model.enum_status.StatusShipping;
 import org.example.final_project.repository.*;
@@ -24,6 +26,7 @@ public class OrderTrackingService implements IOrderTrackingService {
     IOrderRepository orderRepository;
     IUserRepository userRepository;
     INotificationRepository notificationRepository;
+    SKUMapper skuMapper;
 
 
     @Override
@@ -51,20 +54,27 @@ public class OrderTrackingService implements IOrderTrackingService {
     }
 
     public void notificatioForUser(StatusMessageDto statusMessageDto) {
-        NotificationEntity notificationEntity = new NotificationEntity();
+
         OrderEntity orderEntity = orderRepository.findById(statusMessageDto.getOrderId()).orElse(null);
         List<OrderDetailEntity> orderDetailEntity = orderDetailRepository.findByOrderId(statusMessageDto.getOrderId());
 
+        assert orderEntity != null;
         String OrderCode = orderEntity.getOrderCode();
 
         UserEntity user = userRepository.findById(statusMessageDto.getShopId()).orElse(null);
+
+        SKUEntity skuEntity = orderDetailEntity.get(0).getSkuEntity();
+        SKUDto skuDto = skuMapper.convertToDto(skuEntity);
+
+
+        assert user != null;
         String shopName = user.getShop_name();
         String title = "";
         String content = "";
         String shipping = "SPX Express";
         String image;
-        if (orderDetailEntity.get(1).getSkuEntity().getImage() != null) {
-            image = orderDetailEntity.get(1).getSkuEntity().getImage();
+        if (skuDto.getImage() != null) {
+            image = skuDto.getImage();
         } else {
             image = null;
         }
@@ -85,13 +95,14 @@ public class OrderTrackingService implements IOrderTrackingService {
             title = "Xác nhận đã nhận hàng";
             content = "Vui lòng chỉ ấn 'Đã nhận được hàng' khi đơn hàng" + OrderCode + "đã được giao đến bạn và sản phẩm không có vấn đề nào";
         }
-
-        notificationEntity.setUserId(statusMessageDto.getUserId());
-        notificationEntity.setTitle(title);
-        notificationEntity.setContent(content);
-        notificationEntity.setIsRead(0);
-        notificationEntity.setCreatedAt(LocalDateTime.now());
-        notificationEntity.setImage(image);
+        NotificationEntity notificationEntity = NotificationEntity.builder()
+                .userId(statusMessageDto.getUserId())
+                .title(title)
+                .content(content)
+                .isRead(0)
+                .createdAt(LocalDateTime.now())
+                .image(image)
+                .build();
         notificationRepository.save(notificationEntity);
 
     }
