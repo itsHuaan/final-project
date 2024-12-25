@@ -139,15 +139,21 @@ public class CartController {
     @PostMapping("/{userId}")
     public ResponseEntity<?> addToCart(@PathVariable Long userId,
                                        @RequestBody AddToCartRequest request) {
-        int quantity = request.getQuantity() != 0 ? request.getQuantity() : 1;
+        if (request.getQuantity() <= 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    createResponse(HttpStatus.BAD_REQUEST,
+                            "Invalid quantity.",
+                            null)
+            );
+        }
         try {
             CartDto cart = cartService.getUserCart(userId);
-            CartItemModel cartItem = new CartItemModel(cart.getCartId(), request.getProductId(), quantity);
+            CartItemModel cartItem = new CartItemModel(cart.getCartId(), request.getProductId(), request.getQuantity());
             int addToCart = cartItemService.save(cartItem);
             if (addToCart == 1) {
                 return ResponseEntity.status(HttpStatus.CREATED).body(
                         createResponse(HttpStatus.CREATED,
-                                "Added " + quantity + " product of " + request.getProductId() + " to cart.",
+                                "Added " + request.getQuantity() + " product of " + request.getProductId() + " to cart.",
                                 null)
                 );
             } else {

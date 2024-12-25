@@ -6,14 +6,12 @@ import org.example.final_project.dto.CartUserDto;
 import org.example.final_project.dto.ShopDto;
 import org.example.final_project.dto.UserDto;
 import org.example.final_project.dto.UserFeedBackDto;
-import org.example.final_project.entity.FeedbackEntity;
-import org.example.final_project.entity.ProductEntity;
-import org.example.final_project.entity.RoleEntity;
-import org.example.final_project.entity.UserEntity;
+import org.example.final_project.entity.*;
 import org.example.final_project.model.UserModel;
-import org.example.final_project.repository.IChatRepository;
+import org.example.final_project.repository.IOrderDetailRepository;
 import org.example.final_project.repository.IProductRepository;
 import org.example.final_project.service.IAddressService;
+import org.example.final_project.specification.OrderDetailSpecification;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
@@ -21,17 +19,17 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.example.final_project.specification.ProductSpecification.*;
+import static org.example.final_project.specification.ProductSpecification.hasUserId;
+import static org.example.final_project.specification.ProductSpecification.isValid;
 
 @Component
 @RequiredArgsConstructor
 @FieldDefaults(makeFinal = true)
 public class UserMapper {
     ShippingAddressMapper shippingAddressMapper;
-
+    IOrderDetailRepository orderDetailRepository;
     IAddressService addressService;
     IProductRepository productRepository;
-    IChatRepository chatRepository;
 
     public UserDto toDto(UserEntity userEntity) {
         return UserDto.builder()
@@ -106,6 +104,11 @@ public class UserMapper {
                 .joined(duration.toDays())
                 .profilePicture(userEntity.getProfilePicture())
                 .rating(Math.round(averageRating * 100.0) / 100.0)
+                .sold(orderDetailRepository.findAll(Specification.where(
+                                OrderDetailSpecification.hasShop(userEntity.getUserId())
+                        )).stream()
+                        .mapToLong(OrderDetailEntity::getQuantity)
+                        .sum())
                 .build();
     }
 

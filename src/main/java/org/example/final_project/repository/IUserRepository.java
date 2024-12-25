@@ -36,5 +36,24 @@ public interface IUserRepository extends JpaRepository<UserEntity, Long>, JpaSpe
     @Query("select u from UserEntity u where u.userId in :userId")
     Page<UserEntity> findByUserId(List<Long> userId, Pageable pageable);
 
-
+    @Query("""
+    SELECT u
+    FROM UserEntity u
+    LEFT JOIN u.orderEntities o
+    LEFT JOIN o.orderDetailEntities od
+    LEFT JOIN u.feedbacks f
+    WHERE u.shop_status = 1
+      AND EXISTS (
+          SELECT p
+          FROM ProductEntity p
+          WHERE p.user = u
+      )
+    GROUP BY u.userId
+    ORDER BY 
+        CASE 
+            WHEN SUM(od.quantity) = 0 THEN 0
+            ELSE COALESCE(SUM(f.rate * od.quantity), 0) / SUM(od.quantity)
+        END DESC
+""")
+    Page<UserEntity> findUsersSortedBySoldProductRatingRatio(Pageable pageable);
 }
