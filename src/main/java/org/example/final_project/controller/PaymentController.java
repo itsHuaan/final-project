@@ -73,7 +73,7 @@ public class PaymentController {
     @GetMapping("/vnpay-return")
     public ResponseEntity<Void> paymentReturn(HttpServletRequest request) {
         try {
-            orderService.statusPayment(request);
+            orderService.getPaymentStatus(request);
             String vnp_TxnRef = (String) request.getAttribute("tex");
             String amount = orderService.getTotalPrice(vnp_TxnRef);
             OrderModel order = orderService.sentNotify(request);

@@ -31,13 +31,13 @@ public class OrderTrackingController {
     @GetMapping("/{userId}/ship-status")
     public ResponseEntity<?> findByStatusShipping(@PathVariable Long userId,
                                                   @RequestParam Long shippingStatus) {
-        return ResponseEntity.ok(orderDetailService.getOrderDetailFlowShippingStatus(userId, shippingStatus));
+        return ResponseEntity.ok(orderDetailService.getOrderDetailByShippingStatus(userId, shippingStatus));
     }
 
     @GetMapping("/{userId}/detail-order")
     public ResponseEntity<?> detailOrderUser(@PathVariable long userId, @RequestParam long orderId, @RequestParam long shopId) {
         try {
-            return ResponseEntity.ok(orderDetailService.findDetailIn4OfOrder(userId, orderId, shopId));
+            return ResponseEntity.ok(orderDetailService.findOrderDetailInfo(userId, orderId, shopId));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not Found Order Item");
         }
@@ -46,7 +46,7 @@ public class OrderTrackingController {
     @GetMapping("/{userId}/find-order")
     public ResponseEntity<?> findOrder(@PathVariable long userId, @RequestParam String orderCode) {
         try {
-            return ResponseEntity.ok(orderDetailService.findOrderInforByOrderCode(userId, orderCode));
+            return ResponseEntity.ok(orderDetailService.findOrderInfoByOrderCode(userId, orderCode));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not Found Order");
         }

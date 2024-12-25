@@ -47,7 +47,7 @@ public class OrderDetailService implements IOrderDetailService {
 
 
     @Override
-    public ApiResponse<?> getOrderDetailFlowShippingStatus(long userId, long shippingStatus) {
+    public ApiResponse<?> getOrderDetailByShippingStatus(long userId, long shippingStatus) {
         List<Long> orderId = orderRepository.findOrderIdsByUserId(userId); // 2 3 5
         List<Long> orderIdTracking = orderDetailRepository.findOrderDetailsByStatus(shippingStatus);// 3 5 7
 
@@ -63,7 +63,7 @@ public class OrderDetailService implements IOrderDetailService {
     }
 
     @Override
-    public ApiResponse<?> findDetailIn4OfOrder(long userId, long orderId, long shopId) {
+    public ApiResponse<?> findOrderDetailInfo(long userId, long orderId, long shopId) {
         List<OrderDetailEntity> orderDetailEntity = orderDetailRepository.shopOrder(shopId, orderId);
         List<OrderDetailDto> orderDetailDtos = orderDetailEntity.stream().map(orderDetailMapper::toOrderDto).toList();
 
@@ -87,7 +87,7 @@ public class OrderDetailService implements IOrderDetailService {
     }
 
     @Override
-    public ApiResponse<?> findOrderInforByOrderCode(long userId, String orderCode) {
+    public ApiResponse<?> findOrderInfoByOrderCode(long userId, String orderCode) {
         long orderId = orderRepository.findOrderIdByUserIdAndOrderCode(userId, orderCode);
         List<OrderDetailEntity> orderDetailEntities = orderDetailRepository.findByOrderId(orderId);
         List<OrderDetailDto> orderDetailDtos = orderDetailEntities.stream().map(orderDetailMapper::toOrderDto).toList();

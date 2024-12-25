@@ -124,7 +124,7 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public ApiResponse<?> statusPayment(HttpServletRequest request) throws Exception {
+    public ApiResponse<?> getPaymentStatus(HttpServletRequest request) throws Exception {
         String status = request.getParameter("vnp_ResponseCode");
         String vnp_TxnRef = request.getParameter("vnp_TxnRef");
         long id = orderRepository.findIdByOrderCode(vnp_TxnRef);

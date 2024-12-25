@@ -83,7 +83,7 @@ public class UserController {
     @Operation(summary = "Create Shop")
     @PreAuthorize("hasRole('ROLE_BUYER') or hasRole('ROLE_SELLER')")
     @PostMapping("/register-shop")
-    public ResponseEntity<?> registerForBeingShop(@ModelAttribute ShopRegisterRequest request) {
+    public ResponseEntity<?> registerForBeingShop(ShopRegisterRequest request) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(userService.registerForBeingShop(request));
         } catch (HttpClientErrorException.Conflict e) {
@@ -108,7 +108,7 @@ public class UserController {
     @Operation(summary = "Update password")
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/change-password")
-    public ResponseEntity<?> changePassword(ChangePasswordRequest request) {
+    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth.getPrincipal() instanceof UserDetailsImpl userDetails) {
             String username = userDetails.getUsername();
@@ -134,7 +134,7 @@ public class UserController {
     @Operation(summary = "Update profile")
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/update-profile")
-    public ResponseEntity<?> updateProfile(@ModelAttribute ProfileUpdateRequest request) {
+    public ResponseEntity<?> updateProfile(ProfileUpdateRequest request) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth.getPrincipal() instanceof UserDetailsImpl userDetails) {
             String username = userDetails.getUsername();
