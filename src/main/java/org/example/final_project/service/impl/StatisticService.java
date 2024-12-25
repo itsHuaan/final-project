@@ -198,7 +198,9 @@ public class StatisticService implements IStatisticService {
     }
 
     private List<ShopDto> getTopSellerShops(){
-        return List.of();
+        return userRepository.findUsersSortedBySoldProductRatingRatio(PageRequest.of(0, 10)).stream()
+                .map(userMapper::toShopDto)
+                .toList();
     }
 
     private long getTotalRejectedProduct(){

@@ -86,7 +86,7 @@ public class AdminController {
     }
 
     @Operation(summary = "Get statistics")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+//    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/statistics")
     public ResponseEntity<?> getStatistics() {
         AdminStatisticDto statisticDto = statisticService.getAdminStatisticDto();
