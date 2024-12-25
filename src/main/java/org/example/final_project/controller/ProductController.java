@@ -6,8 +6,8 @@ import jakarta.servlet.annotation.MultipartConfig;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.example.final_project.dto.ProductDto;
 import org.example.final_project.dto.ProductOptionDetailDto;
+import org.example.final_project.dto.ProductSummaryDto;
 import org.example.final_project.dto.SKUDto;
 import org.example.final_project.model.FavoriteProductModel;
 import org.example.final_project.model.ProductModel;
@@ -43,7 +43,7 @@ public class ProductController {
     public ResponseEntity<?> getProductById(@PathVariable("product-id") Long productId,
                                             @RequestParam Integer type) {
         try {
-            ProductDto result = productService.getByIdCustom(productId, type);
+            ProductSummaryDto result = productService.getByIdCustom(productId, type);
             return result != null
                     ? ResponseEntity.status(HttpStatus.OK).body(
                     createResponse(
