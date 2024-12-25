@@ -10,7 +10,7 @@ import org.example.final_project.dto.ChatMessageDto;
 import org.example.final_project.dto.ChatUserDto;
 import org.example.final_project.model.ChatMessageModel;
 import org.example.final_project.model.ChatNotificationModel;
-import org.example.final_project.model.validation.PageableValidation;
+import org.example.final_project.validation.PageableValidation;
 import org.example.final_project.service.impl.ChatMessageService;
 import org.example.final_project.service.impl.ChatRoomService;
 import org.example.final_project.util.Const;

@@ -1,24 +1,22 @@
-package org.example.final_project.model.enum_status;
+package org.example.final_project.enumeration;
 
-public enum ActivateStatus {
-    Active(1),
-    Inactive(2),
+import lombok.Getter;
 
-    NotConfirmed(0);
+@Getter
+public enum ProductStatus {
+    ACTIVE(1),
+    INACTIVE(2),
+    REJECTED(0);
 
     private final int value;
 
-    ActivateStatus(int value) {
+    ProductStatus(int value) {
         this.value = value;
-    }
-
-    public int getValue() {
-        return value;
     }
 
     public boolean checkIfExist(int value) {
         boolean check = false;
-        for (ActivateStatus e_value : ActivateStatus.values()) {
+        for (ProductStatus e_value : ProductStatus.values()) {
             if (value == e_value.getValue()) {
                 check = true;
                 break;

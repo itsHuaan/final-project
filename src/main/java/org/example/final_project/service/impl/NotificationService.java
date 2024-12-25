@@ -9,7 +9,7 @@ import org.example.final_project.entity.NotificationEntity;
 import org.example.final_project.entity.UserEntity;
 import org.example.final_project.mapper.NotificationMapper;
 import org.example.final_project.model.NotificationModel;
-import org.example.final_project.model.enum_status.StatusNotification;
+import org.example.final_project.enumeration.NotificationStatus;
 import org.example.final_project.repository.INotificationRepository;
 import org.example.final_project.repository.IOrderDetailRepository;
 import org.example.final_project.repository.IUserRepository;
@@ -30,7 +30,7 @@ import static org.example.final_project.dto.ApiResponse.createResponse;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class NotifycationService implements INotificationService {
+public class NotificationService implements INotificationService {
     INotificationRepository notificationRepository;
     IUserRepository userRepository;
     IOrderDetailRepository orderDetailRepository;
@@ -101,7 +101,7 @@ public class NotifycationService implements INotificationService {
         List<NotificationEntity> notificationEntityList = notificationRepository.findListByUserId(userId);
         for (NotificationEntity notificationEntity : notificationEntityList) {
             if (notificationEntity.getIsRead() == 0) {
-                notificationEntity.setIsRead(StatusNotification.Read.ordinal());
+                notificationEntity.setIsRead(NotificationStatus.READ.ordinal());
                 notificationRepository.save(notificationEntity);
             }
         }

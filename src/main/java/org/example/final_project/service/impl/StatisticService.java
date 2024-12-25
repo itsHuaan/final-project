@@ -10,8 +10,8 @@ import org.example.final_project.entity.ProductEntity;
 import org.example.final_project.mapper.ProductMapper;
 import org.example.final_project.mapper.UserMapper;
 import org.example.final_project.mapper.VariantMapper;
-import org.example.final_project.model.enum_status.ActivateStatus;
-import org.example.final_project.model.enum_status.STATUS;
+import org.example.final_project.enumeration.ProductStatus;
+import org.example.final_project.enumeration.ShopStatus;
 import org.example.final_project.repository.IOrderDetailRepository;
 import org.example.final_project.repository.IProductRepository;
 import org.example.final_project.repository.ISKURepository;
@@ -204,14 +204,14 @@ public class StatisticService implements IStatisticService {
     private long getTotalRejectedProduct(){
         return productRepository.findAll(Specification.where(
                 ProductSpecification.isNotDeleted()
-                        .and(ProductSpecification.isStatus(ActivateStatus.NotConfirmed.ordinal()))
+                        .and(ProductSpecification.isStatus(ProductStatus.REJECTED.getValue()))
         )).size();
     }
 
     private long getTotalLockedProduct(){
         return productRepository.findAll(Specification.where(
                 ProductSpecification.isNotDeleted()
-                        .and(ProductSpecification.isStatus(ActivateStatus.Inactive.ordinal()))
+                        .and(ProductSpecification.isStatus(ProductStatus.INACTIVE.getValue()))
         )).size();
     }
 
@@ -219,7 +219,7 @@ public class StatisticService implements IStatisticService {
         return userRepository.findAll(Specification.where(
                 UserSpecification.isNotDeleted()
                         .and(UserSpecification.isShop()
-                                .and(UserSpecification.hasShopStatus(STATUS.REFUSE.ordinal())))
+                                .and(UserSpecification.hasShopStatus(ShopStatus.REJECTED.getValue())))
         )).size();
     }
 
@@ -227,7 +227,7 @@ public class StatisticService implements IStatisticService {
         return userRepository.findAll(Specification.where(
                 UserSpecification.isNotDeleted()
                         .and(UserSpecification.isShop()
-                                .and(UserSpecification.hasShopStatus(STATUS.WAIT.ordinal())))
+                                .and(UserSpecification.hasShopStatus(ShopStatus.PENDING.getValue())))
         )).size();
     }
 
@@ -235,7 +235,7 @@ public class StatisticService implements IStatisticService {
         return userRepository.findAll(Specification.where(
                 UserSpecification.isNotDeleted()
                         .and(UserSpecification.isShop()
-                                .and(UserSpecification.hasShopStatus(STATUS.LOCKED.ordinal())))
+                                .and(UserSpecification.hasShopStatus(ShopStatus.LOCKED.getValue())))
         )).size();
     }
 

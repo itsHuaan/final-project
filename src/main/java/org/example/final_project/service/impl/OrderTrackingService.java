@@ -7,8 +7,8 @@ import org.example.final_project.dto.SKUDto;
 import org.example.final_project.dto.StatusMessageDto;
 import org.example.final_project.entity.*;
 import org.example.final_project.mapper.SKUMapper;
-import org.example.final_project.model.enum_status.CheckoutStatus;
-import org.example.final_project.model.enum_status.StatusShipping;
+import org.example.final_project.enumeration.CheckoutStatus;
+import org.example.final_project.enumeration.ShippingStatus;
 import org.example.final_project.repository.*;
 import org.example.final_project.service.IOrderTrackingService;
 import org.springframework.stereotype.Service;
@@ -33,15 +33,15 @@ public class OrderTrackingService implements IOrderTrackingService {
     public int updateStatusShipping(StatusMessageDto messageDto) {
         Optional<OrderTrackingEntity> orderTrackingEntity = orderTrackingRepository.findByOrderIdAndShopId(messageDto.getOrderId(), messageDto.getShopId());
 //        List<OrderDetailEntity> orderDetailEntityList = orderDetailRepository.shopOrder(messageDto.getShopId(), messageDto.getOrderId());
-        notificatioForUser(messageDto);
+        notificationForUser(messageDto);
         if (orderTrackingEntity.isPresent()) {
             OrderTrackingEntity orderTrackingEntity1 = orderTrackingEntity.get();
-            if (messageDto.getStatus() == StatusShipping.Completed.getStatus()) {
+            if (messageDto.getStatus() == ShippingStatus.COMPLETED.getValue()) {
                 orderTrackingEntity1.setPaidDate(LocalDateTime.now());
                 Optional<OrderEntity> optionalOrderEntity = orderRepository.findById(messageDto.getOrderId());
                 if (optionalOrderEntity.isPresent()) {
                     OrderEntity orderEntity = optionalOrderEntity.get();
-                    orderEntity.setStatusCheckout(CheckoutStatus.Completed.getStatus());
+                    orderEntity.setStatusCheckout(CheckoutStatus.COMPLETED.getValue());
                     orderRepository.save(orderEntity);
                 }
             }
@@ -53,11 +53,12 @@ public class OrderTrackingService implements IOrderTrackingService {
         return 0;
     }
 
-    public void notificatioForUser(StatusMessageDto statusMessageDto) {
+    public void notificationForUser(StatusMessageDto statusMessageDto) {
         NotificationEntity notificationEntity = new NotificationEntity();
         OrderEntity orderEntity = orderRepository.findById(statusMessageDto.getOrderId()).orElse(null);
         List<OrderDetailEntity> orderDetailEntity = orderDetailRepository.findByOrderId(statusMessageDto.getOrderId());
 
+        assert orderEntity != null;
         String OrderCode = orderEntity.getOrderCode();
 
         UserEntity user = userRepository.findById(statusMessageDto.getShopId()).orElse(null);
@@ -66,6 +67,7 @@ public class OrderTrackingService implements IOrderTrackingService {
         SKUDto skuDto = skuMapper.convertToDto(skuEntity);
 
 
+        assert user != null;
         String shopName = user.getShop_name();
         String title = "";
         String content = "";
@@ -76,20 +78,20 @@ public class OrderTrackingService implements IOrderTrackingService {
         } else {
             image = null;
         }
-        if (statusMessageDto.getStatus() == StatusShipping.Confirmed.getStatus()) {
+        if (statusMessageDto.getStatus() == ShippingStatus.CONFIRMED.getValue()) {
             title = "Xác nhận đơn hàng ";
             content = "Đơn hàng " + OrderCode + "đã được Người bán " + shopName + " xác nhận ";
         }
-        if (statusMessageDto.getStatus() == StatusShipping.Shipping_confirmed.getStatus()) {
+        if (statusMessageDto.getStatus() == ShippingStatus.CONFIRMED_SHIPPING.getValue()) {
             title = "Đang vận chuyển";
             content = "Đơn hàng " + OrderCode + " đã được Người bán " + shopName + " giao cho đợn vị vận chuyển qua phương thức vận chuyển " + shipping;
 
         }
-        if (statusMessageDto.getStatus() == StatusShipping.Delivering.getStatus()) {
+        if (statusMessageDto.getStatus() == ShippingStatus.DELIVERING.getValue()) {
             title = "Bạn có đơn hàng đang trên đường giao ";
             content = "Shipper báo rằng : đơn hàng " + OrderCode + "của bạn đang trong quá trình vận chuyển và dữ kiến giao trong 1-2 ngày tới . Vui lòng bỏ qua thông báo này nếu bạn đang nhận được hàng nhé";
         }
-        if (statusMessageDto.getStatus() == StatusShipping.Completed.getStatus()) {
+        if (statusMessageDto.getStatus() == ShippingStatus.COMPLETED.getValue()) {
             title = "Xác nhận đã nhận hàng";
             content = "Vui lòng chỉ ấn 'Đã nhận được hàng' khi đơn hàng" + OrderCode + "đã được giao đến bạn và sản phẩm không có vấn đề nào";
         }
