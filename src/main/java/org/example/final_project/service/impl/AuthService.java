@@ -8,7 +8,7 @@ import org.example.final_project.configuration.jwt.JwtProvider;
 import org.example.final_project.dto.ApiResponse;
 import org.example.final_project.dto.SignInResponse;
 import org.example.final_project.model.*;
-import org.example.final_project.model.validation.AuthValidation;
+import org.example.final_project.validation.AuthValidation;
 import org.example.final_project.service.*;
 import org.example.final_project.util.EmailTemplate;
 import org.springframework.http.HttpStatus;

@@ -1,4 +1,4 @@
-package org.example.final_project.model.validation;
+package org.example.final_project.validation;
 
 import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Value;

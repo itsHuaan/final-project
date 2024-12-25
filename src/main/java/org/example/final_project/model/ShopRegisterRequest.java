@@ -1,7 +1,6 @@
 package org.example.final_project.model;
 
 import lombok.*;
-import org.example.final_project.model.enum_status.STATUS;
 import org.springframework.web.multipart.MultipartFile;
 
 @Getter

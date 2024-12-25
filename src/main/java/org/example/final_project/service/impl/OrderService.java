@@ -7,14 +7,14 @@ import lombok.RequiredArgsConstructor;
 import org.example.final_project.configuration.VnPay.PaymentService;
 import org.example.final_project.dto.*;
 import org.example.final_project.entity.*;
+import org.example.final_project.enumeration.CheckoutStatus;
+import org.example.final_project.enumeration.ShippingStatus;
 import org.example.final_project.mapper.OrderDetailMapper;
 import org.example.final_project.mapper.OrderMapper;
 import org.example.final_project.mapper.OrderTrackingMapper;
 import org.example.final_project.mapper.UserMapper;
 import org.example.final_project.model.CartItemRequest;
 import org.example.final_project.model.OrderModel;
-import org.example.final_project.model.enum_status.CheckoutStatus;
-import org.example.final_project.model.enum_status.StatusShipping;
 import org.example.final_project.repository.*;
 import org.example.final_project.service.IOrderService;
 import org.springframework.data.domain.Page;
@@ -61,7 +61,7 @@ public class OrderService implements IOrderService {
         orderEntity.setOrderCode(vnp_TxnRef);
         orderEntity.setPhoneReception(orderModel.getPhoneReception());
         orderEntity.setCreatedAt(LocalDateTime.now());
-        orderEntity.setStatusCheckout(CheckoutStatus.Pending.getStatus());
+        orderEntity.setStatusCheckout(CheckoutStatus.PENDING.getValue());
         orderRepository.save(orderEntity);
         saveDataOrderTrackingAndDetail(orderModel, orderEntity);
         if (method.equalsIgnoreCase("vnpay")) {
@@ -99,7 +99,7 @@ public class OrderService implements IOrderService {
                     orderTrackingRepository.save(orderTrackingEntity1);
                 } else {
                     OrderTrackingEntity trackingEntity = OrderTrackingEntity.builder()
-                            .status(StatusShipping.Create.getStatus())
+                            .status(ShippingStatus.CREATED.getValue())
                             .order(orderEntity)
                             .shopId(cartItemRequest.getShopId())
                             .createdAt(LocalDateTime.now())
@@ -131,7 +131,7 @@ public class OrderService implements IOrderService {
             orderDetails.forEach(orderDetail -> cartItemRepository.deleteByCartId(orderDetail.getCartDetailId()));
 
             if (status.equals("00")) {
-                order.setStatusCheckout(CheckoutStatus.Completed.getStatus());
+                order.setStatusCheckout(CheckoutStatus.COMPLETED.getValue());
                 sentNotificationfoShop(order, orderDetails);
 
                 orderDetails.forEach(orderDetail -> {
@@ -155,7 +155,7 @@ public class OrderService implements IOrderService {
                 orderRepository.save(order);
                 return createResponse(HttpStatus.OK, "Successful Payment ", null);
             } else {
-                order.setStatusCheckout(CheckoutStatus.Failed.getStatus());
+                order.setStatusCheckout(CheckoutStatus.FAILED.getValue());
                 orderRepository.save(order);
                 return createResponse(HttpStatus.OK, "Failed Payment ", null);
             }
