@@ -2,6 +2,7 @@ package org.example.final_project.repository;
 
 import org.example.final_project.entity.OrderTrackingEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -25,6 +26,11 @@ public interface IOrderTrackingRepository extends JpaRepository<OrderTrackingEnt
 
     @Query("select case when count(t) > 0 then 1 else 0 end from OrderTrackingEntity t where t.order.id = :orderId and t.paidDate is not null")
     int checkPaidDateExistByOrderId(@Param("orderId") long orderId);
+
+
+    @Modifying
+    @Query("UPDATE OrderTrackingEntity o SET o.status = :status WHERE o.order.id = :orderId")
+    void updateStatusByOrderId(@Param("status") int status, @Param("orderId") Long orderId);
 
 
 }

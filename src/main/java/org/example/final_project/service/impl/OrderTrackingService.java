@@ -76,14 +76,16 @@ public class OrderTrackingService implements IOrderTrackingService {
         SKUDto skuDto = skuMapper.convertToDto(skuEntity);
 
 
-        assert user != null;
+        if (user == null) {
+            throw new IllegalStateException("user is null");
+        }
         String shopName = user.getShop_name();
         String title;
         String content;
         String shipping = "SPX Express";
         String image;
 
-
+        
         if (skuDto.getImage() != null) {
             image = skuDto.getImage();
         } else {

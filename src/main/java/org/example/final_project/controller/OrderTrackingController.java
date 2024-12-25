@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.StatusMessageDto;
+import org.example.final_project.model.CancelOrderModel;
 import org.example.final_project.service.IOrderDetailService;
 import org.example.final_project.service.IOrderTrackingService;
 import org.example.final_project.util.Const;
@@ -68,5 +69,10 @@ public class OrderTrackingController {
                 message,
                 null
         ));
+    }
+
+    @PutMapping("/cancel")
+    public ResponseEntity<?> cancel(@RequestBody CancelOrderModel cancelOrderModel) {
+        return ResponseEntity.ok(orderDetailService.cancelOrder(cancelOrderModel));
     }
 }

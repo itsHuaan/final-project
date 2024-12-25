@@ -17,6 +17,7 @@ import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.IEmailService;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.text.NumberFormat;
@@ -55,6 +56,7 @@ public class EmailService implements IEmailService {
         return formattedAmount.replace("₫", "").trim();
     }
 
+    @Async
     public void sendOrderToEmail(OrderModel orderModel, HttpServletRequest request) throws Exception {
         MimeMessage mimeMessage = emailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
