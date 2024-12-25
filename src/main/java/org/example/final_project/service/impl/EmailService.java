@@ -73,12 +73,7 @@ public class EmailService implements IEmailService {
         String vnp_TxnRef = (String) request.getAttribute("tex");
         String amount = orderModel.getAmount();
 
-        Optional<UserEntity> optUser = userRepository.findById(orderModel.getUserId());
-        UserEntity user = new UserEntity();
-        if (optUser.isPresent()) {
-            user = optUser.get();
-        }
-        String userName = user.getUsername();
+        String userName = orderModel.getCustomerName();
 
         String formattedAmount = formatCurrency(Double.parseDouble(amount));
 

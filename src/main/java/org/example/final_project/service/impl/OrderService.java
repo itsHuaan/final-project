@@ -54,10 +54,6 @@ public class OrderService implements IOrderService {
         String method = orderModel.getMethodCheckout();
         double totalPrice = Double.parseDouble(orderModel.getAmount());
         OrderEntity orderEntity = OrderMapper.toOrderEntity(orderModel);
-        UserEntity user = userRepository.findById(orderModel.getUserId()).orElse(null);
-        if (user == null) {
-            throw new IllegalArgumentException("User with ID " + orderModel.getUserId() + " not found");
-        }
         orderEntity.setUser(UserEntity.builder()
                 .userId(orderModel.getUserId())
                 .build());
@@ -65,7 +61,7 @@ public class OrderService implements IOrderService {
         orderEntity.setOrderCode(vnp_TxnRef);
         orderEntity.setPhoneReception(orderModel.getPhoneReception());
         orderEntity.setCreatedAt(LocalDateTime.now());
-        orderEntity.setCustomerName(user.getName());
+        orderEntity.setCustomerName(orderModel.getCustomerName());
         orderEntity.setStatusCheckout(CheckoutStatus.PENDING.getValue());
         orderRepository.save(orderEntity);
         saveDataOrderTrackingAndDetail(orderModel, orderEntity);
@@ -174,7 +170,9 @@ public class OrderService implements IOrderService {
         for (OrderDetailEntity cartItemRequest1 : orderDetailEntity) {
             SKUEntity skuEntity = skuRepository.findById(cartItemRequest1.getSkuEntity().getId()).orElse(null);
             double total = cartItemRequest1.getQuantity() * cartItemRequest1.getPrice();
-            assert skuEntity != null;
+            if (skuEntity == null) {
+                throw new IllegalArgumentException("Not found Sku");
+            }
             NotificationEntity notificationEntity = NotificationEntity.builder()
                     .image(skuEntity.getImage())
                     .title("Đơn hàng mới vừa được tạo ")

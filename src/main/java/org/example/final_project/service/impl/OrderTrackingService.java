@@ -6,9 +6,9 @@ import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.SKUDto;
 import org.example.final_project.dto.StatusMessageDto;
 import org.example.final_project.entity.*;
-import org.example.final_project.mapper.SKUMapper;
 import org.example.final_project.enumeration.CheckoutStatus;
 import org.example.final_project.enumeration.ShippingStatus;
+import org.example.final_project.mapper.SKUMapper;
 import org.example.final_project.repository.*;
 import org.example.final_project.service.IOrderTrackingService;
 import org.springframework.stereotype.Service;
@@ -33,7 +33,7 @@ public class OrderTrackingService implements IOrderTrackingService {
     public int updateStatusShipping(StatusMessageDto messageDto) {
         Optional<OrderTrackingEntity> orderTrackingEntity = orderTrackingRepository.findByOrderIdAndShopId(messageDto.getOrderId(), messageDto.getShopId());
 //        List<OrderDetailEntity> orderDetailEntityList = orderDetailRepository.shopOrder(messageDto.getShopId(), messageDto.getOrderId());
-        notificatioForUser(messageDto);
+        notificationForUser(messageDto);
         if (orderTrackingEntity.isPresent()) {
             OrderTrackingEntity orderTrackingEntity1 = orderTrackingEntity.get();
             if (messageDto.getStatus() == ShippingStatus.COMPLETED.getValue()) {
@@ -53,7 +53,7 @@ public class OrderTrackingService implements IOrderTrackingService {
         return 0;
     }
 
-    public void notificatioForUser(StatusMessageDto statusMessageDto) {
+    public void notificationForUser(StatusMessageDto statusMessageDto) {
 
         OrderEntity orderEntity = orderRepository.findById(statusMessageDto.getOrderId()).orElse(null);
         List<OrderDetailEntity> orderDetailEntity = orderDetailRepository.findByOrderId(statusMessageDto.getOrderId());
@@ -66,8 +66,10 @@ public class OrderTrackingService implements IOrderTrackingService {
         SKUEntity skuEntity = orderDetailEntity.get(0).getSkuEntity();
         SKUDto skuDto = skuMapper.convertToDto(skuEntity);
 
+        if (user == null) {
+            throw new IllegalArgumentException("Not found user");
+        }
 
-        assert user != null;
         String shopName = user.getShop_name();
         String title = "";
         String content = "";

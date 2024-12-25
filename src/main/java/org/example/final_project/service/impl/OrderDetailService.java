@@ -78,12 +78,12 @@ public class OrderDetailService implements IOrderDetailService {
             orderEntity1 = orderEntity.get();
         }
         OrderDto orderDto = orderMapper.toOrderDto(orderEntity1);
-        OrderTotalDto orderTotalDto1 = OrderTotalDto.builder()
+        OrderTotalDto orderTotalDto = OrderTotalDto.builder()
                 .orderDetails(orderDetailDtos)
                 .orderTracking(orderTrackingDto)
                 .order(orderDto)
                 .build();
-        return ApiResponse.createResponse(HttpStatus.OK, "get order detail", orderTotalDto1);
+        return ApiResponse.createResponse(HttpStatus.OK, "get order detail", orderTotalDto);
     }
 
     @Override
