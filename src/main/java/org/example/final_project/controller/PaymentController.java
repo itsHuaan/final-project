@@ -13,6 +13,7 @@ import org.example.final_project.model.OrderModel;
 import org.example.final_project.service.IOrderService;
 import org.example.final_project.service.IUserService;
 import org.example.final_project.util.Const;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
@@ -57,17 +58,25 @@ public class PaymentController {
     @PostMapping("/create-payment")
     public ResponseEntity<?> submitOrder(@RequestBody OrderModel order,
                                          HttpServletRequest request) throws Exception {
-        request.setAttribute("amount", order.getAmount());
-        String tex = VnPayUtil.getRandomNumber(8);
-        request.setAttribute("tex", tex);
-        if (order.getMethodCheckout().equalsIgnoreCase("vnpay")) {
-            String vnpayUrl = orderService.submitCheckout(order, request);
-            return ResponseEntity.ok().body(vnpayUrl);
-        } else {
-            notifyShops(order);
-            return ResponseEntity.ok().body(orderService.submitCheckout(order, request));
-        }
 
+
+        List<CartItemRequest> cartItemRequest = order.getCartItems();
+        for (CartItemRequest cartItem : cartItemRequest) {
+            int result = orderService.checkQuatity(cartItem.getProductSkuId(), cartItem.getQuantity());
+            if (result == 0) {
+                request.setAttribute("amount", order.getAmount());
+                String tex = VnPayUtil.getRandomNumber(8);
+                request.setAttribute("tex", tex);
+                if (order.getMethodCheckout().equalsIgnoreCase("vnpay")) {
+                    String vnpayUrl = orderService.submitCheckout(order, request);
+                    return ResponseEntity.ok().body(vnpayUrl);
+                } else {
+                    notifyShops(order);
+                    return ResponseEntity.ok().body(orderService.submitCheckout(order, request));
+                }
+            }
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("so luong qua lon");
     }
 
     @GetMapping("/vnpay-return")
