@@ -9,7 +9,7 @@ import org.example.final_project.entity.NotificationEntity;
 import org.example.final_project.entity.UserEntity;
 import org.example.final_project.mapper.NotificationMapper;
 import org.example.final_project.model.NotificationModel;
-import org.example.final_project.model.enum_status.StatusNotification;
+import org.example.final_project.enumeration.NotificationStatus;
 import org.example.final_project.repository.INotificationRepository;
 import org.example.final_project.repository.IOrderDetailRepository;
 import org.example.final_project.repository.IUserRepository;
@@ -21,7 +21,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -30,14 +29,14 @@ import static org.example.final_project.dto.ApiResponse.createResponse;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class NotifycationService implements INotificationService {
+public class NotificationService implements INotificationService {
     INotificationRepository notificationRepository;
     IUserRepository userRepository;
     IOrderDetailRepository orderDetailRepository;
 
 
     @Override
-    public int sentNotification(List<NotificationModel> notificationModels) throws IOException {
+    public int sentNotification(List<NotificationModel> notificationModels) {
         for (NotificationModel notificationModel : notificationModels) {
             if (notificationModel.getAdminId() == 1) {
                 if (notificationModel.getUserId() == 0) {
@@ -101,7 +100,7 @@ public class NotifycationService implements INotificationService {
         List<NotificationEntity> notificationEntityList = notificationRepository.findListByUserId(userId);
         for (NotificationEntity notificationEntity : notificationEntityList) {
             if (notificationEntity.getIsRead() == 0) {
-                notificationEntity.setIsRead(StatusNotification.Read.ordinal());
+                notificationEntity.setIsRead(NotificationStatus.READ.ordinal());
                 notificationRepository.save(notificationEntity);
             }
         }

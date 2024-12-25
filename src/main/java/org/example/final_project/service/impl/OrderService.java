@@ -1,19 +1,20 @@
 package org.example.final_project.service.impl;
 
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.example.final_project.configuration.VnPay.PaymentService;
 import org.example.final_project.dto.*;
 import org.example.final_project.entity.*;
+import org.example.final_project.enumeration.CheckoutStatus;
+import org.example.final_project.enumeration.ShippingStatus;
 import org.example.final_project.mapper.OrderDetailMapper;
 import org.example.final_project.mapper.OrderMapper;
 import org.example.final_project.mapper.OrderTrackingMapper;
 import org.example.final_project.mapper.UserMapper;
 import org.example.final_project.model.CartItemRequest;
 import org.example.final_project.model.OrderModel;
-import org.example.final_project.model.enum_status.CheckoutStatus;
-import org.example.final_project.model.enum_status.StatusShipping;
 import org.example.final_project.repository.*;
 import org.example.final_project.service.IOrderService;
 import org.springframework.data.domain.Page;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.example.final_project.dto.ApiResponse.createResponse;
 
@@ -52,16 +54,48 @@ public class OrderService implements IOrderService {
         String method = orderModel.getMethodCheckout();
         double totalPrice = Double.parseDouble(orderModel.getAmount());
         OrderEntity orderEntity = OrderMapper.toOrderEntity(orderModel);
-        UserEntity userEntity = new UserEntity();
-        userEntity.setUserId(orderModel.getUserId());
-        orderEntity.setUser(userEntity);
+        UserEntity user = userRepository.findById(orderModel.getUserId()).orElse(null);
+        if (user == null) {
+            throw new IllegalArgumentException("User with ID " + orderModel.getUserId() + " not found");
+        }
+        orderEntity.setUser(UserEntity.builder()
+                .userId(orderModel.getUserId())
+                .build());
         orderEntity.setTotalPrice(totalPrice);
         orderEntity.setOrderCode(vnp_TxnRef);
         orderEntity.setPhoneReception(orderModel.getPhoneReception());
         orderEntity.setCreatedAt(LocalDateTime.now());
-        orderEntity.setStatusCheckout(CheckoutStatus.Pending.getStatus());
+        orderEntity.setCustomerName(user.getName());
+        orderEntity.setStatusCheckout(CheckoutStatus.PENDING.getValue());
         orderRepository.save(orderEntity);
+        saveDataOrderTrackingAndDetail(orderModel, orderEntity);
+        if (method.equalsIgnoreCase("vnpay")) {
+            return paymentService.creatUrlPaymentForVnPay(request);
+        } else {
+            loadDataCod(orderModel);
+            emailService.sendOrderToEmail(orderModel, request);
+            long id = orderRepository.findIdByOrderCode(vnp_TxnRef);
+            List<OrderDetailEntity> orderDetailEntity = orderDetailRepository.findByOrderId(id);
+            sentNotificationForShop(orderEntity, orderDetailEntity);
+            return "đặt hàng thành công";
+        }
+    }
 
+    public void loadDataCod(OrderModel orderModel) {
+        if (orderModel.getCartItems() != null) {
+            for (CartItemRequest cartItemRequest : orderModel.getCartItems()) {
+                Optional<SKUEntity> skuEntity = skuRepository.findById(cartItemRequest.getProductSkuId());
+                if (skuEntity.isPresent()) {
+                    SKUEntity skuEntity1 = skuEntity.get();
+                    skuEntity1.setQuantity(skuEntity1.getQuantity() - cartItemRequest.getQuantity());
+                    cartItemRepository.deleteByCartId(cartItemRequest.getCartDetailId());
+                    skuRepository.save(skuEntity1);
+                }
+            }
+        }
+    }
+
+    public void saveDataOrderTrackingAndDetail(OrderModel orderModel, OrderEntity orderEntity) {
         if (orderModel.getCartItems() != null) {
             for (CartItemRequest cartItemRequest : orderModel.getCartItems()) {
                 Optional<OrderTrackingEntity> orderTrackingEntity = orderTrackingRepository.findByOrderIdAndShopId(orderEntity.getId(), cartItemRequest.getShopId());
@@ -69,25 +103,17 @@ public class OrderService implements IOrderService {
                     OrderTrackingEntity orderTrackingEntity1 = orderTrackingEntity.get();
                     orderTrackingRepository.save(orderTrackingEntity1);
                 } else {
-                    OrderTrackingEntity trackingEntity = new OrderTrackingEntity();
-                    trackingEntity.setStatus(StatusShipping.Create.getStatus());
-                    trackingEntity.setOrder(orderEntity);
-                    trackingEntity.setShopId(cartItemRequest.getShopId());
-                    trackingEntity.setCreatedAt(LocalDateTime.now());
-                    orderTrackingRepository.save(trackingEntity);
-                }
-//                OrderDetailEntity orderDetailEntity = OrderDetailMapper.toEntity(cartItemRequest);
+                    OrderTrackingEntity trackingEntity = OrderTrackingEntity.builder()
+                            .status(ShippingStatus.CREATED.getValue())
+                            .order(orderEntity)
+                            .shopId(cartItemRequest.getShopId())
+                            .createdAt(LocalDateTime.now())
+                            .build();
 
-                OrderDetailEntity orderDetailEntity = new OrderDetailEntity();
-                orderDetailEntity.setOrderEntity(orderEntity);
-                orderDetailEntity.setPrice(cartItemRequest.getPrice());
-                orderDetailEntity.setQuantity(cartItemRequest.getQuantity());
-                orderDetailEntity.setOption1(cartItemRequest.getOption1());
-                orderDetailEntity.setOption2(cartItemRequest.getOption2());
-                orderDetailEntity.setShopId(cartItemRequest.getShopId());
-                orderDetailEntity.setNameProduct(cartItemRequest.getNameProduct());
-                orderDetailEntity.setCreateAt(LocalDateTime.now());
-                orderDetailEntity.setCartDetailId(cartItemRequest.getCartDetailId());
+                    orderTrackingRepository.save(trackingEntity);
+
+                }
+                OrderDetailEntity orderDetailEntity = OrderDetailMapper.toEntity(cartItemRequest);
                 orderDetailEntity.setOrderEntity(orderEntity);
                 SKUEntity skuEntity = new SKUEntity();
                 skuEntity.setId(cartItemRequest.getProductSkuId());
@@ -95,91 +121,70 @@ public class OrderService implements IOrderService {
                 orderDetailRepository.save(orderDetailEntity);
             }
         }
-        if (method.equalsIgnoreCase("vnpay")) {
-            return paymentService.creatUrlPaymentForVnPay(request);
-        } else {
-
-            if (orderModel.getCartItems() != null) {
-                for (CartItemRequest cartItemRequest : orderModel.getCartItems()) {
-                    Optional<SKUEntity> skuEntity = skuRepository.findById(cartItemRequest.getProductSkuId());
-                    if (skuEntity.isPresent()) {
-                        SKUEntity skuEntity1 = skuEntity.get();
-                        skuEntity1.setQuantity(skuEntity1.getQuantity() - cartItemRequest.getQuantity());
-                        cartItemRepository.deleteByCartId(cartItemRequest.getCartDetailId());
-                        skuRepository.save(skuEntity1);
-                    }
-                }
-            }
-            emailService.sendOrderToEmail(orderModel, request);
-            long id = orderRepository.findIdByOrderCode(vnp_TxnRef);
-            List<OrderDetailEntity> orderDetailEntity = orderDetailRepository.findByOrderId(id);
-            sentNotificationfoShop(orderEntity, orderDetailEntity);
-            return "đặt hàng thành công";
-        }
     }
 
-
     @Override
-    public ApiResponse<?> statusPayment(HttpServletRequest request) throws Exception {
+    public ApiResponse<?> getPaymentStatus(HttpServletRequest request) throws Exception {
         String status = request.getParameter("vnp_ResponseCode");
         String vnp_TxnRef = request.getParameter("vnp_TxnRef");
         long id = orderRepository.findIdByOrderCode(vnp_TxnRef);
         Optional<OrderEntity> orderEntity = orderRepository.findById(id);
-        OrderEntity order;
-
-        List<OrderDetailEntity> orderEntities = orderDetailRepository.findByOrderId(id);
-        for (OrderDetailEntity orderDetailEntity : orderEntities) {
-            cartItemRepository.deleteByCartId(orderDetailEntity.getCartDetailId());
-        }
 
         if (orderEntity.isPresent()) {
+            OrderEntity order = orderEntity.get();
+            List<OrderDetailEntity> orderDetails = orderDetailRepository.findByOrderId(id);
+            orderDetails.forEach(orderDetail -> cartItemRepository.deleteByCartId(orderDetail.getCartDetailId()));
+
             if (status.equals("00")) {
-                order = orderEntity.get();
-                List<OrderDetailEntity> orderDetailEntity = orderDetailRepository.findByOrderId(id);
-                sentNotificationfoShop(order, orderDetailEntity);
-                order.setStatusCheckout(CheckoutStatus.Completed.getStatus());
+                order.setStatusCheckout(CheckoutStatus.COMPLETED.getValue());
+                sentNotificationForShop(order, orderDetails);
+
+                orderDetails.forEach(orderDetail -> {
+                    Optional<SKUEntity> skuEntityOpt = skuRepository.findById(orderDetail.getSkuEntity().getId());
+                    if (skuEntityOpt.isPresent()) {
+                        SKUEntity skuEntity = skuEntityOpt.get();
+                        skuEntity.setQuantity(skuEntity.getQuantity() - orderDetail.getQuantity());
+                        skuRepository.save(skuEntity);
+                    }
+                });
+
                 OrderModel orderModel = new OrderModel();
                 orderModel.setUserId(order.getUser().getUserId());
                 orderModel.setAmount(String.valueOf(order.getTotalPrice()));
-                List<CartItemRequest> cartItemRequest = order.getOrderDetailEntities().stream().map(e -> OrderDetailMapper.toDTO(e)).toList();
-                orderModel.setCartItems(cartItemRequest);
-                for (CartItemRequest itemRequest : cartItemRequest) {
-                    Optional<SKUEntity> skuEntity = skuRepository.findById(itemRequest.getProductSkuId());
-                    if (skuEntity.isPresent()) {
-                        SKUEntity skuEntity1 = skuEntity.get();
-                        skuEntity1.setQuantity(skuEntity1.getQuantity() - itemRequest.getQuantity());
-                        skuRepository.save(skuEntity1);
-                    }
-                }
+                orderModel.setCartItems(orderDetails.stream()
+                        .map(OrderDetailMapper::toDTO)
+                        .collect(Collectors.toList()));
                 request.setAttribute("tex", order.getOrderCode());
                 emailService.sendOrderToEmail(orderModel, request);
+
                 orderRepository.save(order);
                 return createResponse(HttpStatus.OK, "Successful Payment ", null);
             } else {
-                order = orderEntity.get();
-                order.setStatusCheckout(CheckoutStatus.Failed.getStatus());
+                order.setStatusCheckout(CheckoutStatus.FAILED.getValue());
                 orderRepository.save(order);
                 return createResponse(HttpStatus.OK, "Failed Payment ", null);
             }
-
         }
+
         return createResponse(HttpStatus.NOT_FOUND, "Not Found User ", null);
     }
 
 
-    public void sentNotificationfoShop(OrderEntity orderEntity, List<OrderDetailEntity> orderDetailEntity) {
+    public void sentNotificationForShop(OrderEntity orderEntity, List<OrderDetailEntity> orderDetailEntity) {
         for (OrderDetailEntity cartItemRequest1 : orderDetailEntity) {
             SKUEntity skuEntity = skuRepository.findById(cartItemRequest1.getSkuEntity().getId()).orElse(null);
             double total = cartItemRequest1.getQuantity() * cartItemRequest1.getPrice();
-            NotificationEntity notificationEntity = new NotificationEntity();
-            notificationEntity.setImage(skuEntity.getImage());
-            notificationEntity.setTitle("Đơn hàng mới vừa được tạo ");
-            notificationEntity.setContent("Mã đơn : " + orderEntity.getOrderCode() + "vừa được đặt với số tiền là :" + total);
-            notificationEntity.setShopId(cartItemRequest1.getShopId());
-            notificationEntity.setIsRead(0);
+            assert skuEntity != null;
+            NotificationEntity notificationEntity = NotificationEntity.builder()
+                    .image(skuEntity.getImage())
+                    .title("Đơn hàng mới vừa được tạo ")
+                    .content("Đơn hàng " + orderEntity.getOrderCode() + " vừa được tạo đặt với số tiền" + total)
+                    .shopId(cartItemRequest1.getShopId())
+                    .isRead(0)
+                    .userId(orderEntity.getUser().getUserId())
+                    .createdAt(LocalDateTime.now())
+                    .build();
 //            notificationEntity.setAdminId(0L);
-//            notificationEntity.setUserId(orderEntity.getUser().getUserId());
-            notificationEntity.setCreatedAt(LocalDateTime.now());
             iNotificationRepository.save(notificationEntity);
         }
     }
@@ -193,11 +198,11 @@ public class OrderService implements IOrderService {
         Optional<OrderEntity> orderEntity = orderRepository.findById(id);
         OrderEntity order;
         if (status.equals("00")) {
-            order = orderEntity.get();
+            order = orderEntity.orElseThrow(() -> new EntityNotFoundException("Order not found "));
             OrderModel orderModel = new OrderModel();
             orderModel.setUserId(order.getUser().getUserId());
             orderModel.setAmount(String.valueOf(order.getTotalPrice()));
-            List<CartItemRequest> cartItemRequest = order.getOrderDetailEntities().stream().map(e -> OrderDetailMapper.toDTO(e)).toList();
+            List<CartItemRequest> cartItemRequest = order.getOrderDetailEntities().stream().map(OrderDetailMapper::toDTO).toList();
             orderModel.setCartItems(cartItemRequest);
             return orderModel;
         } else {
@@ -235,9 +240,9 @@ public class OrderService implements IOrderService {
     @Override
     public ApiResponse<?> getOrderTracking(Long orderId, Long shopId) {
         List<OrderDetailEntity> orderDetailEntity = orderDetailRepository.shopOrder(shopId, orderId);
-        List<OrderDetailDto> orderDetailDtos = orderDetailEntity.stream().map(e -> orderDetailMapper.toOrderDto(e)).toList();
+        List<OrderDetailDto> orderDetailDtos = orderDetailEntity.stream().map(orderDetailMapper::toOrderDto).toList();
         Optional<OrderTrackingEntity> orderTrackingEntity = orderTrackingRepository.findByOrderIdAndShopId(orderId, shopId);
-        OrderTrackingEntity orderTrackingEntity1 = new OrderTrackingEntity();
+        OrderTrackingEntity orderTrackingEntity1;
         if (orderTrackingEntity.isPresent()) {
             orderTrackingEntity1 = orderTrackingEntity.get();
         } else {
@@ -272,14 +277,9 @@ public class OrderService implements IOrderService {
     @Override
     public OrderDto findByShopIdAndCodeOrder(long shopId, String orderCode) {
         Optional<OrderEntity> orderEntity = orderRepository.findOrderIdByShopIdAndOrderCode(shopId, orderCode);
-        OrderEntity orderEntity1 = new OrderEntity();
-        if (orderEntity.isPresent()) {
-            orderEntity1 = orderEntity.get();
-        } else {
-            orderEntity1 = new OrderEntity();
-        }
-        OrderDto orderDto = orderMapper.toOrderDto(orderEntity1);
-        return orderDto;
+        OrderEntity orderEntity1;
+        orderEntity1 = orderEntity.orElseGet(OrderEntity::new);
+        return orderMapper.toOrderDto(orderEntity1);
     }
 
     @Override

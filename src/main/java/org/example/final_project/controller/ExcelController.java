@@ -4,12 +4,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.example.final_project.service.impl.ExportExcelService;
+import org.example.final_project.service.impl.ExcelService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -18,16 +16,22 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ExcelController {
-    ExportExcelService exportExcelService;
+    ExcelService excelService;
 
     @GetMapping("/excel/{shopId}")
-    public ResponseEntity<?> readExcel(@PathVariable("shopId") Long shopId, HttpServletResponse response,
-                                       @RequestParam String startTime,
-                                       @RequestParam String endTime
+    public ResponseEntity<String> exportExcel(@PathVariable("shopId") Long shopId, HttpServletResponse response,
+                                              @RequestParam String startTime,
+                                              @RequestParam String endTime
     ) throws IOException {
         LocalDate startDate = LocalDate.parse(startTime);
         LocalDate endDate = LocalDate.parse(endTime);
-        exportExcelService.exportOrderToExcel(shopId, response, startDate, endDate);
+        excelService.exportOrderToExcel(shopId, response, startDate, endDate);
         return ResponseEntity.ok("đã gửi");
+    }
+
+    @PostMapping("/import")
+    public ResponseEntity<String> importExcel(@RequestParam("file") MultipartFile file) throws IOException {
+        excelService.importExcel(file);
+        return ResponseEntity.ok("import thành công");
     }
 }

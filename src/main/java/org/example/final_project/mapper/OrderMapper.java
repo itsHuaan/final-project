@@ -19,7 +19,7 @@ public class OrderMapper {
         return OrderEntity.builder()
                 .shippingAddress(order.getAddressShipping())
                 .methodCheckout(order.getMethodCheckout())
-
+                
                 .build();
     }
 

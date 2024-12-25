@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.final_project.dto.CartSkuDto;
 import org.example.final_project.dto.PeriodicStatisticDto;
 import org.example.final_project.dto.ShopStatisticDto;
-import org.example.final_project.model.validation.PageableValidation;
+import org.example.final_project.validation.PageableValidation;
 import org.example.final_project.service.IOrderService;
 import org.example.final_project.service.IStatisticService;
 import org.example.final_project.util.Const;

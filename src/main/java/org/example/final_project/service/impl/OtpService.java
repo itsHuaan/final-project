@@ -8,7 +8,6 @@ import org.example.final_project.entity.OtpEntity;
 import org.example.final_project.mapper.OtpMapper;
 import org.example.final_project.model.OtpModel;
 import org.example.final_project.repository.IOtpRepository;
-import org.example.final_project.service.IEmailService;
 import org.example.final_project.service.IOtpService;
 import org.example.final_project.specification.OtpSpecification;
 import org.springframework.data.jpa.domain.Specification;
@@ -18,9 +17,9 @@ import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.example.final_project.specification.OtpSpecification.*;
 import static org.example.final_project.util.Const.OTP_LENGTH;
 import static org.example.final_project.util.Const.SALTCHARS;
-import static org.example.final_project.specification.OtpSpecification.*;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +28,7 @@ public class OtpService implements IOtpService {
 
     IOtpRepository otpRepository;
     OtpMapper otpMapper;
-    IEmailService emailService;
+    
 
     @Override
     public List<OtpDto> getAll() {

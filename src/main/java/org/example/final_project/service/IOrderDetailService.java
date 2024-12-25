@@ -5,11 +5,11 @@ import org.example.final_project.dto.ApiResponse;
 public interface IOrderDetailService {
     ApiResponse<?> getOrderDetail(long userId);
 
-    ApiResponse<?> getOrderDetailFlowShippingStatus(long userId, long shippingStatus);
+    ApiResponse<?> getOrderDetailByShippingStatus(long userId, long shippingStatus);
 
-    ApiResponse<?> findDetailIn4OfOrder(long userId, long oderId, long shopId);
+    ApiResponse<?> findOrderDetailInfo(long userId, long oderId, long shopId);
 
-    ApiResponse<?> findOrderInforByOrderCode(long userId, String orderCode);
+    ApiResponse<?> findOrderInfoByOrderCode(long userId, String orderCode);
 
     int updateFeedbackStatus(long orderDetailId);
 }

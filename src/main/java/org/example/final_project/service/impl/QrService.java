@@ -19,6 +19,7 @@ import java.io.IOException;
 public class QrService implements IQrService {
 
 
+    @Override
     public ApiResponse<?> getUserInfo(MultipartFile file) throws IOException, ChecksumException, NotFoundException, FormatException {
         if (file.isEmpty()) {
             return ApiResponse.createResponse(HttpStatus.BAD_REQUEST, "không có ảnh", null);

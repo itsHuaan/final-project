@@ -26,6 +26,9 @@ public class ProductDto {
     private LocalDateTime deletedAt;
     private CategoryDto category;
     private List<ImageProductDto> images;
+    private double oldPrice;
+    private double newPrice;
+    private double discountPercentage;
     private List<SKUDto> variants;
     private ShopDto shop;
     private List<FeedbackDto> feedbacks;
