@@ -12,6 +12,6 @@ public class ProfileUpdateRequest {
     private String name;
     private String phone;
     private String email;
-    private int gender;
+    private Integer gender;
     private MultipartFile profilePicture;
 }

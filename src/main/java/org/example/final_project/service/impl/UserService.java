@@ -322,10 +322,10 @@ public class UserService implements IUserService, UserDetailsService {
         }
 
         if (userEntity != null) {
-            userEntity.setName(request.getName() != null ? request.getName() : null);
-            userEntity.setPhone(request.getPhone());
-            userEntity.setEmail(request.getEmail());
-            userEntity.setGender(request.getGender());
+            userEntity.setName(request.getName() != null ? request.getName() : userEntity.getName());
+            userEntity.setPhone(request.getPhone() != null ? request.getPhone() : userEntity.getPhone());
+            userEntity.setEmail(request.getEmail() != null ? request.getEmail() : userEntity.getEmail());
+            userEntity.setGender(request.getGender() != null ? request.getGender() : userEntity.getGender());
 
             if (request.getProfilePicture() != null) {
                 try {
@@ -335,7 +335,9 @@ public class UserService implements IUserService, UserDetailsService {
                     ).get("url").toString();
                     userEntity.setProfilePicture(uploadedUrl);
                 } catch (IOException e) {
-                    userEntity.setProfilePicture(null);
+                    userEntity.setProfilePicture(userEntity.getProfilePicture() != null
+                            ? userEntity.getProfilePicture()
+                            : null);
                 }
             }
 
@@ -380,7 +382,6 @@ public class UserService implements IUserService, UserDetailsService {
             ));
         }
     }
-
 
     @Override
     public Page<UserDto> getAllShop(Integer status, Integer pageIndex, Integer pageSize) throws Exception {
