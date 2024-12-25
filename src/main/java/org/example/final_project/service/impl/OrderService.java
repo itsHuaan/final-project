@@ -46,6 +46,7 @@ public class OrderService implements IOrderService {
     private final IUserRepository userRepository;
     private final UserMapper userMapper;
     private final INotificationRepository iNotificationRepository;
+    private final IHistoryStatusShippingRepository historyStatusShippingRepository;
 
 
     @Override
@@ -107,6 +108,13 @@ public class OrderService implements IOrderService {
                             .build();
 
                     orderTrackingRepository.save(trackingEntity);
+                    HistoryStatusShippingEntity historyStatusShippingEntity = HistoryStatusShippingEntity.builder()
+                            .orderTracking(trackingEntity)
+                            .status(ShippingStatus.CREATED.getValue())
+                            .createdChangeStatus(LocalDateTime.now())
+                            .build();
+                    historyStatusShippingRepository.save(historyStatusShippingEntity);
+
 
                 }
                 OrderDetailEntity orderDetailEntity = OrderDetailMapper.toEntity(cartItemRequest);
@@ -147,6 +155,7 @@ public class OrderService implements IOrderService {
                 OrderModel orderModel = new OrderModel();
                 orderModel.setUserId(order.getUser().getUserId());
                 orderModel.setAmount(String.valueOf(order.getTotalPrice()));
+                orderModel.setCustomerName(order.getCustomerName());
                 orderModel.setCartItems(orderDetails.stream()
                         .map(OrderDetailMapper::toDTO)
                         .collect(Collectors.toList()));
@@ -195,6 +204,7 @@ public class OrderService implements IOrderService {
             if (skuEntity == null) {
                 throw new IllegalArgumentException("Not found Sku");
             }
+
             NotificationEntity notificationEntity = NotificationEntity.builder()
                     .image(skuEntity.getImage())
                     .title("Đơn hàng thanh toán thất bại ")
@@ -331,4 +341,6 @@ public class OrderService implements IOrderService {
         return createResponse(HttpStatus.OK, "Successfully Retrieved Users", pageDtos);
 
     }
+
+
 }
