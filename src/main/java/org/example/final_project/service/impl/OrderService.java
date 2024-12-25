@@ -54,6 +54,10 @@ public class OrderService implements IOrderService {
         String method = orderModel.getMethodCheckout();
         double totalPrice = Double.parseDouble(orderModel.getAmount());
         OrderEntity orderEntity = OrderMapper.toOrderEntity(orderModel);
+        UserEntity user = userRepository.findById(orderModel.getUserId()).orElse(null);
+        if (user == null) {
+            throw new IllegalArgumentException("User with ID " + orderModel.getUserId() + " not found");
+        }
         orderEntity.setUser(UserEntity.builder()
                 .userId(orderModel.getUserId())
                 .build());
@@ -61,6 +65,7 @@ public class OrderService implements IOrderService {
         orderEntity.setOrderCode(vnp_TxnRef);
         orderEntity.setPhoneReception(orderModel.getPhoneReception());
         orderEntity.setCreatedAt(LocalDateTime.now());
+        orderEntity.setCustomerName(user.getName());
         orderEntity.setStatusCheckout(CheckoutStatus.PENDING.getValue());
         orderRepository.save(orderEntity);
         saveDataOrderTrackingAndDetail(orderModel, orderEntity);
@@ -71,7 +76,7 @@ public class OrderService implements IOrderService {
             emailService.sendOrderToEmail(orderModel, request);
             long id = orderRepository.findIdByOrderCode(vnp_TxnRef);
             List<OrderDetailEntity> orderDetailEntity = orderDetailRepository.findByOrderId(id);
-            sentNotificationfoShop(orderEntity, orderDetailEntity);
+            sentNotificationForShop(orderEntity, orderDetailEntity);
             return "đặt hàng thành công";
         }
     }
@@ -132,7 +137,7 @@ public class OrderService implements IOrderService {
 
             if (status.equals("00")) {
                 order.setStatusCheckout(CheckoutStatus.COMPLETED.getValue());
-                sentNotificationfoShop(order, orderDetails);
+                sentNotificationForShop(order, orderDetails);
 
                 orderDetails.forEach(orderDetail -> {
                     Optional<SKUEntity> skuEntityOpt = skuRepository.findById(orderDetail.getSkuEntity().getId());
@@ -165,7 +170,7 @@ public class OrderService implements IOrderService {
     }
 
 
-    public void sentNotificationfoShop(OrderEntity orderEntity, List<OrderDetailEntity> orderDetailEntity) {
+    public void sentNotificationForShop(OrderEntity orderEntity, List<OrderDetailEntity> orderDetailEntity) {
         for (OrderDetailEntity cartItemRequest1 : orderDetailEntity) {
             SKUEntity skuEntity = skuRepository.findById(cartItemRequest1.getSkuEntity().getId()).orElse(null);
             double total = cartItemRequest1.getQuantity() * cartItemRequest1.getPrice();

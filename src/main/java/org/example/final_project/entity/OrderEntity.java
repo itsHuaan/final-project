@@ -2,13 +2,12 @@ package org.example.final_project.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.apache.catalina.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name="tbl_order")
+@Table(name = "tbl_order")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -17,7 +16,7 @@ import java.util.List;
 public class OrderEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id ;
+    private long id;
     private Double totalPrice;
     private String phoneReception;
     private String shippingAddress;
@@ -26,9 +25,10 @@ public class OrderEntity {
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
+    private String customerName;
     private String orderCode;
     @ManyToOne
-    @JoinColumn(name = "user_id" , nullable = false  )
+    @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
     @OneToMany(mappedBy = "orderEntity")
