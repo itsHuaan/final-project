@@ -7,9 +7,9 @@ import org.example.final_project.dto.ApiResponse;
 import org.example.final_project.dto.NotificationDto;
 import org.example.final_project.entity.NotificationEntity;
 import org.example.final_project.entity.UserEntity;
+import org.example.final_project.enumeration.NotificationStatus;
 import org.example.final_project.mapper.NotificationMapper;
 import org.example.final_project.model.NotificationModel;
-import org.example.final_project.enumeration.NotificationStatus;
 import org.example.final_project.repository.INotificationRepository;
 import org.example.final_project.repository.IOrderDetailRepository;
 import org.example.final_project.repository.IUserRepository;
@@ -96,8 +96,20 @@ public class NotificationService implements INotificationService {
     }
 
     @Override
-    public int changeStatusNotification(long userId) {
+    public int changeStatusNotificationForUser(long userId) {
         List<NotificationEntity> notificationEntityList = notificationRepository.findListByUserId(userId);
+        for (NotificationEntity notificationEntity : notificationEntityList) {
+            if (notificationEntity.getIsRead() == 0) {
+                notificationEntity.setIsRead(NotificationStatus.READ.ordinal());
+                notificationRepository.save(notificationEntity);
+            }
+        }
+        return 1;
+    }
+
+    @Override
+    public int changeStatusNotificationForShop(long shopId) {
+        List<NotificationEntity> notificationEntityList = notificationRepository.findListByShopId(shopId);
         for (NotificationEntity notificationEntity : notificationEntityList) {
             if (notificationEntity.getIsRead() == 0) {
                 notificationEntity.setIsRead(NotificationStatus.READ.ordinal());
