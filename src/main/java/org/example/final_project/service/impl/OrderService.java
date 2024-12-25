@@ -81,16 +81,31 @@ public class OrderService implements IOrderService {
     public void loadDataCod(OrderModel orderModel) {
         if (orderModel.getCartItems() != null) {
             for (CartItemRequest cartItemRequest : orderModel.getCartItems()) {
-                Optional<SKUEntity> skuEntity = skuRepository.findById(cartItemRequest.getProductSkuId());
-                if (skuEntity.isPresent()) {
-                    SKUEntity skuEntity1 = skuEntity.get();
-                    skuEntity1.setQuantity(skuEntity1.getQuantity() - cartItemRequest.getQuantity());
-                    checkQuatityInStock(skuEntity1.getQuantity(), cartItemRequest.getQuantity());
-                    cartItemRepository.deleteByCartId(cartItemRequest.getCartDetailId());
-                    skuRepository.save(skuEntity1);
+                int result = checkQuatity(cartItemRequest.getProductSkuId(), cartItemRequest.getQuantity());
+                if (result == 0) {
+                    Optional<SKUEntity> skuEntity = skuRepository.findById(cartItemRequest.getProductSkuId());
+                    if (skuEntity.isPresent()) {
+                        SKUEntity skuEntity1 = skuEntity.get();
+                        skuEntity1.setQuantity(skuEntity1.getQuantity() - cartItemRequest.getQuantity());
+                        cartItemRepository.deleteByCartId(cartItemRequest.getCartDetailId());
+                        skuRepository.save(skuEntity1);
+                    }
                 }
             }
         }
+    }
+
+    public int checkQuatity(long skuId, long currentQuatity) {
+        Optional<SKUEntity> skuEntity = skuRepository.findById(skuId);
+        if (skuEntity.isPresent()) {
+            SKUEntity skuEntity1 = skuEntity.get();
+            if (skuEntity1.getQuantity() < currentQuatity) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+        return 3;
     }
 
     public void saveDataOrderTrackingAndDetail(OrderModel orderModel, OrderEntity orderEntity) {
@@ -324,6 +339,7 @@ public class OrderService implements IOrderService {
         }
         return createResponse(HttpStatus.NOT_FOUND, "Not Found Product ", null);
     }
+
 
     @Override
     public ApiResponse<?> getAllUserBoughtOfThisShop(long shopId, Integer page, Integer size) {
