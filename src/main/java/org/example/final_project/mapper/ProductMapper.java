@@ -37,6 +37,7 @@ public class ProductMapper {
     IPromotionService promotionService;
 
     public ProductDto convertToDto(ProductEntity productEntity) {
+        List<SKUEntity> variants = productEntity.getSkuEntities();
         return ProductDto.builder()
                 .productId(productEntity.getId())
                 .productName(productEntity.getName())
@@ -56,6 +57,21 @@ public class ProductMapper {
                 .images(imageProductRepository.findAllByProductEntity_Id(productEntity.getId()).stream().map(imageMapper::convertToDto).collect(Collectors.toList()))
                 .variants(iskuService.getAllByProduct(productEntity.getId()))
                 .shop(userMapper.toShopDto(productEntity.getUser()))
+                .oldPrice(variants.stream()
+                        .map(SKUEntity::getPrice)
+                        .min(Double::compareTo)
+                        .orElse(0.0)
+                )
+                .discountPercentage(promotionService.findAllPromotionByNow(productEntity.getId()) != null ?
+                        promotionService.findAllPromotionByNow(productEntity.getId()).getDiscountPercentage()
+                        : 0.0)
+                .newPrice(promotionService.findAllPromotionByNow(productEntity.getId()) != null
+                        ? variants.stream().map(SKUEntity::getPrice)
+                        .min(Double::compareTo)
+                        .orElse(0.0) * (100 - promotionService.findAllPromotionByNow(productEntity.getId()).getDiscountPercentage()) / 100
+                        : variants.stream().map(SKUEntity::getPrice)
+                        .min(Double::compareTo)
+                        .orElse(0.0))
                 .feedbacks(productEntity.getFeedbacks().stream()
                         .sorted(Comparator.comparing(FeedbackEntity::getCreatedAt).reversed())
                         .map(feedbackMapper::convertToDto)
