@@ -12,6 +12,8 @@ import org.example.final_project.repository.IUserRepository;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
+import java.util.NoSuchElementException;
+
 import static org.example.final_project.specification.ChatMessageSpecification.*;
 
 @Component
@@ -42,7 +44,7 @@ public class ChatRoomMapper {
 
     public ChatUserDto toChatUserDto(ChatRoomEntity chatRoom) {
         UserEntity recipient = userRepository.findById(chatRoom.getRecipientId()).orElseThrow(
-                () -> new RuntimeException("Recipient not found")
+                () -> new NoSuchElementException("Recipient not found")
         );
         return ChatUserDto.builder()
                 .userId(recipient.getUserId())
