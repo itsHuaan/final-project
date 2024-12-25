@@ -21,7 +21,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -37,7 +36,7 @@ public class NotificationService implements INotificationService {
 
 
     @Override
-    public int sentNotification(List<NotificationModel> notificationModels) throws IOException {
+    public int sentNotification(List<NotificationModel> notificationModels) {
         for (NotificationModel notificationModel : notificationModels) {
             if (notificationModel.getAdminId() == 1) {
                 if (notificationModel.getUserId() == 0) {

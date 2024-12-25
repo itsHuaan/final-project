@@ -28,6 +28,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -42,8 +43,7 @@ public class ExportExcelService {
     public List<OrderDto> getAllOrders(Long shopId) {
         List<Long> orderIds = orderDetailRepository.findAllOrderIdsByShopId(shopId);
         List<OrderEntity> listOrderEntity = orderRepository.findByIds(orderIds);
-        List<OrderDto> orderDtoList = listOrderEntity.stream().map(orderMapper::toOrderDto).toList();
-        return orderDtoList;
+        return listOrderEntity.stream().map(orderMapper::toOrderDto).toList();
     }
 
     public Double totalPrice(long orderId) {
@@ -71,7 +71,6 @@ public class ExportExcelService {
                 .filter(t -> t.getCreatedAt().toLocalDate().isAfter(startDate.minusDays(1)) &&
                         t.getCreatedAt().toLocalDate().isBefore(endDate.plusDays(1)))
                 .toList();
-
         for (int i = 0; i < list.size(); i++) {
             StringBuilder statusCheckout = new StringBuilder();
             if (list.get(i).getStatusCheckout() == 1) {
@@ -84,7 +83,6 @@ public class ExportExcelService {
 
             double totalAmount = totalPrice(list.get(i).getId());
             UserDto user = list.get(i).getUser();
-
             Row row = sheet.createRow(i + 1);
             row.createCell(0).setCellValue(i + 1);
             row.createCell(1).setCellValue(user.getName());
@@ -96,9 +94,12 @@ public class ExportExcelService {
             row.createCell(7).setCellValue(statusCheckout.toString());
             row.createCell(8).setCellValue(totalAmount);
         }
-
+        Optional<UserEntity> optionalShop = userRepository.findById(shopId);
+        String shopName = optionalShop
+                .map(UserEntity::getShop_name)
+                .orElse("Unknown Shop");
         response.setContentType("application/octet-stream");
-        response.setHeader("Content-Disposition", "attachment; filename=product.xlsx");
+        response.setHeader("Content-Disposition", "attachment; filename=order" + shopName + ".xlsx");
         workbook.write(response.getOutputStream());
         workbook.close();
     }
@@ -121,15 +122,7 @@ public class ExportExcelService {
         for (Row row : sheet) {
             if (row.getRowNum() == 0) continue;
             String code = row.getCell(3).getStringCellValue();
-            if (orderRepository.existsByOrderCode(code)) {
-
-            } else {
-                OrderEntity orderEntity = new OrderEntity();
-                orderEntity.setCreatedAt(LocalDateTime.now());
-                orderEntity.setMethodCheckout(row.getCell(4).getStringCellValue());
-                orderEntity.setOrderCode(row.getCell(3).getStringCellValue());
-                orderEntity.setShippingAddress(row.getCell(6).getStringCellValue());
-                orderEntity.setPhoneReception(row.getCell(5).getStringCellValue());
+            if (!orderRepository.existsByOrderCode(code)) {
                 Map<String, Integer> statusMapping = Map.of(
                         "chothanhtoan", 1,
                         "thanhtoanthanhcong", 2,
@@ -137,13 +130,19 @@ public class ExportExcelService {
                 );
                 String cellValue = row.getCell(7).getStringCellValue();
                 String normalizedValue = normalizeString(cellValue);
-                Integer status = statusMapping.get(normalizedValue);
-                if (status != null) {
-                    orderEntity.setStatusCheckout(status);
-                }
-                orderEntity.setTotalPrice(row.getCell(8).getNumericCellValue());
+                Integer status = statusMapping.getOrDefault(normalizedValue, null);
+
                 UserEntity user = userRepository.findByEmail(row.getCell(2).getStringCellValue()).orElse(null);
-                orderEntity.setUser(user);
+                OrderEntity orderEntity = OrderEntity.builder()
+                        .createdAt(LocalDateTime.now())
+                        .methodCheckout(row.getCell(4).getStringCellValue())
+                        .orderCode(row.getCell(3).getStringCellValue())
+                        .shippingAddress(row.getCell(6).getStringCellValue())
+                        .phoneReception(row.getCell(5).getStringCellValue())
+                        .statusCheckout(status)
+                        .totalPrice(row.getCell(8).getNumericCellValue())
+                        .user(user)
+                        .build();
                 orderRepository.save(orderEntity);
             }
         }

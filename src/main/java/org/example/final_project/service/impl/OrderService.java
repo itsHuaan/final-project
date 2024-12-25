@@ -6,14 +6,14 @@ import lombok.RequiredArgsConstructor;
 import org.example.final_project.configuration.VnPay.PaymentService;
 import org.example.final_project.dto.*;
 import org.example.final_project.entity.*;
+import org.example.final_project.enumeration.CheckoutStatus;
+import org.example.final_project.enumeration.ShippingStatus;
 import org.example.final_project.mapper.OrderDetailMapper;
 import org.example.final_project.mapper.OrderMapper;
 import org.example.final_project.mapper.OrderTrackingMapper;
 import org.example.final_project.mapper.UserMapper;
 import org.example.final_project.model.CartItemRequest;
 import org.example.final_project.model.OrderModel;
-import org.example.final_project.enumeration.CheckoutStatus;
-import org.example.final_project.enumeration.ShippingStatus;
 import org.example.final_project.repository.*;
 import org.example.final_project.service.IOrderService;
 import org.springframework.data.domain.Page;
@@ -113,7 +113,7 @@ public class OrderService implements IOrderService {
             emailService.sendOrderToEmail(orderModel, request);
             long id = orderRepository.findIdByOrderCode(vnp_TxnRef);
             List<OrderDetailEntity> orderDetailEntity = orderDetailRepository.findByOrderId(id);
-            sentNotificationToShop(orderEntity, orderDetailEntity);
+            sentNotificationfoShop(orderEntity, orderDetailEntity);
             return "đặt hàng thành công";
         }
     }
@@ -136,7 +136,7 @@ public class OrderService implements IOrderService {
             if (status.equals("00")) {
                 order = orderEntity.get();
                 List<OrderDetailEntity> orderDetailEntity = orderDetailRepository.findByOrderId(id);
-                sentNotificationToShop(order, orderDetailEntity);
+                sentNotificationfoShop(order, orderDetailEntity);
                 order.setStatusCheckout(CheckoutStatus.COMPLETED.getValue());
                 OrderModel orderModel = new OrderModel();
                 orderModel.setUserId(order.getUser().getUserId());
@@ -167,7 +167,7 @@ public class OrderService implements IOrderService {
     }
 
 
-    public void sentNotificationToShop(OrderEntity orderEntity, List<OrderDetailEntity> orderDetailEntity) {
+    public void sentNotificationfoShop(OrderEntity orderEntity, List<OrderDetailEntity> orderDetailEntity) {
         for (OrderDetailEntity cartItemRequest1 : orderDetailEntity) {
             SKUEntity skuEntity = skuRepository.findById(cartItemRequest1.getSkuEntity().getId()).orElse(null);
             double total = cartItemRequest1.getQuantity() * cartItemRequest1.getPrice();
@@ -272,7 +272,7 @@ public class OrderService implements IOrderService {
     @Override
     public OrderDto findByShopIdAndCodeOrder(long shopId, String orderCode) {
         Optional<OrderEntity> orderEntity = orderRepository.findOrderIdByShopIdAndOrderCode(shopId, orderCode);
-        OrderEntity orderEntity1;
+        OrderEntity orderEntity1 = new OrderEntity();
         orderEntity1 = orderEntity.orElseGet(OrderEntity::new);
         return orderMapper.toOrderDto(orderEntity1);
     }

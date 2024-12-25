@@ -33,7 +33,7 @@ public class OrderTrackingService implements IOrderTrackingService {
     public int updateStatusShipping(StatusMessageDto messageDto) {
         Optional<OrderTrackingEntity> orderTrackingEntity = orderTrackingRepository.findByOrderIdAndShopId(messageDto.getOrderId(), messageDto.getShopId());
 //        List<OrderDetailEntity> orderDetailEntityList = orderDetailRepository.shopOrder(messageDto.getShopId(), messageDto.getOrderId());
-        notificationForUser(messageDto);
+        notificatioForUser(messageDto);
         if (orderTrackingEntity.isPresent()) {
             OrderTrackingEntity orderTrackingEntity1 = orderTrackingEntity.get();
             if (messageDto.getStatus() == ShippingStatus.COMPLETED.getValue()) {
@@ -53,8 +53,8 @@ public class OrderTrackingService implements IOrderTrackingService {
         return 0;
     }
 
-    public void notificationForUser(StatusMessageDto statusMessageDto) {
-        NotificationEntity notificationEntity = new NotificationEntity();
+    public void notificatioForUser(StatusMessageDto statusMessageDto) {
+
         OrderEntity orderEntity = orderRepository.findById(statusMessageDto.getOrderId()).orElse(null);
         List<OrderDetailEntity> orderDetailEntity = orderDetailRepository.findByOrderId(statusMessageDto.getOrderId());
 
@@ -95,13 +95,14 @@ public class OrderTrackingService implements IOrderTrackingService {
             title = "Xác nhận đã nhận hàng";
             content = "Vui lòng chỉ ấn 'Đã nhận được hàng' khi đơn hàng" + OrderCode + "đã được giao đến bạn và sản phẩm không có vấn đề nào";
         }
-
-        notificationEntity.setUserId(statusMessageDto.getUserId());
-        notificationEntity.setTitle(title);
-        notificationEntity.setContent(content);
-        notificationEntity.setIsRead(0);
-        notificationEntity.setCreatedAt(LocalDateTime.now());
-        notificationEntity.setImage(image);
+        NotificationEntity notificationEntity = NotificationEntity.builder()
+                .userId(statusMessageDto.getUserId())
+                .title(title)
+                .content(content)
+                .isRead(0)
+                .createdAt(LocalDateTime.now())
+                .image(image)
+                .build();
         notificationRepository.save(notificationEntity);
 
     }
