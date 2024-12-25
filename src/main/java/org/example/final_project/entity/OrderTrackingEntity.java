@@ -4,9 +4,10 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
-@Table(name="tbl_ordertracking")
+@Table(name = "tbl_ordertracking")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -24,5 +25,9 @@ public class OrderTrackingEntity {
     @ManyToOne
     @JoinColumn(name = "order_id")
     private OrderEntity order;
+
+    @OneToMany(mappedBy = "orderTracking")
+    private List<HistoryStatusShippingEntity> historyStatusShippingEntities;
+
 
 }
