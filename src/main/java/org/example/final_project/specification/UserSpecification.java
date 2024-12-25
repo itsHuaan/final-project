@@ -6,6 +6,8 @@ import jakarta.persistence.criteria.Root;
 import org.example.final_project.entity.UserEntity;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.time.LocalDateTime;
+
 public class UserSpecification {
     public static Specification<UserEntity> isInactive() {
         return (Root<UserEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
@@ -66,5 +68,10 @@ public class UserSpecification {
     public static Specification<UserEntity> hasStatus(int status) {
         return (Root<UserEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("isActive"), status);
+    }
+
+    public static Specification<UserEntity> hasNewlyJoined() {
+        return (Root<UserEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
+                criteriaBuilder.between(root.get("createdAt"), LocalDateTime.now(), LocalDateTime.now().minusDays(7));
     }
 }

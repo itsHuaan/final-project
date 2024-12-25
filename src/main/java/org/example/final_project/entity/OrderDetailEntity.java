@@ -32,6 +32,4 @@ public class OrderDetailEntity {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "sku_id", nullable = false)
     private SKUEntity skuEntity;
-
-
 }
