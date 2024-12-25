@@ -69,16 +69,21 @@ public class OrderService implements IOrderService {
         if (method.equalsIgnoreCase("vnpay")) {
             return paymentService.creatUrlPaymentForVnPay(request);
         } else {
-            loadDataCod(orderModel);
-            emailService.sendOrderToEmail(orderModel, request);
-            long id = orderRepository.findIdByOrderCode(vnp_TxnRef);
-            List<OrderDetailEntity> orderDetailEntity = orderDetailRepository.findByOrderId(id);
-            sentNotificationSuccessForShop(orderEntity, orderDetailEntity);
-            return "đặt hàng thành công";
+            int result = loadDataCod(orderModel);
+            if (result == 1) {
+                emailService.sendOrderToEmail(orderModel, request);
+                long id = orderRepository.findIdByOrderCode(vnp_TxnRef);
+                List<OrderDetailEntity> orderDetailEntity = orderDetailRepository.findByOrderId(id);
+                sentNotificationSuccessForShop(orderEntity, orderDetailEntity);
+                return "đặt hàng thành công";
+            } else {
+                return "số lượng hiện tai lon hon so luong trong kho";
+            }
         }
     }
 
-    public void loadDataCod(OrderModel orderModel) {
+
+    public int loadDataCod(OrderModel orderModel) {
         if (orderModel.getCartItems() != null) {
             for (CartItemRequest cartItemRequest : orderModel.getCartItems()) {
                 int result = checkQuatity(cartItemRequest.getProductSkuId(), cartItemRequest.getQuantity());
@@ -89,10 +94,13 @@ public class OrderService implements IOrderService {
                         skuEntity1.setQuantity(skuEntity1.getQuantity() - cartItemRequest.getQuantity());
                         cartItemRepository.deleteByCartId(cartItemRequest.getCartDetailId());
                         skuRepository.save(skuEntity1);
+                        return 1;
                     }
+
                 }
             }
         }
+        return 0;
     }
 
     public int checkQuatity(long skuId, long currentQuatity) {

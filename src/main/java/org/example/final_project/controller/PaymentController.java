@@ -57,6 +57,8 @@ public class PaymentController {
     @PostMapping("/create-payment")
     public ResponseEntity<?> submitOrder(@RequestBody OrderModel order,
                                          HttpServletRequest request) throws Exception {
+
+
         request.setAttribute("amount", order.getAmount());
         String tex = VnPayUtil.getRandomNumber(8);
         request.setAttribute("tex", tex);
