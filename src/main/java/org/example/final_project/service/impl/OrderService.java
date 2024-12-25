@@ -137,9 +137,9 @@ public class OrderService implements IOrderService {
         if (orderEntity.isPresent()) {
             OrderEntity order = orderEntity.get();
             List<OrderDetailEntity> orderDetails = orderDetailRepository.findByOrderId(id);
-            orderDetails.forEach(orderDetail -> cartItemRepository.deleteByCartId(orderDetail.getCartDetailId()));
 
             if (status.equals("00")) {
+                orderDetails.forEach(orderDetail -> cartItemRepository.deleteByCartId(orderDetail.getCartDetailId()));
                 order.setStatusCheckout(CheckoutStatus.COMPLETED.getValue());
                 sentNotificationSuccessForShop(order, orderDetails);
 
