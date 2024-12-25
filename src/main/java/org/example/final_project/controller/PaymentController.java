@@ -13,10 +13,10 @@ import org.example.final_project.model.OrderModel;
 import org.example.final_project.service.IOrderService;
 import org.example.final_project.service.IUserService;
 import org.example.final_project.util.Const;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.HashSet;
 import java.util.List;
@@ -71,36 +71,26 @@ public class PaymentController {
     }
 
     @GetMapping("/vnpay-return")
-    public ResponseEntity<Void> paymentReturn(HttpServletRequest request) {
+    public ModelAndView paymentReturn(HttpServletRequest request) {
         try {
             orderService.getPaymentStatus(request);
             String vnp_TxnRef = (String) request.getAttribute("tex");
             String amount = orderService.getTotalPrice(vnp_TxnRef);
             OrderModel order = orderService.sentNotify(request);
-            notifyShops(order);
-            String redirectUrl = String.format(
-                    "https://team03.cyvietnam.id.vn/en/checkoutsuccess?tex=%s&amount=%s",
-                    vnp_TxnRef, amount
-                    ,
-                    "success"
-            );
 
-
-            return ResponseEntity.status(HttpStatus.FOUND)
-                    .header("Location", redirectUrl)
-                    .build();
+            if (order == null) {
+                return new ModelAndView("redirect:https://team03.cyvietnam.id.vn/en/checkoutfail?tex="
+                        + vnp_TxnRef + "&amount=" + amount);
+            } else {
+                notifyShops(order);
+                return new ModelAndView("redirect:https://team03.cyvietnam.id.vn/en/checkoutsuccess?tex="
+                        + vnp_TxnRef + "&amount=" + amount);
+            }
         } catch (Exception ex) {
             String vnp_TxnRef = (String) request.getAttribute("tex");
             String amount = orderService.getTotalPrice(vnp_TxnRef);
-            String redirectUrl = String.format(
-                    "https://team03.cyvietnam.id.vn/en/checkoutfail?tex=%s&amount=%s",
-                    vnp_TxnRef, amount
-                    ,
-                    "success"
-            );
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .header("Location", redirectUrl)
-                    .build();
+            return new ModelAndView("redirect:https://team03.cyvietnam.id.vn/en/checkoutfail?tex="
+                    + vnp_TxnRef + "&amount=" + amount);
         }
     }
 

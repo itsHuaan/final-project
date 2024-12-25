@@ -72,7 +72,7 @@ public class OrderService implements IOrderService {
             emailService.sendOrderToEmail(orderModel, request);
             long id = orderRepository.findIdByOrderCode(vnp_TxnRef);
             List<OrderDetailEntity> orderDetailEntity = orderDetailRepository.findByOrderId(id);
-            sentNotificationForShop(orderEntity, orderDetailEntity);
+            sentNotificationSuccessForShop(orderEntity, orderDetailEntity);
             return "đặt hàng thành công";
         }
     }
@@ -133,7 +133,7 @@ public class OrderService implements IOrderService {
 
             if (status.equals("00")) {
                 order.setStatusCheckout(CheckoutStatus.COMPLETED.getValue());
-                sentNotificationForShop(order, orderDetails);
+                sentNotificationSuccessForShop(order, orderDetails);
 
                 orderDetails.forEach(orderDetail -> {
                     Optional<SKUEntity> skuEntityOpt = skuRepository.findById(orderDetail.getSkuEntity().getId());
@@ -156,6 +156,7 @@ public class OrderService implements IOrderService {
                 orderRepository.save(order);
                 return createResponse(HttpStatus.OK, "Successful Payment ", null);
             } else {
+                sentNotificationFailForUser(order, orderDetails);
                 order.setStatusCheckout(CheckoutStatus.FAILED.getValue());
                 orderRepository.save(order);
                 return createResponse(HttpStatus.OK, "Failed Payment ", null);
@@ -166,10 +167,11 @@ public class OrderService implements IOrderService {
     }
 
 
-    public void sentNotificationForShop(OrderEntity orderEntity, List<OrderDetailEntity> orderDetailEntity) {
+    public void sentNotificationSuccessForShop(OrderEntity orderEntity, List<OrderDetailEntity> orderDetailEntity) {
         for (OrderDetailEntity cartItemRequest1 : orderDetailEntity) {
             SKUEntity skuEntity = skuRepository.findById(cartItemRequest1.getSkuEntity().getId()).orElse(null);
             double total = cartItemRequest1.getQuantity() * cartItemRequest1.getPrice();
+
             if (skuEntity == null) {
                 throw new IllegalArgumentException("Not found Sku");
             }
@@ -178,6 +180,25 @@ public class OrderService implements IOrderService {
                     .title("Đơn hàng mới vừa được tạo ")
                     .content("Đơn hàng " + orderEntity.getOrderCode() + " vừa được tạo đặt với số tiền" + total)
                     .shopId(cartItemRequest1.getShopId())
+                    .isRead(0)
+                    .userId(orderEntity.getUser().getUserId())
+                    .createdAt(LocalDateTime.now())
+                    .build();
+//            notificationEntity.setAdminId(0L);
+            iNotificationRepository.save(notificationEntity);
+        }
+    }
+
+    public void sentNotificationFailForUser(OrderEntity orderEntity, List<OrderDetailEntity> orderDetailEntity) {
+        for (OrderDetailEntity cartItemRequest1 : orderDetailEntity) {
+            SKUEntity skuEntity = skuRepository.findById(cartItemRequest1.getSkuEntity().getId()).orElse(null);
+            if (skuEntity == null) {
+                throw new IllegalArgumentException("Not found Sku");
+            }
+            NotificationEntity notificationEntity = NotificationEntity.builder()
+                    .image(skuEntity.getImage())
+                    .title("Đơn hàng thanh toán thất bại ")
+                    .content("Đơn hàng " + orderEntity.getOrderCode() + "thanh toán thất bại")
                     .isRead(0)
                     .userId(orderEntity.getUser().getUserId())
                     .createdAt(LocalDateTime.now())
@@ -206,7 +227,6 @@ public class OrderService implements IOrderService {
         } else {
             return null;
         }
-
     }
 
     @Override
