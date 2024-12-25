@@ -9,6 +9,7 @@ import org.example.final_project.entity.*;
 import org.example.final_project.enumeration.CheckoutStatus;
 import org.example.final_project.enumeration.ShippingStatus;
 import org.example.final_project.mapper.SKUMapper;
+import org.example.final_project.model.NotificationModel;
 import org.example.final_project.repository.*;
 import org.example.final_project.service.IOrderTrackingService;
 import org.springframework.stereotype.Service;
@@ -75,44 +76,64 @@ public class OrderTrackingService implements IOrderTrackingService {
         SKUDto skuDto = skuMapper.convertToDto(skuEntity);
 
 
-        assert user != null;
+        if (user == null) {
+            throw new IllegalStateException("user is null");
+        }
         String shopName = user.getShop_name();
-        String title = "";
-        String content = "";
+        String title;
+        String content;
         String shipping = "SPX Express";
         String image;
+
+        
         if (skuDto.getImage() != null) {
             image = skuDto.getImage();
         } else {
             image = null;
         }
+        NotificationModel notificationModel = new NotificationModel();
+        notificationModel.setImage(image);
         if (statusMessageDto.getStatus() == ShippingStatus.CONFIRMED.getValue()) {
             title = "Xác nhận đơn hàng ";
             content = "Đơn hàng " + OrderCode + "đã được Người bán " + shopName + " xác nhận ";
+            notificationModel.setTitle(title);
+            notificationModel.setContent(content);
+            saveNotification(statusMessageDto, notificationModel);
         }
         if (statusMessageDto.getStatus() == ShippingStatus.CONFIRMED_SHIPPING.getValue()) {
             title = "Đang vận chuyển";
             content = "Đơn hàng " + OrderCode + " đã được Người bán " + shopName + " giao cho đợn vị vận chuyển qua phương thức vận chuyển " + shipping;
+            notificationModel.setTitle(title);
+            notificationModel.setContent(content);
+            saveNotification(statusMessageDto, notificationModel);
 
         }
         if (statusMessageDto.getStatus() == ShippingStatus.DELIVERING.getValue()) {
             title = "Bạn có đơn hàng đang trên đường giao ";
             content = "Shipper báo rằng : đơn hàng " + OrderCode + "của bạn đang trong quá trình vận chuyển và dữ kiến giao trong 1-2 ngày tới . Vui lòng bỏ qua thông báo này nếu bạn đang nhận được hàng nhé";
+            notificationModel.setTitle(title);
+            notificationModel.setContent(content);
+            saveNotification(statusMessageDto, notificationModel);
         }
         if (statusMessageDto.getStatus() == ShippingStatus.COMPLETED.getValue()) {
             title = "Xác nhận đã nhận hàng";
             content = "Vui lòng chỉ ấn 'Đã nhận được hàng' khi đơn hàng" + OrderCode + "đã được giao đến bạn và sản phẩm không có vấn đề nào";
+            notificationModel.setTitle(title);
+            notificationModel.setContent(content);
+            saveNotification(statusMessageDto, notificationModel);
         }
+    }
+
+    public void saveNotification(StatusMessageDto statusMessageDto, NotificationModel notificationModel) {
         NotificationEntity notificationEntity = NotificationEntity.builder()
                 .userId(statusMessageDto.getUserId())
-                .title(title)
-                .content(content)
+                .title(notificationModel.getTitle())
+                .content(notificationModel.getContent())
                 .isRead(0)
                 .createdAt(LocalDateTime.now())
-                .image(image)
+                .image(notificationModel.getImage())
                 .build();
         notificationRepository.save(notificationEntity);
-
     }
 
 

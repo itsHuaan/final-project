@@ -196,5 +196,17 @@ public class CartController {
 
     }
 
+    @Operation(summary = "Check Shop Locked")
+    @GetMapping("/check-shop-locked")
+    public ResponseEntity<?> checkShopLocked(@RequestParam long shopId) {
+        try {
+            ApiResponse<?> response = cartService.checkShopStatusWhenCheckOut(shopId);
+            return ResponseEntity.status(response.getStatus()).body(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(cartService.checkShopStatusWhenCheckOut(shopId));
+        }
+
+    }
+
 
 }

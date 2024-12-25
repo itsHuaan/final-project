@@ -8,9 +8,12 @@ import org.example.final_project.dto.*;
 import org.example.final_project.entity.OrderDetailEntity;
 import org.example.final_project.entity.OrderEntity;
 import org.example.final_project.entity.OrderTrackingEntity;
+import org.example.final_project.enumeration.CheckoutStatus;
+import org.example.final_project.enumeration.ShippingStatus;
 import org.example.final_project.mapper.OrderDetailMapper;
 import org.example.final_project.mapper.OrderMapper;
 import org.example.final_project.mapper.OrderTrackingMapper;
+import org.example.final_project.model.CancelOrderModel;
 import org.example.final_project.repository.IOrderDetailRepository;
 import org.example.final_project.repository.IOrderRepository;
 import org.example.final_project.repository.IOrderTrackingRepository;
@@ -56,8 +59,8 @@ public class OrderDetailService implements IOrderDetailService {
         List<OrderDetailEntity> list = orderDetailRepository.findAllOrderDetailEntityByOrderId(commonOrderIds);
         List<OrderDetailDto> listDto = list.stream().map(orderDetailMapper::toOrderDto).toList();
         return ApiResponse.createResponse(HttpStatus.OK, "get all order tracking flow status", listDto);
-
     }
+
 
     @Override
     public ApiResponse<?> findOrderDetailInfo(long userId, long orderId, long shopId) {
@@ -104,4 +107,21 @@ public class OrderDetailService implements IOrderDetailService {
     }
 
 
+    @Override
+    public ApiResponse<?> cancelOrder(CancelOrderModel cancelOrderModel) {
+        OrderEntity orderEntity = orderRepository.findById(cancelOrderModel.getOrderId()).orElseThrow(null);
+        if (orderEntity == null) {
+            throw new IllegalArgumentException("Order not found");
+        }
+        int statusCheckOut = CheckoutStatus.CANCELED.getValue();
+        orderEntity.setStatusCheckout((long) statusCheckOut);
+        orderRepository.save(orderEntity);
+        List<OrderTrackingEntity> orderTrackingEntities = orderTrackingRepository.listOrderTracking(cancelOrderModel.getOrderId());
+        for (OrderTrackingEntity orderTrackingEntity : orderTrackingEntities) {
+            orderTrackingEntity.setStatus(ShippingStatus.CANCELLED.getValue());
+            orderTrackingRepository.save(orderTrackingEntity);
+        }
+        return ApiResponse.createResponse(HttpStatus.OK, "cancel order", null);
+
+    }
 }

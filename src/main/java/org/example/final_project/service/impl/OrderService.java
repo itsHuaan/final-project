@@ -85,6 +85,7 @@ public class OrderService implements IOrderService {
                 if (skuEntity.isPresent()) {
                     SKUEntity skuEntity1 = skuEntity.get();
                     skuEntity1.setQuantity(skuEntity1.getQuantity() - cartItemRequest.getQuantity());
+                    checkQuatityInStock(skuEntity1.getQuantity(), cartItemRequest.getQuantity());
                     cartItemRepository.deleteByCartId(cartItemRequest.getCartDetailId());
                     skuRepository.save(skuEntity1);
                 }
