@@ -200,14 +200,14 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public ProductDto getByIdCustom(Long productId, Integer type) {
+    public ProductSummaryDto getByIdCustom(Long productId, Integer type) {
         if (iProductRepository.findById(productId).isPresent()) {
             Specification specification = Specification.where(isNotDeleted().and(hasId(productId)));
             if (type == 1) {
                 specification = specification.and(isStatus(ActivateStatus.Active.getValue()));
             }
             if (iProductRepository.findOne(specification).isPresent()) {
-                return productMapper.convertToDto((ProductEntity) iProductRepository.findOne(specification).get());
+                return productMapper.toProductSummaryDto((ProductEntity) iProductRepository.findOne(specification).get());
             } else {
                 throw new IllegalArgumentException("Product not found");
             }
