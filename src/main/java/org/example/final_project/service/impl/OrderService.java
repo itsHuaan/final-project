@@ -173,7 +173,7 @@ public class OrderService implements IOrderService {
             NotificationEntity notificationEntity = NotificationEntity.builder()
                     .image(skuEntity.getImage())
                     .title("Đơn hàng mới vừa được tạo ")
-                    .content("Mã đơn : " + orderEntity.getOrderCode() + " vừa được đặt với số tiền là : " + total)
+                    .content("Đơn hàng " + orderEntity.getOrderCode() + " vừa được tạo đặt với số tiền" + total)
                     .shopId(cartItemRequest1.getShopId())
                     .isRead(0)
                     .userId(orderEntity.getUser().getUserId())
