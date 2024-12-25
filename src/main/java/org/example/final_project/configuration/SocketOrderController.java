@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.StatusMessageDto;
-import org.example.final_project.service.IOrderDetailService;
 import org.example.final_project.service.IOrderTrackingService;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -18,7 +17,6 @@ public class SocketOrderController {
 
     IOrderTrackingService iOrderTrackingService;
     SimpMessagingTemplate messagingTemplate;
-    IOrderDetailService iOrderDetailService;
 
     @MessageMapping("/changeStatusShipping")
     public void changeStatus(@Payload StatusMessageDto statusMessageDto) {

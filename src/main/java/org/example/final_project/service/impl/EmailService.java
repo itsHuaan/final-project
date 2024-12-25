@@ -122,8 +122,6 @@ public class EmailService implements IEmailService {
             orderModel.getCartItems().forEach(item -> {
                 Optional<SKUEntity> skuEntity = iskuRepository.findById(item.getProductSkuId());
                 if (skuEntity.isPresent()) {
-//                    SKUEntity skuEntity1 = skuEntity.get();
-//                    ProductEntity productEntity = productRepository.findById(skuEntity1.getProduct().getId()).orElse(null);
                     String productName = item.getNameProduct() != null ? item.getNameProduct() : "Unknown";
                     String option1 = productOptionValueRepository.findById(item.getOption1());
                     String option2 = productOptionValueRepository.findById(item.getOption2());

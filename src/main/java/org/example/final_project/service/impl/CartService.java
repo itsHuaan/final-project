@@ -94,7 +94,7 @@ public class CartService implements ICartService {
     @Override
     public CheckoutDto getCheckOutDetail(Long cartId, List<Long> selectedCartItemIds) {
         Optional<CartEntity> cartEntity = cartRepository.findById(cartId);
-        List<CartItemEntity> selectedCartItems = new ArrayList<>();
+        List<CartItemEntity> selectedCartItems;
         double totalAmount;
         if (cartEntity.isPresent()) {
             CartEntity cart = cartEntity.get();
