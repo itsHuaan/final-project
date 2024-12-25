@@ -48,14 +48,11 @@ public class OrderDetailService implements IOrderDetailService {
 
     @Override
     public ApiResponse<?> getOrderDetailByShippingStatus(long userId, long shippingStatus) {
-        List<Long> orderId = orderRepository.findOrderIdsByUserId(userId); // 2 3 5
-        List<Long> orderIdTracking = orderDetailRepository.findOrderDetailsByStatus(shippingStatus);// 3 5 7
-
+        List<Long> orderId = orderRepository.findOrderIdsByUserId(userId);
+        List<Long> orderIdTracking = orderDetailRepository.findOrderDetailsByStatus(shippingStatus);
         List<Long> commonOrderIds = orderId.stream()
                 .filter(orderIdTracking::contains)
                 .toList();
-
-
         List<OrderDetailEntity> list = orderDetailRepository.findAllOrderDetailEntityByOrderId(commonOrderIds);
         List<OrderDetailDto> listDto = list.stream().map(orderDetailMapper::toOrderDto).toList();
         return ApiResponse.createResponse(HttpStatus.OK, "get all order tracking flow status", listDto);

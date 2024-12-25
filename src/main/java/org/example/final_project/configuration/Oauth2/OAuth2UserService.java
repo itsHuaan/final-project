@@ -23,6 +23,7 @@ import org.springframework.util.Assert;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -61,6 +62,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
                     .name(userCustom.getName())
                     .profilePicture(userCustom.getThumbnail())
                     .username(userCustom.getName())
+                    .createdAt(LocalDateTime.now())
                     .isActive(1)
                     .build();
         } else {

@@ -19,7 +19,6 @@ public class OrderMapper {
         return OrderEntity.builder()
                 .shippingAddress(order.getAddressShipping())
                 .methodCheckout(order.getMethodCheckout())
-                
                 .build();
     }
 
@@ -35,6 +34,7 @@ public class OrderMapper {
                 .createdAt(order.getCreatedAt())
                 .orderCode(order.getOrderCode())
                 .user(userDto)
+                .customerName(order.getCustomerName())
                 .build();
     }
 }

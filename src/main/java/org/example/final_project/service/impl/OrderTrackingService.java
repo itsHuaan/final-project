@@ -27,24 +27,31 @@ public class OrderTrackingService implements IOrderTrackingService {
     IUserRepository userRepository;
     INotificationRepository notificationRepository;
     SKUMapper skuMapper;
+    private final IHistoryStatusShippingRepository iHistoryStatusShippingRepository;
 
 
     @Override
     public int updateStatusShipping(StatusMessageDto messageDto) {
         Optional<OrderTrackingEntity> orderTrackingEntity = orderTrackingRepository.findByOrderIdAndShopId(messageDto.getOrderId(), messageDto.getShopId());
-//        List<OrderDetailEntity> orderDetailEntityList = orderDetailRepository.shopOrder(messageDto.getShopId(), messageDto.getOrderId());
         notificationForUser(messageDto);
         if (orderTrackingEntity.isPresent()) {
             OrderTrackingEntity orderTrackingEntity1 = orderTrackingEntity.get();
             if (messageDto.getStatus() == ShippingStatus.COMPLETED.getValue()) {
                 orderTrackingEntity1.setPaidDate(LocalDateTime.now());
                 Optional<OrderEntity> optionalOrderEntity = orderRepository.findById(messageDto.getOrderId());
-                if (optionalOrderEntity.isPresent()) {
+                int checkPaidDate = orderTrackingRepository.checkPaidDateExistByOrderId(messageDto.getOrderId());
+                if (optionalOrderEntity.isPresent() && checkPaidDate == 1) {
                     OrderEntity orderEntity = optionalOrderEntity.get();
                     orderEntity.setStatusCheckout(CheckoutStatus.COMPLETED.getValue());
                     orderRepository.save(orderEntity);
                 }
             }
+            HistoryStatusShippingEntity historyStatusShippingEntity = HistoryStatusShippingEntity.builder()
+                    .orderTracking(orderTrackingEntity1)
+                    .status(messageDto.getStatus())
+                    .createdChangeStatus(LocalDateTime.now())
+                    .build();
+            iHistoryStatusShippingRepository.save(historyStatusShippingEntity);
             orderTrackingEntity1.setStatus(messageDto.getStatus());
             orderTrackingEntity1.setNote(messageDto.getNote());
             orderTrackingRepository.save(orderTrackingEntity1);
@@ -52,6 +59,7 @@ public class OrderTrackingService implements IOrderTrackingService {
         }
         return 0;
     }
+
 
     public void notificationForUser(StatusMessageDto statusMessageDto) {
 
@@ -66,10 +74,8 @@ public class OrderTrackingService implements IOrderTrackingService {
         SKUEntity skuEntity = orderDetailEntity.get(0).getSkuEntity();
         SKUDto skuDto = skuMapper.convertToDto(skuEntity);
 
-        if (user == null) {
-            throw new IllegalArgumentException("Not found user");
-        }
 
+        assert user != null;
         String shopName = user.getShop_name();
         String title = "";
         String content = "";
