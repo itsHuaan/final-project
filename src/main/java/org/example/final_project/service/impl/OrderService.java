@@ -51,37 +51,36 @@ public class OrderService implements IOrderService {
 
     @Override
     public String submitCheckout(OrderModel orderModel, HttpServletRequest request) throws Exception {
-        String vnp_TxnRef = (String) request.getAttribute("tex");
-        String method = orderModel.getMethodCheckout();
-        double totalPrice = Double.parseDouble(orderModel.getAmount());
-        OrderEntity orderEntity = OrderMapper.toOrderEntity(orderModel);
-        orderEntity.setUser(UserEntity.builder()
-                .userId(orderModel.getUserId())
-                .build());
-        orderEntity.setTotalPrice(totalPrice);
-        orderEntity.setOrderCode(vnp_TxnRef);
-        orderEntity.setPhoneReception(orderModel.getPhoneReception());
-        orderEntity.setCreatedAt(LocalDateTime.now());
-        orderEntity.setCustomerName(orderModel.getCustomerName());
-        orderEntity.setStatusCheckout(CheckoutStatus.PENDING.getValue());
-        orderRepository.save(orderEntity);
-        saveDataOrderTrackingAndDetail(orderModel, orderEntity);
-        if (method.equalsIgnoreCase("vnpay")) {
-            return paymentService.creatUrlPaymentForVnPay(request);
-        } else {
-            int result = loadDataCod(orderModel);
-            if (result == 1) {
+        int result = loadDataCod(orderModel);
+        if (result == 1) {
+            String vnp_TxnRef = (String) request.getAttribute("tex");
+            String method = orderModel.getMethodCheckout();
+            double totalPrice = Double.parseDouble(orderModel.getAmount());
+            OrderEntity orderEntity = OrderMapper.toOrderEntity(orderModel);
+            orderEntity.setUser(UserEntity.builder()
+                    .userId(orderModel.getUserId())
+                    .build());
+            orderEntity.setTotalPrice(totalPrice);
+            orderEntity.setOrderCode(vnp_TxnRef);
+            orderEntity.setPhoneReception(orderModel.getPhoneReception());
+            orderEntity.setCreatedAt(LocalDateTime.now());
+            orderEntity.setCustomerName(orderModel.getCustomerName());
+            orderEntity.setStatusCheckout(CheckoutStatus.PENDING.getValue());
+            orderRepository.save(orderEntity);
+            saveDataOrderTrackingAndDetail(orderModel, orderEntity);
+            if (method.equalsIgnoreCase("vnpay")) {
+                return paymentService.creatUrlPaymentForVnPay(request);
+            } else {
+
                 emailService.sendOrderToEmail(orderModel, request);
                 long id = orderRepository.findIdByOrderCode(vnp_TxnRef);
                 List<OrderDetailEntity> orderDetailEntity = orderDetailRepository.findByOrderId(id);
                 sentNotificationSuccessForShop(orderEntity, orderDetailEntity);
                 return "đặt hàng thành công";
-            } else {
-                return "số lượng hiện tai lon hon so luong trong kho";
             }
         }
+        return "số luong hien tai vươt qua so luong trong kho";
     }
-
 
     public int loadDataCod(OrderModel orderModel) {
         if (orderModel.getCartItems() != null) {
@@ -103,6 +102,7 @@ public class OrderService implements IOrderService {
         return 0;
     }
 
+    @Override
     public int checkQuatity(long skuId, long currentQuatity) {
         Optional<SKUEntity> skuEntity = skuRepository.findById(skuId);
         if (skuEntity.isPresent()) {
