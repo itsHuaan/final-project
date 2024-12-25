@@ -51,6 +51,9 @@ public class StatisticService implements IStatisticService {
 
     @Override
     public AdminStatisticDto getAdminStatisticDto() {
+        List<StatisticShopDto> topSellerShops = userRepository.findUsersSortedBySoldProductRatingRatio(PageRequest.of(0, 10)).stream()
+                .map(userMapper::toStatisticShopDto)
+                .toList();
         return AdminStatisticDto.builder()
                 .totalUsers(userRepository.findAll(Specification.where(
                         UserSpecification.isNotDeleted()
@@ -94,8 +97,8 @@ public class StatisticService implements IStatisticService {
                                 ProductSpecification.isNotDeleted())
                         .and(ProductSpecification.isStatus(ProductStatus.REJECTED.getValue())
                         )).size())
-                .topSellerShops(userRepository.findUsersSortedBySoldProductRatingRatio(PageRequest.of(0, 10)).stream()
-                        .map(userMapper::toStatisticShopDto)
+                .topSellerShops(topSellerShops.stream()
+                        .filter(statisticShopDto -> statisticShopDto.getSold() > 0)
                         .toList())
                 .build();
     }
@@ -236,6 +239,7 @@ public class StatisticService implements IStatisticService {
         return orderDetailRepository.findAll(Specification.where(
                         OrderDetailSpecification.hasShop(shopId)
                                 .and(OrderDetailSpecification.isBetween(startTime, endTime))
+                                .and(OrderDetailSpecification.hasStatus(2))
                 )).stream()
                 .mapToLong(OrderDetailEntity::getQuantity)
                 .sum();
