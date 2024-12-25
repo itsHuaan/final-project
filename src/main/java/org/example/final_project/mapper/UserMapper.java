@@ -2,8 +2,14 @@ package org.example.final_project.mapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.example.final_project.dto.*;
-import org.example.final_project.entity.*;
+import org.example.final_project.dto.CartUserDto;
+import org.example.final_project.dto.ShopDto;
+import org.example.final_project.dto.UserDto;
+import org.example.final_project.dto.UserFeedBackDto;
+import org.example.final_project.entity.OrderDetailEntity;
+import org.example.final_project.entity.ProductEntity;
+import org.example.final_project.entity.RoleEntity;
+import org.example.final_project.entity.UserEntity;
 import org.example.final_project.model.UserModel;
 import org.example.final_project.repository.IOrderDetailRepository;
 import org.example.final_project.repository.IProductRepository;
@@ -15,6 +21,8 @@ import org.springframework.stereotype.Component;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.example.final_project.specification.ProductSpecification.hasUserId;
 import static org.example.final_project.specification.ProductSpecification.isValid;
@@ -73,20 +81,26 @@ public class UserMapper {
     }
 
     public ShopDto toShopDto(UserEntity userEntity) {
-        List<FeedbackEntity> feedbacks = productRepository.findAll(Specification.where(hasUserId(userEntity.getUserId())))
-                .stream()
-                .flatMap(product -> product.getFeedbacks().stream())
-                .toList();
         List<ProductEntity> products = productRepository.findAll(Specification.where(
-                        hasUserId(userEntity.getUserId()))
-                .and(isValid())).stream().toList();
-        double averageRating = products.stream()
-                .mapToDouble(product -> product.getFeedbacks().stream()
-                        .mapToDouble(FeedbackEntity::getRate)
-                        .average()
-                        .orElse(0.0))
-                .average()
-                .orElse(0.0);
+                                hasUserId(userEntity.getUserId()))
+                        .and(isValid()))
+                .stream()
+                .toList();
+        List<OrderDetailEntity> orderDetails = orderDetailRepository.findAll(Specification.where(
+                OrderDetailSpecification.hasShop(userEntity.getUserId())));
+        Map<ProductEntity, Long> productQuantities = orderDetails.stream()
+                .collect(Collectors.groupingBy(orderDetailEntity -> orderDetailEntity.getSkuEntity().getProduct(), Collectors.summingLong(OrderDetailEntity::getQuantity)));
+        double totalWeightedRating = products.stream()
+                .flatMap(product -> product.getFeedbacks().stream()
+                        .map(feedback -> feedback.getRate() * productQuantities.getOrDefault(product, 0L)))
+                .mapToDouble(Double::doubleValue)
+                .sum();
+        long totalSoldQuantity = productQuantities.values().stream()
+                .mapToLong(Long::longValue)
+                .sum();
+        double averageRating = totalSoldQuantity > 0
+                ? totalWeightedRating / totalSoldQuantity
+                : 0.0;
         LocalDateTime createdTime = userEntity.getTime_created_shop();
         Duration duration = createdTime != null
                 ? Duration.between(createdTime, LocalDateTime.now())
@@ -96,18 +110,17 @@ public class UserMapper {
                 .shopName(userEntity.getShop_name())
                 .shopAddress(String.join(", ", addressService.findAddressNamesFromParentId(Long.parseLong(String.valueOf(userEntity.getAddress_id_shop())))))
                 .shopAddressDetail(userEntity.getShop_address_detail())
-                .feedbackCount((long) feedbacks.size())
+                .feedbackCount(products.stream()
+                        .mapToLong(product -> product.getFeedbacks().size())
+                        .sum())
                 .productCount((long) products.size())
                 .joined(duration.toDays())
                 .profilePicture(userEntity.getProfilePicture())
                 .rating(Math.round(averageRating * 100.0) / 100.0)
-                .sold(orderDetailRepository.findAll(Specification.where(
-                                OrderDetailSpecification.hasShop(userEntity.getUserId())
-                        )).stream()
-                        .mapToLong(OrderDetailEntity::getQuantity)
-                        .sum())
+                .sold(totalSoldQuantity)
                 .build();
     }
+
 
     public UserFeedBackDto toUserFeedBackDto(UserEntity userEntity) {
         return UserFeedBackDto.builder()
@@ -124,41 +137,6 @@ public class UserMapper {
                 .name(userEntity.getName())
                 .username(userEntity.getUsername())
                 .email(userEntity.getEmail())
-                .build();
-    }
-
-    public StatisticShopDto toStatisticShopDto(UserEntity userEntity) {
-        List<FeedbackEntity> feedbacks = productRepository.findAll(Specification.where(hasUserId(userEntity.getUserId())))
-                .stream()
-                .flatMap(product -> product.getFeedbacks().stream())
-                .toList();
-        List<ProductEntity> products = productRepository.findAll(Specification.where(
-                        hasUserId(userEntity.getUserId()))).stream().toList();
-        LocalDateTime createdTime = userEntity.getTime_created_shop();
-        Duration duration = createdTime != null
-                ? Duration.between(createdTime, LocalDateTime.now())
-                : Duration.ZERO;
-        return StatisticShopDto.builder()
-                .shopId(userEntity.getUserId())
-                .shopName(userEntity.getShop_name())
-                .shopAddress(String.join(", ", addressService.findAddressNamesFromParentId(Long.parseLong(String.valueOf(userEntity.getAddress_id_shop())))))
-                .shopAddressDetail(userEntity.getShop_address_detail())
-                .feedbackCount((long) feedbacks.size())
-                .productCount((long) products.size())
-                .joined(duration.toDays())
-                .profilePicture(userEntity.getProfilePicture())
-                .rating(Math.round(products.stream()
-                        .mapToDouble(product -> product.getFeedbacks().stream()
-                                .mapToDouble(FeedbackEntity::getRate)
-                                .average()
-                                .orElse(0.0))
-                        .average()
-                        .orElse(0.0) * 100.0) / 100.0)
-                .sold(orderDetailRepository.findAll(Specification.where(
-                                OrderDetailSpecification.hasShop(userEntity.getUserId())
-                        )).stream()
-                        .mapToLong(OrderDetailEntity::getQuantity)
-                        .sum())
                 .build();
     }
 }

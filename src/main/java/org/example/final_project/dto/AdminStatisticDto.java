@@ -19,5 +19,5 @@ public class AdminStatisticDto {
     private long totalRejectedShops;
     private long totalLockedProducts;
     private long totalRejectedProducts;
-    private List<StatisticShopDto> topSellerShops;
+    private List<ShopDto> topSellerShops;
 }

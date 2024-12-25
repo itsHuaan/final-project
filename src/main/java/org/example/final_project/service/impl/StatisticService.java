@@ -51,8 +51,8 @@ public class StatisticService implements IStatisticService {
 
     @Override
     public AdminStatisticDto getAdminStatisticDto() {
-        List<StatisticShopDto> topSellerShops = userRepository.findUsersSortedBySoldProductRatingRatio(PageRequest.of(0, 10)).stream()
-                .map(userMapper::toStatisticShopDto)
+        List<ShopDto> topSellerShops = userRepository.findAll(Specification.where(UserSpecification.sortedBySoldProductRatingRatio()), PageRequest.of(0, 10)).stream()
+                .map(userMapper::toShopDto)
                 .toList();
         return AdminStatisticDto.builder()
                 .totalUsers(userRepository.findAll(Specification.where(
@@ -98,7 +98,8 @@ public class StatisticService implements IStatisticService {
                         .and(ProductSpecification.isStatus(ProductStatus.REJECTED.getValue())
                         )).size())
                 .topSellerShops(topSellerShops.stream()
-                        .filter(statisticShopDto -> statisticShopDto.getSold() > 0)
+                        .filter(statisticShopDto -> statisticShopDto.getSold() > 0
+                        && statisticShopDto.getRating() > 0)
                         .toList())
                 .build();
     }
