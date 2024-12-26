@@ -7,9 +7,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.CategoryDto;
 import org.example.final_project.model.CategoryModel;
-import org.example.final_project.validation.PageableValidation;
 import org.example.final_project.service.ICategoryService;
 import org.example.final_project.util.Const;
+import org.example.final_project.validation.PageableValidation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -140,9 +140,9 @@ public class CategoryController {
     @Operation(summary = "Get all categories by name")
     @GetMapping("/filter/{parent-id}")
     ResponseEntity<?> getAllByName(@PathVariable("parent-id") Long parentId,
-                                @RequestParam(required = false) String categoryName,
-                                @RequestParam(required = false) Integer pageIndex,
-                                @RequestParam(required = false) Integer pageSize) {
+                                   @RequestParam(required = false) String categoryName,
+                                   @RequestParam(required = false) Integer pageIndex,
+                                   @RequestParam(required = false) Integer pageSize) {
 
         try {
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(

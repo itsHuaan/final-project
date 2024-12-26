@@ -127,7 +127,7 @@ public class PromotionController {
 
     @DeleteMapping("/cancel")
     ResponseEntity<?> cancelPromotionOfProduct(@RequestParam Long promotionId,
-                                            @RequestBody List<Long> productIds) {
+                                               @RequestBody List<Long> productIds) {
         try {
             promotionService.cancelPromotionOfProduct(promotionId, productIds);
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
@@ -146,8 +146,9 @@ public class PromotionController {
 
     @GetMapping("/{shop-id}")
     ResponseEntity<?> getAllPromotionByShop(@PathVariable("shop-id") Long shopId,
-                                         @RequestParam(required = false) Integer pageIndex,
-                                         @RequestParam(required = false) Integer pageSize) {
+                                            @RequestParam(required = false) Integer pageIndex,
+                                            @RequestParam(required = false) Integer pageSize) {
+
         try {
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.OK,

@@ -10,7 +10,6 @@ import org.example.final_project.entity.ProductEntity;
 import org.example.final_project.mapper.ImageProductMapper;
 import org.example.final_project.model.ImageProductModel;
 import org.example.final_project.repository.IImageProductRepository;
-import org.example.final_project.repository.IProductRepository;
 import org.example.final_project.service.IImageProductService;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +23,6 @@ import java.util.stream.Collectors;
 public class ImageProductService implements IImageProductService {
     ImageProductMapper imageMapper;
     IImageProductRepository imageRepository;
-    IProductRepository iProductRepository;
 
     @Override
     public List<ImageProductDto> getAll() {
