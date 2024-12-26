@@ -492,6 +492,18 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
+    public int deleteAddress(long userId, Long addressId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        UserShippingAddressEntity currentShippingAddress = shippingAddressRepository.findOne(Specification.where(
+                ShippingAddressSpecification.hasAddress(addressId)
+                        .and(ShippingAddressSpecification.ofUser(user.getUserId()))
+        )).orElseThrow(() -> new EntityNotFoundException("User shipping address not found"));
+        shippingAddressRepository.delete(currentShippingAddress);
+        return 1;
+    }
+
+    @Override
     public List<UserDto> findActiveUsers() {
         return userRepository.findAll(Specification.where(isActive().and(isNotSuperAdmin()))).stream().map(userMapper::toDto).toList();
     }

@@ -50,4 +50,6 @@ public interface IUserService extends IBaseService<UserDto, UserModel, Long> {
     int updateShop(Long userId, ShopModel shopModel);
 
     List<ChatUserDto> getChatUsers(Long senderId);
+
+    int deleteAddress(long userId, Long addressId);
 }
