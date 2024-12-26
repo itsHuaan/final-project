@@ -60,7 +60,6 @@ public class BannerService implements IBannerService {
 
 
     @Override
-
     public int choseImage(ImageActive imageActive) {
         Long id = imageActive.getBannerId();
 
