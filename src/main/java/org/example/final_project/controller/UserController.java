@@ -161,11 +161,19 @@ public class UserController {
     public ResponseEntity<?> selectAddress(
             @PathVariable Long id,
             @RequestBody AddShippingAddressRequest request) {
-        userService.addAddress(id, request);
+        int result = userService.addAddress(id, request);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(createResponse(HttpStatus.OK,
                         "Added " + String.join("/", addressService.findAddressNamesFromParentId(request.getAddressId())),
                         null));
+    }
+
+    @Operation(summary = "Update an existing shipping address")
+    @PutMapping("/{id}/add-address")
+    public ResponseEntity<?> updateAddress(
+            @PathVariable Long id,
+            @RequestBody AddShippingAddressRequest request) {
+        return null;
     }
 
     @Operation(summary = "Get all shipping addresses of an user")
