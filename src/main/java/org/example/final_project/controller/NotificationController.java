@@ -41,7 +41,7 @@ public class NotificationController {
         return ResponseEntity.ok(result == 1 ? "Đã đọc" : "Chưa đọc");
     }
 
-    @PutMapping("/{shopId}")
+    @PutMapping("/{shopId}/shop")
     public ResponseEntity<?> changeStatusNotificationForShop(@PathVariable long shopId) {
         int result = notificationService.changeStatusNotificationForShop(shopId);
         return ResponseEntity.ok(result == 1 ? "Đã đọc" : "Chưa đọc");
