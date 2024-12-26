@@ -18,4 +18,6 @@ public interface IStatisticService {
     AdminStatisticDto getAdminStatisticDto();
 
     List<RevenueStatistic> getRevenueStatistics(long shopId, int year);
+
+    List<RevenueStatistic> getRevenueStatistics(int year);
 }
