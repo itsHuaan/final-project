@@ -24,5 +24,6 @@ public class NotificationEntity {
     @Column(name = "adminId", nullable = true)
     private Long adminId;
     private Long shopId;
+    private String orderCode;
     private LocalDateTime createdAt;
 }

@@ -218,6 +218,7 @@ public class OrderService implements IOrderService {
                     .shopId(cartItemRequest1.getShopId())
                     .isRead(0)
                     .userId(orderEntity.getUser().getUserId())
+                    .orderCode(orderEntity.getOrderCode())
                     .createdAt(LocalDateTime.now())
                     .build();
 //            notificationEntity.setAdminId(0L);
@@ -237,6 +238,7 @@ public class OrderService implements IOrderService {
                     .title("Đơn hàng thanh toán thất bại ")
                     .content("Đơn hàng " + orderEntity.getOrderCode() + "thanh toán thất bại")
                     .isRead(0)
+                    .orderCode(orderEntity.getOrderCode())
                     .userId(orderEntity.getUser().getUserId())
                     .createdAt(LocalDateTime.now())
                     .build();
