@@ -51,7 +51,7 @@ public class ExcelService {
         List<OrderDetailDto> orderDtoList = orderDetailEntities.stream().map(orderDetailMapper::toOrderDto).toList();
         return orderDtoList.stream().mapToDouble(e -> e.getPrice() * e.getQuantity()).sum();
     }
-
+    
 
     public void exportOrderToExcel(long shopId, HttpServletResponse response, LocalDate startDate, LocalDate endDate) throws IOException {
         Workbook workbook = new XSSFWorkbook();

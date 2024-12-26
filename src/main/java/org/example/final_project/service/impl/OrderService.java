@@ -191,6 +191,9 @@ public class OrderService implements IOrderService {
             } else {
                 sentNotificationFailForUser(order, orderDetails);
                 order.setStatusCheckout(CheckoutStatus.FAILED.getValue());
+                List<OrderTrackingEntity> orderTrackingEntities = orderTrackingRepository.listOrderTracking(order.getId());
+                orderTrackingEntities.forEach(entity -> entity.setStatus(ShippingStatus.CANCELLED.getValue()));
+                orderTrackingRepository.saveAll(orderTrackingEntities);
                 orderRepository.save(order);
                 return createResponse(HttpStatus.OK, "Failed Payment ", null);
             }
