@@ -25,12 +25,12 @@ public class MediaUploadService {
         return (String) uploadResult.get("url");
     }
 
-    public List<String> uploadMediaFiles(MultipartFile[] files) throws IOException {
+    public List<String> uploadMultipleMediaFiles(MultipartFile[] files) throws IOException {
         List<String> mediaUrls = new ArrayList<>();
         for (MultipartFile file : files) {
             Map<String, Object> uploadResult;
             String fileType = file.getContentType();
-            if (fileType.startsWith("video")) {
+            if (fileType != null && fileType.startsWith("video")) {
                 uploadResult = cloudinary.uploader().upload(file.getBytes(),
                         ObjectUtils.asMap("resource_type", "video"));
             } else {
@@ -42,10 +42,10 @@ public class MediaUploadService {
         return mediaUrls;
     }
 
-    public String uploadMediaFile(MultipartFile file) throws IOException {
+    public String uploadSingleMediaFile(MultipartFile file) throws IOException {
         Map<String, Object> uploadResult;
         String fileType = file.getContentType();
-        if (fileType.startsWith("video")) {
+        if (fileType != null && fileType.startsWith("video")) {
             uploadResult = cloudinary.uploader().upload(file.getBytes(),
                     ObjectUtils.asMap("resource_type", "video"));
         } else {
