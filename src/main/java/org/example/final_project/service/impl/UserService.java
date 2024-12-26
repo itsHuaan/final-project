@@ -27,6 +27,7 @@ import org.example.final_project.repository.IShippingAddressRepository;
 import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.IAddressService;
 import org.example.final_project.service.IUserService;
+import org.example.final_project.specification.ShippingAddressSpecification;
 import org.example.final_project.specification.UserSpecification;
 import org.example.final_project.util.EmailTemplate;
 import org.springframework.data.domain.Page;
@@ -415,17 +416,40 @@ public class UserService implements IUserService, UserDetailsService {
         AddressEntity address = addressRepository.findById(request.getAddressId())
                 .orElseThrow(() -> new EntityNotFoundException("Address not found"));
 
+        if (shippingAddressRepository.findOne(Specification.where(
+                ShippingAddressSpecification.hasAddress(request.getAddressId())
+                        .and(ShippingAddressSpecification.ofUser(user.getUserId()))
+        )).isPresent()) {
+            throw new IllegalArgumentException("Shipping address already exists");
+        }
+
         if (user.getShippingAddresses().size() >= 20) {
             throw new IllegalArgumentException("Cannot add more than 20 shipping addresses");
         }
 
-        UserShippingAddressEntity newShippingAddress = UserShippingAddressEntity.builder()
+        shippingAddressRepository.save(UserShippingAddressEntity.builder()
                 .user(user)
                 .address(address)
                 .addressLine2(request.getAddressDetail())
-                .build();
+                .build());
+        return 1;
+    }
 
-        shippingAddressRepository.save(newShippingAddress);
+    @Override
+    public int updateAddress(long userId, UpdateShippingAddressRequest request) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        AddressEntity address = addressRepository.findById(request.getNewAddressId())
+                .orElseThrow(() -> new EntityNotFoundException("Address not found"));
+        UserShippingAddressEntity currentShippingAddress = shippingAddressRepository.findOne(Specification.where(
+                ShippingAddressSpecification.hasAddress(request.getOldAddressId())
+                        .and(ShippingAddressSpecification.ofUser(user.getUserId()))
+        )).orElseThrow(() -> new EntityNotFoundException("User shipping address not found"));
+
+        currentShippingAddress.setAddress(address);
+        currentShippingAddress.setAddressLine2(request.getAddressDetail());
+
+        shippingAddressRepository.save(currentShippingAddress);
         return 1;
     }
 
@@ -465,6 +489,18 @@ public class UserService implements IUserService, UserDetailsService {
     @Override
     public List<ChatUserDto> getChatUsers(Long senderId) {
         return null;
+    }
+
+    @Override
+    public int deleteAddress(long userId, Long addressId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        UserShippingAddressEntity currentShippingAddress = shippingAddressRepository.findOne(Specification.where(
+                ShippingAddressSpecification.hasAddress(addressId)
+                        .and(ShippingAddressSpecification.ofUser(user.getUserId()))
+        )).orElseThrow(() -> new EntityNotFoundException("User shipping address not found"));
+        shippingAddressRepository.delete(currentShippingAddress);
+        return 1;
     }
 
     @Override

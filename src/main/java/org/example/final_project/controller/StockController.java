@@ -29,7 +29,7 @@ public class StockController {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.OK,
-                    "Successfully",
+                    "Fetched all stock successfully",
                     skuService.getAllByProduct(productId)
             ));
         } catch (Exception e) {
@@ -47,7 +47,7 @@ public class StockController {
             skuService.updateListStock(skuModels);
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.CREATED,
-                    "Successfully",
+                    "Updated stock successfully",
                     null
             ));
         } catch (Exception e) {

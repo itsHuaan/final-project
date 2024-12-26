@@ -24,7 +24,6 @@ import static org.example.final_project.validation.PageableValidation.setDefault
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class PromotionController {
-
     IPromotionService promotionService;
 
     @GetMapping
@@ -33,7 +32,7 @@ public class PromotionController {
         if (setDefault(pageSize, pageIndex) != null) {
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.OK,
-                    "Successfully",
+                    "Fetched all promotion successfully",
                     promotionService.findAllByPage(setDefault(pageSize, pageIndex))
             ));
         } else {
@@ -52,7 +51,7 @@ public class PromotionController {
                 promotionService.save(model);
                 return ResponseEntity.status(HttpStatus.CREATED).body(createResponse(
                         HttpStatus.CREATED,
-                        "Successfully",
+                        "Added promotion successfully",
                         null
                 ));
             } else {
@@ -77,7 +76,7 @@ public class PromotionController {
             promotionService.update(promotionId, model);
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.OK,
-                    "Successfully",
+                    "Updated promotion successfully",
                     null
             ));
         } catch (Exception e) {
@@ -95,7 +94,7 @@ public class PromotionController {
             promotionService.delete(promotionId);
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.OK,
-                    "Successfully",
+                    "Deleted promotion successfully",
                     null
             ));
         } catch (Exception e) {
@@ -114,7 +113,7 @@ public class PromotionController {
             promotionService.applyPromotion(promotionId, productIds);
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.CREATED,
-                    "Successfully",
+                    "Apply promotion successfully",
                     null
             ));
         } catch (Exception e) {
@@ -133,7 +132,7 @@ public class PromotionController {
             promotionService.cancelPromotionOfProduct(promotionId, productIds);
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.NO_CONTENT,
-                    "Successfully",
+                    "Canceled promotion successfully",
                     null
             ));
         } catch (Exception e) {
@@ -149,10 +148,11 @@ public class PromotionController {
     ResponseEntity<?> getAllPromotionByShop(@PathVariable("shop-id") Long shopId,
                                             @RequestParam(required = false) Integer pageIndex,
                                             @RequestParam(required = false) Integer pageSize) {
+
         try {
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.OK,
-                    "Successfully",
+                    "Fetched all promotion successfully",
                     promotionService.getAllByShop(shopId, PageableValidation.setDefault(pageSize, pageIndex))
             ));
         } catch (Exception e) {

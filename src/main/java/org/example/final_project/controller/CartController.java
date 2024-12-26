@@ -59,7 +59,7 @@ public class CartController {
             CartDto cart = cartService.getUserCart(userId);
             return ResponseEntity.status(HttpStatus.OK).body(
                     createResponse(HttpStatus.OK,
-                            "Fetched",
+                            "Cart found",
                             cart.getCartQuantity())
             );
         } catch (IllegalArgumentException e) {

@@ -147,7 +147,7 @@ public class CategoryController {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.OK,
-                    "Successfully",
+                    "Fetched all category successfully",
                     categoryService.getAllByName(categoryName, parentId, PageableValidation.setDefault(pageSize, pageIndex))
             ));
         } catch (Exception e) {

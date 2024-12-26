@@ -47,7 +47,7 @@ public class ProductController {
                     ? ResponseEntity.status(HttpStatus.OK).body(
                     createResponse(
                             HttpStatus.OK,
-                            "Fetched",
+                            "Product found",
                             result
                     )
             )
@@ -77,7 +77,7 @@ public class ProductController {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.OK,
-                    "Successfully",
+                    "Fetched all product successfully",
                     productService.findAllByPage(type, PageableValidation.setDefault(pageSize, pageIndex))
             ));
         } catch (Exception e) {
@@ -193,7 +193,7 @@ public class ProductController {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.OK,
-                    "Successfully",
+                    "Product found",
                     productService.findAllByNameAndPage(type, name, PageableValidation.setDefault(pageSize, pageIndex))
             ));
         } catch (Exception e) {
@@ -213,7 +213,7 @@ public class ProductController {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.OK,
-                    "Successfully",
+                    "Fetched all product successfully",
                     productService.getAllProductByStatus(type, PageableValidation.setDefault(pageSize, pageIndex))
             ));
         } catch (IllegalArgumentException e) {
@@ -233,7 +233,7 @@ public class ProductController {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.OK,
-                    "Successfully",
+                    "Fetched all product successfully",
                     productService.getAllProductRelative(id, PageableValidation.setDefault(pageSize, pageIndex))
             ));
         } catch (Exception e) {
@@ -253,7 +253,7 @@ public class ProductController {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.OK,
-                    "Successfully",
+                    "Fetched all product successfully",
                     productService.getOtherProductOfShop(productId, PageableValidation.setDefault(pageSize, pageIndex))
             ));
         } catch (Exception e) {
@@ -274,7 +274,7 @@ public class ProductController {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.OK,
-                    "Successfully",
+                    "Fetched all product successfully",
                     productService.getAllProductOfShop(userId, type, PageableValidation.setDefault(pageSize, pageIndex))
             ));
         } catch (Exception e) {
@@ -299,7 +299,7 @@ public class ProductController {
                                             @RequestParam(required = false) Integer pageIndex) {
         return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                 HttpStatus.OK,
-                "Successfully",
+                "Fetched all product successfully",
                 productService.getAllProductByFilter(type, name, categoryId, addressId, startPrice, endPrice, rating, PageableValidation.setDefault(pageSize, pageIndex))
         ));
     }
@@ -339,7 +339,7 @@ public class ProductController {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.OK,
-                    "Successfully",
+                    "Fetched all promotion successfully",
                     productService.getAllProductByPromotion(type, promotionId, shopId, PageableValidation.setDefault(pageSize, pageIndex))
             ));
         } catch (Exception e) {

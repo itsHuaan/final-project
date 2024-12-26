@@ -20,9 +20,9 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.text.NumberFormat;
-import java.util.Locale;
 import java.util.Optional;
+
+import static org.example.final_project.util.FormatVND.formatCurrency;
 
 @Slf4j
 @Service
@@ -49,12 +49,6 @@ public class EmailService implements IEmailService {
         }
     }
 
-    public String formatCurrency(double amount) {
-        NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
-        String formattedAmount = currencyFormatter.format(amount);
-
-        return formattedAmount.replace("₫", "").trim();
-    }
 
     @Async
     public void sendOrderToEmail(OrderModel orderModel, HttpServletRequest request) throws Exception {

@@ -76,7 +76,7 @@ public class PaymentController {
                 }
             }
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("so luong qua lon");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The current quantity is greater than the quantity in the stock");
     }
 
     @GetMapping("/vnpay-return")
