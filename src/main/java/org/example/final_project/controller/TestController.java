@@ -64,12 +64,12 @@ public class TestController {
     @Operation(summary = "Response Test")
     @GetMapping("/response-test")
     public ResponseEntity<?> responseTest(@RequestParam List<Long> addressIds) {
-        List<Long> ids = productService.getAllChildLocationIds(addressIds);
+//        List<Long> ids = productService.getAllChildLocationIds(addressIds);
         return ResponseEntity.status(HttpStatus.OK).body(
                 createResponse(
                         HttpStatus.OK,
                         "No content",
-                        ids
+                        null
                 )
         );
     }

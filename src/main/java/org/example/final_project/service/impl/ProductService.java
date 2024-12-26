@@ -236,8 +236,7 @@ public class ProductService implements IProductService {
         return iProductRepository.findAll(filter, pageable).map(productMapper::toProductSummaryDto);
     }
 
-    @Override
-    public List<Long> getAllChildLocationIds(List<Long> parentIds) {
+    private List<Long> getAllChildLocationIds(List<Long> parentIds) {
         return addressRepository.findAllChildLocationIds(parentIds);
     }
 
