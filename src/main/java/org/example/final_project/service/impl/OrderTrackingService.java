@@ -40,8 +40,7 @@ public class OrderTrackingService implements IOrderTrackingService {
             if (messageDto.getStatus() == ShippingStatus.COMPLETED.getValue()) {
                 orderTrackingEntity1.setPaidDate(LocalDateTime.now());
                 Optional<OrderEntity> optionalOrderEntity = orderRepository.findById(messageDto.getOrderId());
-                int checkPaidDate = orderTrackingRepository.checkPaidDateExistByOrderId(messageDto.getOrderId());
-                if (optionalOrderEntity.isPresent() && checkPaidDate == 1) {
+                if (optionalOrderEntity.isPresent() && checkPaidDate(messageDto.getOrderId()) == 1) {
                     OrderEntity orderEntity = optionalOrderEntity.get();
                     orderEntity.setStatusCheckout(CheckoutStatus.COMPLETED.getValue());
                     orderRepository.save(orderEntity);
@@ -60,6 +59,16 @@ public class OrderTrackingService implements IOrderTrackingService {
         }
         return 0;
     }
+
+    public int checkPaidDate(Long orderId) {
+        boolean isCompleted = orderTrackingRepository.listOrderTracking(orderId)
+                .stream()
+                .anyMatch(orderTrackingEntity -> orderTrackingEntity.getStatus() == ShippingStatus.COMPLETED.getValue());
+        return isCompleted ? 1 : 0;
+    }
+
+
+    ;
 
 
     public void notificationForUser(StatusMessageDto statusMessageDto) {
@@ -85,7 +94,7 @@ public class OrderTrackingService implements IOrderTrackingService {
         String shipping = "SPX Express";
         String image;
 
-        
+
         if (skuDto.getImage() != null) {
             image = skuDto.getImage();
         } else {
@@ -93,6 +102,7 @@ public class OrderTrackingService implements IOrderTrackingService {
         }
         NotificationModel notificationModel = new NotificationModel();
         notificationModel.setImage(image);
+        notificationModel.setOrderCode(OrderCode);
         if (statusMessageDto.getStatus() == ShippingStatus.CONFIRMED.getValue()) {
             title = "Xác nhận đơn hàng ";
             content = "Đơn hàng " + OrderCode + "đã được Người bán " + shopName + " xác nhận ";
@@ -132,6 +142,7 @@ public class OrderTrackingService implements IOrderTrackingService {
                 .isRead(0)
                 .createdAt(LocalDateTime.now())
                 .image(notificationModel.getImage())
+                .orderCode(notificationModel.getOrderCode())
                 .build();
         notificationRepository.save(notificationEntity);
     }

@@ -14,5 +14,6 @@ public class NotificationModel {
     private Long adminId;
     private Long shopId;
     private String image;
+    private String orderCode;
 
 }

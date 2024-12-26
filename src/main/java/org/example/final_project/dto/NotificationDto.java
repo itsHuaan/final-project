@@ -18,5 +18,6 @@ public class NotificationDto {
     private int isRead;
     private String image;
     private Long shopId;
+    private String orderCode;
     private LocalDateTime createdAt;
 }
