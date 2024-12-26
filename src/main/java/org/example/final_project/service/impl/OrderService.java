@@ -30,6 +30,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.example.final_project.dto.ApiResponse.createResponse;
+import static org.example.final_project.util.FormatVND.formatCurrency;
 
 @Service
 @RequiredArgsConstructor
@@ -76,10 +77,10 @@ public class OrderService implements IOrderService {
                 long id = orderRepository.findIdByOrderCode(vnp_TxnRef);
                 List<OrderDetailEntity> orderDetailEntity = orderDetailRepository.findByOrderId(id);
                 sentNotificationSuccessForShop(orderEntity, orderDetailEntity);
-                return "đặt hàng thành công";
+                return "Order Complete";
             }
         }
-        return "số luong hien tai vươt qua so luong trong kho";
+        return "The current quantity is greater than the quantity in the stock";
     }
 
     public int loadDataCod(OrderModel orderModel) {
@@ -211,10 +212,12 @@ public class OrderService implements IOrderService {
             if (skuEntity == null) {
                 throw new IllegalArgumentException("Not found Sku");
             }
+
+            String vnd = formatCurrency(total);
             NotificationEntity notificationEntity = NotificationEntity.builder()
                     .image(skuEntity.getImage())
                     .title("Đơn hàng mới vừa được tạo ")
-                    .content("Đơn hàng " + orderEntity.getOrderCode() + " vừa được tạo đặt với số tiền" + total)
+                    .content("Đơn hàng " + orderEntity.getOrderCode() + " vừa được tạo đặt với số tiền " + vnd + " VNĐ .")
                     .shopId(cartItemRequest1.getShopId())
                     .isRead(0)
                     .userId(orderEntity.getUser().getUserId())
@@ -232,11 +235,14 @@ public class OrderService implements IOrderService {
             if (skuEntity == null) {
                 throw new IllegalArgumentException("Not found Sku");
             }
+            double total = cartItemRequest1.getQuantity() * cartItemRequest1.getPrice();
+
+            String vnd = formatCurrency(total);
 
             NotificationEntity notificationEntity = NotificationEntity.builder()
                     .image(skuEntity.getImage())
                     .title("Đơn hàng thanh toán thất bại ")
-                    .content("Đơn hàng " + orderEntity.getOrderCode() + "thanh toán thất bại")
+                    .content("Đơn hàng " + orderEntity.getOrderCode() + " với số tiền " + vnd + " VNĐ " + " thanh toán thất bại .")
                     .isRead(0)
                     .orderCode(orderEntity.getOrderCode())
                     .userId(orderEntity.getUser().getUserId())
