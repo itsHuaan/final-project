@@ -203,6 +203,29 @@ public class UserController {
                 );
     }
 
+    @Operation(summary = "Delete an existing shipping address")
+    @DeleteMapping("/{id}/delete-address")
+    public ResponseEntity<?> updateAddress(
+            @PathVariable Long id,
+            @RequestParam Long addressId) {
+        HttpStatus httpStatus;
+        String message;
+        try {
+            int result = userService.deleteAddress(id, addressId);
+            httpStatus = result == 1 ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
+            message = result == 1 ? "Deleted shipping address for user " + userService.getById(id).getUsername() : "Failed to delete shipping address";
+        } catch (EntityNotFoundException | IllegalArgumentException e) {
+            httpStatus = HttpStatus.BAD_REQUEST;
+            message = e.getMessage();
+        }
+        return ResponseEntity.status(httpStatus)
+                .body(createResponse(
+                        httpStatus,
+                        message,
+                        null)
+                );
+    }
+
     @Operation(summary = "Get all shipping addresses of an user")
     @GetMapping("/{id}/shipping-address")
     public ResponseEntity<?> getShippingAddress(@PathVariable Long id) {
