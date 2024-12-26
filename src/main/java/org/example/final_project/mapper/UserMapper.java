@@ -10,7 +10,6 @@ import org.example.final_project.entity.OrderDetailEntity;
 import org.example.final_project.entity.ProductEntity;
 import org.example.final_project.entity.RoleEntity;
 import org.example.final_project.entity.UserEntity;
-import org.example.final_project.entity.FeedbackEntity;
 import org.example.final_project.model.UserModel;
 import org.example.final_project.repository.IOrderDetailRepository;
 import org.example.final_project.repository.IProductRepository;
@@ -94,14 +93,12 @@ public class UserMapper {
                 ));
         double totalWeightedRating = 0.0;
         long totalSoldQuantity = 0;
-
         for (ProductEntity product : products) {
             long productSoldQuantity = productQuantities.getOrDefault(product, 0L);
             if (productSoldQuantity > 0) {
                 double productWeightedRating = product.getFeedbacks().stream()
-                        .mapToDouble(FeedbackEntity::getRate)
-                        .average()
-                        .orElse(0.0) * productSoldQuantity;
+                        .mapToDouble(feedback -> feedback.getRate() * productSoldQuantity)
+                        .sum();
                 totalWeightedRating += productWeightedRating;
                 totalSoldQuantity += productSoldQuantity;
             }

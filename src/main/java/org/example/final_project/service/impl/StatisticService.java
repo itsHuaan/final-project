@@ -107,6 +107,9 @@ public class StatisticService implements IStatisticService {
     public ShopRatioDto getShopRatioDto() {
         return ShopRatioDto.builder()
                 .totalShops(getTotalShops())
+                .totalLockedShops((double) (getTotalLockedShops() / getTotalShops()) * 100)
+                .totalPendingShop((double) (getTotalPendingShop() / getTotalShops()) * 100)
+                .totalRejectedShops((double) (getTotalRejectedShops() / getTotalShops()) * 100)
                 .build();
     }
 
