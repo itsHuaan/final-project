@@ -9,9 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import static org.example.final_project.dto.ApiResponse.createResponse;
 
@@ -27,7 +25,7 @@ public class StockController {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.OK,
-                    "Successfully",
+                    "Fetched all stock successfully",
                     skuService.getAllByProduct(productId)
             ));
         } catch (Exception e) {
@@ -45,7 +43,7 @@ public class StockController {
             skuService.updateListStock(skuModels);
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.CREATED,
-                    "Successfully",
+                    "Updated stock successfully",
                     null
             ));
         } catch (Exception e) {

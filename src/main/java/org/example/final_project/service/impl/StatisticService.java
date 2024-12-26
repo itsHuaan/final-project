@@ -138,6 +138,11 @@ public class StatisticService implements IStatisticService {
         return statistics;
     }
 
+    @Override
+    public ShopRatioDto getShopRatioDto() {
+        return null;
+    }
+
     private StatisticDto buildStatistic(long shopId, LocalDateTime startTime) {
         return StatisticDto.builder()
                 .averageRating(getAverageOfRating(shopId, startTime, END_OF_DAY))

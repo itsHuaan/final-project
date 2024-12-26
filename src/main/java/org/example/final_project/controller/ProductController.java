@@ -11,12 +11,12 @@ import org.example.final_project.dto.ProductOptionDetailDto;
 import org.example.final_project.dto.SKUDto;
 import org.example.final_project.model.FavoriteProductModel;
 import org.example.final_project.model.ProductModel;
-import org.example.final_project.validation.PageableValidation;
 import org.example.final_project.service.IFavoriteProductService;
 import org.example.final_project.service.IProductOptionService;
 import org.example.final_project.service.IProductService;
 import org.example.final_project.service.ISKUService;
 import org.example.final_project.util.Const;
+import org.example.final_project.validation.PageableValidation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -48,7 +48,7 @@ public class ProductController {
                     ? ResponseEntity.status(HttpStatus.OK).body(
                     createResponse(
                             HttpStatus.OK,
-                            "Fetched",
+                            "Product found",
                             result
                     )
             )
@@ -78,7 +78,7 @@ public class ProductController {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.OK,
-                    "Successfully",
+                    "Fetched all product successfully",
                     productService.findAllByPage(type, PageableValidation.setDefault(pageSize, pageIndex))
             ));
         } catch (Exception e) {
@@ -194,7 +194,7 @@ public class ProductController {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.OK,
-                    "Successfully",
+                    "Product found",
                     productService.findAllByNameAndPage(type, name, PageableValidation.setDefault(pageSize, pageIndex))
             ));
         } catch (Exception e) {
@@ -214,7 +214,7 @@ public class ProductController {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.OK,
-                    "Successfully",
+                    "Fetched all product successfully",
                     productService.getAllProductByStatus(type, PageableValidation.setDefault(pageSize, pageIndex))
             ));
         } catch (IllegalArgumentException e) {
@@ -234,7 +234,7 @@ public class ProductController {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.OK,
-                    "Successfully",
+                    "Fetched all product successfully",
                     productService.getAllProductRelative(id, PageableValidation.setDefault(pageSize, pageIndex))
             ));
         } catch (Exception e) {
@@ -254,7 +254,7 @@ public class ProductController {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.OK,
-                    "Successfully",
+                    "Fetched all product successfully",
                     productService.getOtherProductOfShop(productId, PageableValidation.setDefault(pageSize, pageIndex))
             ));
         } catch (Exception e) {
@@ -275,7 +275,7 @@ public class ProductController {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.OK,
-                    "Successfully",
+                    "Fetched all product successfully",
                     productService.getAllProductOfShop(userId, type, PageableValidation.setDefault(pageSize, pageIndex))
             ));
         } catch (Exception e) {
@@ -300,7 +300,7 @@ public class ProductController {
                                             @RequestParam(required = false) Integer pageIndex) {
         return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                 HttpStatus.OK,
-                "Successfully",
+                "Fetched all product successfully",
                 productService.getAllProductByFilter(type, name, categoryId, addressId, startPrice, endPrice, rating, PageableValidation.setDefault(pageSize, pageIndex))
         ));
     }
@@ -332,7 +332,7 @@ public class ProductController {
 
     @Operation(summary = "Get All Product In Promotion")
     @GetMapping("/promotion/{promotion-id}")
-    ResponseEntity getAllProductByPromotion(@RequestParam Integer type,
+    ResponseEntity<?> getAllProductByPromotion(@RequestParam Integer type,
                                             @PathVariable("promotion-id") Long promotionId,
                                             @RequestParam(required = false) Long shopId,
                                             @RequestParam(required = false) Integer pageIndex,
@@ -340,7 +340,7 @@ public class ProductController {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.OK,
-                    "Successfully",
+                    "Fetched all promotion successfully",
                     productService.getAllProductByPromotion(type, promotionId, shopId, PageableValidation.setDefault(pageSize, pageIndex))
             ));
         } catch (Exception e) {

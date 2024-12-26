@@ -2,6 +2,7 @@ package org.example.final_project.specification;
 
 import jakarta.persistence.criteria.*;
 import org.example.final_project.entity.*;
+import org.example.final_project.enumeration.ShopStatus;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDateTime;
@@ -55,7 +56,7 @@ public class UserSpecification {
 
     public static Specification<UserEntity> isShop() {
         return (Root<UserEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
-                criteriaBuilder.notEqual(root.get("shop_status"), 0);
+                criteriaBuilder.notEqual(root.get("shop_status"), ShopStatus.ACTIVE.getValue());
     }
 
     public static Specification<UserEntity> containName(String name) {

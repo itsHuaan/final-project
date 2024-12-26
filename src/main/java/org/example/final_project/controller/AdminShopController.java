@@ -66,7 +66,7 @@ public class AdminShopController {
                 ? ResponseEntity.status(HttpStatus.OK).body(
                 createResponse(
                         HttpStatus.OK,
-                        "Fetched",
+                        "Statistic fetched",
                         periodicStatistics
                 )
         )
@@ -87,7 +87,7 @@ public class AdminShopController {
         Pageable pageable = PageableValidation.setDefault(pageSize, pageIndex);
         Page<CartSkuDto> lowStockProducts = statisticService.getLowStockProducts(shopId, quantity == null || quantity <= 0 ? 100 : quantity, pageable);
         HttpStatus status = !lowStockProducts.isEmpty() ? HttpStatus.OK : HttpStatus.NO_CONTENT;
-        String message = !lowStockProducts.isEmpty() ? "Fetched" : "No products fetched";
+        String message = !lowStockProducts.isEmpty() ? "Low stock products fetched" : "No products fetched";
         return ResponseEntity.status(HttpStatus.OK).body(
                 createResponse(
                         status,
@@ -98,11 +98,11 @@ public class AdminShopController {
     }
 
     @GetMapping("/{shopId}/revenue-statistic")
-    public ResponseEntity<?> getLowStock(@PathVariable Long shopId,
+    public ResponseEntity<?> getRevenue(@PathVariable Long shopId,
                                          @RequestParam int year) {
         List<RevenueStatistic> revenueStatistics = statisticService.getRevenueStatistics(shopId, year);
         HttpStatus status = !revenueStatistics.isEmpty() ? HttpStatus.OK : HttpStatus.NO_CONTENT;
-        String message = !revenueStatistics.isEmpty() ? "Fetched" : "No revenue data";
+        String message = !revenueStatistics.isEmpty() ? "Revenue fetched" : "No revenue data";
         return ResponseEntity.status(HttpStatus.OK).body(
                 createResponse(
                         status,
@@ -119,7 +119,7 @@ public class AdminShopController {
                                           @RequestParam(required = false) LocalDate endDate) {
         ShopStatisticDto statistics;
         HttpStatus httpStatus = HttpStatus.OK;
-        String message = "Fetched";
+        String message = "Statistic fetched";
         switch (period.toLowerCase()) {
             case "today":
                 statistics = statisticService.getStatistics(shopId, START_OF_DAY, END_OF_DAY);

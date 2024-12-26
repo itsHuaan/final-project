@@ -55,7 +55,7 @@ public class UserController {
         return result.hasContent()
                 ? ResponseEntity.status(HttpStatus.OK).body(createResponse(
                         HttpStatus.OK,
-                        "Fetched",
+                        "User fetched",
                         result
                 )
         )
@@ -73,7 +73,7 @@ public class UserController {
         UserDto result = userService.getById(id);
         return result != null ? ResponseEntity.status(HttpStatus.OK).body(createResponse(
                 HttpStatus.OK,
-                "Fetched",
+                "User found",
                 result))
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).body(createResponse(
                 HttpStatus.NOT_FOUND,

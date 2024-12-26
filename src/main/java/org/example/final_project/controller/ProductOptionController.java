@@ -32,7 +32,7 @@ public class ProductOptionController {
                 iskuService.addListSKU(productId, savedOptionId);
                 return ResponseEntity.status(HttpStatus.CREATED).body(createResponse(
                         HttpStatus.CREATED,
-                        "Successfully",
+                        "Add new option successfully",
                         null
                 ));
             } else {
@@ -59,7 +59,7 @@ public class ProductOptionController {
                 iskuService.addListSKUAfterDeleteOption(productId, optionId);
                 return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                         HttpStatus.NO_CONTENT,
-                        "Successfully",
+                        "Deleted option successfully",
                         null
                 ));
             } else {
@@ -85,7 +85,7 @@ public class ProductOptionController {
             optionService.update(optionId, model);
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.OK,
-                    "Successfully",
+                    "Updated option successfully",
                     null
             ));
         } catch (Exception e) {

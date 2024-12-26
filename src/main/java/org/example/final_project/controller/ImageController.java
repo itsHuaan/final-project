@@ -33,7 +33,7 @@ public class ImageController {
     ResponseEntity<?> uploadImage(@RequestBody MultipartFile file) throws IOException {
         return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                 HttpStatus.OK,
-                "Successfully",
+                "Upload image successfully",
                 cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap()).get("url").toString()
         ));
     }
@@ -58,7 +58,7 @@ public class ImageController {
             imageProductService.delete(imageProductId);
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.NO_CONTENT,
-                    "Successfully",
+                    "Deleted image successfully",
                     null
             ));
         } catch (Exception e) {
