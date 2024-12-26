@@ -60,8 +60,8 @@ public class ProductOptionValueService implements IProductOptionValueService {
     @Override
     public int update(Long aLong, ProductOptionValueModel productOptionValueModel) {
         if (valueRepository.findById(aLong).isPresent()) {
-            ProductOptionValuesEntity values = valueMapper.convertToEntity(productOptionValueModel);
-            values.setId(aLong);
+            ProductOptionValuesEntity values = valueRepository.findById(aLong).get();
+            values.setName(productOptionValueModel.getName());
             valueRepository.save(values);
             return 1;
         } else {

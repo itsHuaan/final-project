@@ -15,7 +15,6 @@ import org.example.final_project.service.IProductOptionService;
 import org.example.final_project.service.IProductOptionValueService;
 import org.example.final_project.service.ISKUService;
 import org.example.final_project.util.ConvertJsonObject;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -55,12 +54,12 @@ public class ProductOptionService implements IProductOptionService {
     @Override
     public int update(Long aLong, ProductOptionsModel model) {
         if (optionRepository.findById(aLong).isPresent()) {
-            ProductOptionsEntity entity = mapper.convertToEntity(model);
-            entity.setId(aLong);
+            ProductOptionsEntity entity = optionRepository.findById(aLong).get();
+            entity.setName(model.getName());
             optionRepository.save(entity);
             return 1;
         } else {
-            throw new IllegalArgumentException("Value not found");
+            throw new IllegalArgumentException("Option is not found");
         }
     }
 
