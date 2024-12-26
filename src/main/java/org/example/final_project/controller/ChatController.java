@@ -103,7 +103,7 @@ public class ChatController {
         try {
             chatUsers = chatRoomService.getChatUsers(senderId);
             status = !chatUsers.isEmpty() ? HttpStatus.OK : HttpStatus.NO_CONTENT;
-            message = !chatUsers.isEmpty() ? "Fetched" : "No users fetched";
+            message = !chatUsers.isEmpty() ? "Chat users fetched" : "No chat users fetched";
         } catch (Exception e) {
             chatUsers = null;
             status = HttpStatus.BAD_REQUEST;

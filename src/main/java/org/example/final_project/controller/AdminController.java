@@ -92,7 +92,7 @@ public class AdminController {
     public ResponseEntity<?> getStatistics() {
         AdminStatisticDto statisticDto = statisticService.getAdminStatisticDto();
         HttpStatus status = statisticDto != null ? HttpStatus.OK : HttpStatus.NOT_FOUND;
-        String message = statisticDto != null ? "Fetched" : "No statistics found";
+        String message = statisticDto != null ? "Statistic fetched" : "No statistics found";
         return ResponseEntity.status(status).body(createResponse(status, message, statisticDto));
     }
 
@@ -100,7 +100,7 @@ public class AdminController {
     public ResponseEntity<?> getLowStock(@RequestParam int year) {
         List<RevenueStatistic> revenueStatistics = statisticService.getRevenueStatistics(year);
         HttpStatus status = !revenueStatistics.isEmpty() ? HttpStatus.OK : HttpStatus.NO_CONTENT;
-        String message = !revenueStatistics.isEmpty() ? "Fetched" : "No revenue data";
+        String message = !revenueStatistics.isEmpty() ? "Revenue fetched" : "No revenue data";
         return ResponseEntity.status(HttpStatus.OK).body(
                 createResponse(
                         status,

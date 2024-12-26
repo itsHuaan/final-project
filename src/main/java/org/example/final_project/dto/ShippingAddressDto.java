@@ -8,6 +8,7 @@ import lombok.*;
 @Setter
 @Builder
 public class ShippingAddressDto {
-    String addressLine1;
-    String addressLine2;
+    private Long id;
+    private String addressLine1;
+    private String addressLine2;
 }

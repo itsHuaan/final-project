@@ -2,7 +2,11 @@ package org.example.final_project.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.example.final_project.configuration.UserDetailsImpl;
+import org.example.final_project.service.IProductService;
 import org.example.final_project.util.Const;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,16 +16,22 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
+import java.util.List;
 
 import static org.example.final_project.dto.ApiResponse.createResponse;
 
 @Tag(name = "Test")
 @RestController
 @RequestMapping(value = Const.API_PREFIX + "/test")
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class TestController {
+    IProductService productService;
+
     @Operation(summary = "Admin")
     @PreAuthorize("hasRole('ROLE_SELLER')")
     @GetMapping("/admin-test")
@@ -53,10 +63,11 @@ public class TestController {
 
     @Operation(summary = "Response Test")
     @GetMapping("/response-test")
-    public ResponseEntity<?> responseTest() {
+    public ResponseEntity<?> responseTest(@RequestParam List<Long> addressIds) {
+//        List<Long> ids = productService.getAllChildLocationIds(addressIds);
         return ResponseEntity.status(HttpStatus.OK).body(
                 createResponse(
-                        HttpStatus.NO_CONTENT,
+                        HttpStatus.OK,
                         "No content",
                         null
                 )

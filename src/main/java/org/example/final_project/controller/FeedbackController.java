@@ -4,17 +4,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.example.final_project.dto.ApiResponse;
 import org.example.final_project.dto.FeedbackDto;
 import org.example.final_project.model.FeedbackModel;
 import org.example.final_project.service.IFeedbackService;
 import org.example.final_project.util.Const;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.example.final_project.dto.ApiResponse.createResponse;
@@ -60,7 +57,7 @@ public class FeedbackController {
                 ? ResponseEntity.status(HttpStatus.OK).body(
                 createResponse(
                         HttpStatus.OK,
-                        "Fetched",
+                        "Feedbacks fetched",
                         result
                 )
         )
