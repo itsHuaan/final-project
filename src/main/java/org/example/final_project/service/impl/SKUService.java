@@ -3,7 +3,10 @@ package org.example.final_project.service.impl;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.example.final_project.dto.*;
+import org.example.final_project.dto.OptionValueTemp;
+import org.example.final_project.dto.ProductOptionDetailDto;
+import org.example.final_project.dto.ProductOptionValueDto;
+import org.example.final_project.dto.SKUDto;
 import org.example.final_project.entity.ProductOptionValuesEntity;
 import org.example.final_project.entity.SKUEntity;
 import org.example.final_project.mapper.ProductOptionMapper;
@@ -141,7 +144,7 @@ public class SKUService implements ISKUService {
         for (SKUModel model : skuModels) {
             if (iskuRepository.findById(model.getId()).isPresent()) {
                 SKUEntity entity = iskuRepository.findById(model.getId()).get();
-                entity.setQuantity(model.getQuantity());
+                entity.setQuantity(model.getQuantity() < 0 ? 0 : model.getQuantity());
                 entity.setPrice(model.getPrice());
                 if (model.getImage() != null) {
                     entity.setImage(model.getImage());

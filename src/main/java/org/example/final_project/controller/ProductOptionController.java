@@ -77,4 +77,23 @@ public class ProductOptionController {
             ));
         }
     }
+
+    @PutMapping("/{option-id}")
+    ResponseEntity<?> updateOption(@PathVariable("option-id") Long optionId,
+                                   @RequestBody ProductOptionsModel model) {
+        try {
+            optionService.update(optionId, model);
+            return ResponseEntity.status(HttpStatus.OK).body(createResponse(
+                    HttpStatus.OK,
+                    "Successfully",
+                    null
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+                    HttpStatus.BAD_REQUEST,
+                    e.getMessage(),
+                    null
+            ));
+        }
+    }
 }

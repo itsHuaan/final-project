@@ -430,6 +430,11 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
+    public int updateAddress(long userId, AddShippingAddressRequest request) {
+        return 0;
+    }
+
+    @Override
     public List<UserDto> findByShopName(String shopName, Integer shopStatus) {
         List<UserEntity> userEntityList;
         if (shopName == null && shopStatus == null) {
