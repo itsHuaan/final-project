@@ -129,19 +129,19 @@ public class ProductService implements IProductService {
             specification = specification.and(isStatus(ProductStatus.ACTIVE.getValue()));
         }
         return pageable != null
-                ? iProductRepository.findAll(specification, pageable).map(x -> productMapper.toProductSummaryDto((ProductEntity) x))
-                : iProductRepository.findAll(specification, Pageable.unpaged()).map(x -> productMapper.toProductSummaryDto((ProductEntity) x));
+                ? iProductRepository.findAll(specification, pageable).map(productMapper::toProductSummaryDto)
+                : iProductRepository.findAll(specification, Pageable.unpaged()).map(productMapper::toProductSummaryDto);
     }
 
     @Override
     public Page<ProductSummaryDto> findAllByNameAndPage(Integer type, String name, Pageable pageable) {
-        Specification specification = Specification.where(isValid().and(hasName(name))).and(isNotDeleted());
+        Specification<ProductEntity> specification = Specification.where(isValid().and(hasName(name))).and(isNotDeleted());
         if (type == 1) {
             specification = specification.and(isStatus(ProductStatus.ACTIVE.getValue()));
         }
         return pageable != null
-                ? iProductRepository.findAll(specification, pageable).map(x -> productMapper.toProductSummaryDto((ProductEntity) x))
-                : iProductRepository.findAll(specification, Pageable.unpaged()).map(x -> productMapper.toProductSummaryDto((ProductEntity) x));
+                ? iProductRepository.findAll(specification, pageable).map(productMapper::toProductSummaryDto)
+                : iProductRepository.findAll(specification, Pageable.unpaged()).map(productMapper::toProductSummaryDto);
     }
 
 
@@ -198,12 +198,12 @@ public class ProductService implements IProductService {
     @Override
     public ProductDto getByIdCustom(Long productId, Integer type) {
         if (iProductRepository.findById(productId).isPresent()) {
-            Specification specification = Specification.where(isNotDeleted().and(hasId(productId)));
+            Specification<ProductEntity> specification = Specification.where(isNotDeleted().and(hasId(productId)));
             if (type == 1) {
                 specification = specification.and(isStatus(ProductStatus.ACTIVE.getValue()));
             }
             if (iProductRepository.findOne(specification).isPresent()) {
-                return productMapper.convertToDto((ProductEntity) iProductRepository.findOne(specification).get());
+                return productMapper.convertToDto(iProductRepository.findOne(specification).get());
             } else {
                 throw new IllegalArgumentException("Product not found");
             }
@@ -243,14 +243,14 @@ public class ProductService implements IProductService {
     @Override
     public Page<ProductSummaryDto> getAllProductByPromotion(Integer type, Long promotionId, Long shopId, Pageable pageable) {
         if (promotionRepository.findById(promotionId).isPresent()) {
-            Specification specification = Specification.where(hasPromotion(promotionId));
+            Specification<ProductEntity> specification = Specification.where(hasPromotion(promotionId));
             if (type == 1) {
                 specification = specification.and(isStatus(ProductStatus.ACTIVE.getValue()));
             }
             if (shopId != null) {
                 specification = specification.and(hasUserId(shopId));
             }
-            return iProductRepository.findAll(specification, pageable).map(x -> productMapper.toProductSummaryDto((ProductEntity) x));
+            return iProductRepository.findAll(specification, pageable).map(productMapper::toProductSummaryDto);
         } else {
             throw new IllegalArgumentException("Promotion is not present");
         }
