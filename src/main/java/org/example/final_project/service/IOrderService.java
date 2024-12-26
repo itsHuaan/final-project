@@ -23,4 +23,6 @@ public interface IOrderService {
     OrderModel sentNotify(HttpServletRequest request);
 
     ApiResponse<?> getAllUserBoughtOfThisShop(long shopId, Integer page, Integer size);
+
+    int checkQuatity(long skuId, long currentQuatity);
 }

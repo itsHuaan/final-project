@@ -14,6 +14,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.LocalDateTime;
+
 import static org.example.final_project.specification.RoleSpecification.isRole;
 import static org.example.final_project.specification.UserSpecification.hasUsername;
 
@@ -50,6 +52,7 @@ public class InitAdmin {
                         .password(passwordEncoder.encode(ADMIN_PASSWORD))
                         .role(adminRole)
                         .isActive(1)
+                        .createdAt(LocalDateTime.now())
                         .build());
             } else {
                 UserEntity user = userRepository.findOne(Specification.where(hasUsername(ADMIN_USERNAME))).get();

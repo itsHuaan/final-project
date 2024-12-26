@@ -15,5 +15,6 @@ public class OrderModel {
     private String methodCheckout;
     private String phoneReception;
     private String amount;
+    private String customerName;
     private List<CartItemRequest> cartItems;
 }

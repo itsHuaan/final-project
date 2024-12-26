@@ -42,4 +42,8 @@ public class OrderDetailSpecification {
                 criteriaBuilder.between(root.join("orderEntity").get("createdAt"), startDate, endDate)
         );
     }
+
+    public static Specification<OrderDetailEntity> hasStatus(long status) {
+        return (Root<OrderDetailEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) -> criteriaBuilder.equal(root.join("orderEntity").get("statusCheckout"), status);
+    }
 }

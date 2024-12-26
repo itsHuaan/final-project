@@ -12,7 +12,10 @@ public interface INotificationService {
     ApiResponse<?> getAllNotificationsByUserId(long userId, Integer page, Integer size);
 
 
-    int changeStatusNotification(long userId);
+    int changeStatusNotificationForUser(long userId);
 
     ApiResponse<?> getAllNotificationsByShopId(long shopId, Integer page, Integer size);
+
+
+    int changeStatusNotificationForShop(long shopId);
 }

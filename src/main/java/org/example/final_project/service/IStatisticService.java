@@ -1,9 +1,6 @@
 package org.example.final_project.service;
 
-import org.example.final_project.dto.AdminStatisticDto;
-import org.example.final_project.dto.CartSkuDto;
-import org.example.final_project.dto.PeriodicStatisticDto;
-import org.example.final_project.dto.ShopStatisticDto;
+import org.example.final_project.dto.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -19,4 +16,8 @@ public interface IStatisticService {
     Page<CartSkuDto> getLowStockProducts(long shopId, int quantity, Pageable pageable);
 
     AdminStatisticDto getAdminStatisticDto();
+
+    List<RevenueStatistic> getRevenueStatistics(long shopId, int year);
+
+    List<RevenueStatistic> getRevenueStatistics(int year);
 }

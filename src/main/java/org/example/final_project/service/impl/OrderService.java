@@ -46,53 +46,74 @@ public class OrderService implements IOrderService {
     private final IUserRepository userRepository;
     private final UserMapper userMapper;
     private final INotificationRepository iNotificationRepository;
+    private final IHistoryStatusShippingRepository historyStatusShippingRepository;
 
 
     @Override
     public String submitCheckout(OrderModel orderModel, HttpServletRequest request) throws Exception {
-        String vnp_TxnRef = (String) request.getAttribute("tex");
-        String method = orderModel.getMethodCheckout();
-        double totalPrice = Double.parseDouble(orderModel.getAmount());
-        OrderEntity orderEntity = OrderMapper.toOrderEntity(orderModel);
-        UserEntity user = userRepository.findById(orderModel.getUserId()).orElse(null);
-        if (user == null) {
-            throw new IllegalArgumentException("User with ID " + orderModel.getUserId() + " not found");
+        int result = loadDataCod(orderModel);
+        if (result == 1) {
+            String vnp_TxnRef = (String) request.getAttribute("tex");
+            String method = orderModel.getMethodCheckout();
+            double totalPrice = Double.parseDouble(orderModel.getAmount());
+            OrderEntity orderEntity = OrderMapper.toOrderEntity(orderModel);
+            orderEntity.setUser(UserEntity.builder()
+                    .userId(orderModel.getUserId())
+                    .build());
+            orderEntity.setTotalPrice(totalPrice);
+            orderEntity.setOrderCode(vnp_TxnRef);
+            orderEntity.setPhoneReception(orderModel.getPhoneReception());
+            orderEntity.setCreatedAt(LocalDateTime.now());
+            orderEntity.setCustomerName(orderModel.getCustomerName());
+            orderEntity.setStatusCheckout(CheckoutStatus.PENDING.getValue());
+            orderRepository.save(orderEntity);
+            saveDataOrderTrackingAndDetail(orderModel, orderEntity);
+            if (method.equalsIgnoreCase("vnpay")) {
+                return paymentService.creatUrlPaymentForVnPay(request);
+            } else {
+
+                emailService.sendOrderToEmail(orderModel, request);
+                long id = orderRepository.findIdByOrderCode(vnp_TxnRef);
+                List<OrderDetailEntity> orderDetailEntity = orderDetailRepository.findByOrderId(id);
+                sentNotificationSuccessForShop(orderEntity, orderDetailEntity);
+                return "đặt hàng thành công";
+            }
         }
-        orderEntity.setUser(UserEntity.builder()
-                .userId(orderModel.getUserId())
-                .build());
-        orderEntity.setTotalPrice(totalPrice);
-        orderEntity.setOrderCode(vnp_TxnRef);
-        orderEntity.setPhoneReception(orderModel.getPhoneReception());
-        orderEntity.setCreatedAt(LocalDateTime.now());
-        orderEntity.setCustomerName(user.getName());
-        orderEntity.setStatusCheckout(CheckoutStatus.PENDING.getValue());
-        orderRepository.save(orderEntity);
-        saveDataOrderTrackingAndDetail(orderModel, orderEntity);
-        if (method.equalsIgnoreCase("vnpay")) {
-            return paymentService.creatUrlPaymentForVnPay(request);
-        } else {
-            loadDataCod(orderModel);
-            emailService.sendOrderToEmail(orderModel, request);
-            long id = orderRepository.findIdByOrderCode(vnp_TxnRef);
-            List<OrderDetailEntity> orderDetailEntity = orderDetailRepository.findByOrderId(id);
-            sentNotificationForShop(orderEntity, orderDetailEntity);
-            return "đặt hàng thành công";
-        }
+        return "số luong hien tai vươt qua so luong trong kho";
     }
 
-    public void loadDataCod(OrderModel orderModel) {
+    public int loadDataCod(OrderModel orderModel) {
         if (orderModel.getCartItems() != null) {
             for (CartItemRequest cartItemRequest : orderModel.getCartItems()) {
-                Optional<SKUEntity> skuEntity = skuRepository.findById(cartItemRequest.getProductSkuId());
-                if (skuEntity.isPresent()) {
-                    SKUEntity skuEntity1 = skuEntity.get();
-                    skuEntity1.setQuantity(skuEntity1.getQuantity() - cartItemRequest.getQuantity());
-                    cartItemRepository.deleteByCartId(cartItemRequest.getCartDetailId());
-                    skuRepository.save(skuEntity1);
+                int result = checkQuatity(cartItemRequest.getProductSkuId(), cartItemRequest.getQuantity());
+                if (result == 0) {
+                    Optional<SKUEntity> skuEntity = skuRepository.findById(cartItemRequest.getProductSkuId());
+                    if (skuEntity.isPresent()) {
+                        SKUEntity skuEntity1 = skuEntity.get();
+                        skuEntity1.setQuantity(skuEntity1.getQuantity() - cartItemRequest.getQuantity());
+                        cartItemRepository.deleteByCartId(cartItemRequest.getCartDetailId());
+                        skuRepository.save(skuEntity1);
+                        return 1;
+                    }
+
                 }
             }
         }
+        return 0;
+    }
+
+    @Override
+    public int checkQuatity(long skuId, long currentQuatity) {
+        Optional<SKUEntity> skuEntity = skuRepository.findById(skuId);
+        if (skuEntity.isPresent()) {
+            SKUEntity skuEntity1 = skuEntity.get();
+            if (skuEntity1.getQuantity() < currentQuatity) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+        return 3;
     }
 
     public void saveDataOrderTrackingAndDetail(OrderModel orderModel, OrderEntity orderEntity) {
@@ -111,6 +132,13 @@ public class OrderService implements IOrderService {
                             .build();
 
                     orderTrackingRepository.save(trackingEntity);
+                    HistoryStatusShippingEntity historyStatusShippingEntity = HistoryStatusShippingEntity.builder()
+                            .orderTracking(trackingEntity)
+                            .status(ShippingStatus.CREATED.getValue())
+                            .createdChangeStatus(LocalDateTime.now())
+                            .build();
+                    historyStatusShippingRepository.save(historyStatusShippingEntity);
+
 
                 }
                 OrderDetailEntity orderDetailEntity = OrderDetailMapper.toEntity(cartItemRequest);
@@ -133,11 +161,11 @@ public class OrderService implements IOrderService {
         if (orderEntity.isPresent()) {
             OrderEntity order = orderEntity.get();
             List<OrderDetailEntity> orderDetails = orderDetailRepository.findByOrderId(id);
-            orderDetails.forEach(orderDetail -> cartItemRepository.deleteByCartId(orderDetail.getCartDetailId()));
 
             if (status.equals("00")) {
+                orderDetails.forEach(orderDetail -> cartItemRepository.deleteByCartId(orderDetail.getCartDetailId()));
                 order.setStatusCheckout(CheckoutStatus.COMPLETED.getValue());
-                sentNotificationForShop(order, orderDetails);
+                sentNotificationSuccessForShop(order, orderDetails);
 
                 orderDetails.forEach(orderDetail -> {
                     Optional<SKUEntity> skuEntityOpt = skuRepository.findById(orderDetail.getSkuEntity().getId());
@@ -151,6 +179,7 @@ public class OrderService implements IOrderService {
                 OrderModel orderModel = new OrderModel();
                 orderModel.setUserId(order.getUser().getUserId());
                 orderModel.setAmount(String.valueOf(order.getTotalPrice()));
+                orderModel.setCustomerName(order.getCustomerName());
                 orderModel.setCartItems(orderDetails.stream()
                         .map(OrderDetailMapper::toDTO)
                         .collect(Collectors.toList()));
@@ -160,7 +189,11 @@ public class OrderService implements IOrderService {
                 orderRepository.save(order);
                 return createResponse(HttpStatus.OK, "Successful Payment ", null);
             } else {
+                sentNotificationFailForUser(order, orderDetails);
                 order.setStatusCheckout(CheckoutStatus.FAILED.getValue());
+                List<OrderTrackingEntity> orderTrackingEntities = orderTrackingRepository.listOrderTracking(order.getId());
+                orderTrackingEntities.forEach(entity -> entity.setStatus(ShippingStatus.CANCELLED.getValue()));
+                orderTrackingRepository.saveAll(orderTrackingEntities);
                 orderRepository.save(order);
                 return createResponse(HttpStatus.OK, "Failed Payment ", null);
             }
@@ -170,16 +203,39 @@ public class OrderService implements IOrderService {
     }
 
 
-    public void sentNotificationForShop(OrderEntity orderEntity, List<OrderDetailEntity> orderDetailEntity) {
+    public void sentNotificationSuccessForShop(OrderEntity orderEntity, List<OrderDetailEntity> orderDetailEntity) {
         for (OrderDetailEntity cartItemRequest1 : orderDetailEntity) {
             SKUEntity skuEntity = skuRepository.findById(cartItemRequest1.getSkuEntity().getId()).orElse(null);
             double total = cartItemRequest1.getQuantity() * cartItemRequest1.getPrice();
-            assert skuEntity != null;
+
+            if (skuEntity == null) {
+                throw new IllegalArgumentException("Not found Sku");
+            }
             NotificationEntity notificationEntity = NotificationEntity.builder()
                     .image(skuEntity.getImage())
                     .title("Đơn hàng mới vừa được tạo ")
                     .content("Đơn hàng " + orderEntity.getOrderCode() + " vừa được tạo đặt với số tiền" + total)
                     .shopId(cartItemRequest1.getShopId())
+                    .isRead(0)
+                    .userId(orderEntity.getUser().getUserId())
+                    .createdAt(LocalDateTime.now())
+                    .build();
+//            notificationEntity.setAdminId(0L);
+            iNotificationRepository.save(notificationEntity);
+        }
+    }
+
+    public void sentNotificationFailForUser(OrderEntity orderEntity, List<OrderDetailEntity> orderDetailEntity) {
+        for (OrderDetailEntity cartItemRequest1 : orderDetailEntity) {
+            SKUEntity skuEntity = skuRepository.findById(cartItemRequest1.getSkuEntity().getId()).orElse(null);
+            if (skuEntity == null) {
+                throw new IllegalArgumentException("Not found Sku");
+            }
+
+            NotificationEntity notificationEntity = NotificationEntity.builder()
+                    .image(skuEntity.getImage())
+                    .title("Đơn hàng thanh toán thất bại ")
+                    .content("Đơn hàng " + orderEntity.getOrderCode() + "thanh toán thất bại")
                     .isRead(0)
                     .userId(orderEntity.getUser().getUserId())
                     .createdAt(LocalDateTime.now())
@@ -208,7 +264,6 @@ public class OrderService implements IOrderService {
         } else {
             return null;
         }
-
     }
 
     @Override
@@ -296,6 +351,7 @@ public class OrderService implements IOrderService {
         return createResponse(HttpStatus.NOT_FOUND, "Not Found Product ", null);
     }
 
+
     @Override
     public ApiResponse<?> getAllUserBoughtOfThisShop(long shopId, Integer page, Integer size) {
         List<Long> listUserIds = orderDetailRepository.findAllCustomerBoughtTheMostAtThisShop(shopId);
@@ -313,4 +369,6 @@ public class OrderService implements IOrderService {
         return createResponse(HttpStatus.OK, "Successfully Retrieved Users", pageDtos);
 
     }
+
+
 }

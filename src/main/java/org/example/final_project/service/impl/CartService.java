@@ -3,10 +3,7 @@ package org.example.final_project.service.impl;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.example.final_project.dto.CartDto;
-import org.example.final_project.dto.CartItemDto;
-import org.example.final_project.dto.CheckoutDto;
-import org.example.final_project.dto.UserDto;
+import org.example.final_project.dto.*;
 import org.example.final_project.entity.CartEntity;
 import org.example.final_project.entity.CartItemEntity;
 import org.example.final_project.entity.SKUEntity;
@@ -21,6 +18,7 @@ import org.example.final_project.repository.ISKURepository;
 import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.ICartService;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -128,6 +126,20 @@ public class CartService implements ICartService {
                     .build();
         }
         return null;
+    }
+
+    @Override
+    public ApiResponse<?> checkShopStatusWhenCheckOut(Long shopId) {
+        UserEntity user = userRepository.findById(shopId).orElse(null);
+        if (user == null) {
+            throw new IllegalArgumentException("Shop null");
+        }
+        if (user.getShop_status() == 4) {
+            return ApiResponse.createResponse(HttpStatus.BAD_REQUEST, "Shop locked", null);
+        } else {
+            return ApiResponse.createResponse(HttpStatus.OK, "Shop is Active", null);
+        }
+
     }
 
 

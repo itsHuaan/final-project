@@ -3,6 +3,7 @@ package org.example.final_project.dto;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -16,4 +17,5 @@ public class OrderTrackingDto {
     private String note;
     private long shopId;
     private LocalDateTime paidDate;
+    private List<HistoryStatusShippingDto> historyStatusShippingDtoList;
 }

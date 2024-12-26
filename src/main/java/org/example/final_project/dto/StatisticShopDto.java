@@ -7,7 +7,7 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
-public class ShopDto {
+public class StatisticShopDto {
     private Long shopId;
     private String shopName;
     private String profilePicture;

@@ -29,6 +29,7 @@ public class OrderDetailMapper {
                 .productSkuId(entity.getSkuEntity().getId())
                 .option1(entity.getOption1())
                 .option2(entity.getOption2())
+                .nameProduct(entity.getNameProduct())
                 .build();
     }
 
@@ -48,6 +49,7 @@ public class OrderDetailMapper {
                 .shippingStatus(orderTrackingRepository.findOrderIdByShopIdAndOrderId(orderDetailEntity.getShopId(), orderDetailEntity.getOrderEntity().getId()))
                 .skuDto(skuDto)
                 .hasFeedback(orderDetailEntity.getHasFeedback())
+                .productName(orderDetailEntity.getNameProduct())
                 .build();
     }
 
@@ -61,6 +63,7 @@ public class OrderDetailMapper {
                 .nameProduct(cartItemRequest.getNameProduct())
                 .cartDetailId(cartItemRequest.getCartDetailId())
                 .createAt(LocalDateTime.now())
+                .nameProduct(cartItemRequest.getNameProduct())
                 .build();
 
     }
