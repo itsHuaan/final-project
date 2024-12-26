@@ -3,6 +3,7 @@ package org.example.final_project.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -11,9 +12,9 @@ import org.example.final_project.dto.ApiResponse;
 import org.example.final_project.dto.ShippingAddressDto;
 import org.example.final_project.dto.UserDto;
 import org.example.final_project.model.*;
-import org.example.final_project.validation.PageableValidation;
 import org.example.final_project.service.*;
 import org.example.final_project.util.Const;
+import org.example.final_project.validation.PageableValidation;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -161,19 +162,45 @@ public class UserController {
     public ResponseEntity<?> selectAddress(
             @PathVariable Long id,
             @RequestBody AddShippingAddressRequest request) {
-        int result = userService.addAddress(id, request);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(createResponse(HttpStatus.OK,
-                        "Added " + String.join("/", addressService.findAddressNamesFromParentId(request.getAddressId())),
-                        null));
+        HttpStatus httpStatus;
+        String message;
+        try {
+            int result = userService.addAddress(id, request);
+            httpStatus = result == 1 ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
+            message = result == 1 ? "Added " + String.join("/", addressService.findAddressNamesFromParentId(request.getAddressId())) : "Failed to add shipping address";
+        } catch (EntityNotFoundException | IllegalArgumentException e) {
+            httpStatus = HttpStatus.BAD_REQUEST;
+            message = e.getMessage();
+        }
+        return ResponseEntity.status(httpStatus)
+                .body(createResponse(
+                        httpStatus,
+                        message,
+                        null)
+                );
     }
 
     @Operation(summary = "Update an existing shipping address")
-    @PutMapping("/{id}/add-address")
+    @PutMapping("/{id}/update-address")
     public ResponseEntity<?> updateAddress(
             @PathVariable Long id,
-            @RequestBody AddShippingAddressRequest request) {
-        return null;
+            @RequestBody UpdateShippingAddressRequest request) {
+        HttpStatus httpStatus;
+        String message;
+        try {
+            int result = userService.updateAddress(id, request);
+            httpStatus = result == 1 ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
+            message = result == 1 ? "Update shipping address for user " + userService.getById(id).getUsername() : "Failed to update shipping address";
+        } catch (EntityNotFoundException | IllegalArgumentException e) {
+            httpStatus = HttpStatus.BAD_REQUEST;
+            message = e.getMessage();
+        }
+        return ResponseEntity.status(httpStatus)
+                .body(createResponse(
+                        httpStatus,
+                        message,
+                        null)
+                );
     }
 
     @Operation(summary = "Get all shipping addresses of an user")

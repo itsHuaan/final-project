@@ -41,7 +41,7 @@ public interface IUserService extends IBaseService<UserDto, UserModel, Long> {
 
     int addAddress(long userId, AddShippingAddressRequest request);
 
-    int updateAddress(long userId, AddShippingAddressRequest request);
+    int updateAddress(long userId, UpdateShippingAddressRequest request);
 
     List<UserDto> findActiveUsers();
 
