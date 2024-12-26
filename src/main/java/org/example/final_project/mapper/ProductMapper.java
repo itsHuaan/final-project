@@ -11,8 +11,6 @@ import org.example.final_project.entity.SKUEntity;
 import org.example.final_project.model.ProductModel;
 import org.example.final_project.repository.ICategoryRepository;
 import org.example.final_project.repository.IImageProductRepository;
-import org.example.final_project.repository.IProductRepository;
-import org.example.final_project.repository.ISKURepository;
 import org.example.final_project.service.IPromotionService;
 import org.example.final_project.service.ISKUService;
 import org.springframework.stereotype.Component;
@@ -32,8 +30,6 @@ public class ProductMapper {
     ISKUService iskuService;
     UserMapper userMapper;
     FeedbackMapper feedbackMapper;
-    IProductRepository productRepository;
-    ISKURepository iskuRepository;
     IPromotionService promotionService;
 
     public ProductDto convertToDto(ProductEntity productEntity) {

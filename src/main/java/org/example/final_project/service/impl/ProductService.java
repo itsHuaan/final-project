@@ -7,10 +7,10 @@ import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.ProductDto;
 import org.example.final_project.dto.ProductSummaryDto;
 import org.example.final_project.entity.ProductEntity;
+import org.example.final_project.enumeration.ProductStatus;
 import org.example.final_project.mapper.ProductMapper;
 import org.example.final_project.model.ImageProductModel;
 import org.example.final_project.model.ProductModel;
-import org.example.final_project.enumeration.ProductStatus;
 import org.example.final_project.repository.IProductRepository;
 import org.example.final_project.repository.IPromotionRepository;
 import org.example.final_project.repository.IUserRepository;
@@ -192,12 +192,6 @@ public class ProductService implements IProductService {
         }
     }
 
-    @Override
-    public Page<ProductSummaryDto> getAllProductByCategory(long categoryId, Pageable pageable) {
-        return pageable != null
-                ? iProductRepository.findAll(Specification.where(hasCategoryId(categoryId)).and(isValid()).and(isStatus(ProductStatus.ACTIVE.getValue())), pageable).map(productMapper::toProductSummaryDto)
-                : iProductRepository.findAll(Specification.where(hasCategoryId(categoryId)).and(isValid()).and(isStatus(ProductStatus.ACTIVE.getValue())), Pageable.unpaged()).map(productMapper::toProductSummaryDto);
-    }
 
     @Override
     public ProductDto getByIdCustom(Long productId, Integer type) {

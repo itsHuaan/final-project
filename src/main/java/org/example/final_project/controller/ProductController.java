@@ -8,15 +8,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.ProductDto;
 import org.example.final_project.dto.ProductOptionDetailDto;
-import org.example.final_project.dto.SKUDto;
 import org.example.final_project.model.FavoriteProductModel;
 import org.example.final_project.model.ProductModel;
-import org.example.final_project.validation.PageableValidation;
 import org.example.final_project.service.IFavoriteProductService;
 import org.example.final_project.service.IProductOptionService;
 import org.example.final_project.service.IProductService;
 import org.example.final_project.service.ISKUService;
 import org.example.final_project.util.Const;
+import org.example.final_project.validation.PageableValidation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -96,7 +95,7 @@ public class ProductController {
         try {
             int productId = productService.saveCustom(model);
             List<ProductOptionDetailDto> optionList = optionService.saveAllOption(model.getOptions());
-            List<SKUDto> stockList = iskuService.addListSKU(productId, optionList);
+            iskuService.addListSKU(productId, optionList);
             return ResponseEntity.ok(createResponse(
                     HttpStatus.CREATED,
                     "Add Product Successfully",
@@ -332,11 +331,11 @@ public class ProductController {
 
     @Operation(summary = "Get All Product In Promotion")
     @GetMapping("/promotion/{promotion-id}")
-    ResponseEntity getAllProductByPromotion(@RequestParam Integer type,
-                                            @PathVariable("promotion-id") Long promotionId,
-                                            @RequestParam(required = false) Long shopId,
-                                            @RequestParam(required = false) Integer pageIndex,
-                                            @RequestParam(required = false) Integer pageSize) {
+    ResponseEntity<?> getAllProductByPromotion(@RequestParam Integer type,
+                                               @PathVariable("promotion-id") Long promotionId,
+                                               @RequestParam(required = false) Long shopId,
+                                               @RequestParam(required = false) Integer pageIndex,
+                                               @RequestParam(required = false) Integer pageSize) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.OK,
