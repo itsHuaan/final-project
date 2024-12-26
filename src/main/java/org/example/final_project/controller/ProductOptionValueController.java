@@ -1,7 +1,6 @@
 package org.example.final_project.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.example.final_project.dto.ApiResponse;
 import org.example.final_project.model.ProductOptionValueModel;
 import org.example.final_project.service.IProductOptionValueService;
 import org.example.final_project.util.Const;
@@ -13,22 +12,23 @@ import org.springframework.web.bind.annotation.*;
 import static org.example.final_project.dto.ApiResponse.createResponse;
 
 @RestController
-@RequestMapping(Const.API_PREFIX+"/value")
-@Tag(name="Product Option Value")
-public class ProductOptionValueController{
+@RequestMapping(Const.API_PREFIX + "/value")
+@Tag(name = "Product Option Value")
+public class ProductOptionValueController {
     @Autowired
     IProductOptionValueService valueService;
+
     @PostMapping("/{product-id}")
     ResponseEntity<?> addNewValue(@PathVariable("product-id") Long productId,
-                               ProductOptionValueModel valueModel){
-        try{
-            valueService.saveCustom(productId,valueModel);
+                                  ProductOptionValueModel valueModel) {
+        try {
+            valueService.saveCustom(productId, valueModel);
             return ResponseEntity.status(HttpStatus.CREATED).body(createResponse(
                     HttpStatus.CREATED,
                     "Successfully",
                     null
             ));
-        }catch(Exception e){
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
                     HttpStatus.BAD_REQUEST,
                     e.getMessage(),
@@ -36,16 +36,36 @@ public class ProductOptionValueController{
             ));
         }
     }
+
     @DeleteMapping("/{value-id}")
-    ResponseEntity<?> deleteValue(@PathVariable("value-id")Long valueId){
-        try{
+    ResponseEntity<?> deleteValue(@PathVariable("value-id") Long valueId) {
+        try {
             valueService.delete(valueId);
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.NO_CONTENT,
                     "Successfully",
                     null
             ));
-        }catch(Exception e){
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+                    HttpStatus.BAD_REQUEST,
+                    e.getMessage(),
+                    null
+            ));
+        }
+    }
+
+    @PutMapping("/{value-id}")
+    ResponseEntity<?> updateValue(@PathVariable("value-id") Long valueId,
+                                  @RequestBody ProductOptionValueModel valueModel) {
+        try {
+            valueService.update(valueId, valueModel);
+            return ResponseEntity.status(HttpStatus.OK).body(createResponse(
+                    HttpStatus.OK,
+                    "Successfully",
+                    null
+            ));
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
                     HttpStatus.BAD_REQUEST,
                     e.getMessage(),
