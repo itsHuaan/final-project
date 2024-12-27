@@ -385,9 +385,9 @@ public class StatisticService implements IStatisticService {
     private List<ShopDto> getTopSellerShops() {
         return userRepository.findAll(Specification.where(UserSpecification.sortedBySoldProductRatingRatio()), PageRequest.of(0, 10)).stream()
                 .map(userMapper::toShopDto)
-                .toList().stream()
                 .filter(shopDto -> shopDto.getRating() > 0)
                 .sorted(Comparator.comparing(ShopDto::getRating).reversed())
                 .toList();
+
     }
 }
