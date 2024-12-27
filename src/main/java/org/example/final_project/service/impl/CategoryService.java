@@ -1,17 +1,16 @@
 package org.example.final_project.service.impl;
 
-import com.cloudinary.Cloudinary;
-import com.cloudinary.utils.ObjectUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.example.final_project.configuration.cloudinary.MediaUploadService;
 import org.example.final_project.dto.CategoryDto;
 import org.example.final_project.entity.CategoryEntity;
 import org.example.final_project.entity.UserEntity;
+import org.example.final_project.enumeration.ProductStatus;
 import org.example.final_project.mapper.CategoryMapper;
 import org.example.final_project.model.CategoryModel;
-import org.example.final_project.enumeration.ProductStatus;
 import org.example.final_project.repository.ICategoryRepository;
 import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.ICategoryService;
@@ -33,7 +32,7 @@ public class CategoryService implements ICategoryService {
     ICategoryRepository iCategoryRepository;
     CategoryMapper categoryMapper;
     IUserRepository iUserRepository;
-    Cloudinary cloudinary;
+    MediaUploadService mediaUploadService;
 
     @Override
     public List<CategoryDto> getAll() {
@@ -54,7 +53,7 @@ public class CategoryService implements ICategoryService {
         try {
             CategoryEntity category = categoryMapper.convertToEntity(model);
             if (model.getFile() != null && !model.getFile().isEmpty()) {
-                category.setImage(cloudinary.uploader().upload(model.getFile().getBytes(), ObjectUtils.emptyMap()).get("url").toString());
+                category.setImage(mediaUploadService.uploadSingleMediaFile(model.getFile()));
             }
             if (model.getUser_id() != 0L) {
                 UserEntity user = iUserRepository.findById(model.getUser_id()).isPresent()
@@ -77,7 +76,7 @@ public class CategoryService implements ICategoryService {
             CategoryEntity category = categoryMapper.convertToEntity(model);
             if (iCategoryRepository.findById(aLong).isPresent()) {
                 if (model.getFile() != null && !model.getFile().isEmpty()) {
-                    category.setImage(cloudinary.uploader().upload(model.getFile().getBytes(), ObjectUtils.emptyMap()).get("url").toString());
+                    category.setImage(mediaUploadService.uploadSingleMediaFile(model.getFile()));
                 } else {
                     category.setImage(iCategoryRepository.findById(aLong).get().getImage());
                 }

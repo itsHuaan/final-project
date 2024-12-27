@@ -36,8 +36,8 @@ public class SKUMapper {
                         ? entity.getPrice() * ((100 - promotionService.findAllPromotionByNow(entity.getProduct().getId()).getDiscountPercentage()) / 100)
                         : entity.getPrice())
                 .quantity(entity.getQuantity())
-                .image(skuImage == null
-                        ? imageProductEntity.getImageLink()
+                .image(skuImage != null
+                        ? skuImage.isEmpty() ? imageProductEntity.getImageLink() : entity.getImage()
                         : entity.getImage())
                 .build();
     }
