@@ -12,6 +12,7 @@ import org.example.final_project.util.Const;
 import org.example.final_project.validation.PageableValidation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -41,6 +42,7 @@ public class CategoryController {
                 null));
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Operation(summary = "Create new category")
     @PostMapping
     ResponseEntity<?> addNewCategory(@ModelAttribute CategoryModel model) {
@@ -60,6 +62,7 @@ public class CategoryController {
         }
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Operation(summary = "Edit a category")
     @PutMapping("/{id}")
     ResponseEntity<?> updateCategory(@PathVariable("id") long id,
@@ -80,6 +83,7 @@ public class CategoryController {
         }
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Operation(summary = "Delete a category")
     @DeleteMapping("/{id}")
     ResponseEntity<?> deleteCategory(@PathVariable("id") long id) {
@@ -99,6 +103,7 @@ public class CategoryController {
         }
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Operation(summary = "Change category status")
     @PutMapping("/activate/{id}")
     ResponseEntity<?> inactivateCategory(@PathVariable("id") long id,

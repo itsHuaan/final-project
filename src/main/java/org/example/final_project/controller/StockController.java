@@ -9,6 +9,7 @@ import org.example.final_project.service.ISKUService;
 import org.example.final_project.util.Const;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -41,6 +42,7 @@ public class StockController {
         }
     }
 
+    @PreAuthorize("hasRole('ROLE_SELLER')")
     @PostMapping
     ResponseEntity<?> updateStock(@RequestBody List<SKUModel> skuModels) {
         try {

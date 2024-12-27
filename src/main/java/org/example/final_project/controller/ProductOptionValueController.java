@@ -9,6 +9,7 @@ import org.example.final_project.service.IProductOptionValueService;
 import org.example.final_project.util.Const;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import static org.example.final_project.dto.ApiResponse.createResponse;
@@ -18,6 +19,7 @@ import static org.example.final_project.dto.ApiResponse.createResponse;
 @Tag(name = "Product Option Value")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@PreAuthorize("hasRole('ROLE_SELLER')")
 public class ProductOptionValueController {
     IProductOptionValueService valueService;
 
