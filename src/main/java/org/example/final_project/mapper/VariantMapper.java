@@ -4,7 +4,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.CartSkuDto;
+import org.example.final_project.entity.ImageProductEntity;
 import org.example.final_project.entity.SKUEntity;
+import org.example.final_project.repository.IImageProductRepository;
 import org.example.final_project.repository.IProductOptionValueRepository;
 import org.example.final_project.service.IPromotionService;
 import org.springframework.stereotype.Component;
@@ -19,11 +21,13 @@ public class VariantMapper {
     ProductOptionValueMapper valueMapper;
     ProductMapper productMapper;
     IPromotionService promotionService;
+    IImageProductRepository imageProductRepository;
 
     public CartSkuDto toDto(SKUEntity entity) {
         double discountedPrice = promotionService.findAllPromotionByNow(entity.getProduct().getId()) != null
                 ? entity.getPrice() * ((100 - promotionService.findAllPromotionByNow(entity.getProduct().getId()).getDiscountPercentage()) / 100)
                 : entity.getPrice();
+        ImageProductEntity imageProductEntity = imageProductRepository.findAllByProductEntity_Id(entity.getProduct().getId()).get(0);
         return CartSkuDto.builder()
                 .itemId(entity.getId())
                 .value1(entity.getOption1() != null
@@ -36,7 +40,9 @@ public class VariantMapper {
                 .price(entity.getPrice())
                 .discountedPrice(discountedPrice)
                 .quantity(entity.getQuantity())
-                .image(entity.getImage())
+                .image(entity.getImage().isEmpty()
+                        ? entity.getImage()
+                        : imageProductEntity.getImageLink())
                 .build();
     }
 }

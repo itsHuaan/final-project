@@ -152,6 +152,7 @@ public class StatisticService implements IStatisticService {
     private double getAverageOfRating(long shopId, LocalDateTime startTime, LocalDateTime endTime) {
         List<ProductEntity> products = productRepository.findAll(Specification.where(
                         hasUserId(shopId))
+                        .and(isStatus(ProductStatus.ACTIVE.getValue()))
                 .and(isValid())
                 .and(isBetween(startTime, endTime)));
         List<OrderDetailEntity> orderDetails = orderDetailRepository.findAll(Specification.where(
@@ -182,6 +183,7 @@ public class StatisticService implements IStatisticService {
     private int getTotalOfFeedbacks(long shopId, LocalDateTime startTime, LocalDateTime endTime) {
         List<ProductEntity> products = productRepository.findAll(Specification.where(
                         hasUserId(shopId))
+                        .and(isStatus(ProductStatus.ACTIVE.getValue()))
                 .and(isValid())
                 .and(isBetween(startTime, endTime))).stream().toList();
         return products.stream()

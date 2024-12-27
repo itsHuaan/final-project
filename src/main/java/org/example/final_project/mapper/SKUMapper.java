@@ -36,8 +36,8 @@ public class SKUMapper {
                         : entity.getPrice())
                 .quantity(entity.getQuantity())
                 .image(entity.getImage().isEmpty()
-                        ? entity.getImage()
-                        : imageProductEntity.getImageLink())
+                        ? imageProductEntity.getImageLink()
+                        : entity.getImage())
                 .build();
     }
 
