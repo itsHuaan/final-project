@@ -28,6 +28,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.example.final_project.util.RandomMethods.generateUsername;
+
 @Service
 @RequiredArgsConstructor
 public class OAuth2UserService extends DefaultOAuth2UserService {
@@ -61,7 +63,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
                     .provider(provideName)
                     .name(userCustom.getName())
                     .profilePicture(userCustom.getThumbnail())
-                    .username(userCustom.getName())
+                    .username(generateUsername(userCustom.getEmail()))
                     .createdAt(LocalDateTime.now())
                     .isActive(1)
                     .build();

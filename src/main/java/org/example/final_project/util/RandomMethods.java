@@ -1,9 +1,7 @@
 package org.example.final_project.util;
 
-import java.util.Random;
-
 public class RandomMethods {
-    public static String generateUsername(String email) {
+    /*public static String generateUsername(String email) {
         String usernamePart = email.split("@")[0];
         int minLength = 5;
         int maxLength = usernamePart.length();
@@ -15,5 +13,9 @@ public class RandomMethods {
             username.deleteCharAt(removeIndex);
         }
         return username.toString();
+    }*/
+
+    public static String generateUsername(String email) {
+        return email.split("@")[0];
     }
 }

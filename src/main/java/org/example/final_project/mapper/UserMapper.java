@@ -24,8 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.example.final_project.specification.ProductSpecification.hasUserId;
-import static org.example.final_project.specification.ProductSpecification.isValid;
+import static org.example.final_project.specification.ProductSpecification.*;
 
 @Component
 @RequiredArgsConstructor
