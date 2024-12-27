@@ -32,7 +32,6 @@ public class ProductSpecification {
                 criteriaBuilder.and(
                         criteriaBuilder.isNull(root.get("user").get("deletedAt")),
                         criteriaBuilder.equal(root.get("user").get("shop_status"), 1),
-                        criteriaBuilder.equal(root.get("isActive"), 1),
                         criteriaBuilder.isNull(root.get("deletedAt")),
                         criteriaBuilder.isNull(root.get("categoryEntity").get("deletedAt"))
                 );
