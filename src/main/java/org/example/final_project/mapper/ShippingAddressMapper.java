@@ -15,7 +15,7 @@ public class ShippingAddressMapper {
 
     public ShippingAddressDto toDto(UserShippingAddressEntity userShippingAddressEntity) {
         return ShippingAddressDto.builder()
-                .id(userShippingAddressEntity.getAddress().getId())
+                .id(userShippingAddressEntity.getId())
                 .addressLine1(addressMapper.buildAddressLine(userShippingAddressEntity.getAddress()))
                 .addressLine2(userShippingAddressEntity.getAddressLine2())
                 .build();

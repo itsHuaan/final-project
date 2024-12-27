@@ -52,53 +52,18 @@ public class StatisticService implements IStatisticService {
 
     @Override
     public AdminStatisticDto getAdminStatisticDto() {
-        List<ShopDto> topSellerShops = userRepository.findAll(Specification.where(UserSpecification.sortedBySoldProductRatingRatio()), PageRequest.of(0, 10)).stream()
-                .map(userMapper::toShopDto)
-                .toList();
+
         return AdminStatisticDto.builder()
-                .totalUsers(userRepository.findAll(Specification.where(
-                        UserSpecification.isNotDeleted()
-                                .and(UserSpecification.isNotSuperAdmin())
-                )).size())
-                .totalNewUsers(userRepository.findAll(Specification.where(
-                        UserSpecification.isNotDeleted()
-                                .and(UserSpecification.isNotSuperAdmin())
-                                .and(UserSpecification.hasNewlyJoined())
-                )).size())
-                .totalLockedUsers(userRepository.findAll(Specification.where(
-                        UserSpecification.isNotDeleted()
-                                .and(UserSpecification.hasStatus(2))
-                                .and(UserSpecification.isNotSuperAdmin())
-                )).size())
-                .totalShops(userRepository.findAll(Specification.where(
-                        UserSpecification.isNotDeleted()
-                                .and(UserSpecification.isNotSuperAdmin())
-                                .and(UserSpecification.isShop())
-                )).size())
-                .totalLockedShops(userRepository.findAll(Specification.where(
-                        UserSpecification.isNotDeleted()
-                                .and(UserSpecification.isShop())
-                                .and(UserSpecification.hasShopStatus(ShopStatus.LOCKED.getValue()))
-                )).size())
-                .totalPendingShop(userRepository.findAll(Specification.where(
-                        UserSpecification.isNotDeleted()
-                                .and(UserSpecification.isShop())
-                                .and(UserSpecification.hasShopStatus(ShopStatus.PENDING.getValue()))
-                )).size())
-                .totalRejectedShops(userRepository.findAll(Specification.where(
-                        UserSpecification.isNotDeleted()
-                                .and(UserSpecification.isShop())
-                                .and(UserSpecification.hasShopStatus(ShopStatus.REJECTED.getValue()))
-                )).size())
-                .totalLockedProducts(productRepository.findAll(Specification.where(
-                                ProductSpecification.isNotDeleted())
-                        .and(ProductSpecification.isStatus(ProductStatus.INACTIVE.getValue())
-                        )).size())
-                .totalRejectedProducts(productRepository.findAll(Specification.where(
-                                ProductSpecification.isNotDeleted())
-                        .and(ProductSpecification.isStatus(ProductStatus.REJECTED.getValue())
-                        )).size())
-                .topSellerShops(topSellerShops)
+                .totalUsers(getTotalUsers())
+                .totalNewUsers(getTotalNewUsers())
+                .totalLockedUsers(getTotalLockedUsers())
+                .totalShops(getTotalShops())
+                .totalLockedShops(getTotalLockedShops())
+                .totalPendingShop(getTotalPendingShop())
+                .totalRejectedShops(getTotalRejectedProducts())
+                .totalLockedProducts(getTotalLockedProducts())
+                .totalRejectedProducts(getTotalRejectedProducts())
+                .topSellerShops(getTopSellerShops())
                 .build();
     }
 
@@ -140,7 +105,12 @@ public class StatisticService implements IStatisticService {
 
     @Override
     public ShopRatioDto getShopRatioDto() {
-        return null;
+        return ShopRatioDto.builder()
+                .totalShops(getTotalShops())
+                .totalLockedShops((double) (getTotalLockedShops() / getTotalShops()) * 100)
+                .totalPendingShop((double) (getTotalPendingShop() / getTotalShops()) * 100)
+                .totalRejectedShops((double) (getTotalRejectedShops() / getTotalShops()) * 100)
+                .build();
     }
 
     private StatisticDto buildStatistic(long shopId, LocalDateTime startTime) {
@@ -287,6 +257,84 @@ public class StatisticService implements IStatisticService {
         return orderDetailRepository.findTopPurchasedProductsByShop(shopId, startTime, endTime,
                         PageRequest.of(0, 10)).getContent().stream()
                 .map(productMapper::toProductStatisticDto)
+                .toList();
+    }
+
+
+    //*************************************************************************************
+
+    private long getTotalUsers() {
+        return userRepository.findAll(Specification.where(
+                UserSpecification.isNotDeleted()
+                        .and(UserSpecification.isNotSuperAdmin())
+        )).size();
+    }
+
+    private long getTotalNewUsers() {
+        return userRepository.findAll(Specification.where(
+                UserSpecification.isNotDeleted()
+                        .and(UserSpecification.isNotSuperAdmin())
+                        .and(UserSpecification.hasNewlyJoined())
+        )).size();
+    }
+
+    private long getTotalLockedUsers() {
+        return userRepository.findAll(Specification.where(
+                UserSpecification.isNotDeleted()
+                        .and(UserSpecification.hasStatus(2))
+                        .and(UserSpecification.isNotSuperAdmin())
+        )).size();
+    }
+
+    private long getTotalShops() {
+        return userRepository.findAll(Specification.where(
+                UserSpecification.isNotDeleted()
+                        .and(UserSpecification.isNotSuperAdmin())
+                        .and(UserSpecification.isShop())
+        )).size();
+    }
+
+    private long getTotalLockedShops() {
+        return userRepository.findAll(Specification.where(
+                UserSpecification.isNotDeleted()
+                        .and(UserSpecification.isShop())
+                        .and(UserSpecification.hasShopStatus(ShopStatus.LOCKED.getValue()))
+        )).size();
+    }
+
+    private long getTotalPendingShop() {
+        return userRepository.findAll(Specification.where(
+                UserSpecification.isNotDeleted()
+                        .and(UserSpecification.isShop())
+                        .and(UserSpecification.hasShopStatus(ShopStatus.PENDING.getValue()))
+        )).size();
+    }
+
+    private long getTotalRejectedShops() {
+        return userRepository.findAll(Specification.where(
+                UserSpecification.isNotDeleted()
+                        .and(UserSpecification.isShop())
+                        .and(UserSpecification.hasShopStatus(ShopStatus.REJECTED.getValue()))
+        )).size();
+    }
+
+    private long getTotalLockedProducts() {
+        return productRepository.findAll(Specification.where(
+                        ProductSpecification.isNotDeleted())
+                .and(ProductSpecification.isStatus(ProductStatus.INACTIVE.getValue())
+                )).size();
+    }
+
+    private long getTotalRejectedProducts() {
+        return productRepository.findAll(Specification.where(
+                        ProductSpecification.isNotDeleted())
+                .and(ProductSpecification.isStatus(ProductStatus.REJECTED.getValue())
+                )).size();
+    }
+
+    private List<ShopDto> getTopSellerShops() {
+        return userRepository.findAll(Specification.where(UserSpecification.sortedBySoldProductRatingRatio()), PageRequest.of(0, 10)).stream()
+                .map(userMapper::toShopDto)
                 .toList();
     }
 }

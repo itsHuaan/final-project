@@ -1,21 +1,16 @@
-package org.example.final_project.entity;
+package org.example.final_project.dto;
 
-import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "tbl_banner")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @Builder
-public class BannerEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class BannerDto {
+    private long id;
 
     private Double price;
 
@@ -28,6 +23,5 @@ public class BannerEntity {
     private LocalDateTime timeCreate;
 
     private int isActive;
-
     private long shopId;
 }

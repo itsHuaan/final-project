@@ -17,7 +17,7 @@ public interface IOrderRepository extends JpaRepository<OrderEntity, Long> {
     @Query("select o.id from OrderEntity o where o.orderCode = :orderCode")
     int findIdByOrderCode(String orderCode);
 
-    @Query("select o.totalPrice  from OrderEntity o where o.orderCode = :orderCode and o.statusCheckout in (1, 2) ")
+    @Query("select o.totalPrice  from OrderEntity o where o.orderCode = :orderCode and o.statusCheckout in (2) ")
     Double findAmountByOrderCode(String orderCode);
 
     @Query("SELECT o FROM OrderEntity o WHERE o.id IN :ids  ")

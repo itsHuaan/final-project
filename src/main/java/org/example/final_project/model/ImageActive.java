@@ -9,8 +9,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class UpdateShippingAddressRequest {
-    private Long shippingAddressId;
-    private Long addressId;
-    private String addressDetail;
+public class ImageActive {
+    private Long bannerId;
 }

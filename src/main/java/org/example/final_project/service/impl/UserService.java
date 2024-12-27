@@ -1,9 +1,7 @@
 package org.example.final_project.service.impl;
 
-import com.cloudinary.Cloudinary;
 import com.cloudinary.api.exceptions.BadRequest;
 import com.cloudinary.api.exceptions.NotFound;
-import com.cloudinary.utils.ObjectUtils;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -64,7 +62,6 @@ public class UserService implements IUserService, UserDetailsService {
     MediaUploadService mediaUploadService;
     IAddressRepository addressRepository;
     IShippingAddressRepository shippingAddressRepository;
-    Cloudinary cloudinary;
     IAddressService addressService;
     EmailService emailService;
 
@@ -269,42 +266,38 @@ public class UserService implements IUserService, UserDetailsService {
     @Override
     public ApiResponse<?> acceptFromAdmin(long userId, LockShopRequest request) throws Exception {
         Optional<UserEntity> optionalUserEntity = userRepository.findById(userId);
-        if (optionalUserEntity.isPresent()) {
-            if (request.getStatus() == 1) {
-                UserEntity userEntity = userRepository.findById(userId).get();
-                userEntity.setShop_status(request.getStatus());
-                RoleEntity role = new RoleEntity();
+        if (optionalUserEntity.isEmpty()) {
+            throw new NotFound("Not found User");
+        }
+        UserEntity userEntity = optionalUserEntity.get();
+        userEntity.setShop_status(request.getStatus());
+        RoleEntity role = new RoleEntity();
+        switch (request.getStatus()) {
+            case 1:
                 role.setRoleId(1L);
                 userEntity.setRole(role);
                 userRepository.save(userEntity);
-                return createResponse(HttpStatus.OK, "Created Shop", null);
-                // status = 3 không cho phép hoạt động
-            } else if (request.getStatus() == 3) {
-                UserEntity userEntity = userRepository.findById(userId).get();
-                userEntity.setShop_status(request.getStatus());
-                RoleEntity role = new RoleEntity();
+                return createResponse(HttpStatus.OK, "Shop Accepted", null);
+            case 3:
+            case 4:
                 role.setRoleId(2L);
                 userEntity.setRole(role);
                 userRepository.save(userEntity);
-                return createResponse(HttpStatus.OK, "Refuse  Shop", null);
-
-            }
-            // status = 4 Shop bị khóa
-            else if (request.getStatus() == 4) {
-                UserEntity userEntity = userRepository.findById(userId).get();
-                userEntity.setShop_status(request.getStatus());
-                RoleEntity role = new RoleEntity();
-                role.setRoleId(2L);
-                userEntity.setRole(role);
-                userRepository.save(userEntity);
-                EmailModel lockShop = new EmailModel(userEntity.getEmail(), "Your shop has been locked", EmailTemplate.shopLockedEmailContent(request.getReason()));
-                boolean result = emailService.sendEmail(lockShop);
-                return result
-                        ? createResponse(HttpStatus.OK, "Lock Shop", null)
-                        : createResponse(HttpStatus.BAD_REQUEST, "Failed to lock shop", null);
-            }
+                if (request.getStatus() == 4) {
+                    EmailModel lockShop = new EmailModel(
+                            userEntity.getEmail(),
+                            "Your shop has been locked",
+                            EmailTemplate.shopLockedEmailContent(request.getReason())
+                    );
+                    boolean result = emailService.sendEmail(lockShop);
+                    return result
+                            ? createResponse(HttpStatus.OK, "Shop Locked", null)
+                            : createResponse(HttpStatus.BAD_REQUEST, "Failed to lock shop", null);
+                }
+                return createResponse(HttpStatus.OK, "Shop Rejected", null);
+            default:
+                return createResponse(HttpStatus.BAD_REQUEST, "Invalid Status", null);
         }
-        throw new NotFound("Not found User");
     }
 
     @Override
@@ -330,11 +323,7 @@ public class UserService implements IUserService, UserDetailsService {
 
             if (request.getProfilePicture() != null) {
                 try {
-                    String uploadedUrl = cloudinary.uploader().upload(
-                            request.getProfilePicture().getBytes(),
-                            ObjectUtils.emptyMap()
-                    ).get("url").toString();
-                    userEntity.setProfilePicture(uploadedUrl);
+                    userEntity.setProfilePicture(mediaUploadService.uploadSingleMediaFile(request.getProfilePicture()));
                 } catch (IOException e) {
                     userEntity.setProfilePicture(userEntity.getProfilePicture() != null
                             ? userEntity.getProfilePicture()
@@ -410,50 +399,6 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
-    public int addAddress(long userId, AddShippingAddressRequest request) {
-        UserEntity user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
-        AddressEntity address = addressRepository.findById(request.getAddressId())
-                .orElseThrow(() -> new EntityNotFoundException("Address not found"));
-
-        if (shippingAddressRepository.findOne(Specification.where(
-                ShippingAddressSpecification.hasAddress(request.getAddressId())
-                        .and(ShippingAddressSpecification.ofUser(user.getUserId()))
-        )).isPresent()) {
-            throw new IllegalArgumentException("Shipping address already exists");
-        }
-
-        if (user.getShippingAddresses().size() >= 20) {
-            throw new IllegalArgumentException("Cannot add more than 20 shipping addresses");
-        }
-
-        shippingAddressRepository.save(UserShippingAddressEntity.builder()
-                .user(user)
-                .address(address)
-                .addressLine2(request.getAddressDetail())
-                .build());
-        return 1;
-    }
-
-    @Override
-    public int updateAddress(long userId, UpdateShippingAddressRequest request) {
-        UserEntity user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
-        AddressEntity address = addressRepository.findById(request.getNewAddressId())
-                .orElseThrow(() -> new EntityNotFoundException("Address not found"));
-        UserShippingAddressEntity currentShippingAddress = shippingAddressRepository.findOne(Specification.where(
-                ShippingAddressSpecification.hasAddress(request.getOldAddressId())
-                        .and(ShippingAddressSpecification.ofUser(user.getUserId()))
-        )).orElseThrow(() -> new EntityNotFoundException("User shipping address not found"));
-
-        currentShippingAddress.setAddress(address);
-        currentShippingAddress.setAddressLine2(request.getAddressDetail());
-
-        shippingAddressRepository.save(currentShippingAddress);
-        return 1;
-    }
-
-    @Override
     public List<UserDto> findByShopName(String shopName, Integer shopStatus) {
         List<UserEntity> userEntityList;
         if (shopName == null && shopStatus == null) {
@@ -491,17 +436,6 @@ public class UserService implements IUserService, UserDetailsService {
         return null;
     }
 
-    @Override
-    public int deleteAddress(long userId, Long addressId) {
-        UserEntity user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
-        UserShippingAddressEntity currentShippingAddress = shippingAddressRepository.findOne(Specification.where(
-                ShippingAddressSpecification.hasAddress(addressId)
-                        .and(ShippingAddressSpecification.ofUser(user.getUserId()))
-        )).orElseThrow(() -> new EntityNotFoundException("User shipping address not found"));
-        shippingAddressRepository.delete(currentShippingAddress);
-        return 1;
-    }
 
     @Override
     public List<UserDto> findActiveUsers() {

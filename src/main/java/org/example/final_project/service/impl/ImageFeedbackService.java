@@ -5,13 +5,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.example.final_project.dto.FeedbackImageDto;
+import org.example.final_project.entity.FeedbackEntity;
 import org.example.final_project.entity.FeedbackImageEntity;
 import org.example.final_project.mapper.FeedbackImageMapper;
 import org.example.final_project.model.FeedbackImageModel;
-import org.example.final_project.repository.IFeedbackRepository;
 import org.example.final_project.repository.IImageFeedBackRepository;
 import org.example.final_project.service.IImageFeedbackService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,7 +22,6 @@ import java.util.stream.Collectors;
 @Service
 public class ImageFeedbackService implements IImageFeedbackService {
     IImageFeedBackRepository iImageFeedBackRepository;
-    IFeedbackRepository feedbackRepository;
     FeedbackImageMapper imageMapper;
 
     @Override
@@ -40,7 +38,7 @@ public class ImageFeedbackService implements IImageFeedbackService {
     public int save(FeedbackImageModel feedbackImageModel) {
         try {
             FeedbackImageEntity image = imageMapper.convertToEntity(feedbackImageModel);
-            image.setFeedback(feedbackRepository.findById(feedbackImageModel.getFeedbackId()).get());
+            image.setFeedback(FeedbackEntity.builder().id(feedbackImageModel.getFeedbackId()).build());
             iImageFeedBackRepository.save(image);
             return 1;
         } catch (Exception e) {

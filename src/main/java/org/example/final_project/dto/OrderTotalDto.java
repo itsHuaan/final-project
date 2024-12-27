@@ -9,7 +9,7 @@ import java.util.List;
 @Setter
 @Builder
 public class OrderTotalDto {
-    OrderDto order;
-    List<OrderDetailDto> orderDetails;
-    OrderTrackingDto orderTracking;
+    private OrderDto order;
+    private List<OrderDetailDto> orderDetails;
+    private OrderTrackingDto orderTracking;
 }

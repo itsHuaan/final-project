@@ -42,9 +42,7 @@ public class ImageProductService implements IImageProductService {
     public int save(ImageProductModel model) {
         try {
             ImageProductEntity imageProduct = imageMapper.convertToEntity(model);
-            ProductEntity product = new ProductEntity();
-            product.setId(model.getProductId());
-            imageProduct.setProductEntity(product);
+            imageProduct.setProductEntity(ProductEntity.builder().id(model.getProductId()).build());
             imageRepository.save(imageProduct);
             return 1;
         } catch (Exception e) {
@@ -59,7 +57,6 @@ public class ImageProductService implements IImageProductService {
             if (imageRepository.findById(aLong).isPresent()) {
                 ImageProductEntity imageProductEntity = imageMapper.convertToEntity(model);
                 imageProductEntity.setId(aLong);
-
             }
             return 1;
         } catch (Exception e) {

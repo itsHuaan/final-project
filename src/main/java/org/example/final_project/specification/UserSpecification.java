@@ -76,38 +76,25 @@ public class UserSpecification {
 
     public static Specification<UserEntity> sortedBySoldProductRatingRatio() {
         return (Root<UserEntity> root, CriteriaQuery<?> query, CriteriaBuilder cb) -> {
-            // Join tables
             Join<UserEntity, ProductEntity> products = root.join("products", JoinType.LEFT);
             Join<ProductEntity, SKUEntity> skus = products.join("skuEntities", JoinType.LEFT);
             Join<SKUEntity, OrderDetailEntity> orderDetails = skus.join("orderDetails", JoinType.LEFT);
             Join<ProductEntity, FeedbackEntity> feedbacks = products.join("feedbacks", JoinType.LEFT);
-
-            // Calculate total quantity sold for the shop
             Expression<Long> totalQuantitySold = cb.sum(orderDetails.get("quantity"));
-
-            // Calculate weighted rating sum (rating * quantity sold for each product)
             Expression<Double> weightedRatingSum = cb.sum(
                     cb.prod(feedbacks.get("rate"), orderDetails.get("quantity"))
             );
-
-            // Weighted average rating for the shop
             Expression<Object> weightedAverageRating = cb.selectCase()
                     .when(cb.equal(totalQuantitySold, 0L), 0.0)
                     .otherwise(cb.quot(weightedRatingSum, totalQuantitySold));
-
-            // Ensure shop is active and has products
             Subquery<Long> productExists = query.subquery(Long.class);
             Root<ProductEntity> productRoot = productExists.from(ProductEntity.class);
             productExists.select(cb.literal(1L))
                     .where(cb.equal(productRoot.get("user"), root));
-
             Predicate shopActive = cb.equal(root.get("shop_status"), 1);
             Predicate hasProducts = cb.exists(productExists);
-
-            // Group by user and sort by weighted average rating
             query.groupBy(root.get("userId"));
             query.orderBy(cb.desc(weightedAverageRating));
-
             return cb.and(shopActive, hasProducts);
         };
     }

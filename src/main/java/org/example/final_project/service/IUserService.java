@@ -39,10 +39,6 @@ public interface IUserService extends IBaseService<UserDto, UserModel, Long> {
 
     Page<UserDto> getAllShop(Integer status, Integer pageIndex, Integer pageSize) throws Exception;
 
-    int addAddress(long userId, AddShippingAddressRequest request);
-
-    int updateAddress(long userId, UpdateShippingAddressRequest request);
-
     List<UserDto> findActiveUsers();
 
     List<UserDto> findByShopName(String shopName, Integer shopStatus);
@@ -50,6 +46,4 @@ public interface IUserService extends IBaseService<UserDto, UserModel, Long> {
     int updateShop(Long userId, ShopModel shopModel);
 
     List<ChatUserDto> getChatUsers(Long senderId);
-
-    int deleteAddress(long userId, Long addressId);
 }
