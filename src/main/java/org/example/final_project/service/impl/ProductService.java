@@ -182,7 +182,7 @@ public class ProductService implements IProductService {
     @Override
     public Page<ProductSummaryDto> getAllProductOfShop(long userId, Integer type, Pageable pageable) {
         if (iUserRepository.findById(userId).isPresent()) {
-            Specification<ProductEntity> specification = Specification.where(isValid()).and(hasUserId(userId));
+            Specification<ProductEntity> specification = Specification.where(isValid()).and(hasUserId(userId)).and(isNotDeleted());
             if (type == 1) {
                 specification = specification.and(isStatus(ProductStatus.ACTIVE.getValue()));
             }
