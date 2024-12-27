@@ -42,7 +42,7 @@ public class CategoryController {
                 null));
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_SELLER')")
     @Operation(summary = "Create new category")
     @PostMapping
     ResponseEntity<?> addNewCategory(@ModelAttribute CategoryModel model) {
@@ -62,7 +62,7 @@ public class CategoryController {
         }
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_SELLER')")
     @Operation(summary = "Edit a category")
     @PutMapping("/{id}")
     ResponseEntity<?> updateCategory(@PathVariable("id") long id,
@@ -83,7 +83,7 @@ public class CategoryController {
         }
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_SELLER')")
     @Operation(summary = "Delete a category")
     @DeleteMapping("/{id}")
     ResponseEntity<?> deleteCategory(@PathVariable("id") long id) {
@@ -103,7 +103,7 @@ public class CategoryController {
         }
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_SELLER')")
     @Operation(summary = "Change category status")
     @PutMapping("/activate/{id}")
     ResponseEntity<?> inactivateCategory(@PathVariable("id") long id,

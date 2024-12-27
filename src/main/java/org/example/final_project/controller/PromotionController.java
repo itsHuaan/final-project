@@ -45,7 +45,7 @@ public class PromotionController {
         }
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_SELLER')")
     @PostMapping
     ResponseEntity<?> addPromotion(@RequestBody PromotionModel model) {
         try {
@@ -72,7 +72,7 @@ public class PromotionController {
         }
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_SELLER')")
     @PutMapping("/{promotion-id}")
     ResponseEntity<?> updatePromotion(@PathVariable("promotion-id") Long promotionId, @RequestBody PromotionModel model) {
         try {
@@ -91,7 +91,7 @@ public class PromotionController {
         }
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_SELLER')")
     @DeleteMapping("/{promotion-id}")
     ResponseEntity<?> deletePromotion(@PathVariable("promotion-id") Long promotionId) {
         try {
