@@ -10,6 +10,7 @@ import org.example.final_project.util.Const;
 import org.example.final_project.validation.PageableValidation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -44,6 +45,7 @@ public class PromotionController {
         }
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping
     ResponseEntity<?> addPromotion(@RequestBody PromotionModel model) {
         try {
@@ -70,6 +72,7 @@ public class PromotionController {
         }
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/{promotion-id}")
     ResponseEntity<?> updatePromotion(@PathVariable("promotion-id") Long promotionId, @RequestBody PromotionModel model) {
         try {
@@ -88,6 +91,7 @@ public class PromotionController {
         }
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{promotion-id}")
     ResponseEntity<?> deletePromotion(@PathVariable("promotion-id") Long promotionId) {
         try {
@@ -106,6 +110,7 @@ public class PromotionController {
         }
     }
 
+    @PreAuthorize("hasRole('ROLE_SELLER')")
     @PostMapping("/apply-promotion")
     ResponseEntity<?> applyPromotion(@RequestParam Long promotionId,
                                      @RequestBody List<Long> productIds) {
@@ -125,6 +130,7 @@ public class PromotionController {
         }
     }
 
+    @PreAuthorize("hasRole('ROLE_SELLER')")
     @DeleteMapping("/cancel")
     ResponseEntity<?> cancelPromotionOfProduct(@RequestParam Long promotionId,
                                                @RequestBody List<Long> productIds) {

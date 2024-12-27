@@ -20,6 +20,7 @@ import org.example.final_project.validation.PageableValidation;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -91,6 +92,7 @@ public class ProductController {
         }
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Operation(summary = "Create new product")
     @PostMapping
     ResponseEntity<?> addNewProduct(ProductModel model) {
@@ -112,6 +114,7 @@ public class ProductController {
         }
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Operation(summary = "Update a product")
     @PutMapping("/{id}")
     ResponseEntity<?> updateProduct(@PathVariable("id") long id,
@@ -148,6 +151,7 @@ public class ProductController {
         }
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Operation(summary = "Delete a product")
     @DeleteMapping("/{id}")
     ResponseEntity<?> deleteProduct(@PathVariable("id") long id) {
@@ -165,6 +169,8 @@ public class ProductController {
         ));
     }
 
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Operation(summary = "Change the product status")
     @PutMapping("/activate/{product-id}")
     ResponseEntity<?> inactivateProduct(@PathVariable("product-id") long id,
@@ -307,6 +313,7 @@ public class ProductController {
         ));
     }
 
+    @PreAuthorize("hasRole('ROLE_USER')")
     @Operation(summary = "Add to favorite")
     @PostMapping("/favorite")
     ResponseEntity<?> addToFavorite(@RequestBody FavoriteProductModel favoriteProduct) {
