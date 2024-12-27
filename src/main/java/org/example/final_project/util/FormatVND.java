@@ -10,4 +10,5 @@ public class FormatVND {
 
         return formattedAmount.replace("₫", "").trim();
     }
+    
 }

@@ -53,7 +53,7 @@ public class OrderTrackingController {
         }
     }
 
-    @PostMapping("/test-change-status-ship")
+    @PostMapping("/change-status-ship")
     public ResponseEntity<?> statusShip(@RequestBody StatusMessageDto statusMessageDto) {
         int result = orderTrackingService.updateStatusShipping(statusMessageDto);
         return ResponseEntity.ok(result == 1 ? "thành công" : "thất bại");

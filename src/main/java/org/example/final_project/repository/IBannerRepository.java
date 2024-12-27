@@ -14,7 +14,7 @@ import java.util.Optional;
 
 @Repository
 public interface IBannerRepository extends JpaRepository<BannerEntity, Long> {
-
+    
     @Query("select b from BannerEntity b order by b.timeCreate desc")
     Page<BannerEntity> findBannerPage(Pageable pageable);
 

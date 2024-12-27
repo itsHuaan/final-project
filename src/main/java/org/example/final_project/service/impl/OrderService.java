@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 import static org.example.final_project.dto.ApiResponse.createResponse;
 import static org.example.final_project.util.FormatVND.formatCurrency;
 
+
 @Service
 @RequiredArgsConstructor
 public class OrderService implements IOrderService {
@@ -139,8 +140,6 @@ public class OrderService implements IOrderService {
                             .createdChangeStatus(LocalDateTime.now())
                             .build();
                     historyStatusShippingRepository.save(historyStatusShippingEntity);
-
-
                 }
                 OrderDetailEntity orderDetailEntity = OrderDetailMapper.toEntity(cartItemRequest);
                 orderDetailEntity.setOrderEntity(orderEntity);

@@ -60,6 +60,7 @@ public class OrderTrackingService implements IOrderTrackingService {
         return 0;
     }
 
+
     public int checkPaidDate(Long orderId) {
         boolean isCompleted = orderTrackingRepository.listOrderTracking(orderId)
                 .stream()
@@ -125,7 +126,7 @@ public class OrderTrackingService implements IOrderTrackingService {
             notificationModel.setContent(content);
             saveNotification(statusMessageDto, notificationModel);
         }
-        if (statusMessageDto.getStatus() == ShippingStatus.COMPLETED.getValue()) {
+        if (statusMessageDto.getStatus() == ShippingStatus.PAID.getValue()) {
             title = "Xác nhận đã nhận hàng";
             content = "Vui lòng chỉ ấn 'Đã nhận được hàng' khi đơn hàng" + OrderCode + "đã được giao đến bạn và sản phẩm không có vấn đề nào";
             notificationModel.setTitle(title);

@@ -13,7 +13,8 @@ public enum ShippingStatus {
     DELIVERED(6), // Đã giao hàng
     PAID(7), // Đã thanh toán
     COMPLETED(8), // Thành công
-    CANCELLED(9);//Hủy
+    CANCELLED(9),//Hủy
+    NotReceive(10);
     private final int value;
 
     ShippingStatus(int StatusShipping) {
