@@ -13,6 +13,17 @@ public class OrderDetailSpecification {
         return (Root<OrderDetailEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) -> criteriaBuilder.equal(root.get("shopId"), shopId);
     }
 
+    public static Specification<OrderDetailEntity> isValid() {
+        return (Root<OrderDetailEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
+                criteriaBuilder.and(
+                        criteriaBuilder.isNull(root.get("skuEntity").get("product").get("user").get("deletedAt")),
+                        criteriaBuilder.equal(root.get("skuEntity").get("product").get("user").get("shop_status"), 1),
+                        criteriaBuilder.equal(root.get("skuEntity").get("product").get("isActive"), 1),
+                        criteriaBuilder.isNull(root.get("skuEntity").get("product").get("deletedAt")),
+                        criteriaBuilder.isNull(root.get("skuEntity").get("product").get("categoryEntity").get("deletedAt"))
+                );
+    }
+
     public static Specification<OrderDetailEntity> isBetween(LocalDateTime startDate, LocalDateTime endDate) {
         return (Root<OrderDetailEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.between(root.get("createAt"), startDate, endDate);
