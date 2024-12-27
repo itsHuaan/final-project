@@ -39,13 +39,8 @@ public class OrderDetailService implements IOrderDetailService {
     public ApiResponse<?> getOrderDetail(long userId) {
         List<Long> orderId = orderRepository.findOrderIdsByUserId(userId);
         List<OrderDetailEntity> list = orderDetailRepository.findAllOrderDetailEntityByOrderId(orderId);
-
         List<OrderDetailDto> listDto = list.stream().map(orderDetailMapper::toOrderDto).toList();
-
-
         return ApiResponse.createResponse(HttpStatus.OK, "get all order tracking", listDto);
-
-
     }
 
 

@@ -4,8 +4,10 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.SKUDto;
+import org.example.final_project.entity.ImageProductEntity;
 import org.example.final_project.entity.SKUEntity;
 import org.example.final_project.model.SKUModel;
+import org.example.final_project.repository.IImageProductRepository;
 import org.example.final_project.service.IPromotionService;
 import org.springframework.stereotype.Component;
 
@@ -15,8 +17,10 @@ import org.springframework.stereotype.Component;
 public class SKUMapper {
     ProductOptionMapper optionMapper;
     IPromotionService promotionService;
+    IImageProductRepository imageProductRepository;
 
     public SKUDto convertToDto(SKUEntity entity) {
+        ImageProductEntity imageProductEntity = imageProductRepository.findAllByProductEntity_Id(entity.getProduct().getId()).get(0);
         return SKUDto.builder()
                 .productId(entity.getProduct().getId())
                 .variantId(entity.getId())
@@ -31,7 +35,9 @@ public class SKUMapper {
                         ? entity.getPrice() * ((100 - promotionService.findAllPromotionByNow(entity.getProduct().getId()).getDiscountPercentage()) / 100)
                         : entity.getPrice())
                 .quantity(entity.getQuantity())
-                .image(entity.getImage())
+                .image(entity.getImage().isEmpty()
+                        ? entity.getImage()
+                        : imageProductEntity.getImageLink())
                 .build();
     }
 

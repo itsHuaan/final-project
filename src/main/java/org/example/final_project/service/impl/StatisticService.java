@@ -4,24 +4,18 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.*;
-import org.example.final_project.entity.FeedbackEntity;
 import org.example.final_project.entity.OrderDetailEntity;
 import org.example.final_project.entity.ProductEntity;
 import org.example.final_project.enumeration.CheckoutStatus;
 import org.example.final_project.enumeration.ProductStatus;
+import org.example.final_project.enumeration.ShippingStatus;
 import org.example.final_project.enumeration.ShopStatus;
 import org.example.final_project.mapper.ProductMapper;
 import org.example.final_project.mapper.UserMapper;
 import org.example.final_project.mapper.VariantMapper;
-import org.example.final_project.repository.IOrderDetailRepository;
-import org.example.final_project.repository.IProductRepository;
-import org.example.final_project.repository.ISKURepository;
-import org.example.final_project.repository.IUserRepository;
+import org.example.final_project.repository.*;
 import org.example.final_project.service.IStatisticService;
-import org.example.final_project.specification.OrderDetailSpecification;
-import org.example.final_project.specification.ProductSpecification;
-import org.example.final_project.specification.SKUSpecification;
-import org.example.final_project.specification.UserSpecification;
+import org.example.final_project.specification.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -32,6 +26,8 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.example.final_project.specification.OrderDetailSpecification.hasShop;
 import static org.example.final_project.specification.ProductSpecification.*;
@@ -48,6 +44,7 @@ public class StatisticService implements IStatisticService {
     UserMapper userMapper;
     ProductMapper productMapper;
     VariantMapper variantMapper;
+    IOrderTrackingRepository orderTrackingRepository;
 
 
     @Override
@@ -142,7 +139,7 @@ public class StatisticService implements IStatisticService {
                 .averageRating(getAverageOfRating(shopId, startTime, endTime))
                 .totalOfFeedbacks(getTotalOfFeedbacks(shopId, startTime, endTime))
                 .totalOfProducts(getTotalProducts(shopId, startTime, endTime))
-                .totalOfOrders(getTotalOfOrders(shopId, startTime, endTime))
+                .orderStatistic(getOrderStatisticDto(shopId, startTime, endTime))
                 .revenue(getRevenue(shopId, startTime, endTime))
                 .lockedProducts(getLockedProducts(shopId, startTime, endTime))
                 .totalOfCustomers(getTotalCustomers(shopId, startTime, endTime))
@@ -156,15 +153,29 @@ public class StatisticService implements IStatisticService {
         List<ProductEntity> products = productRepository.findAll(Specification.where(
                         hasUserId(shopId))
                 .and(isValid())
-                .and(isBetween(startTime, endTime))).stream().toList();
-
-        double averageRating = products.stream()
-                .mapToDouble(product -> product.getFeedbacks().stream()
-                        .mapToDouble(FeedbackEntity::getRate)
-                        .average()
-                        .orElse(0.0))
-                .average()
-                .orElse(0.0);
+                .and(isBetween(startTime, endTime)));
+        List<OrderDetailEntity> orderDetails = orderDetailRepository.findAll(Specification.where(
+                OrderDetailSpecification.hasShop(shopId)));
+        Map<ProductEntity, Long> productQuantities = orderDetails.stream()
+                .collect(Collectors.groupingBy(
+                        orderDetail -> orderDetail.getSkuEntity().getProduct(),
+                        Collectors.summingLong(OrderDetailEntity::getQuantity)
+                ));
+        double totalWeightedRating = 0.0;
+        long totalSoldQuantity = 0;
+        for (ProductEntity product : products) {
+            long productSoldQuantity = productQuantities.getOrDefault(product, 0L);
+            if (productSoldQuantity > 0) {
+                double productWeightedRating = product.getFeedbacks().stream()
+                        .mapToDouble(feedback -> feedback.getRate() * productSoldQuantity)
+                        .sum();
+                totalWeightedRating += productWeightedRating;
+                totalSoldQuantity += productSoldQuantity;
+            }
+        }
+        double averageRating = totalSoldQuantity > 0
+                ? totalWeightedRating / totalSoldQuantity
+                : 0.0;
         return Math.round(averageRating * 100.0) / 100.0;
     }
 
@@ -186,9 +197,9 @@ public class StatisticService implements IStatisticService {
     }
 
     private int getTotalOfOrders(long shopId, LocalDateTime startTime, LocalDateTime endTime) {
-        return orderDetailRepository.findAll(Specification.where(
-                hasShop(shopId)
-                        .and(OrderDetailSpecification.isBetween(startTime, endTime))
+        return orderTrackingRepository.findAll(Specification.where(
+                OrderTrackingSpecification.hasShop(shopId)
+                        .and(OrderTrackingSpecification.isBetween(startTime, endTime))
         )).size();
     }
 
@@ -258,6 +269,42 @@ public class StatisticService implements IStatisticService {
                         PageRequest.of(0, 10)).getContent().stream()
                 .map(productMapper::toProductStatisticDto)
                 .toList();
+    }
+
+    private OrderStatisticDto getOrderStatisticDto(long shopId, LocalDateTime startTime, LocalDateTime endTime) {
+        return OrderStatisticDto.builder()
+                .totalOfOrders(getTotalOfOrders(shopId, startTime, endTime))
+                .orderByStatus(buildOrderStatisticByStatusDto(shopId, startTime, endTime))
+                .build();
+    }
+
+    private List<OrderStatisticByStatusDto> buildOrderStatisticByStatusDto(long shopId, LocalDateTime startTime, LocalDateTime endTime) {
+        return List.of(
+                getOrderStatisticByStatusDto(shopId, startTime, endTime, ShippingStatus.CREATED),
+                getOrderStatisticByStatusDto(shopId, startTime, endTime, ShippingStatus.PENDING),
+                getOrderStatisticByStatusDto(shopId, startTime, endTime, ShippingStatus.CONFIRMED),
+                getOrderStatisticByStatusDto(shopId, startTime, endTime, ShippingStatus.PENDING_SHIPPING),
+                getOrderStatisticByStatusDto(shopId, startTime, endTime, ShippingStatus.CONFIRMED_SHIPPING),
+                getOrderStatisticByStatusDto(shopId, startTime, endTime, ShippingStatus.DELIVERING),
+                getOrderStatisticByStatusDto(shopId, startTime, endTime, ShippingStatus.DELIVERED),
+                getOrderStatisticByStatusDto(shopId, startTime, endTime, ShippingStatus.PAID),
+                getOrderStatisticByStatusDto(shopId, startTime, endTime, ShippingStatus.COMPLETED),
+                getOrderStatisticByStatusDto(shopId, startTime, endTime, ShippingStatus.CANCELLED)
+        );
+    }
+
+    private OrderStatisticByStatusDto getOrderStatisticByStatusDto(long shopId, LocalDateTime startTime, LocalDateTime endTime, ShippingStatus status) {
+        long totalOfOrders = getTotalOfOrders(shopId, startTime, endTime);
+        long orderByStatus = orderTrackingRepository.findAll(Specification.where(
+                OrderTrackingSpecification.hasShop(shopId)
+                        .and(OrderTrackingSpecification.isBetween(startTime, endTime))
+                        .and(OrderTrackingSpecification.hasStatus(status.getValue()))
+        )).size();
+        return OrderStatisticByStatusDto.builder()
+                .status(status.toString())
+                .order(orderByStatus)
+                .ratio(((double) orderByStatus / totalOfOrders) * 100)
+                .build();
     }
 
 
