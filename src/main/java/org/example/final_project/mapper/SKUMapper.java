@@ -21,6 +21,7 @@ public class SKUMapper {
 
     public SKUDto convertToDto(SKUEntity entity) {
         ImageProductEntity imageProductEntity = imageProductRepository.findAllByProductEntity_Id(entity.getProduct().getId()).get(0);
+        String skuImage = entity.getImage();
         return SKUDto.builder()
                 .productId(entity.getProduct().getId())
                 .variantId(entity.getId())
@@ -35,7 +36,7 @@ public class SKUMapper {
                         ? entity.getPrice() * ((100 - promotionService.findAllPromotionByNow(entity.getProduct().getId()).getDiscountPercentage()) / 100)
                         : entity.getPrice())
                 .quantity(entity.getQuantity())
-                .image(entity.getImage().isEmpty()
+                .image(skuImage == null
                         ? imageProductEntity.getImageLink()
                         : entity.getImage())
                 .build();
