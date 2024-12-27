@@ -165,7 +165,7 @@ public class UserController {
         HttpStatus httpStatus;
         String message;
         try {
-            int result = userService.addAddress(id, request);
+            int result = shippingAddressService.addAddress(id, request);
             httpStatus = result == 1 ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
             message = result == 1 ? "Added " + String.join("/", addressService.findAddressNamesFromParentId(request.getAddressId())) : "Failed to add shipping address";
         } catch (EntityNotFoundException | IllegalArgumentException e) {
@@ -188,7 +188,7 @@ public class UserController {
         HttpStatus httpStatus;
         String message;
         try {
-            int result = userService.updateAddress(id, request);
+            int result = shippingAddressService.updateAddress(id, request);
             httpStatus = result == 1 ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
             message = result == 1 ? "Update shipping address for user " + userService.getById(id).getUsername() : "Failed to update shipping address";
         } catch (EntityNotFoundException | IllegalArgumentException e) {
@@ -207,11 +207,11 @@ public class UserController {
     @DeleteMapping("/{id}/delete-address")
     public ResponseEntity<?> updateAddress(
             @PathVariable Long id,
-            @RequestParam Long addressId) {
+            @RequestParam Long shippingAddressId) {
         HttpStatus httpStatus;
         String message;
         try {
-            int result = userService.deleteAddress(id, addressId);
+            int result = shippingAddressService.deleteAddress(id, shippingAddressId);
             httpStatus = result == 1 ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
             message = result == 1 ? "Deleted shipping address for user " + userService.getById(id).getUsername() : "Failed to delete shipping address";
         } catch (EntityNotFoundException | IllegalArgumentException e) {

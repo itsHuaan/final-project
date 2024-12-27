@@ -9,7 +9,7 @@ import lombok.*;
 @Builder
 public class ShopRatioDto {
     private long totalShops;
-    private long totalLockedShops;
-    private long totalPendingShop;
-    private long totalRejectedShops;
+    private double totalLockedShops;
+    private double totalPendingShop;
+    private double totalRejectedShops;
 }

@@ -7,6 +7,8 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
-public class ImageProductDto {
-    private String imageLink;
+public class OrderStatisticByStatusDto {
+    private String status;
+    private long order;
+    private double ratio;
 }

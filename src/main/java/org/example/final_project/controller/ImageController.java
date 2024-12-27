@@ -44,7 +44,7 @@ public class ImageController {
             if (files.length == 0) {
                 return ResponseEntity.badRequest().body(List.of("No files provided"));
             }
-            List<String> mediaUrls = mediaUploadService.uploadMediaFiles(files);
+            List<String> mediaUrls = mediaUploadService.uploadMultipleMediaFiles(files);
             return ResponseEntity.ok(mediaUrls);
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

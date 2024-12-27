@@ -6,10 +6,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.example.final_project.dto.AdminStatisticDto;
-import org.example.final_project.dto.ApiResponse;
-import org.example.final_project.dto.RevenueStatistic;
-import org.example.final_project.dto.UserDto;
+import org.example.final_project.dto.*;
 import org.example.final_project.model.LockShopRequest;
 import org.example.final_project.model.ShopModel;
 import org.example.final_project.service.impl.StatisticService;
@@ -96,8 +93,10 @@ public class AdminController {
         return ResponseEntity.status(status).body(createResponse(status, message, statisticDto));
     }
 
+
+    @Operation(summary = "Get super admin revenue")
     @GetMapping("/revenue-statistic")
-    public ResponseEntity<?> getLowStock(@RequestParam int year) {
+    public ResponseEntity<?> getRevenue(@RequestParam int year) {
         List<RevenueStatistic> revenueStatistics = statisticService.getRevenueStatistics(year);
         HttpStatus status = !revenueStatistics.isEmpty() ? HttpStatus.OK : HttpStatus.NO_CONTENT;
         String message = !revenueStatistics.isEmpty() ? "Revenue fetched" : "No revenue data";
@@ -106,6 +105,21 @@ public class AdminController {
                         status,
                         message,
                         revenueStatistics
+                )
+        );
+    }
+
+    @Operation(summary = "Get statistic for shop")
+    @GetMapping("/shop-statistic")
+    public ResponseEntity<?> getShopStatistic() {
+        ShopRatioDto shopRatio = statisticService.getShopRatioDto();
+        HttpStatus status = shopRatio != null ? HttpStatus.OK : HttpStatus.NO_CONTENT;
+        String message = shopRatio != null ? "Shop statistic fetched" : "No statistic data";
+        return ResponseEntity.status(HttpStatus.OK).body(
+                createResponse(
+                        status,
+                        message,
+                        shopRatio
                 )
         );
     }

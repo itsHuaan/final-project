@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UpdateShippingAddressRequest {
-    private Long oldAddressId;
-    private Long newAddressId;
+    private Long shippingAddressId;
+    private Long addressId;
     private String addressDetail;
 }

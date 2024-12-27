@@ -31,7 +31,7 @@ public class FeedbackEntity {
     @ManyToOne
     @JoinColumn(name = "product_id")
     private ProductEntity product;
-    @OneToMany(mappedBy = "feedback")
+    @OneToMany(mappedBy = "feedback", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<FeedbackImageEntity> feedbackImages = new ArrayList<>();
     private LocalDateTime createdAt;
 }
