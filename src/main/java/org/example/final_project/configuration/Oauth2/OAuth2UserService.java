@@ -66,6 +66,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
                     .username(generateUsername(userCustom.getEmail()))
                     .createdAt(LocalDateTime.now())
                     .isActive(1)
+                    .gender(-1)
                     .build();
         } else {
             user.setDeletedAt(null);
