@@ -52,12 +52,16 @@ public class ShippingAddressService implements IShippingAddressService {
 
     @Override
     public int updateAddress(long userId, UpdateShippingAddressRequest request) {
-        AddressEntity address = addressRepository.findById(request.getAddressId())
-                .orElseThrow(() -> new EntityNotFoundException("Address not found"));
+        AddressEntity address = request.getAddressId() != null
+                ? addressRepository.findById(request.getAddressId())
+                .orElseThrow(() -> new EntityNotFoundException("Address not found"))
+                : null;
         UserShippingAddressEntity currentShippingAddress = shippingAddressRepository.findById(request.getShippingAddressId()).orElseThrow(() -> new EntityNotFoundException("User shipping address not found"));
 
-        currentShippingAddress.setAddress(address);
-        currentShippingAddress.setAddressLine2(request.getAddressDetail());
+        currentShippingAddress.setName(request.getName() != null ? request.getName() : currentShippingAddress.getName());
+        currentShippingAddress.setPhone(request.getPhone() != null ? request.getPhone() : currentShippingAddress.getPhone());
+        currentShippingAddress.setAddress(address != null ? address : currentShippingAddress.getAddress());
+        currentShippingAddress.setAddressDetail(request.getAddressDetail() != null ? request.getAddressDetail() : currentShippingAddress.getAddressDetail());
 
         shippingAddressRepository.save(currentShippingAddress);
         return 1;

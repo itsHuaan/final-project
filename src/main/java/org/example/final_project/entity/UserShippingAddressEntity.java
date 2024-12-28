@@ -27,5 +27,5 @@ public class UserShippingAddressEntity {
     @JoinColumn(name = "address_id", nullable = false)
     private AddressEntity address;
 
-    private String addressLine2;
+    private String addressDetail;
 }

@@ -31,7 +31,7 @@ public class ShippingAddressMapper {
                 .address(address)
                 .name(shippingAddressRequest.getName())
                 .phone(shippingAddressRequest.getPhone())
-                .addressLine2(shippingAddressRequest.getAddressDetail())
+                .addressDetail(shippingAddressRequest.getAddressDetail())
                 .build();
     }
 
@@ -41,7 +41,7 @@ public class ShippingAddressMapper {
                 .name(userShippingAddressEntity.getName())
                 .phone(userShippingAddressEntity.getPhone())
                 .addressLine1(addressMapper.buildAddressLine(userShippingAddressEntity.getAddress()))
-                .addressLine2(userShippingAddressEntity.getAddressLine2())
+                .addressLine2(userShippingAddressEntity.getAddressDetail())
                 .build();
     }
 }
