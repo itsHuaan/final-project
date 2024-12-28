@@ -11,6 +11,8 @@ import lombok.Setter;
 @Setter
 public class UpdateShippingAddressRequest {
     private Long shippingAddressId;
+    private String name;
+    private String phone;
     private Long addressId;
     private String addressDetail;
 }

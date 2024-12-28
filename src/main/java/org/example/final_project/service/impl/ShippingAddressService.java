@@ -15,7 +15,6 @@ import org.example.final_project.repository.IAddressRepository;
 import org.example.final_project.repository.IShippingAddressRepository;
 import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.IShippingAddressService;
-import org.example.final_project.specification.ShippingAddressSpecification;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -43,18 +42,11 @@ public class ShippingAddressService implements IShippingAddressService {
     public int addAddress(long userId, AddShippingAddressRequest request) {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
-        AddressEntity address = addressRepository.findById(request.getAddressId())
-                .orElseThrow(() -> new EntityNotFoundException("Address not found"));
-
         if (user.getShippingAddresses().size() >= 20) {
             throw new IllegalArgumentException("Cannot add more than 20 shipping addresses");
         }
 
-        shippingAddressRepository.save(UserShippingAddressEntity.builder()
-                .user(user)
-                .address(address)
-                .addressLine2(request.getAddressDetail())
-                .build());
+        shippingAddressRepository.save(shippingAddressMapper.toEntity(userId, request));
         return 1;
     }
 

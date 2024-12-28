@@ -10,6 +10,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class AddShippingAddressRequest {
+    private String name;
+    private String phone;
     private Long addressId;
     private String addressDetail;
 }

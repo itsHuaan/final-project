@@ -20,6 +20,9 @@ public class UserShippingAddressEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
+    private String name;
+    private String phone;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "address_id", nullable = false)
     private AddressEntity address;
