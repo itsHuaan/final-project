@@ -9,10 +9,7 @@ import org.example.final_project.dto.*;
 import org.example.final_project.entity.*;
 import org.example.final_project.enumeration.CheckoutStatus;
 import org.example.final_project.enumeration.ShippingStatus;
-import org.example.final_project.mapper.OrderDetailMapper;
-import org.example.final_project.mapper.OrderMapper;
-import org.example.final_project.mapper.OrderTrackingMapper;
-import org.example.final_project.mapper.UserMapper;
+import org.example.final_project.mapper.*;
 import org.example.final_project.model.CartItemRequest;
 import org.example.final_project.model.OrderModel;
 import org.example.final_project.repository.*;
@@ -49,11 +46,12 @@ public class OrderService implements IOrderService {
     private final UserMapper userMapper;
     private final INotificationRepository iNotificationRepository;
     private final IHistoryStatusShippingRepository historyStatusShippingRepository;
+    private final SKUMapper skuMapper;
 
 
     @Override
     public String submitCheckout(OrderModel orderModel, HttpServletRequest request) throws Exception {
-        int result = loadDataCod(orderModel);
+        int result = processCheckout(orderModel);
         if (result == 1) {
             String vnp_TxnRef = (String) request.getAttribute("tex");
             String method = orderModel.getMethodCheckout();
@@ -81,7 +79,25 @@ public class OrderService implements IOrderService {
                 return "Order Complete";
             }
         }
-        return "The current quantity is greater than the quantity in the stock";
+        return "Promotion expired";
+    }
+
+    public int processCheckout(OrderModel orderModel) {
+        List<CartItemRequest> list = orderModel.getCartItems();
+        for (CartItemRequest cartItemRequest : list) {
+            SKUEntity skuEntity = skuRepository.findbySKUId(cartItemRequest.getProductSkuId()).orElse(null);
+            if (skuEntity == null) {
+                throw new IllegalArgumentException("SKU not found");
+            }
+            SKUDto skuDto = skuMapper.convertToDto(skuEntity);
+            double newPrice = cartItemRequest.getPrice();
+            double skuNewPrice = skuDto.getNewPrice();
+            if (newPrice == skuNewPrice) {
+                return 1;
+            }
+
+        }
+        return 0;
     }
 
     public int loadDataCod(OrderModel orderModel) {
@@ -231,15 +247,20 @@ public class OrderService implements IOrderService {
     public void sentNotificationFailForUser(OrderEntity orderEntity, List<OrderDetailEntity> orderDetailEntity) {
         for (OrderDetailEntity cartItemRequest1 : orderDetailEntity) {
             SKUEntity skuEntity = skuRepository.findById(cartItemRequest1.getSkuEntity().getId()).orElse(null);
+
+
             if (skuEntity == null) {
                 throw new IllegalArgumentException("Not found Sku");
             }
+            SKUDto skuDto = skuMapper.convertToDto(skuEntity);
             double total = cartItemRequest1.getQuantity() * cartItemRequest1.getPrice();
+
 
             String vnd = formatCurrency(total);
 
+
             NotificationEntity notificationEntity = NotificationEntity.builder()
-                    .image(skuEntity.getImage())
+                    .image(skuDto.getImage())
                     .title("Đơn hàng thanh toán thất bại ")
                     .content("Đơn hàng " + orderEntity.getOrderCode() + " với số tiền " + vnd + " VNĐ " + " thanh toán thất bại .")
                     .isRead(0)

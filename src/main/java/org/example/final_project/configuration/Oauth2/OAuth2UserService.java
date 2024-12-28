@@ -106,27 +106,13 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
             response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 
             String redirectUrl = String.format(
-                    "https://team03.cyvietnam.id.vn/en/login/success?token=%s&userId=%s&userName=%s&email=%s&role=%s",
+                    "https://team03.cyvietnam.id.vn/en/login/success?token=%s&userId=%s&userName=%s&email=%s",
                     jwt,
                     user.getUserId(),
                     URLEncoder.encode(user.getName(), StandardCharsets.UTF_8.toString()),
-                    URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8.toString()),
-                    URLEncoder.encode(user.getRole().getRoleName(), StandardCharsets.UTF_8.toString())
+                    URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8.toString())
             );
             response.sendRedirect(redirectUrl);
-//            Map<String, Object> responseBody = new HashMap<>();
-//            responseBody.put("token", jwt);
-//            responseBody.put("userId", user.getUserId());
-//            responseBody.put("userName", user.getName());
-//            responseBody.put("email", user.getEmail());
-//            responseBody.put("role", user.getRole().getRoleName());
-//
-//            // Trả JSON response
-//            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-//            response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-//            ObjectMapper mapper = new ObjectMapper();
-//            response.getWriter().write(mapper.writeValueAsString(responseBody));
-//            response.getWriter().flush();
         });
     }
 

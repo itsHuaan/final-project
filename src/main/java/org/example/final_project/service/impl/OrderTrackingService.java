@@ -93,14 +93,9 @@ public class OrderTrackingService implements IOrderTrackingService {
         String title;
         String content;
         String shipping = "SPX Express";
-        String image;
+        String image = skuDto.getImage();
 
 
-        if (skuDto.getImage() != null) {
-            image = skuDto.getImage();
-        } else {
-            image = null;
-        }
         NotificationModel notificationModel = new NotificationModel();
         notificationModel.setImage(image);
         notificationModel.setOrderCode(OrderCode);
