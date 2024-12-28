@@ -64,8 +64,8 @@ public class ChatMessageMapper {
                         .map(ChatMessageMediaEntity::getMediaUrl)
                         .toList())
                 .sentAt(chatMessageEntity.getSentAt())
-                .senderName(sender.getShop_status() == 1 ? sender.getShop_name() : sender.getName())
-                .recipientName(recipient.getShop_status() == 1 ? recipient.getShop_name() : recipient.getName())
+                .senderName(sender.getUsername())
+                .recipientName(recipient.getUsername())
                 .build();
     }
 

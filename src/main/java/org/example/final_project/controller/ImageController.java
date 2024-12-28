@@ -1,7 +1,5 @@
 package org.example.final_project.controller;
 
-import com.cloudinary.Cloudinary;
-import com.cloudinary.utils.ObjectUtils;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -27,14 +25,13 @@ import static org.example.final_project.dto.ApiResponse.createResponse;
 public class ImageController {
     IImageProductService imageProductService;
     MediaUploadService mediaUploadService;
-    Cloudinary cloudinary;
 
     @PostMapping("/upload")
     ResponseEntity<?> uploadImage(@RequestBody MultipartFile file) throws IOException {
         return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                 HttpStatus.OK,
                 "Upload image successfully",
-                cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap()).get("url").toString()
+                mediaUploadService.uploadSingleMediaFile(file)
         ));
     }
 

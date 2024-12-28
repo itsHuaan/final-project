@@ -92,7 +92,7 @@ public class ProductController {
         }
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_SELLER') or hasRole('ROLE_ADMIN')")
     @Operation(summary = "Create new product")
     @PostMapping
     ResponseEntity<?> addNewProduct(ProductModel model) {
@@ -114,7 +114,7 @@ public class ProductController {
         }
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_SELLER') or hasRole('ROLE_ADMIN')")
     @Operation(summary = "Update a product")
     @PutMapping("/{id}")
     ResponseEntity<?> updateProduct(@PathVariable("id") long id,
@@ -151,7 +151,7 @@ public class ProductController {
         }
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_SELLER') or hasRole('ROLE_ADMIN')")
     @Operation(summary = "Delete a product")
     @DeleteMapping("/{id}")
     ResponseEntity<?> deleteProduct(@PathVariable("id") long id) {
@@ -170,7 +170,7 @@ public class ProductController {
     }
 
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_SELLER') or hasRole('ROLE_ADMIN')")
     @Operation(summary = "Change the product status")
     @PutMapping("/activate/{product-id}")
     ResponseEntity<?> inactivateProduct(@PathVariable("product-id") long id,

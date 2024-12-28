@@ -15,6 +15,7 @@ import org.example.final_project.repository.IOrderDetailRepository;
 import org.example.final_project.repository.IProductRepository;
 import org.example.final_project.service.IAddressService;
 import org.example.final_project.specification.OrderDetailSpecification;
+import org.example.final_project.specification.ProductSpecification;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
@@ -23,9 +24,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import static org.example.final_project.specification.ProductSpecification.hasUserId;
-import static org.example.final_project.specification.ProductSpecification.isValid;
 
 @Component
 @RequiredArgsConstructor
@@ -82,10 +80,70 @@ public class UserMapper {
 
     public ShopDto toShopDto(UserEntity userEntity) {
         List<ProductEntity> products = productRepository.findAll(Specification.where(
-                        hasUserId(userEntity.getUserId()))
-                .and(isValid()));
+                        ProductSpecification.hasUserId(userEntity.getUserId()))
+                .and(ProductSpecification.isValid())
+                .and(ProductSpecification.isStatus(1)));
+
         List<OrderDetailEntity> orderDetails = orderDetailRepository.findAll(Specification.where(
-                OrderDetailSpecification.hasShop(userEntity.getUserId())));
+                OrderDetailSpecification.hasShop(userEntity.getUserId())
+                        .and(OrderDetailSpecification.isValid())));
+
+        Map<ProductEntity, Long> productQuantities = orderDetails.stream()
+                .filter(orderDetail -> products.contains(orderDetail.getSkuEntity().getProduct()))
+                .collect(Collectors.groupingBy(
+                        orderDetail -> orderDetail.getSkuEntity().getProduct(),
+                        Collectors.summingLong(OrderDetailEntity::getQuantity)
+                ));
+
+        double totalWeightedRating = 0.0;
+        long totalSoldQuantity = 0;
+        for (ProductEntity product : products) {
+            long productSoldQuantity = productQuantities.getOrDefault(product, 0L);
+            if (productSoldQuantity > 0) {
+                double productWeightedRating = product.getFeedbacks().stream()
+                        .mapToDouble(feedback -> feedback.getRate() * productSoldQuantity)
+                        .sum();
+                totalWeightedRating += productWeightedRating;
+                totalSoldQuantity += productSoldQuantity;
+            }
+        }
+
+        double averageRating = totalSoldQuantity > 0
+                ? totalWeightedRating / totalSoldQuantity
+                : 0.0;
+
+        LocalDateTime createdTime = userEntity.getTime_created_shop();
+        Duration duration = createdTime != null
+                ? Duration.between(createdTime, LocalDateTime.now())
+                : Duration.ZERO;
+
+        return ShopDto.builder()
+                .shopId(userEntity.getUserId())
+                .shopName(userEntity.getShop_name())
+                .shopAddress(String.join(", ", addressService.findAddressNamesFromParentId(
+                        Long.parseLong(String.valueOf(userEntity.getAddress_id_shop())))))
+                .shopAddressDetail(userEntity.getShop_address_detail())
+                .feedbackCount(products.stream()
+                        .mapToLong(product -> product.getFeedbacks().size())
+                        .sum())
+                .productCount((long) products.size())
+                .joined(duration.toDays())
+                .profilePicture(userEntity.getProfilePicture())
+                .rating(Math.round(averageRating * 100.0) / 100.0)
+                .sold(totalSoldQuantity)
+                .build();
+    }
+
+
+/*
+    public ShopDto toShopDto(UserEntity userEntity) {
+        List<ProductEntity> products = productRepository.findAll(Specification.where(
+                        hasUserId(userEntity.getUserId()))
+                .and(isValid())
+                .and(isStatus(1)));
+        List<OrderDetailEntity> orderDetails = orderDetailRepository.findAll(Specification.where(
+                OrderDetailSpecification.hasShop(userEntity.getUserId())
+                        .and(OrderDetailSpecification.isValid())));
         Map<ProductEntity, Long> productQuantities = orderDetails.stream()
                 .collect(Collectors.groupingBy(
                         orderDetail -> orderDetail.getSkuEntity().getProduct(),
@@ -126,6 +184,7 @@ public class UserMapper {
                 .sold(totalSoldQuantity)
                 .build();
     }
+*/
 
     public UserFeedBackDto toUserFeedBackDto(UserEntity userEntity) {
         return UserFeedBackDto.builder()

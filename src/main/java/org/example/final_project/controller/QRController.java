@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import static org.example.final_project.dto.ApiResponse.createResponse;
+
 @RestController
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -25,9 +27,21 @@ public class QRController {
     @PostMapping("/scan")
     public ResponseEntity<?> scanQRCode(@RequestParam("file") MultipartFile file) {
         try {
-            return ResponseEntity.ok(qrService.getUserInfo(file));
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    createResponse(
+                            HttpStatus.OK,
+                            "ID Scanned",
+                            qrService.getUserInfo(file)
+                    )
+            );
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("căn cước không hợp lệ ");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    createResponse(
+                            HttpStatus.BAD_REQUEST,
+                            "Invalid ID",
+                            null
+                    )
+            );
         }
     }
 }

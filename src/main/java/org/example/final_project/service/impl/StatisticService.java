@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -384,6 +385,9 @@ public class StatisticService implements IStatisticService {
     private List<ShopDto> getTopSellerShops() {
         return userRepository.findAll(Specification.where(UserSpecification.sortedBySoldProductRatingRatio()), PageRequest.of(0, 10)).stream()
                 .map(userMapper::toShopDto)
+                .filter(shopDto -> shopDto.getRating() > 0)
+                .sorted(Comparator.comparing(ShopDto::getRating).reversed())
                 .toList();
+
     }
 }
