@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test WebSocket Interface</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+  <script>
+    let stompClient = null;
+
+    function connect() {
+      const socket = new SockJS('/ws');
+      stompClient = Stomp.over(socket);
+
+      stompClient.connect({}, onConnected, onError)
+    }
+
+    function onConnected() {
+      console.log('Connected to WebSocket');
+    }
+
+    function onError(error) {
+      console.error('Could not connect to WebSocket server. Please refresh and try again!', error);
+      document.getElementById('response').innerText = 'Connection failed. Please try again later.';
+    }
+
+    function sendMessage() {
+      const orderId = document.getElementById('orderId').value;
+      const shopId = document.getElementById('shopId').value;
+      const status = document.getElementById('status').value;
+      const userId = document.getElementById('userId').value;
+
+
+      if (orderId && shopId && status) {
+        const message = {
+          orderId: parseInt(orderId),
+          shopId: parseInt(shopId),
+          status: parseInt(status),
+          userId:parseInt(userId)
+        };
+
+        stompClient.send("/app/changeStatusShipping", {}, JSON.stringify(message));
+        console.log('Message sent:', message);
+      } else {
+        alert('Please fill in all fields before sending the message.');
+      }
+    }
+
+    window.onload = connect;
+  </script>
+</head>
+<body>
+<h1>Test WebSocket Interface</h1>
+
+<div>
+  <label for="orderId">Order ID:</label>
+  <input type="text" id="orderId" placeholder="Enter order ID">
+  <br>
+  <label for="status">Status:</label>
+  <input type="text" id="status" placeholder="Enter status">
+  <br>
+  <label for="shopId">Shop ID:</label>
+  <input type="text" id="shopId" placeholder="Enter shop ID">
+  <br>
+  <label for="userId">UserId ID:</label>
+  <input type="text" id="userId" placeholder="Enter user ID">
+  <br>
+  <button onclick="sendMessage()">Send</button>
+</div>
+
+</body>
+</html>

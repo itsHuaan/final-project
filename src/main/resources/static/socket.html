@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receive Information</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+<body>
+<h1>Received Information</h1>
+<input type="text" id="userId" placeholder="Enter User ID">
+<table id="response">
+    <thead>
+    <tr>
+        <th>Order ID</th>
+        <th>Shop ID</th>
+        <th>Status</th>
+        <th>UserId</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- Messages will be added here dynamically -->
+    </tbody>
+</table>
+</body>
+    <script>
+        let stompClient = null;
+
+        function connect() {
+            const socket = new SockJS('/ws');
+            stompClient = Stomp.over(socket);
+            stompClient.connect({}, onConnected, onError);
+        }
+
+        function onConnected() {
+            stompClient.subscribe('/user/sent', function (payload) {
+                const mess = JSON.parse(payload.body)
+                displayReceivedMessage(mess);
+            });
+            console.log('Connected to WebSocket');
+        }
+
+        function onError(error) {
+            console.error('WebSocket connection failed', error);
+        }
+
+        function displayReceivedMessage(message) {
+            console.log('Received message:', message);
+            const userId = document.getElementById('userId').value;
+
+            console.log('Received message:', message);
+            let userid = parseInt(message.userId);
+
+            let id = parseInt(userId);
+
+
+            if(userid === id){
+                const responseBody = document.querySelector('#response tbody');
+                const row = `
+        <tr>
+          <td>${message.orderId}</td>
+          <td>${message.shopId}</td>
+          <td>${message.status}</td>
+          <td>${message.userId}</td>
+        </tr>`;
+                responseBody.innerHTML += row;
+            }
+        }
+
+        window.onload = connect;
+    </script>
+</head>
+
+</html>
