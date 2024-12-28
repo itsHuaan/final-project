@@ -75,6 +75,7 @@ public class OrderService implements IOrderService {
             emailService.sendOrderToEmail(orderModel, request);
             long id = orderRepository.findIdByOrderCode(vnp_TxnRef);
             List<OrderDetailEntity> orderDetailEntity = orderDetailRepository.findByOrderId(id);
+            orderDetailEntity.forEach(orderDetail -> cartItemRepository.deleteByCartId(orderDetail.getCartDetailId()));
             sentNotificationSuccessForShop(orderEntity, orderDetailEntity);
             return "Order Complete";
         }
@@ -225,10 +226,10 @@ public class OrderService implements IOrderService {
             if (skuEntity == null) {
                 throw new IllegalArgumentException("Not found Sku");
             }
-
+            SKUDto skuDto = skuMapper.convertToDto(skuEntity);
             String vnd = formatCurrency(total);
             NotificationEntity notificationEntity = NotificationEntity.builder()
-                    .image(skuEntity.getImage())
+                    .image(skuDto.getImage())
                     .title("Đơn hàng mới vừa được tạo ")
                     .content("Đơn hàng " + orderEntity.getOrderCode() + " vừa được tạo đặt với số tiền " + vnd + " VNĐ .")
                     .shopId(cartItemRequest1.getShopId())
