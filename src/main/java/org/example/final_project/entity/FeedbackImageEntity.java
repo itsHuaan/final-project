@@ -18,7 +18,6 @@ public class FeedbackImageEntity {
     private long id;
     @Column(name="image_link")
     private String imageLink;
-    private LocalDateTime deletedAt;
     @ManyToOne
     @JoinColumn(name="feedback_id")
     private FeedbackEntity feedback;

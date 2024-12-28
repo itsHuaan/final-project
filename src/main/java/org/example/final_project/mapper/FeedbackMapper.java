@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 @Component
@@ -54,6 +55,7 @@ public class FeedbackMapper {
                 .product(product)
                 .user(user)
                 .createdAt(LocalDateTime.now())
+                .feedbackImages(new ArrayList<>())
                 .build();
     }
 }

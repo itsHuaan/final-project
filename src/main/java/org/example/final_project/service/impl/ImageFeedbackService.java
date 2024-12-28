@@ -38,7 +38,9 @@ public class ImageFeedbackService implements IImageFeedbackService {
     public int save(FeedbackImageModel feedbackImageModel) {
         try {
             FeedbackImageEntity image = imageMapper.convertToEntity(feedbackImageModel);
-            image.setFeedback(FeedbackEntity.builder().id(feedbackImageModel.getFeedbackId()).build());
+            image.setFeedback(FeedbackEntity.builder()
+                    .id(feedbackImageModel.getFeedbackId())
+                    .build());
             iImageFeedBackRepository.save(image);
             return 1;
         } catch (Exception e) {

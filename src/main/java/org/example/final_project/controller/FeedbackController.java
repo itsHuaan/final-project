@@ -35,6 +35,14 @@ public class FeedbackController {
                             null
                     )
             );
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    createResponse(
+                            HttpStatus.BAD_REQUEST,
+                            e.getMessage(),
+                            null
+                    )
+            );
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                     createResponse(
