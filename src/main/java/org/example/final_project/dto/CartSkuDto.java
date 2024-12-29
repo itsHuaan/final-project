@@ -10,8 +10,8 @@ import lombok.*;
 public class CartSkuDto {
     private long itemId;
     private ProductFamilyDto productFamily;
-    private ProductOptionValueDto value1;
-    private ProductOptionValueDto value2;
+    private ProductOptionDto option1;
+    private ProductOptionDto option2;
     private double price;
     private double discountedPrice;
     private long quantity;
