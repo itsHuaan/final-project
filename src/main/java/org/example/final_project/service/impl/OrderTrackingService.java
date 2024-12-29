@@ -37,8 +37,13 @@ public class OrderTrackingService implements IOrderTrackingService {
         notificationForUser(messageDto);
         if (orderTrackingEntity.isPresent()) {
             OrderTrackingEntity orderTrackingEntity1 = orderTrackingEntity.get();
-            if (messageDto.getStatus() == ShippingStatus.COMPLETED.getValue()) {
+            if(messageDto.getStatus() == ShippingStatus.DELIVERED.getValue()){
                 orderTrackingEntity1.setPaidDate(LocalDateTime.now());
+            }
+            if (messageDto.getStatus() == ShippingStatus.COMPLETED.getValue()) {
+                orderTrackingEntity1.setStatus(messageDto.getStatus());
+                orderTrackingEntity1.setNote(messageDto.getNote());
+                orderTrackingRepository.save(orderTrackingEntity1);
                 Optional<OrderEntity> optionalOrderEntity = orderRepository.findById(messageDto.getOrderId());
                 if (optionalOrderEntity.isPresent() && checkPaidDate(messageDto.getOrderId()) == 1) {
                     OrderEntity orderEntity = optionalOrderEntity.get();
@@ -52,12 +57,27 @@ public class OrderTrackingService implements IOrderTrackingService {
                     .createdChangeStatus(LocalDateTime.now())
                     .build();
             iHistoryStatusShippingRepository.save(historyStatusShippingEntity);
-            orderTrackingEntity1.setStatus(messageDto.getStatus());
-            orderTrackingEntity1.setNote(messageDto.getNote());
-            orderTrackingRepository.save(orderTrackingEntity1);
             return 1;
         }
         return 0;
+    }
+
+    public void timeSet(OrderTrackingEntity orderTrackingEntity){
+        if(orderTrackingEntity.getStatus() == 6 && orderTrackingEntity.getPaidDate() != null){
+            LocalDateTime paidDatePlusOneDay = orderTrackingEntity.getPaidDate().plusDays(1);
+            LocalDateTime now = LocalDateTime.now();
+
+            if(now.isEqual(paidDatePlusOneDay) || now.isAfter(paidDatePlusOneDay)){
+                orderTrackingEntity.setStatus(ShippingStatus.COMPLETED.getValue());
+                orderTrackingRepository.save(orderTrackingEntity);
+                Optional<OrderEntity> optionalOrderEntity = orderRepository.findById(orderTrackingEntity.getOrder().getId());
+                if (optionalOrderEntity.isPresent()) {
+                    OrderEntity orderEntity = optionalOrderEntity.get();
+                    orderEntity.setStatusCheckout(CheckoutStatus.COMPLETED.getValue());
+                    orderRepository.save(orderEntity);
+                }
+            }
+        }
     }
 
 
@@ -66,10 +86,9 @@ public class OrderTrackingService implements IOrderTrackingService {
                 .stream()
                 .anyMatch(orderTrackingEntity -> orderTrackingEntity.getStatus() == ShippingStatus.COMPLETED.getValue());
         return isCompleted ? 1 : 0;
-    }
+    };
 
 
-    ;
 
 
     public void notificationForUser(StatusMessageDto statusMessageDto) {
@@ -121,7 +140,7 @@ public class OrderTrackingService implements IOrderTrackingService {
             notificationModel.setContent(content);
             saveNotification(statusMessageDto, notificationModel);
         }
-        if (statusMessageDto.getStatus() == ShippingStatus.PAID.getValue()) {
+        if (statusMessageDto.getStatus() == ShippingStatus.DELIVERED.getValue()) {
             title = "Xác nhận đã nhận hàng";
             content = "Vui lòng chỉ ấn 'Đã nhận được hàng' khi đơn hàng" + OrderCode + "đã được giao đến bạn và sản phẩm không có vấn đề nào";
             notificationModel.setTitle(title);
@@ -129,6 +148,10 @@ public class OrderTrackingService implements IOrderTrackingService {
             saveNotification(statusMessageDto, notificationModel);
         }
     }
+
+
+
+
 
     public void saveNotification(StatusMessageDto statusMessageDto, NotificationModel notificationModel) {
         NotificationEntity notificationEntity = NotificationEntity.builder()

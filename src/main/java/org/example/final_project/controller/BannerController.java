@@ -30,8 +30,8 @@ public class BannerController {
 
     @PostMapping("")
     public ResponseEntity<String> createBanner(BannerModel bannerModel) throws IOException {
-        return ResponseEntity.status(HttpStatus.OK).body(bannerService.createBanner(bannerModel) == 1 ? "đã thêm " : "chưa thêm");
-    }
+           return ResponseEntity.status(HttpStatus.OK).body(bannerService.createBanner(bannerModel) == 1 ? "đã thêm " : "chưa thêm");
+ }
 
     @GetMapping("")
     public ResponseEntity<?> getBanner(@RequestParam(required = false) Integer page, @RequestParam(required = false) Integer size) {
