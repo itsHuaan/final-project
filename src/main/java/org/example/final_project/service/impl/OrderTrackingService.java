@@ -88,11 +88,15 @@ public class OrderTrackingService implements IOrderTrackingService {
 
 
     public int checkPaidDate(Long orderId) {
-        boolean isCompleted = orderTrackingRepository.listOrderTracking(orderId)
-                .stream()
-                .anyMatch(orderTrackingEntity -> orderTrackingEntity.getStatus() == ShippingStatus.COMPLETED.getValue());
-        return isCompleted ? 1 : 0;
-    };
+        List<OrderTrackingEntity> orderTrackingEntities = orderTrackingRepository.listOrderTracking(orderId);
+        for (OrderTrackingEntity orderTrackingEntity : orderTrackingEntities) {
+            if (orderTrackingEntity.getStatus() != ShippingStatus.COMPLETED.getValue()) {
+                return 0;
+            }
+        }
+        return 1;
+    }
+
 
 
 
