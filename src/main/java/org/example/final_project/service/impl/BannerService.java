@@ -30,12 +30,18 @@ public class BannerService implements IBannerService {
     IBannerRepository bannerRepository;
 
     @Override
-    public int createBanner(BannerModel bannerModel) throws IOException {
+    public ApiResponse<?> createBanner(BannerModel bannerModel) throws IOException {
+        if (bannerModel.getImage() == null || bannerModel.getImage().isEmpty()) {
+            return ApiResponse.createResponse(HttpStatus.NOT_FOUND, "Image is null", null);
+        }
+        if (!bannerModel.getCreateStart().isBefore(bannerModel.getCreateEnd())) {
+            return ApiResponse.createResponse(HttpStatus.BAD_REQUEST, "Start date must be before end date", null);
+        }
         String image = mediaUploadService.uploadOneImage(bannerModel.getImage());
         BannerEntity bannerEntity = BannerMapper.toBannerEntity(bannerModel);
         bannerEntity.setImage(image);
         bannerRepository.save(bannerEntity);
-        return 1;
+        return ApiResponse.createResponse(HttpStatus.OK, "Banner created", null);
     }
 
     @Override

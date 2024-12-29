@@ -26,9 +26,9 @@ public class BannerController {
     IBannerService bannerService;
 
     @PostMapping
-    public ResponseEntity<String> createBanner(BannerModel bannerModel) {
+    public ResponseEntity<?> createBanner(BannerModel bannerModel) {
         try {
-            return ResponseEntity.status(HttpStatus.OK).body(bannerService.createBanner(bannerModel) == 1 ? "đã thêm " : "chưa thêm");
+            return ResponseEntity.status(HttpStatus.OK).body(bannerService.createBanner(bannerModel));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("không thể thêm ảnh ");
         }
