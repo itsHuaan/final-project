@@ -19,5 +19,7 @@ public interface IBannerService {
 
     List<BannerDto> getBannerByShopId(Long shopId);
 
+    ApiResponse<?> deleteBanner(Long bannerId);
+
 
 }

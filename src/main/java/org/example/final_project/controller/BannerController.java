@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.example.final_project.dto.ApiResponse;
 import org.example.final_project.dto.BannerDto;
 import org.example.final_project.model.BannerModel;
 import org.example.final_project.service.IBannerService;
@@ -26,12 +27,9 @@ public class BannerController {
     IBannerService bannerService;
 
     @PostMapping
-    public ResponseEntity<?> createBanner(BannerModel bannerModel) {
-        try {
-            return ResponseEntity.status(HttpStatus.OK).body(bannerService.createBanner(bannerModel));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("không thể thêm ảnh ");
-        }
+    public ResponseEntity<?> createBanner(BannerModel bannerModel) throws Exception {
+        return ResponseEntity.status(HttpStatus.OK).body(bannerService.createBanner(bannerModel));
+
     }
 
     @GetMapping
@@ -50,6 +48,10 @@ public class BannerController {
         return ResponseEntity.status(HttpStatus.OK).body(bannerService.getBannerByShopId(shopId));
     }
 
+    @DeleteMapping("/{bannerId}")
+    public ApiResponse<?> deleteBanner(@PathVariable Long bannerId) {
+        return bannerService.deleteBanner(bannerId);
+    }
 
     @GetMapping("/active")
     public ResponseEntity<?> getBannerIsActive() {

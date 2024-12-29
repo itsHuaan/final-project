@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -32,17 +33,30 @@ public class BannerService implements IBannerService {
     @Override
     public ApiResponse<?> createBanner(BannerModel bannerModel) throws IOException {
         if (bannerModel.getImage() == null || bannerModel.getImage().isEmpty()) {
-            return ApiResponse.createResponse(HttpStatus.NOT_FOUND, "Image is null", null);
+            return ApiResponse.createResponse(HttpStatus.NOT_FOUND, "Image is null or empty", null);
         }
-        if (!bannerModel.getCreateStart().isBefore(bannerModel.getCreateEnd())) {
-            return ApiResponse.createResponse(HttpStatus.BAD_REQUEST, "Start date must be before end date", null);
+
+        try {
+            String image = mediaUploadService.uploadOneImage(bannerModel.getImage());
+
+            if (bannerModel.getCreateStart() == null || bannerModel.getCreateEnd() == null) {
+                return ApiResponse.createResponse(HttpStatus.BAD_REQUEST, "Create start or end time is null", null);
+            }
+
+            if (bannerModel.getCreateStart().isAfter(bannerModel.getCreateEnd())) {
+                return ApiResponse.createResponse(HttpStatus.BAD_REQUEST, "Create start time must be before create end time", null);
+            }
+
+            BannerEntity bannerEntity = BannerMapper.toBannerEntity(bannerModel);
+            bannerEntity.setImage(image);
+            bannerRepository.save(bannerEntity);
+
+            return ApiResponse.createResponse(HttpStatus.OK, "Banner created", null);
+        } catch (Exception e) {
+            return ApiResponse.createResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Error uploading image or saving banner", null);
         }
-        String image = mediaUploadService.uploadOneImage(bannerModel.getImage());
-        BannerEntity bannerEntity = BannerMapper.toBannerEntity(bannerModel);
-        bannerEntity.setImage(image);
-        bannerRepository.save(bannerEntity);
-        return ApiResponse.createResponse(HttpStatus.OK, "Banner created", null);
     }
+
 
     @Override
     public ApiResponse<?> getAllBanners(Pageable pageable) {
@@ -101,4 +115,21 @@ public class BannerService implements IBannerService {
         list.forEach(banner -> banner.setIsActive(StatusBanner.ExpiredBanner.getBanner()));
         bannerRepository.saveAll(list);
     }
+
+    @Override
+    public ApiResponse<?> deleteBanner(Long bannerId) {
+        try {
+            Optional<BannerEntity> bannerEntityOptional = bannerRepository.findById(bannerId);
+
+            if (bannerEntityOptional.isPresent()) {
+                bannerRepository.delete(bannerEntityOptional.get());
+                return ApiResponse.createResponse(HttpStatus.OK, "Banner deleted successfully", null);
+            } else {
+                return ApiResponse.createResponse(HttpStatus.NOT_FOUND, "Banner not found", null);
+            }
+        } catch (Exception e) {
+            return ApiResponse.createResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred while deleting the banner", null);
+        }
+    }
+
 }
