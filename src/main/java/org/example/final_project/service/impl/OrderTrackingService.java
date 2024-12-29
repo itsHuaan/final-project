@@ -37,20 +37,24 @@ public class OrderTrackingService implements IOrderTrackingService {
         notificationForUser(messageDto);
         if (orderTrackingEntity.isPresent()) {
             OrderTrackingEntity orderTrackingEntity1 = orderTrackingEntity.get();
+
+            int status = messageDto.getStatus();
             if(messageDto.getStatus() == ShippingStatus.DELIVERED.getValue()){
                 orderTrackingEntity1.setPaidDate(LocalDateTime.now());
             }
             if (messageDto.getStatus() == ShippingStatus.COMPLETED.getValue()) {
-                orderTrackingEntity1.setStatus(messageDto.getStatus());
+                status = ShippingStatus.COMPLETED.getValue();
                 orderTrackingEntity1.setNote(messageDto.getNote());
-                orderTrackingRepository.save(orderTrackingEntity1);
+
+            }
+            orderTrackingEntity1.setStatus(status);
+            orderTrackingRepository.save(orderTrackingEntity1);
                 Optional<OrderEntity> optionalOrderEntity = orderRepository.findById(messageDto.getOrderId());
                 if (optionalOrderEntity.isPresent() && checkPaidDate(messageDto.getOrderId()) == 1) {
                     OrderEntity orderEntity = optionalOrderEntity.get();
                     orderEntity.setStatusCheckout(CheckoutStatus.COMPLETED.getValue());
                     orderRepository.save(orderEntity);
                 }
-            }
             HistoryStatusShippingEntity historyStatusShippingEntity = HistoryStatusShippingEntity.builder()
                     .orderTracking(orderTrackingEntity1)
                     .status(messageDto.getStatus())
@@ -67,16 +71,18 @@ public class OrderTrackingService implements IOrderTrackingService {
             LocalDateTime paidDatePlusOneDay = orderTrackingEntity.getPaidDate().plusDays(1);
             LocalDateTime now = LocalDateTime.now();
 
-            if(now.isEqual(paidDatePlusOneDay) || now.isAfter(paidDatePlusOneDay)){
+            if(now.isEqual(paidDatePlusOneDay) || now.isAfter(paidDatePlusOneDay)) {
                 orderTrackingEntity.setStatus(ShippingStatus.COMPLETED.getValue());
-                orderTrackingRepository.save(orderTrackingEntity);
+
+            }
+            orderTrackingRepository.save(orderTrackingEntity);
                 Optional<OrderEntity> optionalOrderEntity = orderRepository.findById(orderTrackingEntity.getOrder().getId());
                 if (optionalOrderEntity.isPresent()) {
                     OrderEntity orderEntity = optionalOrderEntity.get();
                     orderEntity.setStatusCheckout(CheckoutStatus.COMPLETED.getValue());
                     orderRepository.save(orderEntity);
                 }
-            }
+
         }
     }
 
@@ -148,6 +154,7 @@ public class OrderTrackingService implements IOrderTrackingService {
             saveNotification(statusMessageDto, notificationModel);
         }
     }
+
 
 
     public void saveNotification(StatusMessageDto statusMessageDto, NotificationModel notificationModel) {
