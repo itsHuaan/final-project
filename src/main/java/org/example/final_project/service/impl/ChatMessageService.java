@@ -77,17 +77,19 @@ public class ChatMessageService implements IChatMessageService {
 
     @Override
     public Page<ChatMessageDto> getChatMessages(Long senderId, Long recipientId, Pageable pageable) {
-        var chatRoomId = chatRoomService.getChatRoomId(senderId, recipientId, false).orElseThrow(() -> new IllegalArgumentException("Can't find chat room"));
+        //<editor-fold desc="Old code">
+        /*var chatRoomId = chatRoomService.getChatRoomId(senderId, recipientId, false).orElseThrow(() -> new IllegalArgumentException("Can't find chat room"));
 
         List<ChatMessageEntity> newMessages = chatRepository.findAll(
-                Specification.where((hasChatId(chatRoomId).and(hasRecipientId(recipientId))).and(hasSeen(0)))
+                Specification.where((hasChatId(chatRoomId).and(hasRecipientId(recipientId))))
         );
         for (ChatMessageEntity chatMessageEntity : newMessages) {
             chatMessageEntity.setIsSeen(1);
         }
-        chatRepository.saveAll(newMessages);
-
-        return chatRoomService.getChatRoomId(senderId, recipientId, false)
+        chatRepository.saveAll(newMessages);*/
+        //</editor-fold>
+        //<editor-fold desc="Old code">
+        /*return chatRoomService.getChatRoomId(senderId, recipientId, false)
                 .map(chatId -> {
                     List<ChatMessageEntity> allMessages = chatRepository.findAll(Specification.where(hasChatId(chatId)));
                     List<ChatMessageDto> reversedList = allMessages.stream()
@@ -102,7 +104,12 @@ public class ChatMessageService implements IChatMessageService {
                     List<ChatMessageDto> pagedMessages = reversedList.subList(start, end);
                     return new PageImpl<>(pagedMessages, pageable, reversedList.size());
                 })
-                .orElse(new PageImpl<>(Collections.emptyList(), pageable, 0));
+                .orElse(new PageImpl<>(Collections.emptyList(), pageable, 0));*/
+        //</editor-fold>
+        return chatRoomService.getChatRoomId(senderId, recipientId, false)
+                .map(chatId -> chatRepository.findAllByChatIdOrderBySentAtDesc(chatId, pageable)
+                        .map(chatMessageMapper::toDto))
+                .orElseThrow(() -> new IllegalArgumentException("Can't find chat room"));
     }
 
 

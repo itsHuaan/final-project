@@ -67,10 +67,21 @@ public class ChatController {
                                              @RequestParam(defaultValue = "0") int page,
                                              @RequestParam(defaultValue = "20") int size) {
         Pageable pageable = PageableValidation.setDefault(size, page);
-        Page<ChatMessageDto> chatMessages = chatMessageService.getChatMessages(senderId, recipientId, pageable);
-        String apiMessage = !chatMessages.isEmpty() ? "Messages fetched" : "No messages fetched";
-        HttpStatus status = !chatMessages.isEmpty() ? HttpStatus.OK : HttpStatus.NO_CONTENT;
-        return ResponseEntity.status(HttpStatus.OK).body(
+        Page<ChatMessageDto> chatMessages;
+        String apiMessage;
+        HttpStatus status;
+
+        try {
+            chatMessages = chatMessageService.getChatMessages(senderId, recipientId, pageable);
+            apiMessage = !chatMessages.isEmpty() ? "Messages fetched" : "No messages fetched";
+            status = HttpStatus.OK;
+        } catch (IllegalArgumentException e){
+            chatMessages = null;
+            apiMessage = e.getMessage();
+            status = HttpStatus.BAD_REQUEST;
+        }
+
+        return ResponseEntity.status(status).body(
                 createResponse(
                         status,
                         apiMessage,
