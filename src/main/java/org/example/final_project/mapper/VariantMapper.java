@@ -7,21 +7,17 @@ import org.example.final_project.dto.CartSkuDto;
 import org.example.final_project.entity.ImageProductEntity;
 import org.example.final_project.entity.SKUEntity;
 import org.example.final_project.repository.IImageProductRepository;
-import org.example.final_project.repository.IProductOptionValueRepository;
 import org.example.final_project.service.IPromotionService;
 import org.springframework.stereotype.Component;
-
-import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class VariantMapper {
-    IProductOptionValueRepository valueRepository;
-    ProductOptionValueMapper valueMapper;
     ProductMapper productMapper;
     IPromotionService promotionService;
     IImageProductRepository imageProductRepository;
+    ProductOptionMapper productOptionMapper;
 
     public CartSkuDto toDto(SKUEntity entity) {
         double discountedPrice = promotionService.findAllPromotionByNow(entity.getProduct().getId()) != null
@@ -30,11 +26,11 @@ public class VariantMapper {
         ImageProductEntity imageProductEntity = imageProductRepository.findAllByProductEntity_Id(entity.getProduct().getId()).get(0);
         return CartSkuDto.builder()
                 .itemId(entity.getId())
-                .value1(entity.getOption1() != null
-                        ? valueMapper.convertToDto(Objects.requireNonNull(valueRepository.findById(entity.getValue1().getId()).orElse(null)))
+                .option1(entity.getOption1() != null
+                        ? productOptionMapper.convertToDtoWithValue(entity.getOption1(), entity.getValue1())
                         : null)
-                .value2(entity.getOption2() != null
-                        ? valueMapper.convertToDto(Objects.requireNonNull(valueRepository.findById(entity.getValue2().getId()).orElse(null)))
+                .option2(entity.getOption2() != null
+                        ? productOptionMapper.convertToDtoWithValue(entity.getOption2(), entity.getValue2())
                         : null)
                 .productFamily(productMapper.toProductFamilyDto(entity.getProduct()))
                 .price(entity.getPrice())
