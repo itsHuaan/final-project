@@ -50,6 +50,7 @@ public class UserEntity {
     private String shop_address_detail;
     private LocalDateTime time_created_shop;
     private int address_id_shop;
+    private String cccd;
     @OneToMany(mappedBy = "user")
     private List<CategoryEntity> categories;
     @OneToMany(mappedBy = "user")
@@ -67,6 +68,6 @@ public class UserEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FavoriteProductEntity> favorites = new ArrayList<>();
 
-    
+
 }
 

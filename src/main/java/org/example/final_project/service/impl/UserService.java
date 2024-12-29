@@ -2,7 +2,6 @@ package org.example.final_project.service.impl;
 
 import com.cloudinary.api.exceptions.BadRequest;
 import com.cloudinary.api.exceptions.NotFound;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -12,10 +11,8 @@ import org.example.final_project.configuration.cloudinary.MediaUploadService;
 import org.example.final_project.dto.ApiResponse;
 import org.example.final_project.dto.ChatUserDto;
 import org.example.final_project.dto.UserDto;
-import org.example.final_project.entity.AddressEntity;
 import org.example.final_project.entity.RoleEntity;
 import org.example.final_project.entity.UserEntity;
-import org.example.final_project.entity.UserShippingAddressEntity;
 import org.example.final_project.enumeration.ShopStatus;
 import org.example.final_project.mapper.UserMapper;
 import org.example.final_project.model.*;
@@ -25,7 +22,6 @@ import org.example.final_project.repository.IShippingAddressRepository;
 import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.IAddressService;
 import org.example.final_project.service.IUserService;
-import org.example.final_project.specification.ShippingAddressSpecification;
 import org.example.final_project.specification.UserSpecification;
 import org.example.final_project.util.EmailTemplate;
 import org.springframework.data.domain.Page;
@@ -225,39 +221,53 @@ public class UserService implements IUserService, UserDetailsService {
         return userRepository.findAll(spec, pageable).map(userMapper::toDto);
     }
 
+    public int checkCccd(ShopRegisterRequest request) {
+        if (userRepository.existsByCccd(request.getCccd())) {
+            return 1;
+        }
+        return 0;
+    }
+
     @Override
     public ApiResponse<?> registerForBeingShop(ShopRegisterRequest request) throws Exception {
         Optional<UserEntity> optionalUserEntity = userRepository.findById(request.getUserId());
         long shopAddressId = request.getShop_address();
-
-
-        if (optionalUserEntity.isPresent() || !addressRepository.existsById(shopAddressId)) {
-            UserEntity userEntity = userRepository.findById(request.getUserId()).get();
-            if (userRepository.existsByShopName(request.getShop_name())) {
-                return createResponse(HttpStatus.CONFLICT, "Shop Name Existed", null);
-            }
-            if (userEntity.getShop_status() == 0) {
-                String id_back = mediaUploadService.uploadOneImage(request.getId_back());
-                userEntity.setId_back(id_back);
-                String id_front = mediaUploadService.uploadOneImage(request.getId_front());
-                userEntity.setId_front(id_front);
-                userEntity.setShop_name(request.getShop_name());
-                userEntity.setTax_code(request.getTax_code());
-                userEntity.setAddress_id_shop(request.getShop_address());
-                userEntity.setShop_address_detail(request.getShop_address_detail());
-                userEntity.setPhone(request.getPhone());
-                userEntity.setTime_created_shop(LocalDateTime.now());
-                userEntity.setShop_status(ShopStatus.PENDING.getValue());
-                userRepository.save(userEntity);
-                return createResponse(HttpStatus.OK, "Wait for confirm ", null);
-            } else if (userEntity.getShop_status() == 1) {
-                return createResponse(HttpStatus.CONFLICT, "User register Shop", null);
-            } else if (userEntity.getShop_status() == 2) {
-                return createResponse(HttpStatus.CONFLICT, "Shop is Waiting", null);
-            } else if (userEntity.getShop_status() == 3) {
-                return createResponse(HttpStatus.CONFLICT, "Shop is Refusing", null);
-            } else if (userEntity.getShop_status() == 4) {
-                return createResponse(HttpStatus.CONFLICT, "Shop Locked", null);
+        int result = checkCccd(request);
+        if (result == 1) {
+            return createResponse(HttpStatus.CONFLICT, "CCCD Is exists", null);
+        } else {
+            if (optionalUserEntity.isPresent() || !addressRepository.existsById(shopAddressId)) {
+                UserEntity userEntity = userRepository.findById(request.getUserId()).orElse(null);
+                if (userEntity == null) {
+                    throw new UsernameNotFoundException("User not found");
+                }
+                if (userRepository.existsByShopName(request.getShop_name())) {
+                    return createResponse(HttpStatus.CONFLICT, "Shop Name Existed", null);
+                }
+                if (userEntity.getShop_status() == 0) {
+                    String id_back = mediaUploadService.uploadOneImage(request.getId_back());
+                    userEntity.setId_back(id_back);
+                    String id_front = mediaUploadService.uploadOneImage(request.getId_front());
+                    userEntity.setId_front(id_front);
+                    userEntity.setCccd(request.getCccd());
+                    userEntity.setShop_name(request.getShop_name());
+                    userEntity.setTax_code(request.getTax_code());
+                    userEntity.setAddress_id_shop(request.getShop_address());
+                    userEntity.setShop_address_detail(request.getShop_address_detail());
+                    userEntity.setPhone(request.getPhone());
+                    userEntity.setTime_created_shop(LocalDateTime.now());
+                    userEntity.setShop_status(ShopStatus.PENDING.getValue());
+                    userRepository.save(userEntity);
+                    return createResponse(HttpStatus.OK, "Wait for confirm ", null);
+                } else if (userEntity.getShop_status() == 1) {
+                    return createResponse(HttpStatus.CONFLICT, "User register Shop", null);
+                } else if (userEntity.getShop_status() == 2) {
+                    return createResponse(HttpStatus.CONFLICT, "Shop is Waiting", null);
+                } else if (userEntity.getShop_status() == 3) {
+                    return createResponse(HttpStatus.CONFLICT, "Shop is Refusing", null);
+                } else if (userEntity.getShop_status() == 4) {
+                    return createResponse(HttpStatus.CONFLICT, "Shop Locked", null);
+                }
             }
         }
         throw new NotFound("Not found User");

@@ -18,5 +18,6 @@ public class ShopRegisterRequest {
     private int shop_address;
     private String shop_address_detail;
     private String phone;
+    private String cccd;
 
 }
