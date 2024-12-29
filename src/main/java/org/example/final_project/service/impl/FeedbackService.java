@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.final_project.configuration.cloudinary.MediaUploadService;
 import org.example.final_project.dto.FeedbackDto;
 import org.example.final_project.entity.FeedbackEntity;
-import org.example.final_project.entity.FeedbackImageEntity;
 import org.example.final_project.mapper.FeedbackMapper;
 import org.example.final_project.model.FeedbackModel;
 import org.example.final_project.repository.IFeedbackRepository;
@@ -15,9 +14,7 @@ import org.example.final_project.service.IFeedbackService;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -49,19 +46,6 @@ public class FeedbackService implements IFeedbackService {
     @Override
     public int save(FeedbackModel feedbackModel) {
         FeedbackEntity feedback = feedbackMapper.convertToEntity(feedbackModel);
-        if (feedbackModel.getFiles() != null) {
-            for (MultipartFile image : feedbackModel.getFiles()) {
-                try {
-                    FeedbackImageEntity feedbackImage = new FeedbackImageEntity();
-                    feedbackImage.setImageLink(mediaUploadService.uploadSingleMediaFile(image));
-                    feedbackImage.setFeedback(feedback);
-                    feedback.getFeedbackImages().add(feedbackImage);
-                } catch (IOException e) {
-                    log.error("Error occurred while uploading image", e);
-                    throw new RuntimeException("Image upload failed", e);
-                }
-            }
-        }
         feedbackRepository.save(feedback);
         return 1;
     }
