@@ -48,10 +48,9 @@ public class BannerService implements IBannerService {
 
 
     @Override
-    public int choseImage(ImageActive imageActive) {
-        Long id = imageActive.getBannerId();
+    public int choseImage( Long bannerId) {
 
-        BannerEntity bannerEntity = bannerRepository.findById(id).orElseThrow(() ->
+        BannerEntity bannerEntity = bannerRepository.findById(bannerId).orElseThrow(() ->
                 new IllegalArgumentException("Banner not found")
         );
 

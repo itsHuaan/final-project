@@ -28,6 +28,7 @@ public interface IBannerRepository extends JpaRepository<BannerEntity, Long> {
     List<BannerEntity> findExpiredBanners(@Param("currentTime") LocalDateTime currentTime);
 
     @Query("select b from BannerEntity b where b.shopId = :shopId")
+
     List<BannerEntity> listBannerByShopId(@Param("shopId") Long shopId);
 
 

@@ -43,9 +43,9 @@ public class BannerController {
         return ResponseEntity.status(HttpStatus.OK).body(bannerService.getAllBanners(pageable));
     }
 
-    @PutMapping
-    public ResponseEntity<String> updateBanner(@RequestBody ImageActive imageActive) {
-        return ResponseEntity.status(HttpStatus.OK).body(bannerService.choseImage(imageActive) == 1 ? "đã chọn thành công " : "không thể chọn ");
+    @PutMapping("/{bannerId}")
+    public ResponseEntity<String> updateBanner(@PathVariable Long bannerId) {
+        return ResponseEntity.status(HttpStatus.OK).body(bannerService.choseImage(bannerId) == 1 ? "đã chọn thành công " : "không thể chọn ");
     }
 
     @GetMapping("/{shopId}")
