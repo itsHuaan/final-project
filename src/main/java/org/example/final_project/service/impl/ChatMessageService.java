@@ -86,10 +86,8 @@ public class ChatMessageService implements IChatMessageService {
         for (ChatMessageEntity chatMessageEntity : newMessages) {
             chatMessageEntity.setIsSeen(1);
         }
-        chatRepository.saveAll(newMessages);*/
-        //</editor-fold>
-        //<editor-fold desc="Old code">
-        /*return chatRoomService.getChatRoomId(senderId, recipientId, false)
+        chatRepository.saveAll(newMessages);
+        return chatRoomService.getChatRoomId(senderId, recipientId, false)
                 .map(chatId -> {
                     List<ChatMessageEntity> allMessages = chatRepository.findAll(Specification.where(hasChatId(chatId)));
                     List<ChatMessageDto> reversedList = allMessages.stream()
