@@ -77,7 +77,7 @@ public class BannerService implements IBannerService {
             List<BannerEntity> list = bannerRepository.findAllBanner();
 
             list.forEach(banner -> {
-                if (banner.getCreateEnd() != null && banner.getCreateEnd().isBefore(endDate)) {
+                if (banner.getCreateEnd() != null && banner.getCreateStart().isBefore(endDate)) {
                     banner.setIsActive(StatusBanner.OUTDATED.getBanner());
                 } else {
                     banner.setIsActive(0);
