@@ -29,8 +29,12 @@ public class BannerController {
     IBannerService bannerService;
 
     @PostMapping("")
-    public ResponseEntity<String> createBanner(BannerModel bannerModel) throws IOException {
-        return ResponseEntity.status(HttpStatus.OK).body(bannerService.createBanner(bannerModel) == 1 ? "đã thêm " : "chưa thêm");
+    public ResponseEntity<String> createBanner(BannerModel bannerModel) {
+        try{
+            return ResponseEntity.status(HttpStatus.OK).body(bannerService.createBanner(bannerModel) == 1 ? "đã thêm " : "chưa thêm");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("không thể thêm ảnh ");
+        }
     }
 
     @GetMapping("")
