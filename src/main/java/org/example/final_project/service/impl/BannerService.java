@@ -52,17 +52,22 @@ public class BannerService implements IBannerService {
                 new IllegalArgumentException("Banner not found")
         );
 
-        List<BannerEntity> list = bannerRepository.findAllBanner();
-        list.forEach(banner -> banner.setIsActive(0));
         LocalDateTime endDate = bannerEntity.getCreateEnd();
-        for (BannerEntity bannerEntity1 : list) {
-            if (bannerEntity1.getCreateEnd().isAfter(endDate)) {
-                bannerEntity1.setIsActive(StatusBanner.OUTDATED.getBanner());
+
+        List<BannerEntity> list = bannerRepository.findAllBanner();
+
+        list.forEach(banner -> {
+            if (banner.getCreateEnd().isBefore(endDate)) {
+                banner.setIsActive(StatusBanner.OUTDATED.getBanner());
+            } else {
+                banner.setIsActive(0);
             }
-        }
-        bannerRepository.saveAll(list);
+        });
         bannerEntity.setIsActive(StatusBanner.ACTIVE.getBanner());
+
+        bannerRepository.saveAll(list);
         bannerRepository.save(bannerEntity);
+
         return 1;
     }
 
