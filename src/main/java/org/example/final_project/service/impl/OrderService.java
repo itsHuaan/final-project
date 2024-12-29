@@ -5,6 +5,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.example.final_project.configuration.VnPay.PaymentService;
+import org.example.final_project.configuration.VnPay.VnPayUtil;
 import org.example.final_project.dto.*;
 import org.example.final_project.entity.*;
 import org.example.final_project.enumeration.CheckoutStatus;
@@ -50,6 +51,14 @@ public class OrderService implements IOrderService {
 
 
     @Override
+    public String checkOrderCode(String orderCode) {
+        if(orderRepository.existsByOrderCode(orderCode)) {
+            return VnPayUtil.getRandomNumber(8);
+        }
+        return orderCode;
+    }
+
+    @Override
     public String submitCheckout(OrderModel orderModel, HttpServletRequest request) throws Exception {
 //        int result = processCheckout(orderModel);
 //        if (result == 1) {
@@ -77,6 +86,7 @@ public class OrderService implements IOrderService {
             List<OrderDetailEntity> orderDetailEntity = orderDetailRepository.findByOrderId(id);
             orderDetailEntity.forEach(orderDetail -> cartItemRepository.deleteByCartId(orderDetail.getCartDetailId()));
             sentNotificationSuccessForShop(orderEntity, orderDetailEntity);
+            deleteQuantity(orderDetailEntity);
             return "Order Complete";
         }
     }
@@ -165,6 +175,16 @@ public class OrderService implements IOrderService {
             }
         }
     }
+    public void deleteQuantity(List<OrderDetailEntity> orderDetails){
+        orderDetails.forEach(orderDetail -> {
+            Optional<SKUEntity> skuEntityOpt = skuRepository.findById(orderDetail.getSkuEntity().getId());
+            if (skuEntityOpt.isPresent()) {
+                SKUEntity skuEntity = skuEntityOpt.get();
+                skuEntity.setQuantity(skuEntity.getQuantity() - orderDetail.getQuantity());
+                skuRepository.save(skuEntity);
+            }
+        });
+    }
 
     @Override
     public ApiResponse<?> getPaymentStatus(HttpServletRequest request) throws Exception {
@@ -181,15 +201,15 @@ public class OrderService implements IOrderService {
                 orderDetails.forEach(orderDetail -> cartItemRepository.deleteByCartId(orderDetail.getCartDetailId()));
                 order.setStatusCheckout(CheckoutStatus.COMPLETED.getValue());
                 sentNotificationSuccessForShop(order, orderDetails);
-
-                orderDetails.forEach(orderDetail -> {
-                    Optional<SKUEntity> skuEntityOpt = skuRepository.findById(orderDetail.getSkuEntity().getId());
-                    if (skuEntityOpt.isPresent()) {
-                        SKUEntity skuEntity = skuEntityOpt.get();
-                        skuEntity.setQuantity(skuEntity.getQuantity() - orderDetail.getQuantity());
-                        skuRepository.save(skuEntity);
-                    }
-                });
+                deleteQuantity(orderDetails);
+//                orderDetails.forEach(orderDetail -> {
+//                    Optional<SKUEntity> skuEntityOpt = skuRepository.findById(orderDetail.getSkuEntity().getId());
+//                    if (skuEntityOpt.isPresent()) {
+//                        SKUEntity skuEntity = skuEntityOpt.get();
+//                        skuEntity.setQuantity(skuEntity.getQuantity() - orderDetail.getQuantity());
+//                        skuRepository.save(skuEntity);
+//                    }
+//                });
 
                 OrderModel orderModel = new OrderModel();
                 orderModel.setUserId(order.getUser().getUserId());

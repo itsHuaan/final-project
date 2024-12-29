@@ -66,6 +66,7 @@ public class PaymentController {
             if (result == 0) {
                 request.setAttribute("amount", order.getAmount());
                 String tex = VnPayUtil.getRandomNumber(8);
+//                String orderCode = orderService.checkOrderCode(tex);
                 request.setAttribute("tex", tex);
                 if (order.getMethodCheckout().equalsIgnoreCase("vnpay")) {
                     String vnpayUrl = orderService.submitCheckout(order, request);
@@ -92,6 +93,7 @@ public class PaymentController {
                         + vnp_TxnRef + "&amount=" + amount);
             } else {
                 notifyShops(order);
+
                 return new ModelAndView("redirect:https://team03.cyvietnam.id.vn/en/checkoutsuccess?tex="
                         + vnp_TxnRef + "&amount=" + amount);
             }

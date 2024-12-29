@@ -25,4 +25,5 @@ public interface IOrderService {
     ApiResponse<?> getAllUserBoughtOfThisShop(long shopId, Integer page, Integer size);
 
     int checkQuatity(long skuId, long currentQuatity);
+    String checkOrderCode(String orderCode);
 }
