@@ -66,29 +66,35 @@ public class BannerService implements IBannerService {
 
 
     @Override
-    public int choseImage(Long bannerId) {
+    public ApiResponse<?> choseImage(Long bannerId) {
+        try {
+            BannerEntity bannerEntity = bannerRepository.findById(bannerId).orElseThrow(() ->
+                    new IllegalArgumentException("Banner not found")
+            );
 
-        BannerEntity bannerEntity = bannerRepository.findById(bannerId).orElseThrow(() ->
-                new IllegalArgumentException("Banner not found")
-        );
+            LocalDateTime endDate = bannerEntity.getCreateEnd();
 
-        LocalDateTime endDate = bannerEntity.getCreateEnd();
+            List<BannerEntity> list = bannerRepository.findAllBanner();
 
-        List<BannerEntity> list = bannerRepository.findAllBanner();
+            list.forEach(banner -> {
+                if (banner.getCreateEnd() != null && banner.getCreateEnd().isBefore(endDate)) {
+                    banner.setIsActive(StatusBanner.OUTDATED.getBanner());
+                } else {
+                    banner.setIsActive(0);
+                }
+            });
 
-        list.forEach(banner -> {
-            if (banner.getCreateEnd().isBefore(endDate)) {
-                banner.setIsActive(StatusBanner.OUTDATED.getBanner());
-            } else {
-                banner.setIsActive(0);
-            }
-        });
-        bannerEntity.setIsActive(StatusBanner.ACTIVE.getBanner());
+            bannerEntity.setIsActive(StatusBanner.ACTIVE.getBanner());
 
-        bannerRepository.saveAll(list);
-        bannerRepository.save(bannerEntity);
+            bannerRepository.saveAll(list);
+            bannerRepository.save(bannerEntity);
 
-        return 1;
+            return ApiResponse.createResponse(HttpStatus.OK, "Banner status updated successfully", null);
+        } catch (IllegalArgumentException e) {
+            return ApiResponse.createResponse(HttpStatus.NOT_FOUND, "Banner not found", null);
+        } catch (Exception e) {
+            return ApiResponse.createResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred while updating the banner status", null);
+        }
     }
 
 

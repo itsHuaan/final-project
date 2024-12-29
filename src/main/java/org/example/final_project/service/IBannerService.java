@@ -11,7 +11,7 @@ import java.util.List;
 public interface IBannerService {
     ApiResponse<?> createBanner(BannerModel bannerModel) throws IOException;
 
-    int choseImage(Long bannerId);
+    ApiResponse<?> choseImage(Long bannerId);
 
     ApiResponse<?> getAllBanners(Pageable pageable);
 

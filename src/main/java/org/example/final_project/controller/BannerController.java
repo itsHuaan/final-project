@@ -39,8 +39,8 @@ public class BannerController {
     }
 
     @PutMapping("/{bannerId}")
-    public ResponseEntity<String> updateBanner(@PathVariable Long bannerId) {
-        return ResponseEntity.status(HttpStatus.OK).body(bannerService.choseImage(bannerId) == 1 ? "đã chọn thành công " : "không thể chọn ");
+    public ApiResponse<?> updateBanner(@PathVariable Long bannerId) {
+        return bannerService.choseImage(bannerId);
     }
 
     @GetMapping("/{shopId}")
