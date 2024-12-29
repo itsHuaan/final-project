@@ -33,37 +33,41 @@ public class OrderTrackingService implements IOrderTrackingService {
 
     @Override
     public int updateStatusShipping(StatusMessageDto messageDto) {
-        Optional<OrderTrackingEntity> orderTrackingEntity = orderTrackingRepository.findByOrderIdAndShopId(messageDto.getOrderId(), messageDto.getShopId());
-        notificationForUser(messageDto);
-        if (orderTrackingEntity.isPresent()) {
-            OrderTrackingEntity orderTrackingEntity1 = orderTrackingEntity.get();
+        if(messageDto.getStatus() == ShippingStatus.CANCELLED.getValue() ) {
+            cancel(messageDto);
+            return 0;
+        }else {
+            Optional<OrderTrackingEntity> orderTrackingEntity = orderTrackingRepository.findByOrderIdAndShopId(messageDto.getOrderId(), messageDto.getShopId());
+            notificationForUser(messageDto);
+            if (orderTrackingEntity.isPresent()) {
+                OrderTrackingEntity orderTrackingEntity1 = orderTrackingEntity.get();
 
-            int status = messageDto.getStatus();
-            if(messageDto.getStatus() == ShippingStatus.DELIVERED.getValue()){
-                orderTrackingEntity1.setPaidDate(LocalDateTime.now());
-            }
-            if (messageDto.getStatus() == ShippingStatus.COMPLETED.getValue()) {
-                status = ShippingStatus.COMPLETED.getValue();
-                orderTrackingEntity1.setNote(messageDto.getNote());
+                int status = messageDto.getStatus();
+                if(messageDto.getStatus() == ShippingStatus.DELIVERED.getValue()){
+                    orderTrackingEntity1.setPaidDate(LocalDateTime.now());
+                }
+                if (messageDto.getStatus() == ShippingStatus.COMPLETED.getValue()) {
+                    status = ShippingStatus.COMPLETED.getValue();
+                    orderTrackingEntity1.setNote(messageDto.getNote());
 
-            }
-            orderTrackingEntity1.setStatus(status);
-            orderTrackingRepository.save(orderTrackingEntity1);
+                }
+                orderTrackingEntity1.setStatus(status);
+                orderTrackingRepository.save(orderTrackingEntity1);
                 Optional<OrderEntity> optionalOrderEntity = orderRepository.findById(messageDto.getOrderId());
                 if (optionalOrderEntity.isPresent() && checkPaidDate(messageDto.getOrderId()) == 1) {
                     OrderEntity orderEntity = optionalOrderEntity.get();
                     orderEntity.setStatusCheckout(CheckoutStatus.COMPLETED.getValue());
                     orderRepository.save(orderEntity);
                 }
-            HistoryStatusShippingEntity historyStatusShippingEntity = HistoryStatusShippingEntity.builder()
-                    .orderTracking(orderTrackingEntity1)
-                    .status(messageDto.getStatus())
-                    .createdChangeStatus(LocalDateTime.now())
-                    .build();
-            iHistoryStatusShippingRepository.save(historyStatusShippingEntity);
+                HistoryStatusShippingEntity historyStatusShippingEntity = HistoryStatusShippingEntity.builder()
+                        .orderTracking(orderTrackingEntity1)
+                        .status(messageDto.getStatus())
+                        .createdChangeStatus(LocalDateTime.now())
+                        .build();
+                iHistoryStatusShippingRepository.save(historyStatusShippingEntity);
+            }
             return 1;
         }
-        return 0;
     }
 
     public void timeSet(OrderTrackingEntity orderTrackingEntity){
@@ -83,6 +87,23 @@ public class OrderTrackingService implements IOrderTrackingService {
                     orderRepository.save(orderEntity);
                 }
 
+        }
+    }
+
+    public void cancel(StatusMessageDto statusMessageDto){
+
+        if(statusMessageDto.getStatus() == ShippingStatus.CANCELLED.getValue()){
+            List<OrderTrackingEntity> orderTrackingEntities = orderTrackingRepository.listOrderTracking(statusMessageDto.getOrderId());
+            Optional<OrderEntity> optionalOrderEntity = orderRepository.findById(statusMessageDto.getOrderId());
+            if (optionalOrderEntity.isPresent()) {
+                OrderEntity orderEntity = optionalOrderEntity.get();
+                orderEntity.setStatusCheckout(CheckoutStatus.CANCELED.getValue());
+                orderRepository.save(orderEntity);
+                for (OrderTrackingEntity orderTrackingEntity : orderTrackingEntities) {
+                    orderTrackingEntity.setStatus(ShippingStatus.CANCELLED.getValue());
+                    orderTrackingRepository.save(orderTrackingEntity);
+                }
+            }
         }
     }
 

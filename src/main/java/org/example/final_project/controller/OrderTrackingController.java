@@ -22,6 +22,7 @@ import static org.example.final_project.dto.ApiResponse.createResponse;
 @RequestMapping(value = Const.API_PREFIX + "/user-tracking")
 public class OrderTrackingController {
     IOrderDetailService orderDetailService;
+
     IOrderTrackingService orderTrackingService;
 
     @GetMapping("/{userId}")
@@ -54,9 +55,8 @@ public class OrderTrackingController {
     }
 
     @PostMapping("/change-status-ship")
-    public ResponseEntity<?> statusShip(@RequestBody StatusMessageDto statusMessageDto) {
-        int result = orderTrackingService.updateStatusShipping(statusMessageDto);
-        return ResponseEntity.ok(result == 1 ? "thành công" : "thất bại");
+    public ResponseEntity<?> statusShip(@RequestBody StatusMessageDto statusMessageDto) {int result = orderTrackingService.updateStatusShipping(statusMessageDto);
+        return ResponseEntity.ok(result == 1 ? " Change Status Complete " : "Complete Deleted");
     }
 
     @PutMapping("/{orderDetailId}")

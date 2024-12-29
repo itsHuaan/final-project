@@ -72,6 +72,11 @@ public class BannerService implements IBannerService {
         }
         return BannerMapper.toBannerDto(bannerEntity);
     }
+    @Override
+    public List<BannerDto> getBannerByShopId(Long shopId) {
+        List<BannerEntity> bannerEntities = bannerRepository.listBannerByShopId(shopId);
+        return bannerEntities.stream().map(BannerMapper::toBannerDto).toList();
+    }
 
 
     @Scheduled(cron = "0 0 0 * * ?")

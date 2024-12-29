@@ -7,6 +7,7 @@ import org.example.final_project.model.ImageActive;
 import org.springframework.data.domain.Pageable;
 
 import java.io.IOException;
+import java.util.List;
 
 public interface IBannerService {
     int createBanner(BannerModel bannerModel) throws IOException;
@@ -16,6 +17,7 @@ public interface IBannerService {
     ApiResponse<?> getAllBanners(Pageable pageable);
 
     BannerDto getBannerIsActive();
+    List<BannerDto> getBannerByShopId(Long shopId);
 
 
 }

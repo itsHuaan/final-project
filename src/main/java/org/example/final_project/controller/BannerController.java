@@ -28,7 +28,7 @@ public class BannerController {
 
     IBannerService bannerService;
 
-    @PostMapping("")
+    @PostMapping
     public ResponseEntity<String> createBanner(BannerModel bannerModel) {
         try{
             return ResponseEntity.status(HttpStatus.OK).body(bannerService.createBanner(bannerModel) == 1 ? "đã thêm " : "chưa thêm");
@@ -37,15 +37,20 @@ public class BannerController {
         }
     }
 
-    @GetMapping("")
+    @GetMapping
     public ResponseEntity<?> getBanner(@RequestParam(required = false) Integer page, @RequestParam(required = false) Integer size) {
         Pageable pageable = PageableValidation.setDefault(size, page);
         return ResponseEntity.status(HttpStatus.OK).body(bannerService.getAllBanners(pageable));
     }
 
-    @PutMapping("")
+    @PutMapping
     public ResponseEntity<String> updateBanner(@RequestBody ImageActive imageActive) {
         return ResponseEntity.status(HttpStatus.OK).body(bannerService.choseImage(imageActive) == 1 ? "đã chọn thành công " : "không thể chọn ");
+    }
+
+    @GetMapping("/{shopId}")
+    public ResponseEntity<?> getBannerByShopId(@PathVariable Long shopId) {
+        return ResponseEntity.status(HttpStatus.OK).body(bannerService.getBannerByShopId(shopId));
     }
 
     @GetMapping("/active")
