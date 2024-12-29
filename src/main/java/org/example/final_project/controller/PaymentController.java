@@ -66,8 +66,8 @@ public class PaymentController {
             if (result == 0) {
                 request.setAttribute("amount", order.getAmount());
                 String tex = VnPayUtil.getRandomNumber(8);
-                String orderCode = orderService.checkOrderCode(tex);
-                request.setAttribute("tex", orderCode);
+//                String orderCode = orderService.checkOrderCode(tex);
+                request.setAttribute("tex", tex);
                 if (order.getMethodCheckout().equalsIgnoreCase("vnpay")) {
                     String vnpayUrl = orderService.submitCheckout(order, request);
                     return ResponseEntity.ok().body(vnpayUrl);
