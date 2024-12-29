@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.BannerDto;
 import org.example.final_project.model.BannerModel;
-import org.example.final_project.model.ImageActive;
 import org.example.final_project.service.IBannerService;
 import org.example.final_project.util.Const;
 import org.example.final_project.validation.PageableValidation;
@@ -14,8 +13,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.io.IOException;
 
 import static org.example.final_project.dto.ApiResponse.createResponse;
 
@@ -30,7 +27,7 @@ public class BannerController {
 
     @PostMapping
     public ResponseEntity<String> createBanner(BannerModel bannerModel) {
-        try{
+        try {
             return ResponseEntity.status(HttpStatus.OK).body(bannerService.createBanner(bannerModel) == 1 ? "đã thêm " : "chưa thêm");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("không thể thêm ảnh ");
@@ -53,6 +50,7 @@ public class BannerController {
         return ResponseEntity.status(HttpStatus.OK).body(bannerService.getBannerByShopId(shopId));
     }
 
+
     @GetMapping("/active")
     public ResponseEntity<?> getBannerIsActive() {
         BannerDto banner;
@@ -62,7 +60,7 @@ public class BannerController {
             banner = bannerService.getBannerIsActive();
             httpStatus = HttpStatus.OK;
             message = "Banner fetched";
-        } catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             banner = null;
             httpStatus = HttpStatus.NOT_FOUND;
             message = "Banner not found";

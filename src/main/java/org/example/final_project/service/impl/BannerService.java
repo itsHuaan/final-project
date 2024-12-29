@@ -10,11 +10,9 @@ import org.example.final_project.entity.BannerEntity;
 import org.example.final_project.enumeration.StatusBanner;
 import org.example.final_project.mapper.BannerMapper;
 import org.example.final_project.model.BannerModel;
-import org.example.final_project.model.ImageActive;
 import org.example.final_project.repository.IBannerRepository;
 import org.example.final_project.service.IBannerService;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -48,7 +46,7 @@ public class BannerService implements IBannerService {
 
 
     @Override
-    public int choseImage( Long bannerId) {
+    public int choseImage(Long bannerId) {
 
         BannerEntity bannerEntity = bannerRepository.findById(bannerId).orElseThrow(() ->
                 new IllegalArgumentException("Banner not found")
@@ -56,6 +54,12 @@ public class BannerService implements IBannerService {
 
         List<BannerEntity> list = bannerRepository.findAllBanner();
         list.forEach(banner -> banner.setIsActive(0));
+        LocalDateTime endDate = bannerEntity.getCreateEnd();
+        for (BannerEntity bannerEntity1 : list) {
+            if (bannerEntity1.getCreateEnd().isAfter(endDate)) {
+                bannerEntity1.setIsActive(StatusBanner.OUTDATED.getBanner());
+            }
+        }
         bannerRepository.saveAll(list);
         bannerEntity.setIsActive(StatusBanner.ACTIVE.getBanner());
         bannerRepository.save(bannerEntity);
@@ -71,6 +75,7 @@ public class BannerService implements IBannerService {
         }
         return BannerMapper.toBannerDto(bannerEntity);
     }
+
     @Override
     public List<BannerDto> getBannerByShopId(Long shopId) {
         List<BannerEntity> bannerEntities = bannerRepository.listBannerByShopId(shopId);

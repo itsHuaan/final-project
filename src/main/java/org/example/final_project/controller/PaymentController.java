@@ -93,7 +93,6 @@ public class PaymentController {
                         + vnp_TxnRef + "&amount=" + amount);
             } else {
                 notifyShops(order);
-
                 return new ModelAndView("redirect:https://team03.cyvietnam.id.vn/en/checkoutsuccess?tex="
                         + vnp_TxnRef + "&amount=" + amount);
             }

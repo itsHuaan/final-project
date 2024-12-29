@@ -6,6 +6,7 @@ import lombok.Getter;
 public enum StatusBanner {
     INACTIVE(0),
     ACTIVE(1),
+    OUTDATED(2),
     ExpiredBanner(3);
     private final int banner;
 
