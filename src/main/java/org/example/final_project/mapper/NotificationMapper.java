@@ -35,7 +35,7 @@ public class NotificationMapper {
                 .userId(notifiEntity.getUserId())
                 .isRead(notifiEntity.getIsRead())
                 .shopUserId(notifiEntity.getShopUserId())
-                .OrderId(notifiEntity.getOrderId())
+                .orderId(notifiEntity.getOrderId())
                 .orderCode(notifiEntity.getOrderCode())
                 .image(notifiEntity.getImage())
                 .shopId(notifiEntity.getShopId())

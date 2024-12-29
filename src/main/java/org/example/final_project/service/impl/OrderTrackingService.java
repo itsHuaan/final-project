@@ -150,9 +150,6 @@ public class OrderTrackingService implements IOrderTrackingService {
     }
 
 
-
-
-
     public void saveNotification(StatusMessageDto statusMessageDto, NotificationModel notificationModel) {
         NotificationEntity notificationEntity = NotificationEntity.builder()
                 .userId(statusMessageDto.getUserId())
@@ -162,6 +159,8 @@ public class OrderTrackingService implements IOrderTrackingService {
                 .createdAt(LocalDateTime.now())
                 .image(notificationModel.getImage())
                 .orderCode(notificationModel.getOrderCode())
+                .orderId(statusMessageDto.getOrderId())
+                .shopUserId(statusMessageDto.getShopId())
                 .build();
         notificationRepository.save(notificationEntity);
     }

@@ -25,7 +25,7 @@ public class NotificationEntity {
     private Long adminId;
     private Long shopId;
     private Long shopUserId;
-    private Long OrderId;
+    private Long orderId;
     private String orderCode;
     private LocalDateTime createdAt;
 }

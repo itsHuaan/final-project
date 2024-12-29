@@ -19,7 +19,7 @@ public class NotificationDto {
     private String image;
     private Long shopId;
     private Long shopUserId;
-    private Long OrderId;
+    private Long orderId;
     private String orderCode;
     private LocalDateTime createdAt;
 }

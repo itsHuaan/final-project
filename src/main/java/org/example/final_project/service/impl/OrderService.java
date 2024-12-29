@@ -257,6 +257,8 @@ public class OrderService implements IOrderService {
                     .userId(orderEntity.getUser().getUserId())
                     .orderCode(orderEntity.getOrderCode())
                     .createdAt(LocalDateTime.now())
+                    .shopUserId(cartItemRequest1.getShopId())
+                    .orderId(orderEntity.getId())
                     .build();
 //            notificationEntity.setAdminId(0L);
             iNotificationRepository.save(notificationEntity);
@@ -286,6 +288,8 @@ public class OrderService implements IOrderService {
                     .orderCode(orderEntity.getOrderCode())
                     .userId(orderEntity.getUser().getUserId())
                     .createdAt(LocalDateTime.now())
+                    .orderId(orderEntity.getId())
+                    .shopUserId(cartItemRequest1.getShopId())
                     .build();
 //            notificationEntity.setAdminId(0L);
             iNotificationRepository.save(notificationEntity);
