@@ -41,20 +41,8 @@ public class BannerService implements IBannerService {
     }
 
     @Override
-    public ApiResponse<?> getAllBanners(Integer page, Integer size) {
-        if (page == null || size == null) {
-            List<BannerEntity> list = bannerRepository.findAll();
-            List<BannerDto> list1 = list.stream().map(BannerMapper::toBannerDto).toList();
-            return ApiResponse.createResponse(HttpStatus.OK, "get all banners", list1);
-        }
-        if (page < 0) {
-            return ApiResponse.createResponse(HttpStatus.BAD_REQUEST, "page must be > 0 ", null);
-        } else if (size < 1) {
-            return ApiResponse.createResponse(HttpStatus.BAD_REQUEST, "size must be > 1 ", null);
-        }
-        Pageable pageable = PageRequest.of(page, size);
-        Page<BannerEntity> bannerEntityPage = bannerRepository.findBannerPage(pageable);
-        Page<BannerDto> bannerDtoPage = bannerEntityPage.map(BannerMapper::toBannerDto);
+    public ApiResponse<?> getAllBanners(Pageable pageable) {
+        Page<BannerDto> bannerDtoPage = bannerRepository.findBannerPage(pageable).map(BannerMapper::toBannerDto);
         return ApiResponse.createResponse(HttpStatus.OK, "get all banners", bannerDtoPage);
     }
 

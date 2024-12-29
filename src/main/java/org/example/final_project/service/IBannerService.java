@@ -4,6 +4,7 @@ import org.example.final_project.dto.ApiResponse;
 import org.example.final_project.dto.BannerDto;
 import org.example.final_project.model.BannerModel;
 import org.example.final_project.model.ImageActive;
+import org.springframework.data.domain.Pageable;
 
 import java.io.IOException;
 
@@ -12,7 +13,7 @@ public interface IBannerService {
 
     int choseImage(ImageActive imageActive);
 
-    ApiResponse<?> getAllBanners(Integer page, Integer size);
+    ApiResponse<?> getAllBanners(Pageable pageable);
 
     BannerDto getBannerIsActive();
 
