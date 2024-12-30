@@ -1,6 +1,5 @@
 package org.example.final_project.controller;
 
-import com.cloudinary.api.exceptions.BadRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AccessLevel;
@@ -12,6 +11,7 @@ import org.example.final_project.model.ShopModel;
 import org.example.final_project.service.impl.StatisticService;
 import org.example.final_project.service.impl.UserService;
 import org.example.final_project.util.Const;
+import org.example.final_project.validation.PageableValidation;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,19 +53,12 @@ public class AdminController {
     public ResponseEntity<?> getAllShop(@RequestParam(defaultValue = "0") Integer status,
                                         @RequestParam(required = false) Integer pageIndex,
                                         @RequestParam(required = false) Integer pageSize) {
-        try {
-            Page<UserDto> userDtoList = userService.getAllShop(status, pageIndex, pageSize);
-            return !userDtoList.isEmpty()
-                    ? ResponseEntity.ok(createResponse(HttpStatus.OK, "Shops fetched successfully", userDtoList))
-                    : ResponseEntity.ok(createResponse(HttpStatus.OK, "No shops found", null));
-        } catch (BadRequest e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(createResponse(HttpStatus.BAD_REQUEST, e.getMessage(), null));
 
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(createResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error occurred", null));
-        }
+        Page<UserDto> shops = userService.getAllShop(status, PageableValidation.setDefault(pageSize, pageIndex));
+        HttpStatus httpStatus = shops.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
+        String message = shops.isEmpty() ? "No shop fetched" : "Shop fetched";
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(createResponse(httpStatus, message, null));
     }
 
     @Operation(summary = "find shop by Name or status")

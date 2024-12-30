@@ -1,6 +1,5 @@
 package org.example.final_project.service.impl;
 
-import com.cloudinary.api.exceptions.BadRequest;
 import com.cloudinary.api.exceptions.NotFound;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +24,6 @@ import org.example.final_project.service.IUserService;
 import org.example.final_project.specification.UserSpecification;
 import org.example.final_project.util.EmailTemplate;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -384,21 +382,8 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
-    public Page<UserDto> getAllShop(Integer status, Integer pageIndex, Integer pageSize) throws Exception {
+    public Page<UserDto> getAllShop(Integer status, Pageable pageable){
         Specification<UserEntity> specification = UserSpecification.isShop();
-        Pageable pageable = Pageable.unpaged();
-        if (status != 0) {
-            specification = specification.and(hasShopStatus(status));
-        }
-        if (pageIndex != null && pageSize != null) {
-            if (pageIndex < 0) {
-                throw new BadRequest("Page index can not be less than 0");
-            }
-            if (pageSize <= 0) {
-                throw new BadRequest("Page size can not be less than 0.");
-            }
-            pageable = PageRequest.of(pageIndex, pageSize);
-        }
         return userRepository.findAll(specification, pageable).map(userEntity -> {
             UserDto userDto = userMapper.toDto(userEntity);
             long parentId = userDto.getAddress_id_shop();
