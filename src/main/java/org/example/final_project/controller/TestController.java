@@ -16,10 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
 import java.util.List;
@@ -80,6 +77,22 @@ public class TestController {
     @GetMapping("/revenue-statistic")
     public ResponseEntity<?> getRevenue(@RequestParam int year) {
         RevenueAndGrowthRateStatisticDto revenueStatistics = statisticService.getRevenueStatisticsTest(year);
+        HttpStatus status = revenueStatistics != null ? HttpStatus.OK : HttpStatus.NO_CONTENT;
+        String message = revenueStatistics != null ? "Revenue fetched" : "No revenue data";
+        return ResponseEntity.status(HttpStatus.OK).body(
+                createResponse(
+                        status,
+                        message,
+                        revenueStatistics
+                )
+        );
+    }
+
+    @Operation(summary = "Get seller revenue")
+    @GetMapping("{shopId}/revenue-statistic")
+    public ResponseEntity<?> getRevenue(@PathVariable Long shopId,
+                                        @RequestParam int year) {
+        RevenueAndGrowthRateStatisticDto revenueStatistics = statisticService.getRevenueStatisticsTest(shopId, year);
         HttpStatus status = revenueStatistics != null ? HttpStatus.OK : HttpStatus.NO_CONTENT;
         String message = revenueStatistics != null ? "Revenue fetched" : "No revenue data";
         return ResponseEntity.status(HttpStatus.OK).body(

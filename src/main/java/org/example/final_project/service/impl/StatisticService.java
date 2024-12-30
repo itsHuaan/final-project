@@ -132,6 +132,36 @@ public class StatisticService implements IStatisticService {
     }
 
     @Override
+    public RevenueAndGrowthRateStatisticDto getRevenueStatisticsTest(long shopId, int year) {
+        double previousRevenue = 0;
+        List<Integer> months = new ArrayList<>();
+        List<Double> revenueData = new ArrayList<>();
+        List<Double> growthRateData = new ArrayList<>();
+        for (Month month : Month.values()) {
+            LocalDateTime startTime = LocalDateTime.of(year, month, 1, 0, 0, 0, 0);
+            LocalDateTime endTime = startTime.withDayOfMonth(startTime.toLocalDate().lengthOfMonth()).withHour(23).withMinute(59).withSecond(59);
+            double currentRevenue = getRevenue(shopId, startTime, endTime) * 0.1;
+            double growthRate = 0;
+            if (previousRevenue != 0) {
+                growthRate = ((currentRevenue - previousRevenue) / previousRevenue) * 100;
+            }
+            months.add(month.getValue());
+            revenueData.add(currentRevenue);
+            growthRateData.add(growthRate);
+            previousRevenue = currentRevenue;
+        }
+        return RevenueAndGrowthRateStatisticDto.builder()
+                .month(months)
+                .dataSet(RevenueAndGrowthRateDto.builder()
+                        .revenue("revenue")
+                        .revenueData(revenueData)
+                        .growthRate("growth-rate")
+                        .growthRateData(growthRateData)
+                        .build())
+                .build();
+    }
+
+    @Override
     public ShopRatioDto getShopRatioDto() {
         return ShopRatioDto.builder()
                 .totalShops(getTotalShops())
