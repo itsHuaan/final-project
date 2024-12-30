@@ -61,16 +61,16 @@ public class FeedbackService implements IFeedbackService {
     }
 
     @Override
-    public List<FeedbackDto> filterFeedback(long productId, Integer hasImage, Integer hasComment, Double rating) {
+    public List<FeedbackDto> filterFeedback(long productId, Boolean hasImage, Boolean hasComment, Double rating) {
         Specification<FeedbackEntity> spec = Specification.where(hasProductId(productId));
-        if (hasImage != null && hasImage == 1) {
-            spec = spec.and(hasImage());
+        if (hasImage != null) {
+            spec = spec.and(hasImage(hasImage));
         }
-        if (hasComment != null && hasComment == 1) {
-            spec = spec.and(hasComment());
+        if (hasComment != null) {
+            spec = spec.and(hasComment(hasComment));
         }
         if (rating != null) {
-            spec = spec.and(hasRatingGreaterThanOrEqualTo(rating));
+            spec = spec.and(hasRating(rating));
         }
         return feedbackRepository.findAll(spec, Sort.by(Sort.Order.desc("createdAt"))).stream()
                 .map(feedbackMapper::convertToDto)

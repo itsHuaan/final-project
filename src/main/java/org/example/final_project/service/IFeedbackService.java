@@ -6,5 +6,5 @@ import org.example.final_project.model.FeedbackModel;
 import java.util.List;
 
 public interface IFeedbackService extends IBaseService<FeedbackDto, FeedbackModel, Long> {
-    List<FeedbackDto> filterFeedback(long productId, Integer hasImage, Integer hasComment, Double rating);
+    List<FeedbackDto> filterFeedback(long productId, Boolean hasImage, Boolean hasComment, Double rating);
 }

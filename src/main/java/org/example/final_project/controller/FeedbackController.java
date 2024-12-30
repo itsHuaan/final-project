@@ -57,8 +57,8 @@ public class FeedbackController {
     @Operation(summary = "Filter the feedback")
     @GetMapping("/{product-id}")
     ResponseEntity<?> filter(@PathVariable("product-id") long productId,
-                             @RequestParam(required = false) Integer hasImage,
-                             @RequestParam(required = false) Integer hasComment,
+                             @RequestParam(required = false) Boolean hasImage,
+                             @RequestParam(required = false) Boolean hasComment,
                              @RequestParam(required = false) Double rating) {
         List<FeedbackDto> result = feedbackService.filterFeedback(productId, hasImage, hasComment, rating);
         return !result.isEmpty()
