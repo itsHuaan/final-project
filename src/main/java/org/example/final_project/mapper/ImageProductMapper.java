@@ -19,6 +19,7 @@ public class ImageProductMapper {
 
     public ImageProductDto convertToDto(ImageProductEntity image) {
         return ImageProductDto.builder()
+                .id(image.getId())
                 .imageLink(image.getImageLink())
                 .build();
     }
