@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -122,14 +123,23 @@ public class BannerService implements IBannerService {
         bannerRepository.saveAll(list);
     }
 
+    @Transactional
     @Override
     public ApiResponse<?> deleteBanner(Long bannerId) {
         try {
             Optional<BannerEntity> bannerEntityOptional = bannerRepository.findById(bannerId);
-
             if (bannerEntityOptional.isPresent()) {
-                bannerRepository.delete(bannerEntityOptional.get());
-                return ApiResponse.createResponse(HttpStatus.OK, "Banner deleted successfully", null);
+                BannerEntity bannerEntity = bannerEntityOptional.get();
+                if (bannerEntity.getIsActive() == StatusBanner.ACTIVE.getBanner()) {
+                    bannerRepository.delete(bannerEntityOptional.get());
+                    bannerRepository.deactivateAllBanners();
+                    return ApiResponse.createResponse(HttpStatus.OK, "Banner active deleted successfully", null);
+
+                } else {
+                    bannerRepository.delete(bannerEntityOptional.get());
+                    return ApiResponse.createResponse(HttpStatus.OK, "Banner not active deleted successfully", null);
+                }
+
             } else {
                 return ApiResponse.createResponse(HttpStatus.NOT_FOUND, "Banner not found", null);
             }
