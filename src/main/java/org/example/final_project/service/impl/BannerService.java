@@ -73,6 +73,10 @@ public class BannerService implements IBannerService {
                     new IllegalArgumentException("Banner not found")
             );
 
+            if (bannerEntity.getCreateStart().isAfter(LocalDateTime.now())) {
+                return ApiResponse.createResponse(HttpStatus.OK, "The banner cannot be activated because the start time has not yet arrived", null);
+            }
+
             LocalDateTime endDate = bannerEntity.getCreateEnd();
 
             List<BannerEntity> list = bannerRepository.findAllBanner();
