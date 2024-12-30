@@ -102,8 +102,9 @@ public class StatisticService implements IStatisticService {
     }
 
     @Override
-    public RevenueAndGrowthRateDto getRevenueStatisticsTest(int year) {
+    public RevenueAndGrowthRateStatisticDto getRevenueStatisticsTest(int year) {
         double previousRevenue = 0;
+        List<Integer> months = new ArrayList<>();
         List<Double> revenueData = new ArrayList<>();
         List<Double> growthRateData = new ArrayList<>();
         for (Month month : Month.values()) {
@@ -114,15 +115,19 @@ public class StatisticService implements IStatisticService {
             if (previousRevenue != 0) {
                 growthRate = ((currentRevenue - previousRevenue) / previousRevenue) * 100;
             }
+            months.add(month.getValue());
             revenueData.add(currentRevenue);
             growthRateData.add(growthRate);
             previousRevenue = currentRevenue;
         }
-        return RevenueAndGrowthRateDto.builder()
-                .revenue("revenue")
-                .revenueData(revenueData)
-                .growthRate("growth-rate")
-                .growthRateData(growthRateData)
+        return RevenueAndGrowthRateStatisticDto.builder()
+                .month(months)
+                .dataSet(RevenueAndGrowthRateDto.builder()
+                        .revenue("revenue")
+                        .revenueData(revenueData)
+                        .growthRate("growth-rate")
+                        .growthRateData(growthRateData)
+                        .build())
                 .build();
     }
 
@@ -178,7 +183,7 @@ public class StatisticService implements IStatisticService {
     private double getAverageOfRating(long shopId, LocalDateTime startTime, LocalDateTime endTime) {
         List<ProductEntity> products = productRepository.findAll(Specification.where(
                         hasUserId(shopId))
-                        .and(isStatus(ProductStatus.ACTIVE.getValue()))
+                .and(isStatus(ProductStatus.ACTIVE.getValue()))
                 .and(isValid())
                 .and(isBetween(startTime, endTime)));
         List<OrderDetailEntity> orderDetails = orderDetailRepository.findAll(Specification.where(
@@ -209,7 +214,7 @@ public class StatisticService implements IStatisticService {
     private int getTotalOfFeedbacks(long shopId, LocalDateTime startTime, LocalDateTime endTime) {
         List<ProductEntity> products = productRepository.findAll(Specification.where(
                         hasUserId(shopId))
-                        .and(isStatus(ProductStatus.ACTIVE.getValue()))
+                .and(isStatus(ProductStatus.ACTIVE.getValue()))
                 .and(isValid())
                 .and(isBetween(startTime, endTime))).stream().toList();
         return products.stream()

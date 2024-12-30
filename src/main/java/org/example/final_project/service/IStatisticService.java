@@ -21,7 +21,7 @@ public interface IStatisticService {
 
     List<RevenueStatistic> getRevenueStatistics(int year);
 
-    RevenueAndGrowthRateDto getRevenueStatisticsTest(int year);
+    RevenueAndGrowthRateStatisticDto getRevenueStatisticsTest(int year);
 
     ShopRatioDto getShopRatioDto();
 }

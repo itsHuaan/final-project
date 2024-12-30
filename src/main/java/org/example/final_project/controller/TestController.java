@@ -6,7 +6,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.configuration.UserDetailsImpl;
-import org.example.final_project.dto.RevenueAndGrowthRateDto;
+import org.example.final_project.dto.RevenueAndGrowthRateStatisticDto;
 import org.example.final_project.service.IProductService;
 import org.example.final_project.service.impl.StatisticService;
 import org.example.final_project.util.Const;
@@ -79,7 +79,7 @@ public class TestController {
     @Operation(summary = "Get super admin revenue")
     @GetMapping("/revenue-statistic")
     public ResponseEntity<?> getRevenue(@RequestParam int year) {
-        RevenueAndGrowthRateDto revenueStatistics = statisticService.getRevenueStatisticsTest(year);
+        RevenueAndGrowthRateStatisticDto revenueStatistics = statisticService.getRevenueStatisticsTest(year);
         HttpStatus status = revenueStatistics != null ? HttpStatus.OK : HttpStatus.NO_CONTENT;
         String message = revenueStatistics != null ? "Revenue fetched" : "No revenue data";
         return ResponseEntity.status(HttpStatus.OK).body(
