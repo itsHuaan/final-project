@@ -119,9 +119,9 @@ public class StatisticService implements IStatisticService {
             previousRevenue = currentRevenue;
         }
         return RevenueAndGrowthRateDto.builder()
-                .revenue("Revenue")
+                .revenue("revenue")
                 .revenueData(revenueData)
-                .growthRate("Growth Rate")
+                .growthRate("growth-rate")
                 .growthRateData(growthRateData)
                 .build();
     }
