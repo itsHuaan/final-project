@@ -313,7 +313,7 @@ public class ProductController {
         ));
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Add to favorite")
     @PostMapping("/favorite")
     ResponseEntity<?> addToFavorite(@RequestBody FavoriteProductModel favoriteProduct) {
