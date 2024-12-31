@@ -26,7 +26,7 @@ public class UserDto {
     private String shop_name;
     private int isActive;
     private String activationNote;
-    private int address_id_shop;
+    private Long address_id_shop;
     private Integer shop_status;
     private String shop_address_detail;
     private LocalDateTime time_created_shop;

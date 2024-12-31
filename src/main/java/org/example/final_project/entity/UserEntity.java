@@ -49,8 +49,8 @@ public class UserEntity {
     private Integer shop_status;
     private String shop_address_detail;
     private LocalDateTime time_created_shop;
-    private int address_id_shop;
-    private String cccd;
+    private Long address_id_shop;
+    private String citizenIdentification;
     @OneToMany(mappedBy = "user")
     private List<CategoryEntity> categories;
     @OneToMany(mappedBy = "user")

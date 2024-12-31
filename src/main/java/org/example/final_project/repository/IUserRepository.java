@@ -57,6 +57,6 @@ public interface IUserRepository extends JpaRepository<UserEntity, Long>, JpaSpe
             """)
     Page<UserEntity> findUsersSortedBySoldProductRatingRatio(Pageable pageable);
 
-    boolean existsByCccd(String cccd);
+    boolean existsByCitizenIdentification(String citizenIdentification);
 
 }

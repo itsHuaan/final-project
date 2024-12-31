@@ -167,7 +167,7 @@ public class UserController {
         try {
             int result = shippingAddressService.addAddress(id, request);
             httpStatus = result == 1 ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
-            message = result == 1 ? "Added " + String.join("/", addressService.findAddressNamesFromParentId(request.getAddressId())) : "Failed to add shipping address";
+            message = result == 1 ? "Added " + String.join(", ", addressService.findAddressNamesFromParentId(request.getAddressId())) : "Failed to add shipping address";
         } catch (EntityNotFoundException | IllegalArgumentException e) {
             httpStatus = HttpStatus.BAD_REQUEST;
             message = e.getMessage();

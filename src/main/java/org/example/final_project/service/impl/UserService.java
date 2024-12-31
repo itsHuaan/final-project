@@ -219,20 +219,13 @@ public class UserService implements IUserService, UserDetailsService {
         return userRepository.findAll(spec, pageable).map(userMapper::toDto);
     }
 
-    public int checkCccd(ShopRegisterRequest request) {
-        if (userRepository.existsByCccd(request.getCccd())) {
-            return 1;
-        }
-        return 0;
-    }
-
     @Override
     public ApiResponse<?> registerForBeingShop(ShopRegisterRequest request) throws Exception {
         Optional<UserEntity> optionalUserEntity = userRepository.findById(request.getUserId());
         long shopAddressId = request.getShop_address();
-        int result = checkCccd(request);
-        if (result == 1) {
-            return createResponse(HttpStatus.CONFLICT, "CCCD Is exists", null);
+        boolean result = userRepository.existsByCitizenIdentification(request.getCitizenIdentification());
+        if (result) {
+            return createResponse(HttpStatus.CONFLICT, "Citizen Identification Is Existing", null);
         } else {
             if (optionalUserEntity.isPresent() || !addressRepository.existsById(shopAddressId)) {
                 UserEntity userEntity = userRepository.findById(request.getUserId()).orElse(null);
@@ -247,7 +240,7 @@ public class UserService implements IUserService, UserDetailsService {
                     userEntity.setId_back(id_back);
                     String id_front = mediaUploadService.uploadOneImage(request.getId_front());
                     userEntity.setId_front(id_front);
-                    userEntity.setCccd(request.getCccd());
+                    userEntity.setCitizenIdentification(request.getCitizenIdentification());
                     userEntity.setShop_name(request.getShop_name());
                     userEntity.setTax_code(request.getTax_code());
                     userEntity.setAddress_id_shop(request.getShop_address());
@@ -256,13 +249,13 @@ public class UserService implements IUserService, UserDetailsService {
                     userEntity.setTime_created_shop(LocalDateTime.now());
                     userEntity.setShop_status(ShopStatus.PENDING.getValue());
                     userRepository.save(userEntity);
-                    return createResponse(HttpStatus.OK, "Wait for confirm ", null);
+                    return createResponse(HttpStatus.OK, "Waiting for confirmation", null);
                 } else if (userEntity.getShop_status() == 1) {
-                    return createResponse(HttpStatus.CONFLICT, "User register Shop", null);
+                    return createResponse(HttpStatus.CONFLICT, "Shop is existing", null);
                 } else if (userEntity.getShop_status() == 2) {
-                    return createResponse(HttpStatus.CONFLICT, "Shop is Waiting", null);
+                    return createResponse(HttpStatus.CONFLICT, "Shop registration is Waiting", null);
                 } else if (userEntity.getShop_status() == 3) {
-                    return createResponse(HttpStatus.CONFLICT, "Shop is Refusing", null);
+                    return createResponse(HttpStatus.CONFLICT, "Shop registration is Refused", null);
                 } else if (userEntity.getShop_status() == 4) {
                     return createResponse(HttpStatus.CONFLICT, "Shop Locked", null);
                 }

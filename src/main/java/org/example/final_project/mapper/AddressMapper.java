@@ -33,15 +33,20 @@ public class AddressMapper {
     }
 
     public String buildAddressLine(AddressEntity address) {
-        StringBuilder addressLine1 = new StringBuilder(address.getName());
-        long parentId = address.getParent_id();
-
-        while (parentId != 0) {
-            AddressEntity parent = addressRepository.findById(parentId)
-                    .orElseThrow(() -> new EntityNotFoundException("Parent address not found"));
-            addressLine1.insert(0, parent.getName() + ", ");
-            parentId = parent.getParent_id();
+        StringBuilder fullAddress = new StringBuilder();
+        AddressEntity currentAddress = address;
+        while (currentAddress != null) {
+            if (!fullAddress.isEmpty()) {
+                fullAddress.append(", ");
+            }
+            fullAddress.append(currentAddress.getName());
+            long parentId = currentAddress.getParent_id();
+            currentAddress = (parentId != 0)
+                    ? addressRepository.findById(parentId)
+                    .orElseThrow(() -> new EntityNotFoundException("Parent address not found"))
+                    : null;
         }
-        return addressLine1.toString();
+        return fullAddress.toString();
     }
+
 }
