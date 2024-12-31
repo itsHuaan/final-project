@@ -23,7 +23,7 @@ public class NotificationController {
     INotificationService notificationService;
 
 
-    @PostMapping("")
+    @PostMapping
     public ResponseEntity<?> sentNotification(@RequestBody List<NotificationModel> notificationModel) throws IOException {
         int result = notificationService.sentNotification(notificationModel);
         return ResponseEntity.ok(result == 1 ? "Thông báo đã được  gửi " : "Thông báo chưa được gửi ");

@@ -15,6 +15,7 @@ import org.example.final_project.service.impl.CartService;
 import org.example.final_project.util.Const;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ public class CartController {
 
 
     @Operation(summary = "Get cart by userId")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{userId}")
     public ResponseEntity<?> getCart(@PathVariable Long userId) {
         try {
@@ -179,6 +181,7 @@ public class CartController {
     }
 
     @Operation(summary = "Checkout")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/checkout/{cartId}")
     public ResponseEntity<?> checkout(@PathVariable Long cartId, @RequestParam(required = false) List<Long> cartItemId) {
         return ResponseEntity.status(HttpStatus.OK).body(cartService.getCheckOutDetail(cartId, cartItemId));

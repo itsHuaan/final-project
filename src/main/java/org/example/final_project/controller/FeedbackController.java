@@ -10,6 +10,7 @@ import org.example.final_project.service.IFeedbackService;
 import org.example.final_project.util.Const;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public class FeedbackController {
     IFeedbackService feedbackService;
 
     @Operation(summary = "Leave a feedback about the product")
+    @PreAuthorize("isAuthenticated()")
     @PostMapping
     ResponseEntity<?> addNewFeedback(FeedbackModel feedback) {
         try {

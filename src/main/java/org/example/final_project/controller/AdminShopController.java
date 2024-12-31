@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -40,17 +41,20 @@ public class AdminShopController {
 
 
     @GetMapping("/{shopId}/detail-order")
+    @PreAuthorize("hasRole('ROLE_SELLER')")
     public ResponseEntity<?> getShopDetail(@PathVariable Long shopId, @RequestParam Long orderId) {
         return ResponseEntity.ok(orderService.getOrderTracking(orderId, shopId));
     }
 
     @GetMapping("/{shopId}/order")
+    @PreAuthorize("hasRole('ROLE_SELLER')")
     public ResponseEntity<?> getOrder(@PathVariable long shopId, @RequestParam(required = false) Integer page,
                                       @RequestParam(required = false) Integer size, @RequestParam(required = false) Integer statusShip) {
         return ResponseEntity.ok(orderService.getOrdersByShopId(shopId, page, size, statusShip));
     }
 
     @GetMapping("/{shopId}/find-order")
+    @PreAuthorize("hasRole('ROLE_SELLER')")
     public ResponseEntity<?> findOrder(@PathVariable Long shopId, @RequestParam String orderCode) {
         try {
             return ResponseEntity.ok(orderService.findByShopIdAndCodeOrder(shopId, orderCode));
@@ -60,6 +64,7 @@ public class AdminShopController {
     }
 
     @GetMapping("/{shopId}/periodic-statistics")
+    @PreAuthorize("hasRole('ROLE_SELLER')")
     public ResponseEntity<?> getPeriodicStatistics(@PathVariable Long shopId) {
         List<PeriodicStatisticDto> periodicStatistics = statisticService.getPeriodicStatistics(shopId);
         return periodicStatistics != null
