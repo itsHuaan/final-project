@@ -87,9 +87,7 @@ public class ProductMapper {
                 .name(model.getName())
                 .description(model.getDescription())
                 .note(model.getNote())
-                .categoryEntity(iCategoryRepository.findById(model.getCategoryId()).isPresent()
-                        ? iCategoryRepository.findById(model.getCategoryId()).get()
-                        : null)
+                .categoryEntity(iCategoryRepository.findById(model.getCategoryId()).orElse(null))
                 .build();
     }
 

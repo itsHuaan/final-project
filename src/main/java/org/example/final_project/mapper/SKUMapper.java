@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.final_project.dto.SKUDto;
-import org.example.final_project.entity.ImageProductEntity;
 import org.example.final_project.entity.SKUEntity;
 import org.example.final_project.model.SKUModel;
 import org.example.final_project.repository.IImageProductRepository;
@@ -20,7 +19,7 @@ public class SKUMapper {
     IImageProductRepository imageProductRepository;
 
     public SKUDto convertToDto(SKUEntity entity) {
-        ImageProductEntity imageProductEntity = imageProductRepository.findAllByProductEntity_Id(entity.getProduct().getId()).get(0);
+        String productImage = imageProductRepository.findAllByProductEntity_Id(entity.getProduct().getId()).get(0).getImageLink();
         String skuImage = entity.getImage();
         return SKUDto.builder()
                 .productId(entity.getProduct().getId())
@@ -37,7 +36,7 @@ public class SKUMapper {
                         : entity.getPrice())
                 .quantity(entity.getQuantity())
                 .image(skuImage != null
-                        ? skuImage.isEmpty() ? imageProductEntity.getImageLink() : entity.getImage()
+                        ? skuImage.isEmpty() ? productImage : entity.getImage()
                         : entity.getImage())
                 .build();
     }

@@ -60,8 +60,8 @@ public class OrderTrackingController {
     }
 
     @PostMapping("/change-status-ship")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> statusShip(@RequestBody StatusMessageDto statusMessageDto) {int result = orderTrackingService.updateStatusShipping(statusMessageDto);
+    public ResponseEntity<?> statusShip(@RequestBody StatusMessageDto statusMessageDto) {
+        int result = orderTrackingService.updateStatusShipping(statusMessageDto);
         return ResponseEntity.ok(result == 1 ? " Change Status Complete " : "Complete Deleted");
     }
 
