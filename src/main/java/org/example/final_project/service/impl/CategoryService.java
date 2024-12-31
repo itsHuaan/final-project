@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.final_project.configuration.cloudinary.MediaUploadService;
 import org.example.final_project.dto.CategoryDto;
 import org.example.final_project.entity.CategoryEntity;
-import org.example.final_project.entity.UserEntity;
 import org.example.final_project.enumeration.ProductStatus;
 import org.example.final_project.mapper.CategoryMapper;
 import org.example.final_project.model.CategoryModel;
@@ -51,18 +50,7 @@ public class CategoryService implements ICategoryService {
     @Override
     public int save(CategoryModel model) {
         try {
-            CategoryEntity category = categoryMapper.convertToEntity(model);
-            if (model.getFile() != null && !model.getFile().isEmpty()) {
-                category.setImage(mediaUploadService.uploadSingleMediaFile(model.getFile()));
-            }
-            if (model.getUser_id() != 0L) {
-                UserEntity user = iUserRepository.findById(model.getUser_id()).isPresent()
-                        ? iUserRepository.findById(model.getUser_id()).get()
-                        : new UserEntity();
-                category.setUser(user);
-            }
-            category.setCreatedAt(LocalDateTime.now());
-            iCategoryRepository.save(category);
+            iCategoryRepository.save(categoryMapper.convertToEntity(model));
             return 1;
         } catch (Exception e) {
             log.error(e.getMessage());

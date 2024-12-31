@@ -383,7 +383,7 @@ public class UserService implements IUserService, UserDetailsService {
 
     @Override
     public Page<UserDto> getAllShop(Integer status, Pageable pageable){
-        Specification<UserEntity> specification = UserSpecification.isShop();
+        Specification<UserEntity> specification = UserSpecification.hasShopStatus(ShopStatus.ACTIVE.getValue());
         return userRepository.findAll(specification, pageable).map(userEntity -> {
             UserDto userDto = userMapper.toDto(userEntity);
             long parentId = userDto.getAddress_id_shop();

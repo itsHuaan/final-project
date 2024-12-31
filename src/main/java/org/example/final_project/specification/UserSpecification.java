@@ -49,6 +49,11 @@ public class UserSpecification {
                 criteriaBuilder.equal(root.get("userId"), id);
     }
 
+    public static Specification<UserEntity> doesNotHaveShopStatus(int status) {
+        return (Root<UserEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
+                criteriaBuilder.notEqual(root.get("shop_status"), status);
+    }
+
     public static Specification<UserEntity> hasShopStatus(int status) {
         return (Root<UserEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("shop_status"), status);
@@ -71,7 +76,7 @@ public class UserSpecification {
 
     public static Specification<UserEntity> hasNewlyJoined() {
         return (Root<UserEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
-                criteriaBuilder.between(root.get("createdAt"), LocalDateTime.now(), LocalDateTime.now().minusDays(7));
+                criteriaBuilder.between(root.get("createdAt"), LocalDateTime.now().minusDays(7), LocalDateTime.now());
     }
 
     public static Specification<UserEntity> sortedBySoldProductRatingRatio() {

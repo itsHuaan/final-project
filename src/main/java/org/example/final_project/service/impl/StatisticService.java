@@ -399,15 +399,15 @@ public class StatisticService implements IStatisticService {
     private long getTotalShops() {
         return userRepository.findAll(Specification.where(
                 UserSpecification.isNotDeleted()
+                        .and(UserSpecification.hasShopStatus(ShopStatus.ACTIVE.getValue()))
                         .and(UserSpecification.isNotSuperAdmin())
-                        .and(UserSpecification.isShop())
         )).size();
     }
 
     private long getTotalLockedShops() {
         return userRepository.findAll(Specification.where(
                 UserSpecification.isNotDeleted()
-                        .and(UserSpecification.isShop())
+                        .and(UserSpecification.isNotSuperAdmin())
                         .and(UserSpecification.hasShopStatus(ShopStatus.LOCKED.getValue()))
         )).size();
     }
@@ -415,7 +415,7 @@ public class StatisticService implements IStatisticService {
     private long getTotalPendingShop() {
         return userRepository.findAll(Specification.where(
                 UserSpecification.isNotDeleted()
-                        .and(UserSpecification.isShop())
+                        .and(UserSpecification.isNotSuperAdmin())
                         .and(UserSpecification.hasShopStatus(ShopStatus.PENDING.getValue()))
         )).size();
     }
@@ -423,7 +423,7 @@ public class StatisticService implements IStatisticService {
     private long getTotalRejectedShops() {
         return userRepository.findAll(Specification.where(
                 UserSpecification.isNotDeleted()
-                        .and(UserSpecification.isShop())
+                        .and(UserSpecification.isNotSuperAdmin())
                         .and(UserSpecification.hasShopStatus(ShopStatus.REJECTED.getValue()))
         )).size();
     }

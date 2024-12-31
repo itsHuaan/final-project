@@ -13,6 +13,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class CategoryModel {
     private String name;
     private long parent_id;
-    private long user_id;
+    private Long user_id;
     private MultipartFile file;
 }
