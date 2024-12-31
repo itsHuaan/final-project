@@ -26,10 +26,10 @@ public class SKUMapper {
                 .productId(entity.getProduct().getId())
                 .variantId(entity.getId())
                 .option1(entity.getOption1() != null
-                        ? optionMapper.convertToDtoWithValue(entity.getOption1(), entity.getValue1())
+                        ? optionMapper.toProductOptionDto(entity.getValue1())
                         : null)
                 .option2(entity.getOption2() != null
-                        ? optionMapper.convertToDtoWithValue(entity.getOption2(), entity.getValue2())
+                        ? optionMapper.toProductOptionDto(entity.getValue2())
                         : null)
                 .oldPrice(entity.getPrice())
                 .newPrice(promotionService.findAllPromotionByNow(entity.getProduct().getId()) != null

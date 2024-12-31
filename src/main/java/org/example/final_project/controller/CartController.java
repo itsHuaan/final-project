@@ -35,7 +35,7 @@ public class CartController {
 
 
     @Operation(summary = "Get cart by userId")
-    @PreAuthorize("isAuthenticated()")
+//    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{userId}")
     public ResponseEntity<?> getCart(@PathVariable Long userId) {
         try {
