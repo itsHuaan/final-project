@@ -445,7 +445,8 @@ public class StatisticService implements IStatisticService {
     private List<ShopDto> getTopSellerShops() {
         return userRepository.findAll().stream()
                 .map(userMapper::toShopDto)
-                .filter(shopDto -> shopDto.getSold() > 0)
+                .filter(shopDto -> shopDto.getSold() > 0
+                        && shopDto.getRating() > 0)
                 .sorted(Comparator.comparing(ShopDto::getRating).reversed())
                 .limit(10)
                 .toList();
