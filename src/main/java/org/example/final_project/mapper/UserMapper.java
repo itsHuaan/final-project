@@ -2,32 +2,25 @@ package org.example.final_project.mapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.example.final_project.dto.CartUserDto;
-import org.example.final_project.dto.ShopDto;
-import org.example.final_project.dto.UserDto;
-import org.example.final_project.dto.UserFeedBackDto;
+import org.example.final_project.dto.*;
 import org.example.final_project.entity.*;
 import org.example.final_project.model.UserModel;
 import org.example.final_project.repository.IAddressRepository;
-import org.example.final_project.repository.IOrderDetailRepository;
 import org.example.final_project.repository.IProductRepository;
-import org.example.final_project.specification.OrderDetailSpecification;
 import org.example.final_project.specification.ProductSpecification;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
 @FieldDefaults(makeFinal = true)
 public class UserMapper {
     ShippingAddressMapper shippingAddressMapper;
-    IOrderDetailRepository orderDetailRepository;
     IProductRepository productRepository;
     IAddressRepository addressRepository;
     AddressMapper addressMapper;
@@ -77,39 +70,18 @@ public class UserMapper {
     }
 
     public ShopDto toShopDto(UserEntity userEntity) {
-        List<ProductEntity> products = productRepository.findAll(Specification.where(
-                        ProductSpecification.hasUserId(userEntity.getUserId()))
-                .and(ProductSpecification.isValid())
-                .and(ProductSpecification.isStatus(1)));
-
-        List<OrderDetailEntity> orderDetails = orderDetailRepository.findAll(Specification.where(
-                OrderDetailSpecification.hasShop(userEntity.getUserId())
-                        .and(OrderDetailSpecification.isValid())));
-
-        Map<ProductEntity, Long> productQuantities = orderDetails.stream()
-                .filter(orderDetail -> products.contains(orderDetail.getSkuEntity().getProduct()))
-                .collect(Collectors.groupingBy(
-                        orderDetail -> orderDetail.getSkuEntity().getProduct(),
-                        Collectors.summingLong(OrderDetailEntity::getQuantity)
-                ));
-
-        double totalWeightedRating = 0.0;
-        long totalSoldQuantity = 0;
-        for (ProductEntity product : products) {
-            long productSoldQuantity = productQuantities.getOrDefault(product, 0L);
-            if (productSoldQuantity > 0) {
-                double productWeightedRating = product.getFeedbacks().stream()
-                        .mapToDouble(feedback -> feedback.getRate() * productSoldQuantity)
-                        .sum();
-                totalWeightedRating += productWeightedRating;
-                totalSoldQuantity += productSoldQuantity;
-            }
-        }
-
-        double averageRating = totalSoldQuantity > 0
-                ? totalWeightedRating / totalSoldQuantity
-                : 0.0;
-
+        List<ProductDto> products = productRepository.findAll(Specification.where(
+                                ProductSpecification.hasUserId(userEntity.getUserId()))
+                        .and(ProductSpecification.isValid())
+                        .and(ProductSpecification.isStatus(1))).stream()
+                .map(this::convertToDto)
+                .toList();
+        long totalSold = products.stream()
+                .mapToLong(ProductDto::getSold)
+                .sum();
+        double averageRating = products.stream()
+                .mapToDouble(product -> product.getSold() * product.getRating())
+                .sum() / totalSold;
         LocalDateTime createdTime = userEntity.getTime_created_shop();
         Duration duration = createdTime != null
                 ? Duration.between(createdTime, LocalDateTime.now())
@@ -129,7 +101,7 @@ public class UserMapper {
                 .joined(duration.toDays())
                 .profilePicture(userEntity.getProfilePicture())
                 .rating(Math.round(averageRating * 100.0) / 100.0)
-                .sold(totalSoldQuantity)
+                .sold(totalSold)
                 .build();
     }
 
@@ -148,6 +120,37 @@ public class UserMapper {
                 .name(userEntity.getName())
                 .username(userEntity.getUsername())
                 .email(userEntity.getEmail())
+                .build();
+    }
+
+    private ProductDto convertToDto(ProductEntity productEntity) {
+        return ProductDto.builder()
+                .productId(productEntity.getId())
+                .productName(productEntity.getName())
+                .numberOfLike(productEntity.getFavorites().size())
+                .numberOfFeedBack(productEntity.getFeedbacks().size())
+                .rating(productEntity.getFeedbacks().stream()
+                        .mapToDouble(FeedbackEntity::getRate)
+                        .average()
+                        .orElse(0.0))
+                .feedbacks(productEntity.getFeedbacks().stream()
+                        .sorted(Comparator.comparing(FeedbackEntity::getCreatedAt).reversed())
+                        .map(this::convertToDto)
+                        .toList())
+                .sold(productEntity.getSkuEntities().stream()
+                        .flatMap(sku -> sku.getOrderDetails().stream())
+                        .mapToLong(OrderDetailEntity::getQuantity)
+                        .sum())
+                .build();
+    }
+
+    private FeedbackDto convertToDto(FeedbackEntity feedback) {
+        return FeedbackDto.builder()
+                .id(feedback.getId())
+                .content(feedback.getContent())
+                .rate(feedback.getRate())
+                .replyFromSeller(feedback.getReplyFromSeller())
+                .createdAt(feedback.getCreatedAt())
                 .build();
     }
 }

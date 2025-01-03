@@ -78,30 +78,4 @@ public class UserSpecification {
         return (Root<UserEntity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) ->
                 criteriaBuilder.between(root.get("createdAt"), LocalDateTime.now().minusDays(7), LocalDateTime.now());
     }
-
-    public static Specification<UserEntity> sortedBySoldProductRatingRatio() {
-        return (Root<UserEntity> root, CriteriaQuery<?> query, CriteriaBuilder cb) -> {
-            Join<UserEntity, ProductEntity> products = root.join("products", JoinType.LEFT);
-            Join<ProductEntity, SKUEntity> skus = products.join("skuEntities", JoinType.LEFT);
-            Join<SKUEntity, OrderDetailEntity> orderDetails = skus.join("orderDetails", JoinType.LEFT);
-            Join<ProductEntity, FeedbackEntity> feedbacks = products.join("feedbacks", JoinType.LEFT);
-            Expression<Long> totalQuantitySold = cb.sum(orderDetails.get("quantity"));
-            Expression<Double> weightedRatingSum = cb.sum(
-                    cb.prod(feedbacks.get("rate"), orderDetails.get("quantity"))
-            );
-            Expression<Object> weightedAverageRating = cb.selectCase()
-                    .when(cb.equal(totalQuantitySold, 0L), 0.0)
-                    .otherwise(cb.quot(weightedRatingSum, totalQuantitySold));
-            Subquery<Long> productExists = query.subquery(Long.class);
-            Root<ProductEntity> productRoot = productExists.from(ProductEntity.class);
-            productExists.select(cb.literal(1L))
-                    .where(cb.equal(productRoot.get("user"), root));
-            Predicate shopActive = cb.equal(root.get("shop_status"), 1);
-            Predicate hasProducts = cb.exists(productExists);
-            query.groupBy(root.get("userId"));
-            query.orderBy(cb.desc(weightedAverageRating));
-            return cb.and(shopActive, hasProducts);
-        };
-    }
-
 }

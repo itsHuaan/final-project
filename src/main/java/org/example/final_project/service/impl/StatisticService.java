@@ -443,11 +443,11 @@ public class StatisticService implements IStatisticService {
     }
 
     private List<ShopDto> getTopSellerShops() {
-        return userRepository.findAll(Specification.where(UserSpecification.sortedBySoldProductRatingRatio()), PageRequest.of(0, 10)).stream()
+        return userRepository.findAll().stream()
                 .map(userMapper::toShopDto)
-                .filter(shopDto -> shopDto.getRating() > 0)
+                .filter(shopDto -> shopDto.getSold() > 0)
                 .sorted(Comparator.comparing(ShopDto::getRating).reversed())
+                .limit(10)
                 .toList();
-
     }
 }
