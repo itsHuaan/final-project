@@ -2,7 +2,6 @@ package org.example.final_project.configuration.Oauth2;
 
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.time.Instant;

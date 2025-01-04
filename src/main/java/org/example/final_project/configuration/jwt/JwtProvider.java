@@ -3,14 +3,9 @@ package org.example.final_project.configuration.jwt;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
-import org.example.final_project.dto.UserDto;
 import org.example.final_project.entity.UserEntity;
 import org.example.final_project.repository.IUserRepository;
-import org.example.final_project.service.IUserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -52,6 +47,7 @@ public class JwtProvider {
                 .claim("username", userEntity.getUsername())
                 .claim("email", userEntity.getEmail())
                 .claim("role", userEntity.getRole().getRoleId())
+                .claim("roleName", userEntity.getRole().getRoleName())
                 .setExpiration(expiryDate)
                 .setIssuedAt(new Date())
                 .signWith(SignatureAlgorithm.HS512, JWT_SECRET)
