@@ -4,7 +4,6 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import org.example.final_project.entity.CartItemEntity;
-import org.example.final_project.entity.CategoryEntity;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;

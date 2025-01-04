@@ -20,5 +20,5 @@ public class OtpEntity {
     private String otpCode;
     private String email;
     private LocalDateTime createdAt;
-    private int status = 1;
+    private int status;
 }

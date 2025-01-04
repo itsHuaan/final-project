@@ -9,9 +9,6 @@ import org.example.final_project.repository.IOrderRepository;
 @RequiredArgsConstructor
 
 public class NotificationMapper {
-    private final IOrderRepository orderRepository;
-
-
     public static NotificationEntity toEntity(NotificationModel notifiModel) {
         return NotificationEntity.builder()
                 .title(notifiModel.getTitle())

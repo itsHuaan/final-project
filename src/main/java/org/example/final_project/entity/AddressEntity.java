@@ -3,8 +3,6 @@ package org.example.final_project.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.List;
-
 @Entity
 @Table(name = "tbl_address")
 @AllArgsConstructor

@@ -3,8 +3,6 @@ package org.example.final_project.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Table(name="tbl_feedback_image")
 @AllArgsConstructor

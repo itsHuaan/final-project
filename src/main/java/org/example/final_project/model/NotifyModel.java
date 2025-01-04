@@ -2,8 +2,6 @@ package org.example.final_project.model;
 
 import lombok.*;
 
-import java.util.List;
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter

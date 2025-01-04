@@ -4,7 +4,6 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import org.example.final_project.entity.OtpEntity;
-import org.example.final_project.entity.UserEntity;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDateTime;
