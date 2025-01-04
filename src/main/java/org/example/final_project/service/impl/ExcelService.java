@@ -118,33 +118,34 @@ public class ExcelService {
 
     public void importExcel(MultipartFile file) throws IOException {
         InputStream inputStream = file.getInputStream();
-        Workbook workbook = new XSSFWorkbook(inputStream);
-        Sheet sheet = workbook.getSheetAt(0);
-        for (Row row : sheet) {
-            if (row.getRowNum() == 0) continue;
-            String code = row.getCell(3).getStringCellValue();
-            if (!orderRepository.existsByOrderCode(code)) {
-                Map<String, Integer> statusMapping = Map.of(
-                        "chothanhtoan", 1,
-                        "thanhtoanthanhcong", 2,
-                        "thanhtoanthatbai", 3
-                );
-                String cellValue = row.getCell(7).getStringCellValue();
-                String normalizedValue = normalizeString(cellValue);
-                Integer status = statusMapping.getOrDefault(normalizedValue, null);
+        try (Workbook workbook = new XSSFWorkbook(inputStream)) {
+            Sheet sheet = workbook.getSheetAt(0);
+            for (Row row : sheet) {
+                if (row.getRowNum() == 0) continue;
+                String code = row.getCell(3).getStringCellValue();
+                if (!orderRepository.existsByOrderCode(code)) {
+                    Map<String, Integer> statusMapping = Map.of(
+                            "chothanhtoan", 1,
+                            "thanhtoanthanhcong", 2,
+                            "thanhtoanthatbai", 3
+                    );
+                    String cellValue = row.getCell(7).getStringCellValue();
+                    String normalizedValue = normalizeString(cellValue);
+                    Integer status = statusMapping.getOrDefault(normalizedValue, null);
 
-                UserEntity user = userRepository.findByEmail(row.getCell(2).getStringCellValue()).orElse(null);
-                OrderEntity orderEntity = OrderEntity.builder()
-                        .createdAt(LocalDateTime.now())
-                        .methodCheckout(row.getCell(4).getStringCellValue())
-                        .orderCode(row.getCell(3).getStringCellValue())
-                        .shippingAddress(row.getCell(6).getStringCellValue())
-                        .phoneReception(row.getCell(5).getStringCellValue())
-                        .statusCheckout(status)
-                        .totalPrice(row.getCell(8).getNumericCellValue())
-                        .user(user)
-                        .build();
-                orderRepository.save(orderEntity);
+                    UserEntity user = userRepository.findByEmail(row.getCell(2).getStringCellValue()).orElse(null);
+                    OrderEntity orderEntity = OrderEntity.builder()
+                            .createdAt(LocalDateTime.now())
+                            .methodCheckout(row.getCell(4).getStringCellValue())
+                            .orderCode(row.getCell(3).getStringCellValue())
+                            .shippingAddress(row.getCell(6).getStringCellValue())
+                            .phoneReception(row.getCell(5).getStringCellValue())
+                            .statusCheckout(status)
+                            .totalPrice(row.getCell(8).getNumericCellValue())
+                            .user(user)
+                            .build();
+                    orderRepository.save(orderEntity);
+                }
             }
         }
     }

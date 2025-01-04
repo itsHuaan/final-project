@@ -19,12 +19,6 @@ import java.util.Map;
 public class MediaUploadService {
     Cloudinary cloudinary;
 
-    public String uploadOneImage(MultipartFile file) throws IOException {
-        byte[] fileBytes = file.getBytes();
-        Map uploadResult = cloudinary.uploader().upload(fileBytes, ObjectUtils.emptyMap());
-        return (String) uploadResult.get("url");
-    }
-
     public List<String> uploadMultipleMediaFiles(MultipartFile[] files) throws IOException {
         List<String> mediaUrls = new ArrayList<>();
         for (MultipartFile file : files) {

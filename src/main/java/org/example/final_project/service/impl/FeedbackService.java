@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.example.final_project.configuration.cloudinary.MediaUploadService;
 import org.example.final_project.dto.FeedbackDto;
 import org.example.final_project.entity.FeedbackEntity;
 import org.example.final_project.mapper.FeedbackMapper;
@@ -27,8 +26,6 @@ import static org.example.final_project.specification.FeedbackSpecification.*;
 public class FeedbackService implements IFeedbackService {
     IFeedbackRepository feedbackRepository;
     FeedbackMapper feedbackMapper;
-    MediaUploadService mediaUploadService;
-
     @Override
     public List<FeedbackDto> getAll() {
         return null;

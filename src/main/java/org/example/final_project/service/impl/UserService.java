@@ -17,7 +17,6 @@ import org.example.final_project.mapper.UserMapper;
 import org.example.final_project.model.*;
 import org.example.final_project.repository.IAddressRepository;
 import org.example.final_project.repository.IRoleRepository;
-import org.example.final_project.repository.IShippingAddressRepository;
 import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.IAddressService;
 import org.example.final_project.service.IUserService;
@@ -55,10 +54,8 @@ public class UserService implements IUserService, UserDetailsService {
     PasswordEncoder passwordEncoder;
     MediaUploadService mediaUploadService;
     IAddressRepository addressRepository;
-    IShippingAddressRepository shippingAddressRepository;
     IAddressService addressService;
     EmailService emailService;
-
 
     @Override
     public List<UserDto> getAll() {
@@ -73,13 +70,18 @@ public class UserService implements IUserService, UserDetailsService {
 
     @Override
     public int save(UserModel userModel) {
-        if ((userRepository.findOne(Specification.where(hasUsername(userModel.getUsername())).and(isActive().and(isNotDeleted()))).isPresent()) || (userRepository.findOne(Specification.where(hasEmail(userModel.getEmail())).and(isActive().and(isNotDeleted()))).isPresent())) {
+        if ((userRepository
+                .findOne(Specification.where(hasUsername(userModel.getUsername())).and(isActive().and(isNotDeleted())))
+                .isPresent())
+                || (userRepository
+                        .findOne(
+                                Specification.where(hasEmail(userModel.getEmail())).and(isActive().and(isNotDeleted())))
+                        .isPresent())) {
             return 0;
         }
         Optional<UserEntity> inactiveOrDeletedUser = userRepository.findOne(Specification.where(
                 hasEmail(userModel.getEmail())
-                        .and(isInactive().or(isDeleted()))
-        ));
+                        .and(isInactive().or(isDeleted()))));
 
         if (inactiveOrDeletedUser.isPresent()) {
             UserEntity userEntity = inactiveOrDeletedUser.get();
@@ -114,7 +116,8 @@ public class UserService implements IUserService, UserDetailsService {
     public int delete(Long id) {
         boolean isPresent = userRepository.findOne(hasId(id).and(isNotDeleted())).isPresent();
         if (isPresent) {
-            UserEntity user = userRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Invalid user ID"));
+            UserEntity user = userRepository.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid user ID"));
             user.setDeletedAt(LocalDateTime.now());
             userRepository.save(user);
             return 1;
@@ -130,31 +133,34 @@ public class UserService implements IUserService, UserDetailsService {
 
     @Override
     public UserDto findByUsername(String username) {
-        return userMapper.toDto(Objects.requireNonNull(userRepository.findOne(Specification.where(hasUsername(username))).orElse(null)));
+        return userMapper.toDto(Objects
+                .requireNonNull(userRepository.findOne(Specification.where(hasUsername(username))).orElse(null)));
     }
 
     @Override
     public UserDto findByEmail(String email) {
-        return userMapper.toDto(Objects.requireNonNull(userRepository.findOne(Specification.where(hasEmail(email))).orElse(null)));
+        return userMapper.toDto(
+                Objects.requireNonNull(userRepository.findOne(Specification.where(hasEmail(email))).orElse(null)));
     }
 
     @Override
     public boolean isExistingByUsernameOrEmail(String username, String email) {
         return userRepository.findOne(Specification.where(
-                        hasUsername(username)
-                                .or(hasEmail(email))
-                ).and(isActive().and(isNotDeleted()))
-        ).isPresent();
+                hasUsername(username)
+                        .or(hasEmail(email)))
+                .and(isActive().and(isNotDeleted()))).isPresent();
     }
 
     @Override
     public boolean isActivated(String email) {
-        return userRepository.findOne(Specification.where(hasEmail(email)).and(isActive()).and(isNotDeleted())).isPresent();
+        return userRepository.findOne(Specification.where(hasEmail(email)).and(isActive()).and(isNotDeleted()))
+                .isPresent();
     }
 
     @Override
     public int activateUserAccount(String email) {
-        Specification<UserEntity> isExistingAndDeactivated = Specification.where(hasEmail(email).and(isInactive().or(isDeleted())));
+        Specification<UserEntity> isExistingAndDeactivated = Specification
+                .where(hasEmail(email).and(isInactive().or(isDeleted())));
         if (userRepository.findOne(isExistingAndDeactivated).isPresent()) {
             UserEntity deactivatedAccount = userRepository.findOne(isExistingAndDeactivated).get();
             deactivatedAccount.setIsActive(1);
@@ -178,9 +184,10 @@ public class UserService implements IUserService, UserDetailsService {
 
     @Override
     public int changePassword(String username, String oldPassword, String newPassword) {
-        UserEntity userEntity = userRepository.findOne(Specification.where(hasUsername(username)).and(isActive())).isPresent()
-                ? userRepository.findOne(Specification.where(hasUsername(username)).and(isActive())).get()
-                : null;
+        UserEntity userEntity = userRepository.findOne(Specification.where(hasUsername(username)).and(isActive()))
+                .isPresent()
+                        ? userRepository.findOne(Specification.where(hasUsername(username)).and(isActive())).get()
+                        : null;
         if (userEntity != null) {
             boolean isMatchWithOldPassword = passwordEncoder.matches(oldPassword, userEntity.getPassword());
             if (isMatchWithOldPassword) {
@@ -236,9 +243,9 @@ public class UserService implements IUserService, UserDetailsService {
                     return createResponse(HttpStatus.CONFLICT, "Shop Name Existed", null);
                 }
                 if (userEntity.getShop_status() == 0) {
-                    String id_back = mediaUploadService.uploadOneImage(request.getId_back());
+                    String id_back = mediaUploadService.uploadSingleMediaFile(request.getId_back());
                     userEntity.setId_back(id_back);
-                    String id_front = mediaUploadService.uploadOneImage(request.getId_front());
+                    String id_front = mediaUploadService.uploadSingleMediaFile(request.getId_front());
                     userEntity.setId_front(id_front);
                     userEntity.setCitizenIdentification(request.getCitizenIdentification());
                     userEntity.setShop_name(request.getShop_name());
@@ -288,8 +295,7 @@ public class UserService implements IUserService, UserDetailsService {
                     EmailModel lockShop = new EmailModel(
                             userEntity.getEmail(),
                             "Your shop has been locked",
-                            EmailTemplate.shopLockedEmailContent(request.getReason())
-                    );
+                            EmailTemplate.shopLockedEmailContent(request.getReason()));
                     boolean result = emailService.sendEmail(lockShop);
                     return result
                             ? createResponse(HttpStatus.OK, "Shop Locked", null)
@@ -303,56 +309,53 @@ public class UserService implements IUserService, UserDetailsService {
 
     @Override
     public ResponseEntity<?> updateProfile(String username, ProfileUpdateRequest request) {
-        UserEntity userEntity = userRepository.findOne(Specification.where(hasUsername(username)).and(isActive())).isPresent()
-                ? userRepository.findOne(Specification.where(hasUsername(username)).and(isActive())).get()
-                : null;
+        UserEntity userEntity = userRepository.findOne(Specification.where(hasUsername(username)).and(isActive()))
+                .isPresent()
+                        ? userRepository.findOne(Specification.where(hasUsername(username)).and(isActive())).get()
+                        : null;
+
+        if (userEntity == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponse(
+                    HttpStatus.BAD_REQUEST,
+                    "User not found",
+                    null));
+        }
 
         if (userRepository.findOne(Specification.where(hasEmail(request.getEmail())).and(isActive())).isPresent()
                 && !userEntity.getEmail().equals(request.getEmail())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(createResponse(
                     HttpStatus.CONFLICT,
                     "Email " + request.getEmail() + " is already in use",
-                    null
-            ));
+                    null));
         }
 
-        if (userEntity != null) {
-            userEntity.setName(request.getName() != null ? request.getName() : userEntity.getName());
-            userEntity.setPhone(request.getPhone() != null ? request.getPhone() : userEntity.getPhone());
-            userEntity.setEmail(request.getEmail() != null ? request.getEmail() : userEntity.getEmail());
-            userEntity.setGender(request.getGender() != null ? request.getGender() : userEntity.getGender());
+        userEntity.setName(request.getName() != null ? request.getName() : userEntity.getName());
+        userEntity.setPhone(request.getPhone() != null ? request.getPhone() : userEntity.getPhone());
+        userEntity.setEmail(request.getEmail() != null ? request.getEmail() : userEntity.getEmail());
+        userEntity.setGender(request.getGender() != null ? request.getGender() : userEntity.getGender());
 
-            if (request.getProfilePicture() != null) {
-                try {
-                    userEntity.setProfilePicture(mediaUploadService.uploadSingleMediaFile(request.getProfilePicture()));
-                } catch (IOException e) {
-                    userEntity.setProfilePicture(userEntity.getProfilePicture() != null
-                            ? userEntity.getProfilePicture()
-                            : null);
-                }
+        if (request.getProfilePicture() != null) {
+            try {
+                userEntity.setProfilePicture(mediaUploadService.uploadSingleMediaFile(request.getProfilePicture()));
+            } catch (IOException e) {
+                userEntity.setProfilePicture(userEntity.getProfilePicture() != null
+                        ? userEntity.getProfilePicture()
+                        : null);
             }
-
-            userRepository.save(userEntity);
-            return ResponseEntity.status(HttpStatus.OK).body(createResponse(
-                    HttpStatus.OK,
-                    "User updated",
-                    null
-            ));
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createResponse(
-                    HttpStatus.NOT_FOUND,
-                    "User not found",
-                    null
-            ));
         }
+
+        userRepository.save(userEntity);
+        return ResponseEntity.status(HttpStatus.OK).body(createResponse(
+                HttpStatus.OK,
+                "User updated",
+                null));
     }
 
     @Override
     public ResponseEntity<?> changeAccountStatus(long userId, ChangeAccountStatusRequest request) {
         boolean isActivate = request.getStatus() == 1;
         Specification<UserEntity> specification = Specification.where(
-                hasId(userId).and(isNotDeleted())
-        );
+                hasId(userId).and(isNotDeleted()));
         UserEntity userEntity = userRepository.findOne(specification).isPresent()
                 ? userRepository.findOne(specification).get()
                 : null;
@@ -363,19 +366,17 @@ public class UserService implements IUserService, UserDetailsService {
             return ResponseEntity.status(HttpStatus.OK).body(createResponse(
                     HttpStatus.OK,
                     isActivate ? "User activated" : "User deactivated",
-                    null
-            ));
+                    null));
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createResponse(
                     HttpStatus.NOT_FOUND,
                     "User not found",
-                    null
-            ));
+                    null));
         }
     }
 
     @Override
-    public Page<UserDto> getAllShop(Integer status, Pageable pageable){
+    public Page<UserDto> getAllShop(Integer status, Pageable pageable) {
         Specification<UserEntity> specification = UserSpecification.hasShopStatus(ShopStatus.ACTIVE.getValue());
         return userRepository.findAll(specification, pageable).map(userEntity -> {
             UserDto userDto = userMapper.toDto(userEntity);
@@ -424,11 +425,9 @@ public class UserService implements IUserService, UserDetailsService {
         return null;
     }
 
-
     @Override
     public List<UserDto> findActiveUsers() {
-        return userRepository.findAll(Specification.where(isActive().and(isNotSuperAdmin()))).stream().map(userMapper::toDto).toList();
+        return userRepository.findAll(Specification.where(isActive().and(isNotSuperAdmin()))).stream()
+                .map(userMapper::toDto).toList();
     }
 }
-
-

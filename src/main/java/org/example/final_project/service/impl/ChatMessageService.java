@@ -15,17 +15,12 @@ import org.example.final_project.service.IChatMessageService;
 import org.example.final_project.service.IChatRoomService;
 import org.example.final_project.specification.ChatRoomSpecification;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
-
 import static org.example.final_project.specification.ChatMessageSpecification.*;
 
 @Slf4j

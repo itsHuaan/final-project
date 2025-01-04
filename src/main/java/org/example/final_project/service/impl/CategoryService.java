@@ -11,7 +11,6 @@ import org.example.final_project.enumeration.ProductStatus;
 import org.example.final_project.mapper.CategoryMapper;
 import org.example.final_project.model.CategoryModel;
 import org.example.final_project.repository.ICategoryRepository;
-import org.example.final_project.repository.IUserRepository;
 import org.example.final_project.service.ICategoryService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,7 +29,6 @@ import static org.example.final_project.specification.CategorySpecification.*;
 public class CategoryService implements ICategoryService {
     ICategoryRepository iCategoryRepository;
     CategoryMapper categoryMapper;
-    IUserRepository iUserRepository;
     MediaUploadService mediaUploadService;
 
     @Override

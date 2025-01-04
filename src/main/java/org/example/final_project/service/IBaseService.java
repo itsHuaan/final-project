@@ -1,6 +1,5 @@
 package org.example.final_project.service;
 
-import java.io.IOException;
 import java.util.List;
 
 public interface IBaseService<T, U, K> {

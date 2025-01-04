@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.example.final_project.dto.NotificationDto;
 import org.example.final_project.entity.NotificationEntity;
 import org.example.final_project.model.NotificationModel;
-import org.example.final_project.repository.IOrderRepository;
 
 @RequiredArgsConstructor
 

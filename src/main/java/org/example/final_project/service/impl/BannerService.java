@@ -38,7 +38,7 @@ public class BannerService implements IBannerService {
         }
 
         try {
-            String image = mediaUploadService.uploadOneImage(bannerModel.getImage());
+            String image = mediaUploadService.uploadSingleMediaFile(bannerModel.getImage());
 
             if (bannerModel.getCreateStart() == null || bannerModel.getCreateEnd() == null) {
                 return ApiResponse.createResponse(HttpStatus.BAD_REQUEST, "Create start or end time is null", null);
